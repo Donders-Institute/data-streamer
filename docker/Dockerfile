@@ -5,8 +5,9 @@ RUN ( yum -y install wget gcc gcc-c++ \
                      make autoconf git zlib zlib-devel \
                      openssl openssl-devel openssl-libs \
                      sssd-client which \
-                     curl curl-devel libxml2-devel \
-                     epel-release supervisor )
+                     curl curl-devel libxml2-devel epel-release )
+
+RUN ( yum -y install supervisor )
 
 # create temporary directory
 RUN ( mkdir -p /tmp )
