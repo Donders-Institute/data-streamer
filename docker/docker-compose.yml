@@ -1,0 +1,16 @@
+version: "2"
+services:
+  meg-dataflow:
+    build:
+      context: ./
+    image: meg-dataflow
+    user: root
+    network_mode: "host"
+    volumes:
+      - ./config:/opt/meg-dataflow/config
+      - ./log:/opt/meg-dataflow/log
+      - ./cron:/cron
+      - /home:/home:ro
+      - /project:/project
+      - /var/lib/sss/pipes:/var/lib/sss/pipes
+      - /var/lib/sss/mc:/var/lib/sss/mc:ro

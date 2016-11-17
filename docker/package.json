@@ -1,0 +1,21 @@
+{
+  "name": "meg-dataflow",
+  "description": "MEG dataflow",
+  "version": "0.0.1",
+  "author": "Hurng-Chun Lee <h.lee@donders.ru.nl>",
+  "main": "app.js",
+  "dependencies" : {
+    "express": "~4.14.0",
+    "config": "~1.24.0",
+    "ncp": "~2.0.0",
+    "basic-auth": "~1.0.4",
+    "underscore": "~1.8.3",
+    "async": "~2.1.2",
+    "ldapjs": "~1.0.1",
+    "bunyan": "~1.8.4",
+    "activedirectory": "~0.7.2",
+    "ssh2": "~0.5.2",
+    "node-rest-client": "~2.0.1",
+    "posix": "~4.1.1"
+  }
+}
