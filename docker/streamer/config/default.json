@@ -1,0 +1,18 @@
+{
+    "Administrator": {
+        "admin": "admin"
+    },
+    "ActiveDirectory": {
+        "url": "ldap://dccn-w001.dccn.nl",
+        "baseDN": "OU=dccn,DC=dccn,DC=nl"
+    },
+    "archiveStager": {
+        "url": "http://stager.dccn.nl:3000",
+        "username": "admin",
+        "password": "xxxxxx"
+    },
+    "MEG": {
+        "sourceDirForRaw": "/project/3010102.04/raw",
+        "timeWindowInMinute": 1440
+    }
+}

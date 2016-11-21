@@ -48,11 +48,11 @@ var child = child_process.execFile(cmd, cmd_args, cmd_opts, function(err, stdout
     Object.keys(prj_ds).forEach( function(p) {
 
         // get the catch-all RDM collection 
-        var c_stager = new RestClient({ user: config.get('stager.username'),
-                                        password: config.get('stager.password') });
+        var c_stager = new RestClient({ user: config.get('archiveStager.username'),
+                                        password: config.get('archiveStager.password') });
 
         // stage ds to catchall RDM collection
-        c_stager.get(config.get('stager.url') + '/rdm/DAC/project/_CATCHALL.MEG', rget_args, function(data, resp) {
+        c_stager.get(config.get('archiveStager.url') + '/rdm/DAC/project/_CATCHALL.MEG', rget_args, function(data, resp) {
 
             var rpost_args = {
                 headers: { 'Accept': 'application/json',
@@ -86,7 +86,7 @@ var child = child_process.execFile(cmd, cmd_args, cmd_opts, function(err, stdout
             console.log(JSON.stringify(rpost_args));
 
             if ( rpost_args.data.length > 0 ) {
-                c_stager.post(config.get('stager.url') + '/job', rpost_args, function(data, resp) {
+                c_stager.post(config.get('archiveStager.url') + '/job', rpost_args, function(data, resp) {
                     data.forEach( function(d) {
                         console.log(JSON.stringify(d));
                     });

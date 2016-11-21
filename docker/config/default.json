@@ -1,9 +1,0 @@
-{
-    "sourceDirForRaw": "/project/3010102.04/raw",
-    "timeWindowInMinute": 1440,
-    "stager": {
-        "url": "http://stager.dccn.nl:3000",
-        "username": "admin",
-        "password": "xxxxxx"
-    }
-}

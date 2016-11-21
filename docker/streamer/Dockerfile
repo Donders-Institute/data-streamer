@@ -41,21 +41,23 @@ RUN ( wget https://pypi.python.org/packages/cd/b0/c2d700252fc251e91c08639ff41a8a
 ADD https://nodejs.org/dist/v4.4.7/node-v4.4.7-linux-x64.tar.xz /tmp
 RUN ( tar xf node-v4.4.7-linux-x64.tar.xz && mv node-v4.4.7-linux-x64 /opt/nodejs )
 
-# install meg-dataflow package 
-RUN ( mkdir -p /opt/meg-dataflow )
+# install streamer package 
+RUN ( mkdir -p /opt/streamer )
 
-WORKDIR /opt/meg-dataflow
+WORKDIR /opt/streamer
 COPY package.json package.json
 RUN ( /opt/nodejs/bin/npm install )
 COPY *.js ./
 COPY bin ./bin
 COPY lib ./lib
+COPY start_streamer.sh start_streamer.sh
+RUN ( chmod +x start_streamer.sh )
 
 # supervisor configuration
-COPY supervisord.conf /opt/meg-dataflow/supervisord.conf
+COPY supervisord.conf /opt/streamer/supervisord.conf
 
 # run devcron from supervisor
-VOLUME [ "/project", "/cron", "/opt/meg-dataflow/config", "/opt/meg-dataflow/log" ]
+VOLUME [ "/project", "/cron", "/opt/streamer/config", "/opt/streamer/log" ]
 
 # main executable
-CMD [ "/usr/bin/supervisord", "-c", "/opt/meg-dataflow/supervisord.conf" ]
+CMD [ "/usr/bin/supervisord", "-c", "/opt/streamer/supervisord.conf" ]
