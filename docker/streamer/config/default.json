@@ -12,7 +12,11 @@
         "password": "xxxxxx"
     },
     "MEG": {
-        "sourceDirForRaw": "/project/3010102.04/raw",
+        "consoleUsername": "meg",
+        "consolePassword": "xxxxxx",
+        "consoleHostname": "odin",
+        "consoleDataDirRoot": "/ctfmeg/odin/data/meg/ACQ_Data",
+        "streamerDataDirRoot": "/project/3010102.04/raw",
         "timeWindowInMinute": 1440
     }
 }

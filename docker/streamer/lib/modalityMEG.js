@@ -1,5 +1,8 @@
 var config = require('config');
 var auth = require('basic-auth');
+var child_process = require('child_process');
+var path = require('path');
+var kill = require('tree-kill');
 var utility = require('./utility');
 
 // create new streamer job on a POST action to the streamer
@@ -44,21 +47,72 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
     var async = require('async');
 
+    var cp_end = false;
     var i = 0;
     async.series([
         function(cb) {
             console.log('job ' + job.id + ': rsync start');
+
+            // TODO: need a better way to refer to the executable directory
+            var cmd = __dirname + '/../bin/meg_copy.sh';
+
+            var cmd_args = [
+                config.MEG.consoleHostname + ':' + config.MEG.consoleDataDirRoot + '/' + job.data.srcDir,
+                config.MEG.consoleUsername,
+                config.MEG.consolePassword,
+                config.MEG.streamerDataDirRoot + '/' + job.data.srcDir];
+
+            var cmd_opts = {
+                maxBuffer: 10*1024*1024
+            };
+
+            var child = child_process.execFile(cmd, cmd_args, cmd_opts, function(err, stdout, stderr) {
+
+                // child process has been determined
+                cp_end = true;
+
+                // push the last 5-lines of stdout, and  stderr to job log
+                job.log({
+                    "stdout": stdout.split("\n").slice(-5),
+                    "stderr": stderr.split("\n").slice(-5)
+                });
+
+                // error handling
+                if (err) {
+                    console.error('rsync process error: ' + err);
+                }
+            });
+
+            // define callback when child process is closed
+            child.on( "close", function(code, signal) {
+
+                cp_end = true;
+
+                // interruption handling (null if process is not interrupted)
+                if ( code != 0 ) {
+                    cb('rsync process failed: ' + signal, code);
+                } else {
+                    // set job progress to 25%
+                    // TODO: this is too artifical
+                    i = 25;
+                    job.progress(i, 100);
+                    cb(null,0);
+                }
+            });
+
+            // set timer to check whether there is a removal request from end user
             var timer = setInterval( function() {
                 if ( cb_remove() ) {
+                    kill(child.pid, 'SIGKILL', function(err) {
+                        if (err) {
+                            console.error('fail killing rsync job ' + child.pid + ': ' + err);
+                        }
+                    });
+                }
+
+                // clear the timer when the process has been closed
+                if ( cp_end ) {
                     clearInterval(timer);
-                    cb('rsync process interrupted due to job removal')
-                } else {
-                    if ( i < 25 ) {
-                        job.progress(i++,100);
-                    } else {
-                        clearInterval(timer);
-                        cb(null, 0);
-                    }
                 }
             },1000);
         },

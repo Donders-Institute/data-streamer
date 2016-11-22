@@ -4,23 +4,23 @@ FROM centos:7
 RUN ( yum -y install wget gcc gcc-c++ \
                      make autoconf git zlib zlib-devel \
                      openssl openssl-devel openssl-libs \
-                     sssd-client which \
+                     sssd-client which rsync \
                      curl curl-devel libxml2-devel epel-release )
 
-RUN ( yum -y install supervisor )
+RUN ( yum -y install supervisor sshpass )
 
 # create temporary directory
 RUN ( mkdir -p /tmp )
 WORKDIR /tmp
 
 # install python 2.7.12
-ADD https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tgz /tmp 
+ADD https://www.python.org/ftp/python/2.7.12/Python-2.7.12.tgz /tmp
 RUN ( tar xvf Python-2.7.12.tgz \
       && cd Python-2.7.12 \
       && ./configure --prefix=/opt/python \
       && make && make install && rm -rf /tmp/Python-* )
 
-ADD https://dl.bintray.com/pycurl/pycurl/pycurl-7.43.0.tar.gz /tmp 
+ADD https://dl.bintray.com/pycurl/pycurl/pycurl-7.43.0.tar.gz /tmp
 RUN ( tar xvf pycurl-7.43.0.tar.gz \
       && cd pycurl-7.43.0 \
       && /opt/python/bin/python setup.py --with-nss install && rm -rf pycurl-* )
@@ -41,7 +41,7 @@ RUN ( wget https://pypi.python.org/packages/cd/b0/c2d700252fc251e91c08639ff41a8a
 ADD https://nodejs.org/dist/v4.4.7/node-v4.4.7-linux-x64.tar.xz /tmp
 RUN ( tar xf node-v4.4.7-linux-x64.tar.xz && mv node-v4.4.7-linux-x64 /opt/nodejs )
 
-# install streamer package 
+# install streamer package
 RUN ( mkdir -p /opt/streamer )
 
 WORKDIR /opt/streamer
