@@ -138,6 +138,8 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
     // The stager job is responsible for uploading data to RDM archive.
     var submitStagerJob = function(src, isCatchall, minProgress, maxProgress, cb_async ) {
 
+        var cp_end = false;
+
         var os = require('os');
         var RestClient = require('node-rest-client').Client;
 
@@ -196,7 +198,6 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
             console.log(p + ': ' + myurl);
 
-            try {
             c_stager.get(myurl, rget_args, function(rdata, resp) {
                 // here we get the collection namespace for the project
                 var pp = (p == 'unknown') ? '':p + '/';
@@ -244,6 +245,8 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                             job.log(errmsg);
                             return cb_async_stager(errmsg, false);
                         });
+                    } else {
+                        return cb_async_stager(null, true);
                     }
                 });
             }).on('error', function(err) {
@@ -254,9 +257,6 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 // this will cause process to stop
                 return cb_async_stager(errmsg, false);
             });
-          } catch(err) {
-            console.error('here is an error: ' + err);
-          }
         }, function (err, outputs) {
             // the mapValues are done
             console.log('[MEG] stager job submission: ' + JSON.stringify(outputs));
