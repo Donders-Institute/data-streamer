@@ -52,7 +52,7 @@ total_items=$( rsync -arvn --update --rsh="/usr/bin/sshpass -p ${console_pass} s
                ${console_dir}/ ${local_dir}/ | wc -l )
 
 # perform the rsync and monitor the progress (the progress is reported to STDERR)
-${mydir}/s-unbuffer rsync -arvn --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -o StrictHostKeyChecking=no -l ${console_user}" \
+${mydir}/s-unbuffer rsync -arv --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -o StrictHostKeyChecking=no -l ${console_user}" \
 ${console_dir}/ ${local_dir}/ 2>${f_stderr} | pv -ln -s ${total_items} > /dev/null
 
 retval=${PIPESTATUS[0]}
@@ -61,8 +61,7 @@ if [ $retval -ne 0 ]; then
     # rsync error
     echo "stderr file: ${f_stderr}"
 else
-    chmod -R g-w ${local_dir}
-    chmod -R g-o ${local_dir}
+    chmod -R og-w ${local_dir}
     rm -f ${f_stderr}
 fi
 
