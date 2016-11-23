@@ -17,8 +17,6 @@ var _createStreamerJob = function(queue) {
           srcPathConsole += '/' + req.params['ds'];
       }
 
-      console.log('srcPathConsole: ' + srcPathConsole);
-
       // submit a streamer job
       // - the job shouldn't take more than 1hr to complete
       // - the job has max. 5 attempts in case of failure, each attempt is delayed by 1 min.
@@ -29,14 +27,14 @@ var _createStreamerJob = function(queue) {
               srcDir: srcPathConsole
           }).attempts(5).ttl(3600*1000).backoff( {delay: 60*1000, type:'fixed'} ).save(function(err) {
               if ( err ) {
-                  console.log('fail creating new job: ' + err);
+                  console.error('[MEG] fail creating new job: ' + err);
                   utility.responseOnError('json',{'error': 'fail creating job: ' + err}, res);
               } else {
                   res.json({'message': 'job ' + job.id + ' created'});
               }
           });
       } else {
-          console.log('invalid queue');
+          console.error('[MEG] invalid queue');
           utility.responseOnError('json',{'error': 'invalid queue'}, res);
       }
   }
@@ -44,14 +42,15 @@ var _createStreamerJob = function(queue) {
 
 // run a streamer job given a job data
 var _execStreamerJob = function( job, cb_remove, cb_done) {
-    console.log('job data: ' + JSON.stringify(job.data));
 
     var async = require('async');
 
+    /*
     // General function to run meg_copy.sh in a child process
     // The meg_copy.sh script is a shell script running the rsync command
     // to copy files from the MEG console to the central storage that is
     // accessible as a local file system of the streamer.
+    */
     var runRsync = function(src, dst, createDir, minProgress, maxProgress, cb_async ) {
 
         var cp_end = false;
@@ -91,7 +90,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
             // error handling
             if (err) {
-                console.error('rsync process error: ' + err);
+                console.error('[MEG:runRsync] process error: ' + err);
             }
         });
 
@@ -101,7 +100,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             cp_end = true;
             // interruption handling (null if process is not interrupted)
             if ( code != 0 ) {
-                return cb_async('rsync process failed: ' + signal, code);
+                return cb_async('rsync process error: ' + signal, code);
             } else {
                 // set job progress to 40%
                 job.progress(maxProgress, 100);
@@ -122,7 +121,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             if ( cb_remove() ) {
                 kill(child.pid, 'SIGKILL', function(err) {
                     if (err) {
-                        console.error('fail killing rsync job ' + child.pid + ': ' + err);
+                        console.error('[MEG:runRsync] fail killing rsync job ' + child.pid + ': ' + err);
                     }
                 });
             }
@@ -134,18 +133,14 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         },1000);
     };
 
-    // General function to submit stager job.
-    // The stager job is responsible for uploading data to RDM archive.
-    var submitStagerJob = function(src, isCatchall, minProgress, maxProgress, cb_async ) {
-
-        var cp_end = false;
-
+    /*
+    //    General function to resolve latest updated datasets and their
+    //    association with projects.
+    */
+    var findUpdateProjectDs = function(baseDir) {
         var os = require('os');
-        var RestClient = require('node-rest-client').Client;
-
         var cmd = __dirname + '/../bin/find-update-ds.sh'
-
-        var cmd_args = [src, config.get('MEG.timeWindowInMinute')]
+        var cmd_args = [baseDir, config.get('MEG.timeWindowInMinute')]
         var cmd_opts = {
             maxBuffer: 10*1024*1024
         }
@@ -155,50 +150,72 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         //       3010000.01 or 301000001 on name of the dataset
         var prj_regex = new RegExp("^.*(30[0-9]{5}\.{0,1}[0-9]{2}).*$");
         var prj_ds = {'unknown': []};
-
-        try {
-            var stdout = child_process.execFileSync(cmd, cmd_args, cmd_opts);
-            console.log(stdout.toString());
-            stdout.toString().split(os.EOL).forEach( function(l) {
-                if ( l ) {
-                    var m = prj_regex.exec(l.replace(config.get('MEG.streamerDataDirRoot') + '/', ''));
-                    if (m) {
-                        var prj = (m[1].indexOf('.') == 7) ? m[1]:[m[1].slice(0, 7), '.', m[1].slice(7)].join('')
-                        if ( ! prj_ds[prj] ) { prj_ds[prj] = []; }
-                        prj_ds[prj].push(l);
-                    } else {
-                        prj_ds['unknown'].push(l);
-                    }
+        var stdout = child_process.execFileSync(cmd, cmd_args, cmd_opts);
+        stdout.toString().split(os.EOL).forEach( function(l) {
+            if ( l ) {
+                var m = prj_regex.exec(l.replace(config.get('MEG.streamerDataDirRoot') + '/', ''));
+                if (m) {
+                    var prj = (m[1].indexOf('.') == 7) ? m[1]:[m[1].slice(0, 7), '.', m[1].slice(7)].join('')
+                    if ( ! prj_ds[prj] ) { prj_ds[prj] = []; }
+                    prj_ds[prj].push(l);
+                } else {
+                    prj_ds['unknown'].push(l);
                 }
-            });
+            }
+        });
+
+        return prj_ds;
+    }
+
+    /*
+    //    General function to submit stager job.
+    //    The stager job is responsible for uploading data to RDM archive.
+    */
+    var submitStagerJob = function(src, toCatchall, minProgress, maxProgress, cb_async ) {
+
+        var RestClient = require('node-rest-client').Client;
+
+        var prj_ds = {};
+        try {
+            prj_ds = findUpdateProjectDs(src);
             // assuming we are halfway done in this step
             job.progress( minProgress + (maxProgress - minProgress)/2, 100 );
         } catch(err) {
             // stop the process
-            console.error(err);
+            console.error('[MEG:submitStagerJob] ' + err);
             return cb_async(err, 1);
         }
 
         // mapValue model to submit stager jobs in parallel
         async.mapValues( prj_ds, function( ds_list, p, cb_async_stager) {
 
+            if ( p == 'unknown' && ! toCatchall ) {
+                console.error('[MEG:submitStagerJob] skip: ' + JSON.stringify(ds_list));
+                return cb_async_stager(null, true);
+            }
+
             var c_stager = new RestClient({
-                user: config.get('archiveStager.username'),
-                password: config.get('archiveStager.password')
+                user: config.get('DataStager.username'),
+                password: config.get('DataStager.password')
             });
 
             var rget_args = { headers: { 'Accept': 'application/json' } };
 
-            var myurl = config.get('archiveStager.url') + '/rdm/DAC/project/';
-            if ( isCatchall || p == 'unknown' ) {
+            var myurl = config.get('DataStager.url') + '/rdm/DAC/project/';
+            if ( toCatchall || p == 'unknown' ) {
                 myurl += '_CATCHALL.MEG';
             } else {
                 myurl += p;
             }
 
-            console.log(p + ': ' + myurl);
-
             c_stager.get(myurl, rget_args, function(rdata, resp) {
+
+                if ( resp.statusCode >= 400 ) {  //HTTP error
+                    var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
+                    console.error('[MEG:submitStagerJob] ' + errmsg);
+                    return cb_async_stager(errmsg, false);
+                }
+
                 // here we get the collection namespace for the project
                 var pp = (p == 'unknown') ? '':p + '/';
                 var rpost_args = {
@@ -210,7 +227,6 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 console.log(rdata);
 
                 if ( ds_list.length == 0 ) {
-                    console.log(p + ' check 1');
                     return cb_async_stager(null, true);
                 }
 
@@ -222,7 +238,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                         'data': { 'clientIF': 'irods',
                                   'stagerUser': 'root',
                                   'rdmUser': 'irods',
-                                  'title': '[' + (new Date()).toISOString() + '] ' + path.basename(ds),
+                                  'title': '[' + (new Date()).toISOString() + '] Streamer.MEG: ' + path.basename(ds),
                                   'timeout': 3600,
                                   'timeout_noprogress': 600,
                                   'srcURL': ds,
@@ -233,42 +249,42 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                     });
 
                     // post new jobs to stager
-                    console.log(JSON.stringify(rpost_args));
-
                     if ( rpost_args.data.length > 0 ) {
-                        c_stager.post(config.get('archiveStager.url') + '/job', rpost_args, function(rdata, resp) {
-                            rdata.forEach( function(d) {
-                                console.log(JSON.stringify(d));
-                            });
-                            // everything is fine
-                            console.log( p + ' check2');
-                            return cb_async_stager(null, true);
+                        c_stager.post(config.get('DataStager.url') + '/job', rpost_args, function(rdata, resp) {
+                            if ( resp.statusCode >= 400 ) {  //HTTP error
+                                var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
+                                console.error('[MEG:submitStagerJob] ' + errmsg);
+                                return cb_async_stager(errmsg, false);
+                            } else {
+                                rdata.forEach( function(d) {
+                                    console.log('[MEG:submitStagerJob]' + JSON.stringify(d));
+                                });
+                                // everything is fine
+                                return cb_async_stager(null, true);
+                            }
                         }).on('error', function(err) {
                             ds_list.forEach(function(ds) {
-                                console.error('ERROR: ' + ds);
+                                console.error('[MEG:submitStagerJob] failed for ' + ds);
                             });
                             var errmsg = 'fail submitting stager jobs: ' + JSON.stringify(ds_list);
                             job.log(errmsg);
                             return cb_async_stager(errmsg, false);
                         });
                     } else {
-                        console.log(p + ' check3');
                         return cb_async_stager(null, true);
                     }
                 });
             }).on('error', function(err) {
                 // fail to get collection for project
-                console.log(p + ' check3: err');
-                var errmsg = 'cannot get collection for project ' + p + ': ' + err;
-                console.error(errmsg);
+                var errmsg = 'fail get collection for project ' + p + ': ' + err;
+                console.error('[MEG:submitStagerJob] ' + errmsg);
                 job.log(errmsg);
                 // this will cause process to stop
                 return cb_async_stager(errmsg, false);
             });
         }, function (err, outputs) {
             // the mapValues are done
-            console.log('final');
-            console.log('[MEG] stager job submission: ' + JSON.stringify(outputs));
+            console.log('[MEG:submitJobStager] output: ' + JSON.stringify(outputs));
             if (err) {
                 return cb_async('fail submitting stager jobs', 1);
             } else {
@@ -277,75 +293,45 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 return cb_async(null, 0);
             }
         });
-
-        // set timer to check whether there is a removal request from end user
-        /*
-        var timer = setInterval( function() {
-            if ( cb_remove() ) {
-                kill(child.pid, 'SIGKILL', function(err) {
-                    if (err) {
-                        console.error('fail killing rsync job ' + child.pid + ': ' + err);
-                    }
-                });
-            }
-
-            // clear the timer when the process has been closed
-            if ( cp_end ) {
-                clearInterval(timer);
-            }
-        },1000);
-        */
     }
 
+    // here are logical steps run in sequencial order
     var i = 0;
     async.series([
         function(cb) {
             // step 1: rsync to catch-all project storage
-            console.log('job ' + job.id + ': rsync start');
-            var src = config.MEG.consoleHostname + ':' + config.MEG.consoleDataDirRoot + '/' + job.data.srcDir;
-            var dst = config.MEG.streamerDataDirRoot + '/' + job.data.srcDir;
+            var src = config.get('MEG.consoleHostname') + ':' +
+                      config.get('MEG.consoleDataDirRoot') + '/' + job.data.srcDir;
+            var dst = config.get('MEG.streamerDataDirRoot') + '/' + job.data.srcDir;
             runRsync(src, dst, true, 0, 40, cb);
         },
         function(cb) {
             // step 2: archive to catch-all collection
-            console.log('job ' + job.id + ': stage2collc start');
-            var src = config.MEG.streamerDataDirRoot + '/' + job.data.srcDir;
-            submitStagerJob(src, true, 40, 50, cb);
-
-            console.log('hi');
+            var src = config.get('MEG.streamerDataDirRoot') + '/' + job.data.srcDir;
+            submitStagerJob(src, true, 40, 70, cb);
         },
+        // function(cb) {
+        //     // step 3: rsync to project storage
+        //     i = 50;
+        //     console.log('job ' + job.id + ': stage2collc start');
+        //     var timer = setInterval( function() {
+        //         if ( cb_remove() ) {
+        //             clearInterval(timer);
+        //             return cb('stage2collc process interrupted due to job removal')
+        //         } else {
+        //             if ( i < 75 ) {
+        //                 job.progress(i++,100);
+        //             } else {
+        //                 clearInterval(timer);
+        //                 return cb(null, 0);
+        //             }
+        //         }
+        //     },1000);
+        // },
         function(cb) {
-            i = 50;
-            console.log('job ' + job.id + ': stage2collc start');
-            var timer = setInterval( function() {
-                if ( cb_remove() ) {
-                    clearInterval(timer);
-                    return cb('stage2collc process interrupted due to job removal')
-                } else {
-                    if ( i < 75 ) {
-                        job.progress(i++,100);
-                    } else {
-                        clearInterval(timer);
-                        return cb(null, 0);
-                    }
-                }
-            },1000);
-        },
-        function(cb) {
-            console.log('job ' + job.id + ': stager2collp start');
-            var timer = setInterval( function() {
-                if ( cb_remove() ) {
-                    clearInterval(timer);
-                    return cb('stage2collp process interrupted due to job removal')
-                } else {
-                    if ( i < 100 ) {
-                        job.progress(i++,100);
-                    } else {
-                        clearInterval(timer);
-                        return cb(null, 0);
-                    }
-                }
-            },1000);
+            // step 4: archive to project collection
+            var src = config.get('MEG.streamerDataDirRoot') + '/' + job.data.srcDir;
+            submitStagerJob(src, false, 70, 100, cb);
         }],
         function(err, results) {
             if (err) {
