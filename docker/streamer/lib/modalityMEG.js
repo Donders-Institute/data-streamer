@@ -217,7 +217,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 }
 
                 // here we get the collection namespace for the project
-                var pp = (p == 'unknown') ? '':p + '/';
+
                 var rpost_args = {
                     headers: { 'Accept': 'application/json',
                                'Content-Type': 'application/json' },
@@ -231,7 +231,22 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 }
 
                 ds_list.forEach( function(ds) {
-                    var dst = 'irods:' + rdata.collName + '/raw/' + pp + ds.replace(config.get('MEG.streamerDataDirRoot') + '/', '');
+                    // construct destination URL
+                    var dst = 'irods:' + rdata.collName + '/raw/';
+                    var dst_tail = ds.replace(config.get('MEG.streamerDataDirRoot') + '/', '');
+                    if( toCatchall ) {
+                        if ( p == 'unknown' ) {
+                            // the date folder is preserved
+                            dst += dst_tail;
+                        } else {
+                            // the date folder is removed
+                            dst += p + '/' + dst_tail.replace(new RegExp('^20[0-9]{6}/'), '');
+                        }
+                    } else {
+                        // the date folder is removed
+                        dst += dst_tail.replace(new RegExp('^20[0-9]{6}/'), '');
+                    }
+
                     // add job data to post_args
                     rpost_args.data.push({
                         'type': 'rdm',
