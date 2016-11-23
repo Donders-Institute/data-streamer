@@ -7,7 +7,7 @@ RUN ( yum -y install wget gcc gcc-c++ \
                      sssd-client which rsync \
                      curl curl-devel libxml2-devel epel-release )
 
-RUN ( yum -y install supervisor sshpass )
+RUN ( yum -y install supervisor sshpass pv expect )
 
 # create temporary directory
 RUN ( mkdir -p /tmp )
@@ -51,6 +51,7 @@ COPY *.js ./
 COPY bin ./bin
 COPY lib ./lib
 COPY start_streamer.sh start_streamer.sh
+RUN ( chmod +x bin/* )
 RUN ( chmod +x start_streamer.sh )
 
 # supervisor configuration
