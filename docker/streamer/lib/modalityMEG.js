@@ -209,6 +209,11 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
                 console.log(rdata);
 
+                if ( ds_list.length == 0 ) {
+                    console.log(p + ' check 1');
+                    return cb_async_stager(null, true);
+                }
+
                 ds_list.forEach( function(ds) {
                     var dst = 'irods:' + rdata.collName + '/raw/' + pp + ds.replace(config.get('MEG.streamerDataDirRoot') + '/', '');
                     // add job data to post_args
@@ -236,7 +241,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                                 console.log(JSON.stringify(d));
                             });
                             // everything is fine
-                            console.log( p + ' check1');
+                            console.log( p + ' check2');
                             return cb_async_stager(null, true);
                         }).on('error', function(err) {
                             ds_list.forEach(function(ds) {
@@ -247,13 +252,10 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                             return cb_async_stager(errmsg, false);
                         });
                     } else {
-                        console.log(p + ' check2');
+                        console.log(p + ' check3');
                         return cb_async_stager(null, true);
                     }
                 });
-
-                console.log(p + ' check3');
-                return cb_async_stager(null, true);
             }).on('error', function(err) {
                 // fail to get collection for project
                 console.log(p + ' check3: err');
