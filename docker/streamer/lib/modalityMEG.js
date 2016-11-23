@@ -236,6 +236,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                                 console.log(JSON.stringify(d));
                             });
                             // everything is fine
+                            console.log( p + ' check1');
                             return cb_async_stager(null, true);
                         }).on('error', function(err) {
                             ds_list.forEach(function(ds) {
@@ -246,11 +247,16 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                             return cb_async_stager(errmsg, false);
                         });
                     } else {
+                        console.log(p + ' check2');
                         return cb_async_stager(null, true);
                     }
                 });
+
+                console.log(p + ' check3');
+                return cb_async_stager(null, true);
             }).on('error', function(err) {
                 // fail to get collection for project
+                console.log(p + ' check3: err');
                 var errmsg = 'cannot get collection for project ' + p + ': ' + err;
                 console.error(errmsg);
                 job.log(errmsg);
@@ -259,6 +265,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             });
         }, function (err, outputs) {
             // the mapValues are done
+            console.log('final');
             console.log('[MEG] stager job submission: ' + JSON.stringify(outputs));
             if (err) {
                 return cb_async('fail submitting stager jobs', 1);
@@ -302,6 +309,8 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             console.log('job ' + job.id + ': stage2collc start');
             var src = config.MEG.streamerDataDirRoot + '/' + job.data.srcDir;
             submitStagerJob(src, true, 40, 50, cb);
+
+            console.log('hi');
         },
         function(cb) {
             i = 50;
