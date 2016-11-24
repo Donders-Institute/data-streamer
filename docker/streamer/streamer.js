@@ -12,6 +12,7 @@ var queue = kue.createQueue({
 var path = require('path');
 
 // utility module
+var util = require('util');
 var utility = require('./lib/utility');
 
 // modality modules
@@ -28,19 +29,19 @@ queue.on( 'error', function(err) {
     }
 }).on( 'job enqueue', function(id, type) {
     if ( cluster.isMaster) {
-        utility.printLog(null, 'job %d enqueued for %s', id, type);
+        utility.printLog(null, util.format('job %d enqueued for %s', id, type));
     }
 }).on( 'job complete', function(id, result) {
     if ( cluster.isMaster) {
-        utility.printLog(null, 'job %d complete', id);
+        utility.printLog(null, util.format('job %d complete', id));
     }
 }).on( 'job failed attempt', function(id, err, nattempts) {
     if ( cluster.isMaster) {
-        utility.printLog(null, 'job %d failed, attempt %d', id, nattempts);
+        utility.printLog(null, util.format('job %d failed, attempt %d', id, nattempts));
     }
 }).on( 'job failed' , function(id, err) {
     if ( cluster.isMaster) {
-        utility.printLog(null, 'job %d failed', id);
+        utility.printLog(null, util.format('job %d failed', id));
     }
 }).on( 'job remove', function(id, err) {
     if ( cluster.isMaster) {
@@ -50,7 +51,7 @@ queue.on( 'error', function(err) {
             pinfo['worker'].send({'type': 'KILL', 'jid': id});
         }
         delete active_pids[id];
-        utility.printLog(null, 'job %d removed', id);
+        utility.printLog(null, util.format('job %d removed', id));
     }
 });
 
@@ -90,7 +91,7 @@ if (cluster.isMaster) {
 
                 case 'START':
                     active_pids[msg['jid']] = {'worker': this};
-                    utility.printLog(null, 'job %s run by worker %s', msg['jid'], active_pids[msg['jid']]['worker'].id);
+                    utility.printLog(null, util.format('job %s run by worker %s', msg['jid'], active_pids[msg['jid']]['worker'].id));
                     break;
 
                 default:
