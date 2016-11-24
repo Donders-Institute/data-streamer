@@ -23,7 +23,7 @@ var _basicAuthSimple = function(req, res, next) {
             res.end('Unauthorized');
         }
     } catch(e) {
-        utility.printErr('[AuthN]', e);
+        utility.printErr('AuthN', e);
         res.statusCode = 500;
         res.end('Internal Server Error');
     }

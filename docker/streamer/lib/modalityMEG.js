@@ -27,14 +27,14 @@ var _createStreamerJob = function(queue) {
               srcDir: srcPathConsole
           }).attempts(5).ttl(3600*1000).backoff( {delay: 60*1000, type:'fixed'} ).save(function(err) {
               if ( err ) {
-                  utility.printErr('[MEG:create streamer job]', err);
+                  utility.printErr('MEG:create streamer job', err);
                   utility.responseOnError('json',{'error': 'fail creating job: ' + err}, res);
               } else {
                   res.json({'message': 'job ' + job.id + ' created'});
               }
           });
       } else {
-          utility.printErr('[MEG:create streamer job]', 'invalid job queue: ' + queue);
+          utility.printErr('MEG:create streamer job', 'invalid job queue: ' + queue);
           utility.responseOnError('json',{'error': 'invalid queue'}, res);
       }
   }
@@ -90,7 +90,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
             // error handling
             if (err) {
-                utility.printErr('[MEG:execStreamerJob:runRsync]', err);
+                utility.printErr('MEG:execStreamerJob:runRsync', err);
             }
         });
 
@@ -121,7 +121,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             if ( cb_remove() ) {
                 kill(child.pid, 'SIGKILL', function(err) {
                     if (err) {
-                        utility.printErr('[MEG:execStreamerJob:runRsync]', err);
+                        utility.printErr('MEG:execStreamerJob:runRsync', err);
                     }
                 });
             }
@@ -182,7 +182,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             job.progress( minProgress + (maxProgress - minProgress)/2, 100 );
         } catch(err) {
             // stop the process
-            utility.printErr('[MEG:execStreamerJob:submitStagerJob]', err);
+            utility.printErr('MEG:execStreamerJob:submitStagerJob', err);
             return cb_async(err, 1);
         }
 
@@ -190,7 +190,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         async.mapValues( prj_ds, function( ds_list, p, cb_async_stager) {
 
             if ( p == 'unknown' && ! toCatchall ) {
-                utility.printLog('[MEG:execStreamerJob:submitStagerJob]', 'skip: '+JSON.stringify(ds_list));
+                utility.printLog('MEG:execStreamerJob:submitStagerJob', 'skip: '+JSON.stringify(ds_list));
                 return cb_async_stager(null, true);
             }
 
@@ -212,7 +212,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
                 if ( resp.statusCode >= 400 ) {  //HTTP error
                     var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
-                    utility.printErr('[MEG:execStreamerJob:submitStagerJob]', errmsg);
+                    utility.printErr('MEG:execStreamerJob:submitStagerJob', errmsg);
                     return cb_async_stager(errmsg, false);
                 }
 
@@ -267,17 +267,17 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                     c_stager.post(config.get('DataStager.url') + '/job', rpost_args, function(rdata, resp) {
                         if ( resp.statusCode >= 400 ) {  //HTTP error
                             var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
-                            utility.printErr('[MEG:execStreamerJob:submitStagerJob]', errmsg);
+                            utility.printErr('MEG:execStreamerJob:submitStagerJob', errmsg);
                             return cb_async_stager(errmsg, false);
                         } else {
                             rdata.forEach( function(d) {
-                                utility.printLog('[MEG:execStreamerJob:submitStagerJob]', JSON.stringify(d));
+                                utility.printLog('MEG:execStreamerJob:submitStagerJob', JSON.stringify(d));
                             });
                             // everything is fine
                             return cb_async_stager(null, true);
                         }
                     }).on('error', function(err) {
-                        utility.printErr('[MEG:execStreamerJob:submitStagerJob]', err);
+                        utility.printErr('MEG:execStreamerJob:submitStagerJob', err);
                         var errmsg = 'fail submitting stager jobs: ' + JSON.stringify(ds_list);
                         job.log(errmsg);
                         return cb_async_stager(errmsg, false);
@@ -288,14 +288,14 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             }).on('error', function(err) {
                 // fail to get collection for project
                 var errmsg = 'cannot get collection for project: ' + p;
-                utility.printErr('[MEG:execStreamerJob:submitStagerJob]', err);
+                utility.printErr('MEG:execStreamerJob:submitStagerJob', err);
                 job.log(errmsg);
                 // this will cause process to stop
                 return cb_async_stager(errmsg, false);
             });
         }, function (err, outputs) {
             // the mapValues are done
-            utility.printLog('[MEG:execStreamerJob:submitJobStager]', 'output: ' + JSON.stringify(outputs));
+            utility.printLog('MEG:execStreamerJob:submitJobStager', 'output: ' + JSON.stringify(outputs));
             if (err) {
                 return cb_async('fail submitting stager jobs', 1);
             } else {
@@ -348,7 +348,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             if (err) {
                 cb_done(err);
             } else {
-                utility.printLog('[MEG:execStreamerJob]', 'output: ' + JSON.stringify(results));
+                utility.printLog('MEG:execStreamerJob', 'output: ' + JSON.stringify(results));
                 cb_done();
             }
         }

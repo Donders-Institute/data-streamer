@@ -13,7 +13,7 @@ var _basicAuthAD = function(req, res, next) {
         if ( typeof user !== 'undefined' ) {
             ad.authenticate(user.name, user.pass, function(err, authenticated) {
                 if (err) {
-                    utility.printErr('[AuthN]', err);
+                    utility.printErr('AuthN', err);
                 }
 
                 if (authenticated) {
@@ -36,7 +36,7 @@ var _basicAuthAD = function(req, res, next) {
             res.end('Unauthorized');
         }
     } catch(e) {
-        utility.printErr('[AuthN]', e);
+        utility.printErr('AuthN', e);
         res.statusCode = 500;
         res.end('Internal Server Error');
     }

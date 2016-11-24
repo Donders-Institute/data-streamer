@@ -23,14 +23,14 @@ var _createStreamerJob = function(queue) {
                 series: seriesId
             }).attempts(5).ttl(3600*1000).backoff( {delay: 60*1000, type:'fixed'} ).save(function(err) {
                 if ( err ) {
-                    utility.printErr('[MRI:createStreamerJob]', err);
+                    utility.printErr('MRI:createStreamerJob', err);
                     utility.responseOnError('json',{'error': 'fail creating job: ' + err}, res);
                 } else {
                     res.json({'message': 'job ' + job.id + ' created'});
                 }
             });
         } else {
-            utility.printErr('[MRI:createStreamerJob]', 'invalid job queue: ' + queue);
+            utility.printErr('MRI:createStreamerJob', 'invalid job queue: ' + queue);
             utility.responseOnError('json',{'error': 'invalid queue'}, res);
         }
     }
@@ -59,10 +59,10 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         var sid = job.data.series;
 
         occ.series.get(sid).then( function(data) {
-            utility.printLog('[MRI:execStreamerJob:getInstanceFiles]', JSON.stringify(data));
+            utility.printLog('MRI:execStreamerJob:getInstanceFiles', JSON.stringify(data));
             return cb_async(null, 0);
         }).catch( function(err) {
-            utility.printErr('[MRI:execStreamerJob:getInstanceFiles]', err);
+            utility.printErr('MRI:execStreamerJob:getInstanceFiles', err);
             return cb_async(err, 1);
         });
     }
@@ -89,7 +89,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             if (err) {
                 cb_done(err);
             } else {
-                utility.printLog('[MRI:execStreamerJob]', 'output: ' + JSON.stringify(results));
+                utility.printLog('MRI:execStreamerJob', 'output: ' + JSON.stringify(results));
                 cb_done();
             }
         }
