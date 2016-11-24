@@ -48,11 +48,11 @@ f_stderr=/opt/streamer/log/meg_copy.err.$$
 mydir=$( get_script_dir $0 )
 
 # retrieve total amount of items to be process by the rsync
-total_items=$( rsync -arvn --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -o StrictHostKeyChecking=no -l ${console_user}" \
+total_items=$( rsync -rpvn --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -o StrictHostKeyChecking=no -l ${console_user}" \
                ${console_dir}/ ${local_dir}/ | wc -l )
 
 # perform the rsync and monitor the progress (the progress is reported to STDERR)
-${mydir}/s-unbuffer rsync -arv --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -o StrictHostKeyChecking=no -l ${console_user}" \
+${mydir}/s-unbuffer rsync -rpv --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -o StrictHostKeyChecking=no -l ${console_user}" \
 ${console_dir}/ ${local_dir}/ 2>${f_stderr} | pv -ln -s ${total_items} > /dev/null
 
 retval=${PIPESTATUS[0]}
