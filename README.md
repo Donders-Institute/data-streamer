@@ -16,6 +16,7 @@ The streamer server is implemented as a NodeJS web application based on the expr
 
 - prepare the `config` directory, and copy the example from `docker/streamer/config/default.conf`
 - in the directory of `docker`, run `docker-compose build --force-rm`
+- run the script `docker/redis/docker_host_config.sh` to adjust host's kernel parameter, for the performance of the redis database.
 - start up the service by `docker-compose run -d`
 
 ## Submit streamer job
