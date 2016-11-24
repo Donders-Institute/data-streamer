@@ -192,108 +192,107 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             if ( p == 'unknown' && ! toCatchall ) {
                 utility.printLog('[MEG:execStreamerJob:submitStagerJob]', 'skip: '+JSON.stringify(ds_list));
                 return cb_async_stager(null, true);
+            }
+
+            var c_stager = new RestClient({
+                user: config.get('DataStager.username'),
+                password: config.get('DataStager.password')
+            });
+
+            var rget_args = { headers: { 'Accept': 'application/json' } };
+
+            var myurl = config.get('DataStager.url') + '/rdm/DAC/project/';
+            if ( toCatchall || p == 'unknown' ) {
+                myurl += '_CATCHALL.MEG';
             } else {
+                myurl += p;
+            }
 
-                var c_stager = new RestClient({
-                    user: config.get('DataStager.username'),
-                    password: config.get('DataStager.password')
-                });
+            c_stager.get(myurl, rget_args, function(rdata, resp) {
 
-                var rget_args = { headers: { 'Accept': 'application/json' } };
-
-                var myurl = config.get('DataStager.url') + '/rdm/DAC/project/';
-                if ( toCatchall || p == 'unknown' ) {
-                    myurl += '_CATCHALL.MEG';
-                } else {
-                    myurl += p;
+                if ( resp.statusCode >= 400 ) {  //HTTP error
+                    var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
+                    utility.printErr('[MEG:execStreamerJob:submitStagerJob]', errmsg);
+                    return cb_async_stager(errmsg, false);
                 }
 
-                c_stager.get(myurl, rget_args, function(rdata, resp) {
+                // here we get the collection namespace for the project
 
-                    if ( resp.statusCode >= 400 ) {  //HTTP error
-                        var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
-                        utility.printErr('[MEG:execStreamerJob:submitStagerJob]', errmsg);
-                        return cb_async_stager(errmsg, false);
-                    }
+                var rpost_args = {
+                    headers: { 'Accept': 'application/json',
+                               'Content-Type': 'application/json' },
+                    data: []
+                };
 
-                    // here we get the collection namespace for the project
+                if ( ds_list.length == 0 ) {
+                    return cb_async_stager(null, true);
+                }
 
-                    var rpost_args = {
-                        headers: { 'Accept': 'application/json',
-                                   'Content-Type': 'application/json' },
-                        data: []
-                    };
-
-                    if ( ds_list.length == 0 ) {
-                        return cb_async_stager(null, true);
-                    }
-
-                    ds_list.forEach( function(ds) {
-                        // construct destination URL
-                        var dst = 'irods:' + rdata.collName + '/raw/';
-                        var dst_tail = ds.replace(config.get('MEG.streamerDataDirRoot') + '/', '');
-                        if( toCatchall ) {
-                            if ( p == 'unknown' ) {
-                                // the date folder is preserved
-                                dst += dst_tail;
-                            } else {
-                                // the date folder is removed
-                                dst += p + '/' + dst_tail.replace(new RegExp('^20[0-9]{6}/'), '');
-                            }
+                ds_list.forEach( function(ds) {
+                    // construct destination URL
+                    var dst = 'irods:' + rdata.collName + '/raw/';
+                    var dst_tail = ds.replace(config.get('MEG.streamerDataDirRoot') + '/', '');
+                    if( toCatchall ) {
+                        if ( p == 'unknown' ) {
+                            // the date folder is preserved
+                            dst += dst_tail;
                         } else {
                             // the date folder is removed
-                            dst += dst_tail.replace(new RegExp('^20[0-9]{6}/'), '');
+                            dst += p + '/' + dst_tail.replace(new RegExp('^20[0-9]{6}/'), '');
                         }
+                    } else {
+                        // the date folder is removed
+                        dst += dst_tail.replace(new RegExp('^20[0-9]{6}/'), '');
+                    }
 
-                        // add job data to post_args
-                        rpost_args.data.push({
-                            'type': 'rdm',
-                            'data': { 'clientIF': 'irods',
-                                      'stagerUser': 'root',
-                                      'rdmUser': 'irods',
-                                      'title': '[' + (new Date()).toISOString() + '] Streamer.MEG: ' + path.basename(ds),
-                                      'timeout': 3600,
-                                      'timeout_noprogress': 600,
-                                      'srcURL': ds,
-                                      'dstURL': dst },
-                            'options': { 'attempts': 5,
-                                         'backoff': { 'delay' : 60000,
-                                                      'type'  : 'fixed' } }
-                        });
-
-                        // post new jobs to stager
-                        if ( rpost_args.data.length > 0 ) {
-                            c_stager.post(config.get('DataStager.url') + '/job', rpost_args, function(rdata, resp) {
-                                if ( resp.statusCode >= 400 ) {  //HTTP error
-                                    var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
-                                    utility.printErr('[MEG:execStreamerJob:submitStagerJob]', errmsg);
-                                    return cb_async_stager(errmsg, false);
-                                } else {
-                                    rdata.forEach( function(d) {
-                                        utility.printLog('[MEG:execStreamerJob:submitStagerJob]', JSON.stringify(d));
-                                    });
-                                    // everything is fine
-                                    return cb_async_stager(null, true);
-                                }
-                            }).on('error', function(err) {
-                                utility.printErr('[MEG:execStreamerJob:submitStagerJob]', err);
-                                var errmsg = 'fail submitting stager jobs: ' + JSON.stringify(ds_list);
-                                job.log(errmsg);
-                                return cb_async_stager(errmsg, false);
-                            });
+                    // add job data to post_args
+                    rpost_args.data.push({
+                        'type': 'rdm',
+                        'data': { 'clientIF': 'irods',
+                                  'stagerUser': 'root',
+                                  'rdmUser': 'irods',
+                                  'title': '[' + (new Date()).toISOString() + '] Streamer.MEG: ' + path.basename(ds),
+                                  'timeout': 3600,
+                                  'timeout_noprogress': 600,
+                                  'srcURL': ds,
+                                  'dstURL': dst },
+                        'options': { 'attempts': 5,
+                                     'backoff': { 'delay' : 60000,
+                                                  'type'  : 'fixed' } }
+                    });
+                }
+                
+                // post new jobs to stager
+                if ( rpost_args.data.length > 0 ) {
+                    c_stager.post(config.get('DataStager.url') + '/job', rpost_args, function(rdata, resp) {
+                        if ( resp.statusCode >= 400 ) {  //HTTP error
+                            var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
+                            utility.printErr('[MEG:execStreamerJob:submitStagerJob]', errmsg);
+                            return cb_async_stager(errmsg, false);
                         } else {
+                            rdata.forEach( function(d) {
+                                utility.printLog('[MEG:execStreamerJob:submitStagerJob]', JSON.stringify(d));
+                            });
+                            // everything is fine
                             return cb_async_stager(null, true);
                         }
+                    }).on('error', function(err) {
+                        utility.printErr('[MEG:execStreamerJob:submitStagerJob]', err);
+                        var errmsg = 'fail submitting stager jobs: ' + JSON.stringify(ds_list);
+                        job.log(errmsg);
+                        return cb_async_stager(errmsg, false);
                     });
-                }).on('error', function(err) {
-                    // fail to get collection for project
-                    var errmsg = 'cannot get collection for project: ' + p;
-                    utility.printErr('[MEG:execStreamerJob:submitStagerJob]', err);
-                    job.log(errmsg);
-                    // this will cause process to stop
-                    return cb_async_stager(errmsg, false);
-                });
-            }
+                } else {
+                    return cb_async_stager(null, true);
+                }
+            }).on('error', function(err) {
+                // fail to get collection for project
+                var errmsg = 'cannot get collection for project: ' + p;
+                utility.printErr('[MEG:execStreamerJob:submitStagerJob]', err);
+                job.log(errmsg);
+                // this will cause process to stop
+                return cb_async_stager(errmsg, false);
+            });
         }, function (err, outputs) {
             // the mapValues are done
             utility.printLog('[MEG:execStreamerJob:submitJobStager]', 'output: ' + JSON.stringify(outputs));
