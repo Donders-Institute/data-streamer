@@ -260,8 +260,8 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                                      'backoff': { 'delay' : 60000,
                                                   'type'  : 'fixed' } }
                     });
-                }
-                
+                });
+
                 // post new jobs to stager
                 if ( rpost_args.data.length > 0 ) {
                     c_stager.post(config.get('DataStager.url') + '/job', rpost_args, function(rdata, resp) {
