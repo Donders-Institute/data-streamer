@@ -17,6 +17,7 @@ var utility = require('./lib/utility');
 
 // modality modules
 var m_meg = require('./lib/modalityMEG');
+var m_mri = require('./lib/modalityMRI');
 var m_test = require('./lib/modalityTEST');
 
 var active_pids = {};
@@ -72,6 +73,7 @@ if (cluster.isMaster) {
 
     // RESTful interfaces
     app.post('/meg/:date/:ds?', m_meg.createStreamerJob(queue));
+    app.post('/mri/series/:id', m_mri.createStreamerJob(queue));
     app.post('/test/:date/:ds?', m_test.createStreamerJob(queue));
 
     // start service for RESTful APIs
@@ -137,6 +139,10 @@ if ( cluster.worker ) {
             switch( job.data.modality ) {
                 case 'meg':
                     job_exec_logic = m_meg.execStreamerJob;
+                    break;
+
+                case 'mri':
+                    job_exec_logic = m_mri.execStreamerJob;
                     break;
 
                 case 'test':

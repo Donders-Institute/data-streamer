@@ -18,5 +18,11 @@
         "consoleDataDirRoot": "/ctfmeg/odin/data/meg/ACQ_Data",
         "streamerDataDirRoot": "/project/3010102.04/raw",
         "timeWindowInMinute": 1440
+    },
+    "MRI": {
+        "orthancUsername": "",
+        "orthancPassword": "",
+        "orthancEndpoint": "http://localhost:8042",
+        "streamerDataDirRoot": "/project/3010000.01/raw"
     }
 }
