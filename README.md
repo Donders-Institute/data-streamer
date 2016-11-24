@@ -47,4 +47,14 @@ For example,
 var m_test = require('./lib/modalityTEST');
 ...
 app.post('/test/:date/:ds?', m_test.createStreamerJob(queue));
+...
+switch( job.data.modality ) {
+    ...
+    
+    case 'test':
+        job_exec_logic = m_test.execStreamerJob;
+        break;
+
+    ...
+}
 ```
