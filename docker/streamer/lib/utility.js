@@ -9,7 +9,7 @@ var _responseOnError = function(c_type, c_data, resp) {
 }
 
 // general function to write log to console
-var _composeLog(header, msg) {
+var _composeLog = function(header, msg) {
     var log = '[' + (new Date()).toISOString() + ']';
     log += (header)?'[' + header + '] ':' ';
     log += msg;
@@ -17,12 +17,12 @@ var _composeLog(header, msg) {
 }
 
 // general function to write log to console
-var _printLog(header, log) {
+var _printLog = function(header, log) {
     console.log(_composeLog(header, log));
 }
 
 // general function to write log to console
-var _printErr(header, err) {
+var _printErr = function(header, err) {
     console.log(_composeLog(header, err));
 }
 
