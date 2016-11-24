@@ -1,5 +1,6 @@
 var config = require('config');
 var auth = require('basic-auth');
+var utility = require('./utility');
 
 var _basicAuthSimple = function(req, res, next) {
 
@@ -11,7 +12,7 @@ var _basicAuthSimple = function(req, res, next) {
             admins = config.get('Administrator');
             if ( admins[user.name] === user.pass ) {
                 next();
-            } else { 
+            } else {
                 res.statusCode = 401;
                 res.setHeader('WWW-Authenticate', 'Basic realm="Streamer"');
                 res.end('Unauthorized');
@@ -22,7 +23,7 @@ var _basicAuthSimple = function(req, res, next) {
             res.end('Unauthorized');
         }
     } catch(e) {
-        console.error(e);
+        utility.printErr('[AuthN]', e);
         res.statusCode = 500;
         res.end('Internal Server Error');
     }

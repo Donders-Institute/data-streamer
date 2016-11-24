@@ -1,10 +1,11 @@
 var config = require('config');
 var auth = require('basic-auth');
 var ActiveDirectory = require('activedirectory');
+var utility = require('./utility');
 
 var _basicAuthAD = function(req, res, next) {
 
-    // simple authentication aganist ActiveDirectory 
+    // simple authentication aganist ActiveDirectory
     var ad = new ActiveDirectory(config.get('ActiveDirectory'));
     var user = auth(req);
 
@@ -12,7 +13,7 @@ var _basicAuthAD = function(req, res, next) {
         if ( typeof user !== 'undefined' ) {
             ad.authenticate(user.name, user.pass, function(err, authenticated) {
                 if (err) {
-                    console.error(err);
+                    utility.printErr('[AuthN]', err);
                 }
 
                 if (authenticated) {
@@ -22,7 +23,7 @@ var _basicAuthAD = function(req, res, next) {
                     admins = config.get('Administrator');
                     if ( admins[user.name] === user.pass ) {
                         next();
-                    } else { 
+                    } else {
                         res.statusCode = 401;
                         res.setHeader('WWW-Authenticate', 'Basic realm="Streamer"');
                         res.end('Unauthorized');
@@ -35,7 +36,7 @@ var _basicAuthAD = function(req, res, next) {
             res.end('Unauthorized');
         }
     } catch(e) {
-        console.error(e);
+        utility.printErr('[AuthN]', e);
         res.statusCode = 500;
         res.end('Internal Server Error');
     }

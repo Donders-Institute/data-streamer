@@ -8,4 +8,24 @@ var _responseOnError = function(c_type, c_data, resp) {
     }
 }
 
+// general function to write log to console
+var _composeLog(header, msg) {
+    var log = '[' + (new Date()).toISOString() + ']';
+    log += (header)?'[' + header + '] ':' ';
+    log += msg;
+    return log;
+}
+
+// general function to write log to console
+var _printLog(header, log) {
+    console.log(_composeLog(header, log));
+}
+
+// general function to write log to console
+var _printErr(header, err) {
+    console.log(_composeLog(header, err));
+}
+
 module.exports.responseOnError = _responseOnError;
+module.exports.printLog = _printLog;
+module.exports.printErr = _printErr;

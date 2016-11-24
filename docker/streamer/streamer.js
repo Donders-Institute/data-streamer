@@ -11,6 +11,9 @@ var queue = kue.createQueue({
 });
 var path = require('path');
 
+// utility module
+var utility = require('./lib/utility');
+
 // modality modules
 var m_meg = require('./lib/modalityMEG');
 var m_test = require('./lib/modalityTEST');
@@ -21,23 +24,23 @@ const streamer_bindir = __dirname + path.sep + 'bin';
 
 queue.on( 'error', function(err) {
     if ( cluster.isMaster) {
-        console.error('Oops... ', err);
+        utility.printErr(null, err);
     }
 }).on( 'job enqueue', function(id, type) {
     if ( cluster.isMaster) {
-        console.log('[' + new Date().toISOString() + '] job %d enqueued for %s', id, type);
+        utility.printLog(null, 'job %d enqueued for %s', id, type);
     }
 }).on( 'job complete', function(id, result) {
     if ( cluster.isMaster) {
-        console.log('[' + new Date().toISOString() + '] job %d complete', id);
+        utility.printLog(null, 'job %d complete', id);
     }
 }).on( 'job failed attempt', function(id, err, nattempts) {
     if ( cluster.isMaster) {
-        console.log('[' + new Date().toISOString() + '] job %d failed, attempt %d', id, nattempts);
+        utility.printLog(null, 'job %d failed, attempt %d', id, nattempts);
     }
 }).on( 'job failed' , function(id, err) {
     if ( cluster.isMaster) {
-        console.log('[' + new Date().toISOString() + '] job %d failed', id);
+        utility.printLog(null, 'job %d failed', id);
     }
 }).on( 'job remove', function(id, err) {
     if ( cluster.isMaster) {
@@ -47,7 +50,7 @@ queue.on( 'error', function(err) {
             pinfo['worker'].send({'type': 'KILL', 'jid': id});
         }
         delete active_pids[id];
-        console.log('[' + new Date().toISOString() + '] job %d removed', id);
+        utility.printLog(null, 'job %d removed', id);
     }
 });
 
@@ -87,7 +90,7 @@ if (cluster.isMaster) {
 
                 case 'START':
                     active_pids[msg['jid']] = {'worker': this};
-                    console.log('[' + new Date().toISOString() + '] job %s run by worker %s', msg['jid'], active_pids[msg['jid']]['worker'].id);
+                    utility.printLog(null, 'job %s run by worker %s', msg['jid'], active_pids[msg['jid']]['worker'].id);
                     break;
 
                 default:
@@ -106,7 +109,7 @@ if ( cluster.worker ) {
     process.on('message', function(msg) {
         switch( msg.type ) {
             case 'KILL':
-                console.log( '[' + new Date().toISOString() + '] job ' + msg['jid'] + ' killed upon user removal');
+                utility.printLog( null, 'job ' + msg['jid'] + ' killed upon user removal');
                 job_removed = true;
                 break;
 
@@ -161,7 +164,7 @@ if ( cluster.worker ) {
 function shutdown() {
     if ( cluster.isMaster ) {
         queue.shutdown( 60000, function(err) {
-            console.log( 'Kue shutdown: ', err||'' );
+            utility.printLog(null, 'Kue shutdown: ' + err );
             process.exit( 0 );
         });
     }
