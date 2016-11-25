@@ -57,7 +57,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
     // General function to get DICOM header attribute and image data files of
     // a Series.
     */
-    var getInstanceFiles = function(isCatchall, minProgress, maxProgress, cb_async) {
+    var getInstanceFiles = function(isCatchall, createDir, minProgress, maxProgress, cb_async) {
 
         var sid = job.data.series;
 
@@ -150,11 +150,20 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                     }
                 }
 
-                // copy the data over to baseDir, using async.everyLimit with limit of 10
-                // TODO: check if 10 concurrent transfers is acceptable
+                // copy the data over to baseDir, using async.every
+                // TODO: shall we limited the downloading concurrency?
                 utility.printLog('MRI:execStreamerJob:getInstanceFiles',
                                  'writing ' + sinfo['instances'].length + ' instances to ' + baseDir);
-                async.everyLimit(sinfo['instances'], 10, function(iid, _cbb) {
+
+                // create destination directory on request
+                if ( ! fs.existsSync(baseDir) && createDir ) {
+                    try {
+                      //TODO: this is NOT a good way to create directory recursively
+                      child_process.execSync('mkdir -p ' + baseDir);
+                    } catch(err) {}
+                }
+
+                async.each(sinfo['instances'], function(iid, _cbb) {
                     occ().instances.get(iid).then( function(data) {
                         if ( data['MainDicomTags'] ) {
                             // construct instance filename
@@ -201,7 +210,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
     async.series([
         function(cb) {
             // step 1: get all instances of a the series to catch-all buffer
-            getInstanceFiles(true, 0, 40, cb);
+            getInstanceFiles(true, true, 0, 40, cb);
         },
         function(cb) {
             // step 2: archive to catch-all collection
@@ -213,7 +222,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         },
         function(cb) {
             // step 4: get all instances of a series to project storage
-            getInstanceFiles(false, 60, 100, cb);
+            getInstanceFiles(false, true, 60, 100, cb);
         }],
         function(err, results) {
             if (err) {
