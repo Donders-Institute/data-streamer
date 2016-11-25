@@ -150,11 +150,41 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                     }
                 }
 
+                // copy the data over to baseDir, using async.everyLimit with limit of 10
+                // TODO: check if 10 concurrent transfers is acceptable
                 utility.printLog('MRI:execStreamerJob:getInstanceFiles',
                                  'writing ' + sinfo['instances'].length + ' instances to ' + baseDir);
-                // copy the data over to baseDir, using async.everyLimit with limit of 10?
-
-                return _cb(null, 0);
+                async.everyLimit(sinfo['instances'], 10, function(iid, _cbb) {
+                    occ().instances.get(iid).then( function(data) {
+                        if ( data['MainDicomTags'] ) {
+                            // construct instance filename
+                            var f_dcm = baseDir + '/' +
+                                        ('0000000' + data['MainDicomTags']['InstanceNumber']).slice(-5) +
+                                        '_' + data['MainDicomTags']['SOPInstanceUID'] + '.IMA';
+                            // get data from Orthanc and write to the filename
+                            occ().instances.getFile(iid).then( function(buf) {
+                                fs.writeFile(f_dcm, buf, function(err) {
+                                    if (err) {
+                                        throw new Error('cannot write instance data: ' + f_dcm);
+                                    }
+                                    return _cbb(null,0);
+                                });
+                            }).catch( function(err) {
+                                return _cbb(err, 1);
+                            });
+                        } else {
+                            throw new Error('no DICOM tags for instance: ' + iid);
+                        }
+                    }).catch( function(err) {
+                        return _cbb(err, 1);
+                    });
+                }, function(err, results) {
+                    if ( err ) {
+                        return _cb(err, 1);
+                    } else {
+                        return _cb(null, 0);
+                    }
+                });
             }
         ],
         function(err, results) {
