@@ -54,7 +54,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
     // General function to get DICOM header attribute and image data files of
     // a Series.
     */
-    var getInstanceFiles = function(isCatchall, cb_async) {
+    var getInstanceFiles = function(isCatchall, minProgress, maxProgress, cb_async) {
 
         var sid = job.data.series;
 
@@ -70,76 +70,86 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             'instances': []
         }
 
-        // get patient DICOM tags
-        occ.series.getPatient(sid).then( function(data) {
-            if ( data['MainDicomTags'] ) {
-                sinfo['patientId'] = data['MainDicomTags']['PatientID'];
-            } else {
-                throw new Error('no DICOM tags for patient, series: ' + sid);
-            }
-        }).then( function(data) {
-            // get study DICOM tags
-            occ.series.getStudy(sid).then( function(data) {
-                if ( data['MainDicomTags'] ) {
-                    sinfo['studyId'] = data['MainDicomTags']['StudyID'];
-                    sinfo['studyDate'] = data['MainDicomTags']['StudyDate'];
-                    sinfo['studyTime'] = data['MainDicomTags']['StudyTime'];
-                    sinfo['studyDescription'] = date['MainDicomTags']['StudyDescription'];
-                } else {
-                    throw new Error('no DICOM tags for study, series: ' + sid);
-                }
-            });
-        }).then( function(data) {
-            // get series DICOM tags and loop over instances to get files
-            occ.series.get(sid).then( function(data) {
-                sinfo['instances'] = data['Instances'];
-                if ( data['MainDicomTags'] ) {
-                    sinfo['seriesNumber'] = data['MainDicomTags']['SeriesNumber'];
-                    sinfo['seriesDescription'] = data['MainDicomTags']['SeriesDescription'];
-                } else {
-                    throw new Error('no DICOM tags for series, series: ' + sid);
-                }
-            });
-        }).then( function(data) {
-            // construct the directory of project storage
-            var baseDir = null;
-            var prj_sub_regex = new RegExp("^(30[0-9]{5}\.[0-9]{2})_(sub.*)$");
-            var m = prj_sub_regex.exec(sinfo['patientId']);
+        async.series([
+            function(cb) { // get patient DICOM tags
+                occ.series.getPatient(sid).then( function(data) {
+                    if ( data['MainDicomTags'] ) {
+                        sinfo['patientId'] = data['MainDicomTags']['PatientID'];
+                        return cb(null, 0);
+                    } else {
+                        return cb('no DICOM tags for patient, series: ' + sid, 1);
+                    }
+                });
+            },
+            function(cb) { // get study DICOM tags
+                occ.series.getStudy(sid).then( function(data) {
+                    if ( data['MainDicomTags'] ) {
+                        sinfo['studyId'] = data['MainDicomTags']['StudyID'];
+                        sinfo['studyDate'] = data['MainDicomTags']['StudyDate'];
+                        sinfo['studyTime'] = data['MainDicomTags']['StudyTime'];
+                        sinfo['studyDescription'] = date['MainDicomTags']['StudyDescription'];
+                        return cb(null, 0);
+                    } else {
+                        return cb('no DICOM tags for study, series: ' + sid, 1);
+                    }
+                });
+            },
+            function(cb) { // get series DICOM tags and loop over instances to get files
+                occ.series.get(sid).then( function(data) {
+                    sinfo['instances'] = data['Instances'];
+                    if ( data['MainDicomTags'] ) {
+                        sinfo['seriesNumber'] = data['MainDicomTags']['SeriesNumber'];
+                        sinfo['seriesDescription'] = data['MainDicomTags']['SeriesDescription'];
+                        return cb(null, 0);
+                    } else {
+                        return cb('no DICOM tags for series, series: ' + sid, 1);
+                    }
+                });
+            },
+            function(cb) {  // get the instance data to project storage
+                var baseDir = null;
+                var prj_sub_regex = new RegExp("^(30[0-9]{5}\.[0-9]{2})_(sub.*)$");
+                var m = prj_sub_regex.exec(sinfo['patientId']);
 
-            if ( isCatchall ) {
-                baseDir = config.get('MRI.streamerDataDirRoot') + '/raw/';
-                if (m) {
-                    // directory structure for an expected patientId convention
-                    baseDir += m[1] + '/' + m[2] + '/' + sinfo['studyId'] + '/' +
-                              ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
-                              sinfo['seriesDescription'];
+                if ( isCatchall ) {
+                    baseDir = config.get('MRI.streamerDataDirRoot') + '/raw/';
+                    if (m) {
+                        // directory structure for an expected patientId convention
+                        baseDir += m[1] + '/' + m[2] + '/' + sinfo['studyId'] + '/' +
+                                  ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
+                                  sinfo['seriesDescription'];
+                    } else {
+                        // directory structure for an unexpected patientId convention
+                        baseDir += sinfo['studyDate'] + '/' +
+                                   sinfo['studyDescription'] + '/' +
+                                   ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
+                                   sinfo['seriesDescription'];
+                    }
                 } else {
-                    // directory structure for an unexpected patientId convention
-                    baseDir += sinfo['studyDate'] + '/' +
-                               sinfo['studyDescription'] + '/' +
-                               ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
-                               sinfo['seriesDescription'];
+                    if (m) {
+                        // directory strucutre for an expected patientId convention
+                        baseDir = '/project/' + m[1] + '/raw/' +
+                                  m[2] + '/' + sinfo['studyId'] + '/' +
+                                  ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
+                                  sinfo['seriesDescription'];
+                    } else {
+                        // skip for unexpected patientId convention
+                        utility.printLog('MRI:execStreamerJob:getInstanceFiles', 'skip: ' + sid);
+                    }
                 }
-            } else {
-                if (m) {
-                    // directory strucutre for an expected patientId convention
-                    baseDir = '/project/' + m[1] + '/raw/' +
-                              m[2] + '/' + sinfo['studyId'] + '/' +
-                              ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
-                              sinfo['seriesDescription'];
-                } else {
-                    // skip for unexpected patientId convention
-                    utility.printLog('MRI:execStreamerJob:getInstanceFiles', 'skip: ' + sid);
-                    return cb_async(null, 0);
-                }
+                // copy the data over to baseDir, using async.everyLimit with limit of 10?
+                return cb(null, 0);
             }
-
-            utility.printLog('MRI:execStreamerJob:getInstanceFiles',
-                             'writing ' + instances.length + ' instances to ' + baseDir);
-            return cb_async(null, 0);
-        }).catch( function(err) {
-            utility.printErr('MRI:execStreamerJob:getInstanceFiles', err);
-            return cb_async(err, 1);
+        ],
+        function(err, results) {
+            if (err) {
+                utility.printErr('MRI:execStreamerJob:getInstanceFiles', err);
+                return cb_async(err, 1);
+            } else {
+                utility.printLog('MRI:execStreamerJob:getInstanceFiles',
+                                 'writing ' + sinfo['instances'].length + ' instances to ' + baseDir);
+                return cb_async(null, 0);
+            }
         });
     }
 
@@ -147,7 +157,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
     async.series([
         function(cb) {
             // step 1: get all instances of a the series to catch-all buffer
-            getInstanceFiles(true, cb);
+            getInstanceFiles(true, 0, 40, cb);
         },
         function(cb) {
             // step 2: archive to catch-all collection
@@ -159,7 +169,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         },
         function(cb) {
             // step 4: get all instances of a series to project storage
-            getInstanceFiles(false, cb);
+            getInstanceFiles(false, 60, 100, cb);
         }],
         function(err, results) {
             if (err) {
