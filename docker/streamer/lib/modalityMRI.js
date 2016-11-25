@@ -58,8 +58,85 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
         var sid = job.data.series;
 
-        occ.series.get(sid).then( function(data) {
-            utility.printLog('MRI:execStreamerJob:getInstanceFiles', JSON.stringify(data));
+        // initialise series DICOM tags
+        var sinfo = {
+            'patientId': null,
+            'studyId': null,
+            'studyDate': null,
+            'studyTime': null,
+            'studyDescription': null,
+            'seriesNumber': null,
+            'seriesDescription': null
+        }
+
+        // get patient DICOM tags
+        occ.series.getPatient(sid).then( function(data) {
+
+            if ( data['MainDicomTags'] ) {
+                sinfo['patientId'] = data['MainDicomTags']['PatientID'];
+            } else {
+                throw new Error('no DICOM tags for patient, series: ' + sid);
+            }
+
+            // get study DICOM tags
+            occ.series.getStudy(sid).then( function(data) {
+                if ( data['MainDicomTags'] ) {
+                    sinfo['studyId'] = data['MainDicomTags']['StudyID'];
+                    sinfo['studyDate'] = data['MainDicomTags']['StudyDate'];
+                    sinfo['studyTime'] = data['MainDicomTags']['StudyTime'];
+                    sinfo['studyDescription'] = date['MainDicomTags']['StudyDescription'];
+                } else {
+                    throw new Error('no DICOM tags for study, series: ' + sid);
+                }
+            });
+
+            // get series DICOM tags and loop over instances to get files
+            var instances = [];
+            occ.series.get(sid).then( function(data) {
+                instances = data['Instances'];
+                if ( data['MainDicomTags'] ) {
+                    sinfo['seriesNumber'] = data['MainDicomTags']['SeriesNumber'];
+                    sinfo['seriesDescription'] = data['MainDicomTags']['SeriesDescription'];
+                } else {
+                    throw new Error('no DICOM tags for series, series: ' + sid);
+                }
+            });
+
+            // construct the directory of project storage
+            var baseDir = null;
+            var prj_sub_regex = new RegExp("^(30[0-9]{5}\.[0-9]{2})_(sub.*)$");
+            var m = prj_sub_regex.exec(sinfo['patientId']);
+
+            if ( isCatchall ) {
+                baseDir = config.get('MRI.streamerDataDirRoot') + '/raw/';
+                if (m) {
+                    // directory structure for an expected patientId convention
+                    baseDir += m[1] + '/' + m[2] + '/' + sinfo['studyId'] + '/' +
+                              ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
+                              sinfo['seriesDescription'];
+                } else {
+                    // directory structure for an unexpected patientId convention
+                    baseDir += sinfo['studyDate'] + '/' +
+                               sinfo['studyDescription'] + '/' +
+                               ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
+                               sinfo['seriesDescription'];
+                }
+            } else {
+                if (m) {
+                    // directory strucutre for an expected patientId convention
+                    baseDir = '/project/' + m[1] + '/raw/' +
+                              m[2] + '/' + sinfo['studyId'] + '/' +
+                              ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
+                              sinfo['seriesDescription'];
+                } else {
+                    // skip for unexpected patientId convention
+                    utility.printLog('MRI:execStreamerJob:getInstanceFiles', 'skip: ' + sid);
+                    return cb_async(null, 0);
+                }
+            }
+
+            utility.printLog('MRI:execStreamerJob:getInstanceFiles',
+                             'writing ' + instances.length + ' instances to ' + baseDir);
             return cb_async(null, 0);
         }).catch( function(err) {
             utility.printErr('MRI:execStreamerJob:getInstanceFiles', err);
