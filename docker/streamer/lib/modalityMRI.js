@@ -66,18 +66,18 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             'studyTime': null,
             'studyDescription': null,
             'seriesNumber': null,
-            'seriesDescription': null
+            'seriesDescription': null,
+            'instances': []
         }
 
         // get patient DICOM tags
         occ.series.getPatient(sid).then( function(data) {
-
             if ( data['MainDicomTags'] ) {
                 sinfo['patientId'] = data['MainDicomTags']['PatientID'];
             } else {
                 throw new Error('no DICOM tags for patient, series: ' + sid);
             }
-
+        }).then( function(data) {
             // get study DICOM tags
             occ.series.getStudy(sid).then( function(data) {
                 if ( data['MainDicomTags'] ) {
@@ -89,11 +89,10 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                     throw new Error('no DICOM tags for study, series: ' + sid);
                 }
             });
-
+        }).then( function(data) {
             // get series DICOM tags and loop over instances to get files
-            var instances = [];
             occ.series.get(sid).then( function(data) {
-                instances = data['Instances'];
+                sinfo['instances'] = data['Instances'];
                 if ( data['MainDicomTags'] ) {
                     sinfo['seriesNumber'] = data['MainDicomTags']['SeriesNumber'];
                     sinfo['seriesDescription'] = data['MainDicomTags']['SeriesDescription'];
@@ -101,7 +100,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                     throw new Error('no DICOM tags for series, series: ' + sid);
                 }
             });
-
+        }).then( function(data) {
             // construct the directory of project storage
             var baseDir = null;
             var prj_sub_regex = new RegExp("^(30[0-9]{5}\.[0-9]{2})_(sub.*)$");
