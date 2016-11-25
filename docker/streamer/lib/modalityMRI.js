@@ -122,7 +122,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 var m = prj_sub_regex.exec(sinfo['patientId']);
 
                 if ( isCatchall ) {
-                    baseDir = config.get('MRI.streamerDataDirRoot');
+                    baseDir = config.get('MRI.streamerDataDirRoot') + '/';
                     if (m) {
                         // directory structure for an expected patientId convention
                         baseDir += m[1] + '/' + m[2] + '/' + sinfo['studyId'] + '/' +
