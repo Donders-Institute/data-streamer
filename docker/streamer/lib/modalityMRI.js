@@ -131,7 +131,8 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                     } else {
                         // directory structure for an unexpected patientId convention
                         baseDir += sinfo['studyDate'] + '/' +
-                                   sinfo['studyDescription'] + '/' +
+                                   sinfo['studyDescription'] + '_' +
+                                   sinfo['studyTime'] + '/' +
                                    ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
                                    sinfo['seriesDescription'];
                     }
@@ -145,9 +146,14 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                     } else {
                         // skip for unexpected patientId convention
                         utility.printLog('MRI:execStreamerJob:getInstanceFiles', 'skip: ' + sid);
+                        return _cb(null, 0);
                     }
                 }
+
+                utility.printLog('MRI:execStreamerJob:getInstanceFiles',
+                                 'writing ' + sinfo['instances'].length + ' instances to ' + baseDir);
                 // copy the data over to baseDir, using async.everyLimit with limit of 10?
+
                 return _cb(null, 0);
             }
         ],
@@ -156,8 +162,6 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 utility.printErr('MRI:execStreamerJob:getInstanceFiles', err);
                 return cb_async(err, 1);
             } else {
-                utility.printLog('MRI:execStreamerJob:getInstanceFiles',
-                                 'writing ' + sinfo['instances'].length + ' instances to ' + baseDir);
                 return cb_async(null, 0);
             }
         });
