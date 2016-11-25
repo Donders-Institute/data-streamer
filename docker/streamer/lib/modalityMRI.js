@@ -42,13 +42,16 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
     var async = require('async');
     var oc = require('orthanc-client');
 
-    var occ = new oc({
-        url: config.get('MRI.orthancEndpoint'),
-        auth: {
-            username: config.get('MRI.orthancUsername'),
-            password: config.get('MRI.orthancPassword')
-        }
-    });
+    // function to get new Orthanc Client instance
+    var occ = function() {
+        return new oc({
+            url: config.get('MRI.orthancEndpoint'),
+            auth: {
+                username: config.get('MRI.orthancUsername'),
+                password: config.get('MRI.orthancPassword')
+              }
+        });
+    };
 
     /*
     // General function to get DICOM header attribute and image data files of
@@ -70,44 +73,51 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             'instances': []
         }
 
+        var baseDir = null;
+
         async.series([
-            function(cb) { // get patient DICOM tags
-                occ.series.getPatient(sid).then( function(data) {
+            function(_cb) { // get patient DICOM tags
+                occ().series.getPatient(sid).then( function(data) {
                     if ( data['MainDicomTags'] ) {
                         sinfo['patientId'] = data['MainDicomTags']['PatientID'];
-                        return cb(null, 0);
+                        return _cb(null, 0);
                     } else {
-                        return cb('no DICOM tags for patient, series: ' + sid, 1);
+                        throw new Error('no DICOM tags for patient, series: ' + sid);
                     }
+                }).catch( function(err) {
+                    return _cb(err, 1);
                 });
             },
-            function(cb) { // get study DICOM tags
-                occ.series.getStudy(sid).then( function(data) {
+            function(_cb) { // get study DICOM tags
+                occ().series.getStudy(sid).then( function(data) {
                     if ( data['MainDicomTags'] ) {
                         sinfo['studyId'] = data['MainDicomTags']['StudyID'];
                         sinfo['studyDate'] = data['MainDicomTags']['StudyDate'];
                         sinfo['studyTime'] = data['MainDicomTags']['StudyTime'];
-                        sinfo['studyDescription'] = date['MainDicomTags']['StudyDescription'];
-                        return cb(null, 0);
+                        sinfo['studyDescription'] = data['MainDicomTags']['StudyDescription'];
+                        return _cb(null, 0);
                     } else {
-                        return cb('no DICOM tags for study, series: ' + sid, 1);
+                        throw new Error('no DICOM tags for study, series: ' + sid);
                     }
+                }).catch( function(err) {
+                    return _cb(err, 1);
                 });
             },
-            function(cb) { // get series DICOM tags and loop over instances to get files
-                occ.series.get(sid).then( function(data) {
+            function(_cb) { // get series DICOM tags and loop over instances to get files
+                occ().series.get(sid).then( function(data) {
                     sinfo['instances'] = data['Instances'];
                     if ( data['MainDicomTags'] ) {
                         sinfo['seriesNumber'] = data['MainDicomTags']['SeriesNumber'];
                         sinfo['seriesDescription'] = data['MainDicomTags']['SeriesDescription'];
-                        return cb(null, 0);
+                        return _cb(null, 0);
                     } else {
-                        return cb('no DICOM tags for series, series: ' + sid, 1);
+                        throw new Error('no DICOM tags for series, series: ' + sid);
                     }
+                }).catch( function(err) {
+                    return _cb(err, 1);
                 });
             },
-            function(cb) {  // get the instance data to project storage
-                var baseDir = null;
+            function(_cb) {  // get the instance data to project storage
                 var prj_sub_regex = new RegExp("^(30[0-9]{5}\.[0-9]{2})_(sub.*)$");
                 var m = prj_sub_regex.exec(sinfo['patientId']);
 
@@ -138,7 +148,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                     }
                 }
                 // copy the data over to baseDir, using async.everyLimit with limit of 10?
-                return cb(null, 0);
+                return _cb(null, 0);
             }
         ],
         function(err, results) {
