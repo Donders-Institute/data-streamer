@@ -65,7 +65,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             dst];
 
         var cmd_opts = {
-            maxBuffer: 10*1024*1024
+            shell: '/bin/bash'
         };
 
         // create destination directory on request
@@ -76,36 +76,31 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             } catch(err) {}
         }
 
-        var child = child_process.execFile(cmd, cmd_args, cmd_opts, function(err, stdout, stderr) {
-
-            // notify the timer that the child process has been finished
-            // TODO: is this one necessary, as we have set one in child.on('close')
-            cp_end = true;
-
-            // push the last 5-lines of stdout, and  stderr to job log
-            job.log({
-                "stdout": stdout.split("\n").slice(-5),
-                "stderr": stderr.split("\n").slice(-5)
-            });
-
-            // error handling
-            if (err) {
-                utility.printErr('MEG:execStreamerJob:runRsync', err);
-            }
-        });
+        var child = child_process.spawn(cmd, cmd_args, cmd_opts);
 
         // define callback when child process is closed
-        child.on( "close", function(code, signal) {
+        child.on('close', function(code, signal) {
             // notify the timer that the child process has been finished
             cp_end = true;
             // interruption handling (null if process is not interrupted)
             if ( code != 0 ) {
-                return cb_async('rsync process error: ' + signal, code);
+                utility.printErr('MEG:execStreamerJob:runRsync', 'non-zero exit code: ' + code);
+                return cb_async('rsync process non-zero exit code: ' + code + ' (' + signal + ')', code);
             } else {
                 // set job progress to 40%
                 job.progress(maxProgress, 100);
                 return cb_async(null,0);
             }
+        });
+
+        child.on('error', function(err) {
+            utility.printErr('MEG:execStreamerJob:runRsync',err);
+            return cb_async('rsync process error: ' + err);
+        })
+
+        // define callback when receiving new stderr from the child process
+        child.stdout.on('data', function(data) {
+            job.log(data);
         });
 
         // define callback when receiving new stderr from the child process
