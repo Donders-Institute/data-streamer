@@ -234,14 +234,18 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         // general function to construct destination URL for stager job
         var _mkDst = function(_src, _collName) {
             // TODO: need a structured way of resolving src path to destination path
-            //       things to be considered:
-            //         - {PROJECT_BASE_DIR}/{PROJECT_NUMBER}
-            //           -> {CATCHALL_COLL}/raw/{PROJECT_NUMBER} -or-
-            //           -> {PROJECT_COLL}/raw/
-            //         - {HOME}/{GROUP}/{USER}/...
-            //           -> ?? not clear how the mapping should look like
-            return 'irods:' + _collName + '/' +
-                   _src.replace(new RegExp(config.get('MRI.projectStorageRegex')), '');
+            // The following logic assumes the _src refers to the catch-all project's directory
+
+            // 1. replace project-storage prefix with collection namespace
+            var _dst = 'irods:' + _collName + '/' +
+                       _src.replace(new RegExp(config.get('MRI.projectStorageRegex')), '');
+            // 2. for project-specific collection, try remove the project number
+            //    after the '/raw/' directory, as the project number has been
+            //    presented as part of the collection namespace.
+            if ( ! toCatchall ) {
+                _dst = _dst.replace(new RegExp('/raw/30[0-9]{5}\.[0-9]{2}/'), '/raw/');
+            }
+            return _dst;
         }
 
         // Initialise RESTful client
