@@ -240,13 +240,8 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             //           -> {PROJECT_COLL}/raw/
             //         - {HOME}/{GROUP}/{USER}/...
             //           -> ?? not clear how the mapping should look like
-            var _dst = 'irods:' + _collName + '/raw/';
-            if ( toCatchall ) {
-                _dst += _src.replace(new RegExp('^/project/'), '');
-            } else {
-                _dst += _src.replace(new RegExp(config.get('MRI.projectStorageRegex')), '');
-            }
-            return _dst;
+            return 'irods:' + _collName + '/' +
+                   _src.replace(new RegExp(config.get('MRI.projectStorageRegex')), '');
         }
 
         // Initialise RESTful client
