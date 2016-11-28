@@ -64,8 +64,8 @@ var _cleanupQueue = function(queue) {
                 var n_removed = 0;
                 kue.Job.rangeByState( 'complete', 0, n_complete, 'asc', function( err, jobs ) {
                     async.everyLimit(jobs, 10, function( j, rcb ) {
-                        if ( Date.now() > parseInt(job.updated_at) + age ) {
-                            job.remove( function(err) {
+                        if ( Date.now() > parseInt(j.updated_at) + age ) {
+                            j.remove( function(err) {
                                 if ( !err ) n_removed++;
                                 // eventual failed removal is ignored
                                 return rcb(null, !err);
