@@ -35,7 +35,7 @@ the configuration file as the value `MEG.consoleDataDirRoot`.
 
 The streamer job for MRI is provided in the basis of a DICOM series. Normally, it is called by the Orthanc PACS server when a series is considered as "stable" (i.e. the series is considered as stable if the Orthanc server doesn't receive any update on it for one hour).
 
-The following curl command activates the data flow on a series identified by the Orthanc server as `1f3df579-b58352b8-923b6bd9-e44aefa4-21581e31`.
+The following curl command activates the data flow on a DICOM series identified by the Orthanc server as `1f3df579-b58352b8-923b6bd9-e44aefa4-21581e31`.
 
 ```
 $ curl -X POST -u admin http://{streamer_hostname}:3001/mri/series/1f3df579-b58352b8-923b6bd9-e44aefa4-21581e31
