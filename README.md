@@ -1,4 +1,4 @@
-# Streamer for LAB dataflow
+# Streamer for lab dataflow
 
 This package implements a data streamer service allowing user/service on a scanner
 console to trigger an automatic dataflow to the project storage and RDM collections.
