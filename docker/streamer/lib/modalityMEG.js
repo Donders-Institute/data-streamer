@@ -72,7 +72,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         if ( ! fs.existsSync(dst) && createDir ) {
             try {
                 //TODO: this is NOT a good way to create directory recursively
-                child_process.execSync('mkdir -p ' + dst);
+                child_process.execSync('mkdir -p "' + dst + '"');
             } catch(err) {}
         }
 
