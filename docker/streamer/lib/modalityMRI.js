@@ -180,8 +180,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                                     }
                                     // set job progress
                                     job.progress(minProgress +
-                                                 Math.round((i++)*(maxProgress-minProgress)/total_instances)),
-                                                 100);
+                                                 Math.round((i++)*(maxProgress-minProgress)/total_instances),100);
                                     return _cbb(null,true);
                                 });
                             }).catch( function(err) {
