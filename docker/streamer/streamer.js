@@ -20,6 +20,9 @@ var m_meg = require('./lib/modalityMEG');
 var m_mri = require('./lib/modalityMRI');
 var m_test = require('./lib/modalityTEST');
 
+// admin module
+var m_admin = require('./lib/admin');
+
 var active_pids = {};
 
 const streamer_bindir = __dirname + path.sep + 'bin';
@@ -71,10 +74,13 @@ if (cluster.isMaster) {
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: false }));
 
-    // RESTful interfaces
+    // RESTful interfaces for creating modality-specific streamer job
     app.post('/meg/:date/:ds?', m_meg.createStreamerJob(queue));
     app.post('/mri/series/:id', m_mri.createStreamerJob(queue));
     app.post('/test/:date/:ds?', m_test.createStreamerJob(queue));
+
+    // RESTful interfaces for queue maintenance
+    app.delete('/queue/:unit/:age', m_admin.cleanupQueue(queue));
 
     // start service for RESTful APIs
     app.use(kue.app);
