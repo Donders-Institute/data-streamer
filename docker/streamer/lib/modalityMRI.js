@@ -143,9 +143,16 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                                   m[2] + '/' + sinfo['studyId'] + '/' +
                                   ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
                                   sinfo['seriesDescription'];
+
+                        // check whether the project directory exists
+                        if ( ! fs.existsSync('/project/' + m[1]) ) {
+                              // skip: non-existing project in central storage
+                              utility.printLog('MRI:execStreamerJob:getInstanceFiles', 'project storage not found, skip: ' + sid);
+                              return _cb(null, true);
+                        }
                     } else {
-                        // skip for unexpected patientId convention
-                        utility.printLog('MRI:execStreamerJob:getInstanceFiles', 'skip: ' + sid);
+                        // skip: unexpected patientId convention
+                        utility.printLog('MRI:execStreamerJob:getInstanceFiles', 'non-standard patientId, skip: ' + sid);
                         return _cb(null, true);
                     }
                 }
