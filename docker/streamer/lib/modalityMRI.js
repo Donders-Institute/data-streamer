@@ -262,8 +262,16 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
             if ( resp.statusCode >= 400 ) {  //HTTP error
                 var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
-                utility.printErr('MRI:execStreamerJob:submitStagerJob', errmsg);
-                return cb_async(errmsg, src);
+                if ( resp.statusCode == 404 && !toCatchall ) {
+                    // accept 404 NOT FOUND error if it's not about a catchall collection
+                    // it can happen when it's about a PILOT project; or a project not having
+                    // a RDM collection being created/mapped properly.
+                    utility.printLog('MRI:execStreamerJob:submitStagerJob', 'collection not found for project: ' + p);
+                    return cb_async(null, src);
+                } else {
+                    utility.printErr('MRI:execStreamerJob:submitStagerJob', errmsg);
+                    return cb_async(errmsg, src);
+                }
             }
 
             var rpost_args = {
