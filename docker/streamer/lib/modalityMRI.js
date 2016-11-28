@@ -80,12 +80,12 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 occ().series.getPatient(sid).then( function(data) {
                     if ( data['MainDicomTags'] ) {
                         sinfo['patientId'] = data['MainDicomTags']['PatientID'];
-                        return _cb(null, 0);
+                        return _cb(null, true);
                     } else {
                         throw new Error('no DICOM tags for patient, series: ' + sid);
                     }
                 }).catch( function(err) {
-                    return _cb(err, 1);
+                    return _cb(err, false);
                 });
             },
             function(_cb) { // get study DICOM tags
@@ -95,12 +95,12 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                         sinfo['studyDate'] = data['MainDicomTags']['StudyDate'];
                         sinfo['studyTime'] = data['MainDicomTags']['StudyTime'];
                         sinfo['studyDescription'] = data['MainDicomTags']['StudyDescription'];
-                        return _cb(null, 0);
+                        return _cb(null, true);
                     } else {
                         throw new Error('no DICOM tags for study, series: ' + sid);
                     }
                 }).catch( function(err) {
-                    return _cb(err, 1);
+                    return _cb(err, false);
                 });
             },
             function(_cb) { // get series DICOM tags and loop over instances to get files
@@ -109,12 +109,12 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                     if ( data['MainDicomTags'] ) {
                         sinfo['seriesNumber'] = data['MainDicomTags']['SeriesNumber'];
                         sinfo['seriesDescription'] = data['MainDicomTags']['SeriesDescription'];
-                        return _cb(null, 0);
+                        return _cb(null, true);
                     } else {
                         throw new Error('no DICOM tags for series, series: ' + sid);
                     }
                 }).catch( function(err) {
-                    return _cb(err, 1);
+                    return _cb(err, false);
                 });
             },
             function(_cb) {  // get the instance data to project storage
@@ -146,7 +146,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                     } else {
                         // skip for unexpected patientId convention
                         utility.printLog('MRI:execStreamerJob:getInstanceFiles', 'skip: ' + sid);
-                        return _cb(null, 0);
+                        return _cb(null, true);
                     }
                 }
 
@@ -163,7 +163,9 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                     } catch(err) {}
                 }
 
-                async.each(sinfo['instances'], function(iid, _cbb) {
+                var i = 0;
+                var total_instances = sinfo['instances'].length;
+                async.everyLimit(sinfo['instances'], 20, function(iid, _cbb) {
                     occ().instances.get(iid).then( function(data) {
                         if ( data['MainDicomTags'] ) {
                             // construct instance filename
@@ -176,59 +178,182 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                                     if (err) {
                                         throw new Error('cannot write instance data: ' + f_dcm);
                                     }
-                                    return _cbb(null,0);
+                                    // set job progress
+                                    job.progress(minProgress +
+                                                 Math.round((i++)*(maxProgress-minProgress)/total_instances)),
+                                                 100);
+                                    return _cbb(null,true);
                                 });
                             }).catch( function(err) {
-                                return _cbb(err, 1);
+                                return _cbb(err, false);
                             });
                         } else {
                             throw new Error('no DICOM tags for instance: ' + iid);
                         }
                     }).catch( function(err) {
-                        return _cbb(err, 1);
+                        return _cbb(err, false);
                     });
-                }, function(err, results) {
-                    if ( err ) {
-                        return _cb(err, 1);
-                    } else {
-                        return _cb(null, 0);
-                    }
+                }, function(err, isComplete) {
+                    return _cb(err, isComplete);
                 });
             }
         ],
         function(err, results) {
             if (err) {
                 utility.printErr('MRI:execStreamerJob:getInstanceFiles', err);
-                return cb_async(err, 1);
+                return cb_async(err, null);
             } else {
-                return cb_async(null, 0);
+                // set job to its maxProgress for the task
+                job.progress(maxProgress, 100);
+                return cb_async(null, baseDir);
             }
         });
     }
 
+    /*
+    // General function to submit a staging job for uploading series data to
+    // RDM.
+    */
+    var submitStagerJob = function(src, toCatchall, minProgress, maxProgress, cb_async ) {
+
+        // resolve project number from given src
+        var reg_prj = new RegExp(config.get('MRI.projectStorageRegex') + ".*");
+        var m = reg_prj.exec(src);
+
+        // skip staging job if the source path is not referring to a project storage
+        if ( ! m && ! toCatchall ) {
+            utility.printLog('MRI:execStreamerJob:submitStagerJob', 'skip data staging: ' + src);
+            // set to job's maxProgress for the task
+            job.progress(maxProgress, 100);
+            cb_async(null, src);
+        }
+
+        // construct project and RESTful endpoint for resolving RDM collection namespace
+        var p = (toCatchall) ? '_CATCHALL.MRI':m[1];
+        var myurl = config.get('DataStager.url') + '/rdm/DAC/project/' + p;
+
+        // general function to construct destination URL for stager job
+        var _mkDst = function(_src, _collName) {
+            // TODO: need a structured way of resolving src path to destination path
+            //       things to be considered:
+            //         - {PROJECT_BASE_DIR}/{PROJECT_NUMBER}
+            //           -> {CATCHALL_COLL}/raw/{PROJECT_NUMBER} -or-
+            //           -> {PROJECT_COLL}/raw/
+            //         - {HOME}/{GROUP}/{USER}/...
+            //           -> ?? not clear how the mapping should look like
+            var _dst = 'irods:' + _collName + '/raw/';
+            if ( toCatchall ) {
+                _dst += _src.replace(new RegExp('^/project/'), '');
+            } else {
+                _dst += _src.replace(new RegExp(config.get('MRI.projectStorageRegex')), '');
+            }
+            return _dst;
+        }
+
+        // Initialise RESTful client
+        var RestClient = require('node-rest-client').Client;
+        var c_stager = new RestClient({
+            user: config.get('DataStager.username'),
+            password: config.get('DataStager.password')
+        });
+        var rget_args = { headers: { 'Accept': 'application/json' } };
+
+        // Resolve collection namespace
+        c_stager.get(myurl, rget_args, function(rdata, resp) {
+
+            if ( resp.statusCode >= 400 ) {  //HTTP error
+                var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
+                utility.printErr('MRI:execStreamerJob:submitStagerJob', errmsg);
+                return cb_async(errmsg, src);
+            }
+
+            var rpost_args = {
+                headers: { 'Accept': 'application/json',
+                           'Content-Type': 'application/json' },
+                data: [{
+                    'type': 'rdm',
+                    'data': { 'clientIF': 'irods',
+                              'stagerUser': 'root',
+                              'rdmUser': 'irods',
+                              'title': '[' + (new Date()).toISOString() + '] Streamer.MRI: ' + src,
+                              'timeout': 3600,
+                              'timeout_noprogress': 600,
+                              'srcURL': src,
+                              'dstURL': _mkDst(src, rdata.collName) },
+                    'options': { 'attempts': 5,
+                                 'backoff': { 'delay' : 60000,
+                                              'type'  : 'fixed' } }
+                }]
+            };
+
+            // Submit stager job
+            c_stager.post(config.get('DataStager.url') + '/job', rpost_args, function(rdata, resp) {
+                if ( resp.statusCode >= 400 ) {  //HTTP error
+                    var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
+                    utility.printErr('MRI:execStreamerJob:submitStagerJob', errmsg);
+                    return cb_async(errmsg, src);
+                } else {
+                    rdata.forEach( function(d) {
+                        utility.printLog('MRI:execStreamerJob:submitStagerJob', JSON.stringify(d));
+                    });
+                    // job submitted!! set to job's maxProgress for the task
+                    job.progress(maxProgress, 100);
+                    return cb_async(null, src);
+                }
+            }).on('error', function(err) {
+                utility.printErr('MRI:execStreamerJob:submitStagerJob', err);
+                var errmsg = 'fail submitting stager jobs: ' + JSON.stringify(ds_list);
+                job.log(errmsg);
+                return cb_async(errmsg, src);
+            });
+        }).on('error', function(err) {
+            // fail to get collection for project
+            var errmsg = 'cannot get collection for project: ' + p;
+            utility.printErr('MRI:execStreamerJob:submitStagerJob', err);
+            job.log(errmsg);
+            // this will cause process to stop
+            return cb_async(errmsg, src);
+        });
+    }
+
     // here are logical steps run in sequencial order
-    async.series([
+    async.waterfall([
         function(cb) {
             // step 1: get all instances of a the series to catch-all buffer
+            //         it returns the directory in which the DICOM files are
+            //         stored in the catch-all project storage.
             getInstanceFiles(true, true, 0, 40, cb);
         },
-        function(cb) {
-            // step 2: archive to catch-all collection
-            cb(null, 0);
+        function(dataDir, cb) {
+            // step 2: archive DICOM images in dataDir (output from the previous task)
+            //         to a catch-all collection in RDM.
+            //         it passes the dataDir (output from the previous task) on success.
+            if ( dataDir ) {
+                submitStagerJob(dataDir, true, 40, 50, cb);
+            } else {
+                // it should never happen that the dataDir of catch-all storage is 'null' or 'undefined'
+                // this call terminates the rest async process immediately
+                cb('dataDir not found: ' + dataDir, dataDir);
+            }
         },
-        function(cb) {
-            // step 3: archive to project collection
-            cb(null, 0);
+        function(dataDir, cb) {
+            // step 3: archive DICOM images in dataDir (output from the previous task)
+            //         to the project-specific collection in RDM.
+            //         it passes the dataDir (output from the previous task) on success.
+            submitStagerJob(dataDir, false, 50, 60, cb);
         },
-        function(cb) {
+        function(dataDir, cb) {
             // step 4: get all instances of a series to project storage
+            //         it returns the directory in which the DICOM files are
+            //         stored in the project storage.
             getInstanceFiles(false, true, 60, 100, cb);
         }],
-        function(err, results) {
+        function(err, dataDir) {
             if (err) {
+                utility.printErr('MRI:execStreamerJob', err);
                 cb_done(err);
             } else {
-                utility.printLog('MRI:execStreamerJob', 'output: ' + JSON.stringify(results));
+                utility.printLog('MRI:execStreamerJob', 'success');
                 cb_done();
             }
         }
