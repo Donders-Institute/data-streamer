@@ -22,7 +22,8 @@
     "MRI": {
         "orthancUsername": "",
         "orthancPassword": "",
-        "orthancEndpoint": "http://localhost:8042",
-        "streamerDataDirRoot": "/project/3010000.01/raw"
+        "orthancEndpoint": "http://pacs.dccn.nl:8042",
+        "streamerDataDirRoot": "/project/3010000.01/raw",
+        "projectStorageRegex": "^/project/(30[0-9]{5}\\.[0-9]{2})/"
     }
 }
