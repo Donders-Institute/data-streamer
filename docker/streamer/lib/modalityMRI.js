@@ -95,7 +95,14 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                         sinfo['studyId'] = data['MainDicomTags']['StudyID'];
                         sinfo['studyDate'] = data['MainDicomTags']['StudyDate'];
                         sinfo['studyTime'] = data['MainDicomTags']['StudyTime'];
-                        sinfo['studyDescription'] = data['MainDicomTags']['StudyDescription'];
+
+                        if ( data['MainDicomTags']['StudyDescription'] ) {
+                            sinfo['studyDescription'] = data['MainDicomTags']['StudyDescription'];
+                        } else {
+                            // mimicing the studyDescription using RequestedProcedureDescription
+                            sinfo['studyDescription'] = data['MainDicomTags']['RequestedProcedureDescription'];
+                        }
+
                         return _cb(null, true);
                     } else {
                         throw new Error('no DICOM tags for study, series: ' + sid);
@@ -133,9 +140,13 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                         projectNumber = m[1];
                     } else {
                         // directory structure for an unexpected patientId convention
+                        // study directory prefix constructed from studyDescription,
+                        // with space-characters replaced with '^'.
+                        var sdir_pre = (sinfo['studyDescription']) ?
+                                        sinfo['studyDescription'].replace(/\s/g,'^'):'unknown';
+
                         baseDir += sinfo['studyDate'] + '/' +
-                                   sinfo['studyDescription'] + '_' +
-                                   sinfo['studyTime'] + '/' +
+                                   sdir_pre + '_' + sinfo['studyTime'] + '/' +
                                    ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
                                    sinfo['seriesDescription'];
                     }
