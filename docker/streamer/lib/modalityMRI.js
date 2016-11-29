@@ -232,7 +232,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             utility.printLog('MRI:execStreamerJob:submitStagerJob', 'skip data staging: ' + src);
             // set to job's maxProgress for the task
             job.progress(maxProgress, 100);
-            cb_async(null, src, projectNumber);
+            return cb_async(null, src, projectNumber);
         }
 
         // construct project and RESTful endpoint for resolving RDM collection namespace
