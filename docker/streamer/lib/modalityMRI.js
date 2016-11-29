@@ -251,7 +251,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             //    after the '/raw/' directory, as the project number has been
             //    presented as part of the collection namespace.
             if ( ! toCatchall ) {
-                _dst = _dst.replace('/raw/' + projectNumber + '/'), '/raw/');
+                _dst = _dst.replace('/raw/' + projectNumber + '/', '/raw/');
             }
             return _dst;
         }
