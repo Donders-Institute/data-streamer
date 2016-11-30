@@ -108,6 +108,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             // use the child process's stderr data to update job's progress
             // the progress is normalised to maxProgress w/ offset minProgress.
             try {
+                utility.printLog(job.id + ':MEG:execStreamerJob:runRsync', 'done');
                 var p = minProgress + Math.round( parseInt(data.toString().trim()) * maxProgress / 100 );
                 job.progress(p, 100);
             } catch(err) {
@@ -303,7 +304,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             });
         }, function (err, outputs) {
             // the mapValues are done
-            utility.printLog(job.id + ':MEG:execStreamerJob:submitJobStager', 'output: ' + JSON.stringify(outputs));
+            utility.printLog(job.id + ':MEG:execStreamerJob:submitStagerJob', 'output: ' + JSON.stringify(outputs));
             if (err) {
                 return cb_async('fail submitting stager jobs', 1);
             } else {
