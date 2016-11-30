@@ -210,11 +210,18 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             }
 
             c_stager.get(myurl, rget_args, function(rdata, resp) {
-
-                if ( resp.statusCode >= 400 ) {  //HTTP error
+                if ( resp.statusCode >= 400 ) {
                     var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
-                    utility.printErr('MEG:execStreamerJob:submitStagerJob', errmsg);
-                    return cb_async_stager(errmsg, false);
+                    if ( resp.statusCode == 404 && !toCatchall ) {
+                        // accept 404 NOT FOUND error if it's not about a catchall collection
+                        // it can happen when it's about a PILOT project; or a project not having
+                        // a RDM collection being created/mapped properly.
+                        utility.printLog('MRI:execStreamerJob:submitStagerJob', 'collection not found for project: ' + p);
+                        return cb_async_stager(null, true);
+                    } else {
+                        utility.printErr('MEG:execStreamerJob:submitStagerJob', errmsg);
+                        return cb_async_stager(errmsg, false);
+                    }
                 }
 
                 // here we get the collection namespace for the project
