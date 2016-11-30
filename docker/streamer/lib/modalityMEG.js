@@ -87,7 +87,8 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 utility.printErr(job.id + ':MEG:execStreamerJob:runRsync', 'non-zero exit code: ' + code);
                 return cb_async('rsync process non-zero exit code: ' + code + ' (' + signal + ')', code);
             } else {
-                // set job progress to 40%
+                // set job progress to maxProgress
+                utility.printLog(job.id + ':MEG:execStreamerJob:runRsync', 'done');
                 job.progress(maxProgress, 100);
                 return cb_async(null,0);
             }
@@ -108,7 +109,6 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             // use the child process's stderr data to update job's progress
             // the progress is normalised to maxProgress w/ offset minProgress.
             try {
-                utility.printLog(job.id + ':MEG:execStreamerJob:runRsync', 'done');
                 var p = minProgress + Math.round( parseInt(data.toString().trim()) * maxProgress / 100 );
                 job.progress(p, 100);
             } catch(err) {
