@@ -23,14 +23,14 @@ var _createStreamerJob = function(queue) {
                 series: seriesId
             }).attempts(5).ttl(3600*1000).backoff( {delay: 60*1000, type:'fixed'} ).save(function(err) {
                 if ( err ) {
-                    utility.printErr('MRI:createStreamerJob', err);
+                    utility.printErr(job.id + ':MRI:createStreamerJob', err);
                     utility.responseOnError('json',{'error': 'fail creating job: ' + err}, res);
                 } else {
                     res.json({'message': 'job ' + job.id + ' created'});
                 }
             });
         } else {
-            utility.printErr('MRI:createStreamerJob', 'invalid job queue: ' + queue);
+            utility.printErr(job.id + ':MRI:createStreamerJob', 'invalid job queue: ' + queue);
             utility.responseOnError('json',{'error': 'invalid queue'}, res);
         }
     }
@@ -163,19 +163,19 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                         // check whether the project directory exists
                         if ( ! fs.existsSync('/project/' + m[1]) ) {
                               // skip: non-existing project in central storage
-                              utility.printLog('MRI:execStreamerJob:getInstanceFiles', 'project storage not found, skip: ' + sid);
+                              utility.printLog(job.id + ':MRI:execStreamerJob:getInstanceFiles', 'project storage not found, skip: ' + sid);
                               return _cb(null, true);
                         }
                     } else {
                         // skip: unexpected patientId convention
-                        utility.printLog('MRI:execStreamerJob:getInstanceFiles', 'non-standard patientId, skip: ' + sid);
+                        utility.printLog(job.id + ':MRI:execStreamerJob:getInstanceFiles', 'non-standard patientId, skip: ' + sid);
                         return _cb(null, true);
                     }
                 }
 
                 // copy the data over to baseDir, using async.every
                 // TODO: shall we limited the downloading concurrency?
-                utility.printLog('MRI:execStreamerJob:getInstanceFiles',
+                utility.printLog(job.id + ':MRI:execStreamerJob:getInstanceFiles',
                                  'writing ' + sinfo['instances'].length + ' instances to ' + baseDir);
 
                 // create destination directory on request
@@ -222,7 +222,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         ],
         function(err, results) {
             if (err) {
-                utility.printErr('MRI:execStreamerJob:getInstanceFiles', err);
+                utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', err);
                 return cb_async(err, null, null);
             } else {
                 // set job to its maxProgress for the task
@@ -240,7 +240,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
         // skip staging job if the source path is not referring to a project storage
         if ( ! projectNumber && ! toCatchall ) {
-            utility.printLog('MRI:execStreamerJob:submitStagerJob', 'skip data staging: ' + src);
+            utility.printLog(job.id + ':MRI:execStreamerJob:submitStagerJob', 'skip data staging: ' + src);
             // set to job's maxProgress for the task
             job.progress(maxProgress, 100);
             return cb_async(null, src, projectNumber);
@@ -284,10 +284,10 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                     // accept 404 NOT FOUND error if it's not about a catchall collection
                     // it can happen when it's about a PILOT project; or a project not having
                     // a RDM collection being created/mapped properly.
-                    utility.printLog('MRI:execStreamerJob:submitStagerJob', 'collection not found for project: ' + p);
+                    utility.printLog(job.id + ':MRI:execStreamerJob:submitStagerJob', 'collection not found for project: ' + p);
                     return cb_async(null, src, projectNumber);
                 } else {
-                    utility.printErr('MRI:execStreamerJob:submitStagerJob', errmsg);
+                    utility.printErr(job.id + ':MRI:execStreamerJob:submitStagerJob', errmsg);
                     return cb_async(errmsg, src, projectNumber);
                 }
             }
@@ -315,18 +315,18 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             c_stager.post(config.get('DataStager.url') + '/job', rpost_args, function(rdata, resp) {
                 if ( resp.statusCode >= 400 ) {  //HTTP error
                     var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
-                    utility.printErr('MRI:execStreamerJob:submitStagerJob', errmsg);
+                    utility.printErr(job.id + ':MRI:execStreamerJob:submitStagerJob', errmsg);
                     return cb_async(errmsg, src, projectNumber);
                 } else {
                     rdata.forEach( function(d) {
-                        utility.printLog('MRI:execStreamerJob:submitStagerJob', JSON.stringify(d));
+                        utility.printLog(job.id + ':MRI:execStreamerJob:submitStagerJob', JSON.stringify(d));
                     });
                     // job submitted!! set to job's maxProgress for the task
                     job.progress(maxProgress, 100);
                     return cb_async(null, src, projectNumber);
                 }
             }).on('error', function(err) {
-                utility.printErr('MRI:execStreamerJob:submitStagerJob', err);
+                utility.printErr(job.id + ':MRI:execStreamerJob:submitStagerJob', err);
                 var errmsg = 'fail submitting stager jobs: ' + JSON.stringify(ds_list);
                 job.log(errmsg);
                 return cb_async(errmsg, src, projectNumber);
@@ -334,7 +334,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         }).on('error', function(err) {
             // fail to get collection for project
             var errmsg = 'cannot get collection for project: ' + p;
-            utility.printErr('MRI:execStreamerJob:submitStagerJob', err);
+            utility.printErr(job.id + ':MRI:execStreamerJob:submitStagerJob', err);
             job.log(errmsg);
             // this will cause process to stop
             return cb_async(errmsg, src, projectNumber);
@@ -373,10 +373,10 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         }],
         function(err, dataDir, projectNumber) {
             if (err) {
-                utility.printErr('MRI:execStreamerJob', err);
+                utility.printErr(job.id + ':MRI:execStreamerJob', err);
                 cb_done(err);
             } else {
-                utility.printLog('MRI:execStreamerJob', 'success');
+                utility.printLog(job.id + ':MRI:execStreamerJob', 'success');
                 cb_done();
             }
         }
