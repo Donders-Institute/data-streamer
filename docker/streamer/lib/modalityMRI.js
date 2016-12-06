@@ -41,17 +41,13 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
     var async = require('async');
     var oc = require('orthanc-client');
-
-    // function to get new Orthanc Client instance
-    var occ = function() {
-        return new oc({
-            url: config.get('MRI.orthancEndpoint'),
-            auth: {
-                username: config.get('MRI.orthancUsername'),
-                password: config.get('MRI.orthancPassword')
-              }
-        });
-    };
+    var oc_cfg = {
+        url: config.get('MRI.orthancEndpoint'),
+        auth: {
+            username: config.get('MRI.orthancUsername'),
+            password: config.get('MRI.orthancPassword')
+        }
+    }
 
     /*
     // General function to get DICOM header attribute and image data files of
@@ -78,7 +74,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
         async.series([
             function(_cb) { // get patient DICOM tags
-                occ().series.getPatient(sid).then( function(data) {
+                (new oc(oc_cfg)).series.getPatient(sid).then( function(data) {
                     if ( data['MainDicomTags'] ) {
                         sinfo['patientId'] = data['MainDicomTags']['PatientID'];
                         return _cb(null, true);
@@ -90,7 +86,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 });
             },
             function(_cb) { // get study DICOM tags
-                occ().series.getStudy(sid).then( function(data) {
+                (new oc(oc_cfg)).series.getStudy(sid).then( function(data) {
                     if ( data['MainDicomTags'] ) {
                         sinfo['studyId'] = data['MainDicomTags']['StudyID'];
                         sinfo['studyDate'] = data['MainDicomTags']['StudyDate'];
@@ -112,7 +108,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 });
             },
             function(_cb) { // get series DICOM tags and loop over instances to get files
-                occ().series.get(sid).then( function(data) {
+                (new oc(oc_cfg)).series.get(sid).then( function(data) {
                     sinfo['instances'] = data['Instances'];
                     if ( data['MainDicomTags'] ) {
                         sinfo['seriesNumber'] = data['MainDicomTags']['SeriesNumber'];
@@ -189,14 +185,14 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 var i = 0;
                 var total_instances = sinfo['instances'].length;
                 async.everyLimit(sinfo['instances'], 20, function(iid, _cbb) {
-                    occ().instances.get(iid).then( function(data) {
+                    (new oc(oc_cfg)).instances.get(iid).then( function(data) {
                         if ( data['MainDicomTags'] ) {
                             // construct instance filename
                             var f_dcm = baseDir + '/' +
                                         ('0000000' + data['MainDicomTags']['InstanceNumber']).slice(-5) +
                                         '_' + data['MainDicomTags']['SOPInstanceUID'] + '.IMA';
                             // get data from Orthanc and write to the filename
-                            occ().instances.getFile(iid).then( function(buf) {
+                            (new oc(oc_cfg)).instances.getFile(iid).then( function(buf) {
                                 fs.writeFile(f_dcm, buf, function(err) {
                                     if (err) {
                                         throw new Error('cannot write instance data: ' + f_dcm);

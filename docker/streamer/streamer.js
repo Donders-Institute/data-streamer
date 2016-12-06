@@ -166,11 +166,18 @@ if ( cluster.worker ) {
                 var cb_remove = function() {
                     return job_removed;
                 }
-
+                console.log( "mem report@job start, worker " + cluster.worker.id + ": " + JSON.stringify(process.memoryUsage()) );
                 job_exec_logic(job, cb_remove, done);
             }
         });
     });
+
+    setInterval( function() {
+        // force garbadge collection
+        //gc();
+        console.log( "mem report, worker " + cluster.worker.id + ": " + JSON.stringify(process.memoryUsage()) );
+    }, 60*1000 );
+
 }
 
 // graceful shutdown of the queue and the service
