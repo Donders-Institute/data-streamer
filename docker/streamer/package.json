@@ -22,6 +22,7 @@
     "node-rest-client": "~2.0.1",
     "body-parser": "~1.15.2",
     "posix": "~4.1.1",
-    "orthanc-client": "~0.10.5"
+    "orthanc-client": "~0.10.5",
+    "heapdump": "~0.3.7"
   }
 }

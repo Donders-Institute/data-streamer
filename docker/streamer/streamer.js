@@ -112,6 +112,8 @@ if (cluster.isMaster) {
 // Worker process of the cluster
 if ( cluster.worker ) {
 
+    var heapdump = require('heapdump');
+
     var job_removed = false;
 
     // message handling when the worker receives message from the master
@@ -174,7 +176,7 @@ if ( cluster.worker ) {
 
     setInterval( function() {
         // force garbadge collection
-        //gc();
+        gc();
         console.log( "mem report, worker " + cluster.worker.id + ": " + JSON.stringify(process.memoryUsage()) );
     }, 60*1000 );
 
