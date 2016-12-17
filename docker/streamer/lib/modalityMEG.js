@@ -100,14 +100,13 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         })
 
         // define callback when receiving new stderr from the child process
-        child.stdout.on('data', function(data) {
+        child.stderr.on('data', function(data) {
             job.log(data.toString());
+            utility.printErr(job.id + ':MEG:execStreamerJob:runRsync',err);
         });
 
         // define callback when receiving new stderr from the child process
-        child.stderr.on('data', function(data) {
-            // use the child process's stderr data to update job's progress
-            // the progress is normalised to maxProgress w/ offset minProgress.
+        child.stdout.on('data', function(data) {
             try {
                 var p = minProgress + Math.round( parseInt(data.toString().trim()) * maxProgress / 100 );
                 job.progress(p, 100);

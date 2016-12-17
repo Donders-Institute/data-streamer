@@ -43,17 +43,28 @@ console_user=$2
 console_pass=$3
 local_dir=$4
 
-f_stderr=/opt/streamer/log/meg_copy.err.$$
-
 mydir=$( get_script_dir $0 )
 
+f_stderr=${mydir}/../log/meg_copy.err.$$
+
 # retrieve total amount of items to be process by the rsync
-total_items=$( rsync -rpvn --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -o StrictHostKeyChecking=no -l ${console_user}" \
+w_total=$( rsync -rpvn --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -o StrictHostKeyChecking=no -l ${console_user}" \
                ${console_dir}/ ${local_dir}/ | wc -l )
 
 # perform the rsync and monitor the progress (the progress is reported to STDERR)
+#${mydir}/s-unbuffer rsync -rpv --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -o StrictHostKeyChecking=no -l ${console_user}" \
+#${console_dir}/ ${local_dir}/ 2>${f_stderr} | pv -ln -s ${w_total} > /dev/null
+
+w_done=0
 ${mydir}/s-unbuffer rsync -rpv --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -o StrictHostKeyChecking=no -l ${console_user}" \
-${console_dir}/ ${local_dir}/ 2>${f_stderr} | pv -ln -s ${total_items} > /dev/null
+${console_dir}/ ${local_dir}/ 2>${f_stderr} | while read -r line; do
+    w_done=$(( $w_done + 1 ))
+    if [ $w_done -ge $w_total ]; then
+        echo 99
+    else
+        echo $(( $w_done * 100 / $w_total ))
+    fi
+done
 
 retval=${PIPESTATUS[0]}
 
