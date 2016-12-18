@@ -102,7 +102,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         // define callback when receiving new stderr from the child process
         child.stderr.on('data', function(data) {
             job.log(data.toString());
-            utility.printErr(job.id + ':MEG:execStreamerJob:runRsync',err);
+            utility.printErr(job.id + ':MEG:execStreamerJob:runRsync', data.toString());
         });
 
         // define callback when receiving new stderr from the child process
