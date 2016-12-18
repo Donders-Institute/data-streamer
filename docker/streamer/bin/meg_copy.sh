@@ -45,19 +45,18 @@ local_dir=$4
 
 mydir=$( get_script_dir $0 )
 
-f_stderr=${mydir}/../log/meg_copy.err.$$
-
 # retrieve total amount of items to be process by the rsync
 w_total=$( rsync -rpvn --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -o StrictHostKeyChecking=no -l ${console_user}" \
                ${console_dir}/ ${local_dir}/ | wc -l )
 
-# perform the rsync and monitor the progress (the progress is reported to STDERR)
+# perform the rsync and monitor the progress with pv: the progress is reported to STDERR
 #${mydir}/s-unbuffer rsync -rpv --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -o StrictHostKeyChecking=no -l ${console_user}" \
-#${console_dir}/ ${local_dir}/ 2>${f_stderr} | pv -ln -s ${w_total} > /dev/null
+#${console_dir}/ ${local_dir}/ | pv -ln -s ${w_total} > /dev/null
 
+# perform the rsync and monitor the progress with a while loop: the progress is reported to STDOUT
 w_done=0
 ${mydir}/s-unbuffer rsync -rpv --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -o StrictHostKeyChecking=no -l ${console_user}" \
-${console_dir}/ ${local_dir}/ 2>${f_stderr} | while read -r line; do
+${console_dir}/ ${local_dir}/ | while read -r line; do
     w_done=$(( $w_done + 1 ))
     if [ $w_done -ge $w_total ]; then
         echo 99
@@ -70,10 +69,10 @@ retval=${PIPESTATUS[0]}
 
 if [ $retval -ne 0 ]; then
     # rsync error
-    echo "stderr file: ${f_stderr}"
+    # TODO: here we may want to clean up the temporary files produced by rsync process
+    echo "meg_copy.sh: rsync failure" 1>&2
 else
     chmod -R og-w ${local_dir}
-    rm -f ${f_stderr}
 fi
 
 exit $retval
