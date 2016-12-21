@@ -119,9 +119,9 @@ if (cluster.isMaster) {
 }
 
 // Worker process of the cluster
-if ( cluster.worker ) {
+if ( cluster.isWorker ) {
 
-    var heapdump = require('heapdump');
+    //var heapdump = require('heapdump');
 
     var job_removed = false;
 
