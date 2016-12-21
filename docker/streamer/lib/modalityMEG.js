@@ -82,6 +82,11 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         child.on('close', function(code, signal) {
             // notify the timer that the child process has been finished
             cp_end = true;
+
+            // close up the stdin stream
+            // TODO: is it really necessary?? 
+            child.stdin.end();
+
             // interruption handling (null if process is not interrupted)
             if ( code != 0 ) {
                 utility.printErr(job.id + ':MEG:execStreamerJob:runRsync', 'non-zero exit code: ' + code);
@@ -100,19 +105,23 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         })
 
         // define callback when receiving new stderr from the child process
-        child.stderr.on('data', function(data) {
-            job.log(data.toString());
-            utility.printErr(job.id + ':MEG:execStreamerJob:runRsync', data.toString());
+        child.stderr.on('data', function(errbuf) {
+            var errmsg = errbuf.toString();
+            errbuf = null;
+            job.log(errmsg);
+            utility.printErr(job.id + ':MEG:execStreamerJob:runRsync', errmsg);
         });
 
         // define callback when receiving new stderr from the child process
-        child.stdout.on('data', function(data) {
+        child.stdout.on('data', function(outbuf) {
+            var outmsg = outbuf.toString();
+            outbuf = null;
             try {
-                var p = minProgress + Math.round( parseInt(data.toString().trim()) * maxProgress / 100 );
+                var p = minProgress + Math.round( parseInt(outmsg.trim()) * maxProgress / 100 );
                 job.progress(p, 100);
             } catch(err) {
                 // something wrong in parsing the data into progress value
-                job.log(data.toString());
+                job.log(outmsg);
                 utility.printErr(job.id + ':MEG:execStreamerJob:runRsync',err);
             }
         });
