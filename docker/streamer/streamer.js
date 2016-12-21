@@ -88,11 +88,9 @@ if (cluster.isMaster) {
     app.listen(3001);
 
     // fork workers
-    //var nworkers = require('os').cpus().length - 1;
-    var nworkers = 2;
-    for (var i = 0; i < nworkers; i++) {
+    var create_worker = function() {
         var w = cluster.fork();
-
+        utility.printLog(null, 'new worker created: ' + w.id);
         // message handling when the master receives message from a worker
         w.on('message', function(msg) {
             switch( msg.type ) {
@@ -106,6 +104,17 @@ if (cluster.isMaster) {
                     break;
             }
         });
+
+        w.on('exit', function(code, signal) {
+            utility.printErr(null, util.format('worker %s exits with code (%s) signal (%s)', this.id, code, signal));
+            create_worker();
+        });
+    }
+
+    //var nworkers = require('os').cpus().length - 1;
+    var nworkers = 2;
+    for (var i = 0; i < nworkers; i++) {
+        create_worker();
     }
 }
 
