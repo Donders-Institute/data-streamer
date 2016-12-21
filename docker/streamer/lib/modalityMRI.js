@@ -39,6 +39,9 @@ var _createStreamerJob = function(queue) {
 // run a streamer job given a job data
 var _execStreamerJob = function( job, cb_remove, cb_done) {
 
+    var http = require('http');
+    var oc_url = require('url').parse(config.get('MRI.orthancEndpoint'));
+
     var async = require('async');
     var oc = require('orthanc-client');
     var oc_cfg = {
@@ -186,27 +189,66 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 var total_instances = sinfo['instances'].length;
                 async.everyLimit(sinfo['instances'], 20, function(iid, _cbb) {
                     (new oc(oc_cfg)).instances.get(iid).then( function(data) {
+                        var errmsg = '';
                         if ( data['MainDicomTags'] ) {
                             // construct instance filename
                             var f_dcm = baseDir + '/' +
                                         ('0000000' + data['MainDicomTags']['InstanceNumber']).slice(-5) +
                                         '_' + data['MainDicomTags']['SOPInstanceUID'] + '.IMA';
                             // get data from Orthanc and write to the filename
-                            (new oc(oc_cfg)).instances.getFile(iid).then( function(buf) {
-                                fs.writeFile(f_dcm, buf, function(err) {
-                                    if (err) {
-                                        throw new Error('cannot write instance data: ' + f_dcm);
-                                    }
-                                    // set job progress
-                                    job.progress(minProgress +
-                                                 Math.round((i++)*(maxProgress-minProgress)/total_instances),100);
-                                    return _cbb(null,true);
+                            var f = fs.createWriteStream(f_dcm);
+
+                            /* method 1: using the build-in http client */
+                            http.get({
+                                hostname: oc_url.hostname,
+                                port: oc_url.port,
+                                path: '/instances/' + iid + '/file',
+                                auth: "'" + config.get('MRI.orthancUsername') + "':'" + config.get('MRI.orthancPassword') + "'"
+                            }, function(resp) {
+                                if ( resp.statusCode != 200 ) {
+                                    fs.unlink(f_dcm, function(err) {});
+                                    errmsg =  'fail to retrieve instance data: ' + iid + ' (' + resp.statusCode + ') ';
+                                    utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
+                                    return _cbb(errmsg, false);
+                                }
+                                resp.pipe(f);
+                                f.on('finish', function() {
+                                    f.close( function(err) {
+                                        if (err) {
+                                            errmsg = 'fail to close instance data file: ' + err;
+                                            utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
+                                            return _cbb(errmsg, false);
+                                         }
+                                         job.progress(minProgress +
+                                                      Math.round((i++)*(maxProgress-minProgress)/total_instances),100);
+                                         return _cbb(null, true);
+                                    });
                                 });
-                            }).catch( function(err) {
-                                return _cbb(err, false);
+                            }).on('error', function(err) {
+                                fs.unlink(f_dcm, function(err) {});
+                                errmsg = 'fail to download data for instance: ' + err;
+                                utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
+                                return _cbb(errmsg, false);
                             });
+
+                            /* method 2: using the orthanc-client */
+                            // (new oc(oc_cfg)).instances.getFile(iid).then( function(buf) {
+                            //     fs.writeFile(f_dcm, buf, function(err) {
+                            //         if (err) {
+                            //             throw new Error('cannot write instance data: ' + f_dcm);
+                            //         }
+                            //         // set job progress
+                            //         job.progress(minProgress +
+                            //                      Math.round((i++)*(maxProgress-minProgress)/total_instances),100);
+                            //         return _cbb(null,true);
+                            //     });
+                            // }).catch( function(err) {
+                            //     return _cbb(err, false);
+                            // });
                         } else {
-                            throw new Error('no DICOM tags for instance: ' + iid);
+                            errmsg = 'no DICOM tags for instance: ' + iid;
+                            utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
+                            return _cbb(errmsg, false);
                         }
                     }).catch( function(err) {
                         return _cbb(err, false);
