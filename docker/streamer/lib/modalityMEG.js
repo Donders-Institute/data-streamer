@@ -180,7 +180,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
     /* General function to resolve the dataset directory within individual project */
     var resolveDatasetProjectPaths = function(prefix_prj, ds_list) {
         var path_list = [];
-        var subses_regex = new RegExp("^.*(sub[0-9]+)(ses[0-9]+).*$");
+        var subses_regex = new RegExp("^.*sub([0-9]+)ses([0-9]+).*$");
         ds_list.forEach( function(ds) {
             var m = subses_regex.exec( path.basename(ds).split('_')[0] );
             if ( m ) {
@@ -188,7 +188,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             } else {
                 path_list.push(path.join(prefix_prj, 'raw', path.basename(ds)));
             }
-        }
+        } );
         return path_list;
     };
 
@@ -197,7 +197,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
         async.mapValues( prj_ds, function( src_list, p, cb_async_rsync) {
             if ( p == 'unknown' ) {
-                utility.printLog(job.id + ':MEG:execStreamerJob:rsyncToProjects', 'skip: '+JSON.stringify(src_list));
+                utility.printLog(job.id + ':MEG:execStreamerJob:rsyncToProjects', 'skip datasets: '+JSON.stringify(src_list));
                 return cb_async_rsync(null, true);
             }
 
@@ -235,7 +235,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         async.mapValues( prj_ds, function(src_list, p, cb_async_stager) {
 
             if ( p == 'unknown' && ! toCatchall ) {
-                utility.printLog(job.id + ':MEG:execStreamerJob:submitStagerJob', 'skip: '+JSON.stringify(src_list));
+                utility.printLog(job.id + ':MEG:execStreamerJob:submitStagerJob', 'skip datasets: '+JSON.stringify(src_list));
                 return cb_async_stager(null, true);
             }
 
@@ -281,7 +281,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
                 // construct destination collection
                 var dst_list = [];
-                if ( isCatchall ) {
+                if ( toCatchall ) {
                     // for catchall, simply replace the path prefix with collection prefix
                     src_list.forEach( function(src) {
                         dst_list.push('irods:' + rdata.collName + '/raw/' +
@@ -308,7 +308,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                                      'backoff': { 'delay' : 60000,
                                                   'type'  : 'fixed' } }
                     });
-                });
+                }
 
                 // post new jobs to stager
                 if ( rpost_args.data.length > 0 ) {
