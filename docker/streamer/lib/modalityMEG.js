@@ -195,12 +195,12 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
     /* General function to copy data from catchall project to individual projects */
     var copyToProjects = function(prj_ds, minProgress, maxProgress, cb_async) {
 
-        var total = Object.keys(prj_ds).length;
-        var i = 0;
+        var p_total = Object.keys(prj_ds).length;
+        var p_done = 0;
         async.mapValues( prj_ds, function( src_list, p, cb_copy) {
             if ( p == 'unknown' ) {
                 utility.printLog(job.id + ':MEG:execStreamerJob:copyToProjects', 'skip datasets: '+JSON.stringify(src_list));
-                job.progress(minProgress+Math.round((++i)*(maxProgress-minProgress)/total), 100);
+                job.progress(minProgress+Math.round((++p_done)*(maxProgress-minProgress)/p_total), 100);
                 return cb_copy(null, true);
             }
 
@@ -208,7 +208,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             if ( ! fs.existsSync(path.join('/project', p)) ) {
                   // skip: non-existing project in central storage
                   utility.printLog(job.id + ':MEG:execStreamerJob:copyToProjects', 'project storage not found, skip: ' + p);
-                  job.progress(minProgress+Math.round((++i)*(maxProgress-minProgress)/total), 100);
+                  job.progress(minProgress+Math.round((++p_done)*(maxProgress-minProgress)/p_total), 100);
                   return cb_copy(null, true);
             }
 
@@ -245,7 +245,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 if (err) {
                     return cb_copy(err, false);
                 } else {
-                    job.progress(minProgress+Math.round((++i)*(maxProgress-minProgress)/total), 100);
+                    job.progress(minProgress+Math.round((++p_done)*(maxProgress-minProgress)/p_total), 100);
                     return cb_copy(null, true);
                 }
             });
