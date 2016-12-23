@@ -193,26 +193,66 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
     };
 
     /* General function to copy data from catchall project to individual projects */
-    var rsyncToProjects = function(prj_ds, minProgress, maxProgress, cb_async) {
+    var copyToProjects = function(prj_ds, minProgress, maxProgress, cb_async) {
 
-        async.mapValues( prj_ds, function( src_list, p, cb_async_rsync) {
+        var total = Object.keys(prj_ds).length;
+        var i = 0;
+        async.mapValues( prj_ds, function( src_list, p, cb_copy) {
             if ( p == 'unknown' ) {
-                utility.printLog(job.id + ':MEG:execStreamerJob:rsyncToProjects', 'skip datasets: '+JSON.stringify(src_list));
-                return cb_async_rsync(null, true);
+                utility.printLog(job.id + ':MEG:execStreamerJob:copyToProjects', 'skip datasets: '+JSON.stringify(src_list));
+                job.progress(minProgress+Math.round((++i)*(maxProgress-minProgress)/total), 100);
+                return cb_copy(null, true);
+            }
+
+            // skip if the project storage folder is not presented
+            if ( ! fs.existsSync(path.join('/project', p)) ) {
+                  // skip: non-existing project in central storage
+                  utility.printLog(job.id + ':MEG:execStreamerJob:copyToProjects', 'project storage not found, skip: ' + p);
+                  job.progress(minProgress+Math.round((++i)*(maxProgress-minProgress)/total), 100);
+                  return cb_copy(null, true);
             }
 
             // construct destination directories for ds dep. on the availability of sub-ses number
             var dst_list = resolveDatasetProjectPaths(path.join('/project', p), src_list);
 
             // TODO: perform actual data synchronisation from source (src_list) to destination (dst_list)
+            var tasks = {};
             for( var i=0; i<src_list.length; i++ ) {
-                utility.printLog(job.id + ':MEG:execStreamerJob:rsyncToProjects', src_list[i] + ' -> ' + dst_list[i]);
+                tasks[src_list[i]] = dst_list[i];
             }
-            return cb_async_rsync(null, true);
+
+            // actual dataset copy
+            async.mapValuesLimit(tasks, 2, function(dst, src, cb_task) {
+                // make sure the parent directory is presented at the destination
+                try {
+                  //TODO: this is NOT a good way to create directory recursively
+                  child_process.execSync('mkdir -p "' + path.dirname(dst) + '"');
+                } catch(err) {}
+
+                var ncp = require('ncp').ncp;
+                ncp.limit = 10;
+                ncp(src, dst, function(err) {
+                    if (err) {
+                        var errmsg = 'failed copy data: ' + err;
+                        utility.printErr(job.id + ':MEG:execStreamerJob:copyToProjects', errmsg);
+                        return cb_task(errmsg, false);
+                    } else {
+                        utility.printLog(job.id + ':MEG:execStreamerJob:copyToProjects', src + ' -> ' + dst);
+                        return cb_task(null, true);
+                    }
+                });
+            }, function( err, results ) {
+                if (err) {
+                    return cb_copy(err, false);
+                } else {
+                    job.progress(minProgress+Math.round((++i)*(maxProgress-minProgress)/total), 100);
+                    return cb_copy(null, true);
+                }
+            });
 
         }, function (err, outputs) {
             // the mapValues are done
-            utility.printLog(job.id + ':MEG:execStreamerJob:rsyncToProjects', 'output: ' + JSON.stringify(outputs));
+            utility.printLog(job.id + ':MEG:execStreamerJob:copyToProjects', 'output: ' + JSON.stringify(outputs));
             if (err) {
                 return cb_async('fail rsyncing data to projects', prj_ds);
             } else {
@@ -378,7 +418,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         },
         function(prj_ds, cb) {
             // step 5: rsync data from catchall to individual projects
-            rsyncToProjects(prj_ds, 70, 100, cb);
+            copyToProjects(prj_ds, 70, 100, cb);
         }],
         function(err, results) {
             if (err) {
