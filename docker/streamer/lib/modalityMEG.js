@@ -1,4 +1,3 @@
-const config = require('config');
 const auth = require('basic-auth');
 const child_process = require('child_process');
 const path = require('path');
@@ -6,8 +5,12 @@ const kill = require('tree-kill');
 const fs = require('fs');
 const utility = require('./utility');
 
+var restPaths = {
+    'postJob': '/:date/:ds?'
+};
+
 // create new streamer job on a POST action to the streamer
-var _createStreamerJob = function(queue) {
+var _createStreamerJob = function(name, config, queue) {
 
   return function( req, res ) {
 
@@ -22,7 +25,7 @@ var _createStreamerJob = function(queue) {
       // - the job has max. 5 attempts in case of failure, each attempt is delayed by 1 min.
       if ( queue ) {
           var job = queue.create('streamer', {
-              modality: 'meg',
+              modality: name,
               title: '[' + (new Date()).toISOString() + '] ' + srcPathConsole,
               srcDir: srcPathConsole
           }).attempts(5).ttl(3600*1000).backoff( {delay: 60*1000, type:'fixed'} ).save(function(err) {
@@ -41,7 +44,7 @@ var _createStreamerJob = function(queue) {
 }
 
 // run a streamer job given a job data
-var _execStreamerJob = function( job, cb_remove, cb_done) {
+var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
     var async = require('async');
 
@@ -60,8 +63,8 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
         var cmd_args = [
             src,
-            config.get('MEG.consoleUsername'),
-            config.get('MEG.consolePassword'),
+            config.consoleUsername,
+            config.consolePassword,
             dst];
 
         var cmd_opts = {
@@ -150,7 +153,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
     var resolveUpdatedDatasets = function(baseDir, cb_async) {
         var os = require('os');
         var cmd = __dirname + '/../bin/find-update-ds.sh'
-        var cmd_args = [baseDir, config.get('MEG.timeWindowInMinute')]
+        var cmd_args = [baseDir, config.timeWindowInMinute]
         var cmd_opts = {
             maxBuffer: 10*1024*1024
         }
@@ -163,7 +166,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         var stdout = child_process.execFileSync(cmd, cmd_args, cmd_opts);
         stdout.toString().split(os.EOL).forEach( function(l) {
             if ( l ) {
-                var m = prj_regex.exec(l.replace(config.get('MEG.streamerDataDirRoot') + '/', ''));
+                var m = prj_regex.exec(l.replace(config.streamerDataDirRoot + '/', ''));
                 if (m) {
                     var prj = (m[1].indexOf('.') == 7) ? m[1]:[m[1].slice(0, 7), '.', m[1].slice(7)].join('')
                     if ( ! prj_ds[prj] ) { prj_ds[prj] = []; }
@@ -270,6 +273,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
     var submitStagerJob = function(prj_ds, toCatchall, minProgress, maxProgress, cb_async ) {
 
         var RestClient = require('node-rest-client').Client;
+        var sconfig = require('config').get('DataStager');
 
         // mapValue model to submit stager jobs in parallel
         async.mapValues( prj_ds, function(src_list, p, cb_async_stager) {
@@ -280,13 +284,13 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             }
 
             var c_stager = new RestClient({
-                user: config.get('DataStager.username'),
-                password: config.get('DataStager.password')
+                user: sconfig.username,
+                password: sconfig.password
             });
 
             var rget_args = { headers: { 'Accept': 'application/json' } };
 
-            var myurl = config.get('DataStager.url') + '/rdm/DAC/project/';
+            var myurl = sconfig.url + '/rdm/DAC/project/';
             if ( toCatchall || p == 'unknown' ) {
                 myurl += '_CATCHALL.MEG';
             } else {
@@ -325,7 +329,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                     // for catchall, simply replace the path prefix with collection prefix
                     src_list.forEach( function(src) {
                         dst_list.push('irods:' + rdata.collName + '/raw/' +
-                                      src.replace(config.get('MEG.streamerDataDirRoot') + '/', ''));
+                                      src.replace(config.streamerDataDirRoot + '/', ''));
                     });
                 } else {
                     // for individual project, try resolve sub-ses subtree structure if available
@@ -352,7 +356,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
                 // post new jobs to stager
                 if ( rpost_args.data.length > 0 ) {
-                    c_stager.post(config.get('DataStager.url') + '/job', rpost_args, function(rdata, resp) {
+                    c_stager.post(sconfig.url + '/job', rpost_args, function(rdata, resp) {
                         if ( resp.statusCode >= 400 ) {  //HTTP error
                             var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
                             utility.printErr(job.id + ':MEG:execStreamerJob:submitStagerJob', errmsg);
@@ -399,9 +403,9 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
     async.waterfall([
         function(cb) {
             // step 1: rsync from MEG console to the catch-all project
-            var src = config.get('MEG.consoleHostname') + ':' +
-                      config.get('MEG.consoleDataDirRoot') + '/' + job.data.srcDir;
-            var dst = config.get('MEG.streamerDataDirRoot') + '/' + job.data.srcDir;
+            var src = config.consoleHostname + ':' +
+                      config.consoleDataDirRoot + '/' + job.data.srcDir;
+            var dst = config.streamerDataDirRoot + '/' + job.data.srcDir;
             rsyncToCatchall(src, dst, true, 0, 40, cb);
         },
         function(src, cb) {
@@ -431,5 +435,6 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
     );
 }
 
+module.exports.restPaths = restPaths;
 module.exports.createStreamerJob = _createStreamerJob;
 module.exports.execStreamerJob = _execStreamerJob;

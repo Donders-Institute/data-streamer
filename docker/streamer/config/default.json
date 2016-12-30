@@ -11,19 +11,33 @@
         "username": "admin",
         "password": "xxxxxx"
     },
-    "MEG": {
-        "consoleUsername": "meg",
-        "consolePassword": "xxxxxx",
-        "consoleHostname": "odin",
-        "consoleDataDirRoot": "/ctfmeg/odin/data/meg/ACQ_Data",
-        "streamerDataDirRoot": "/project/3010102.04/raw",
-        "timeWindowInMinute": 1440
-    },
-    "MRI": {
-        "orthancUsername": "",
-        "orthancPassword": "",
-        "orthancEndpoint": "http://pacs.dccn.nl:8042",
-        "streamerDataDirRoot": "/project/3010000.01/raw",
-        "projectStorageRegex": "^/project/(30[0-9]{5}\\.[0-9]{2})/"
+    "Modalities": {
+        "meg1": {
+            "type": "MEG",
+            "consoleUsername": "meg",
+            "consolePassword": "xxxxxx",
+            "consoleHostname": "odin",
+            "consoleDataDirRoot": "/ctfmeg/odin/data/meg/ACQ_Data",
+            "streamerDataDirRoot": "/project/3010102.04/raw",
+            "timeWindowInMinute": 1440
+        },
+        "meg2": {
+            "type": "MEG",
+            "consoleUsername": "meg",
+            "consolePassword": "xxxxxx",
+            "consoleHostname": "odin",
+            "consoleDataDirRoot": "/ctfmeg/odin/data/meg/ACQ_Data",
+            "streamerDataDirRoot": "/project/3010102.04/raw",
+            "timeWindowInMinute": 1440
+        },
+        "mri": {
+            "type": "MRI",
+            "orthancUsername": "",
+            "orthancPassword": "",
+            "orthancEndpoint": "http://pacs.dccn.nl:8042",
+            "streamerDataDirRoot": "/project/3010000.01/raw",
+            "projectStorageRegex": "^/project/(30[0-9]{5}\\.[0-9]{2})/"
+        },
+        "test": {}
     }
 }

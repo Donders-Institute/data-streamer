@@ -1,4 +1,3 @@
-var config = require('config');
 var kue = require('kue');
 var cluster = require('cluster');
 var bodyParser = require('body-parser');
@@ -16,9 +15,11 @@ var util = require('util');
 var utility = require('./lib/utility');
 
 // modality modules
-var m_meg = require('./lib/modalityMEG');
-var m_mri = require('./lib/modalityMRI');
-var m_test = require('./lib/modalityTEST');
+var m_list = {};
+var m_config = require('config').get('Modalities');
+Object.keys(m_config).forEach(function(k) {
+    m_list[k] = require('./lib/modality' + m_config[k].type );
+});
 
 // admin module
 var m_admin = require('./lib/admin');
@@ -75,9 +76,10 @@ if (cluster.isMaster) {
     app.use(bodyParser.urlencoded({ extended: false }));
 
     // RESTful interfaces for creating modality-specific streamer job
-    app.post('/meg/:date/:ds?', m_meg.createStreamerJob(queue));
-    app.post('/mri/series/:id', m_mri.createStreamerJob(queue));
-    app.post('/test/:date/:ds?', m_test.createStreamerJob(queue));
+    Object.keys(m_list).forEach(function(k) {
+        app.post( path.join('/', m_list[k], m_list[k].restPaths.postJob),
+                  m_list[k].createStreamerJob(k, m_config[k], queue) );
+    });
 
     // RESTful interfaces for queue maintenance
     app.delete('/queue/:unit/:age', m_admin.cleanupQueue(queue));
@@ -152,33 +154,15 @@ if ( cluster.isWorker ) {
             // inform master the job has been started
             process.send({'type':'START', 'jid': job.id});
 
-            var job_exec_logic = undefined;
-            switch( job.data.modality ) {
-                case 'meg':
-                    job_exec_logic = m_meg.execStreamerJob;
-                    break;
-
-                case 'mri':
-                    job_exec_logic = m_mri.execStreamerJob;
-                    break;
-
-                case 'test':
-                    job_exec_logic = m_test.execStreamerJob;
-                    break;
-
-                default:
-                    done('unknown modality: ' + job.data.modality);
-                    break;
-            }
+            var job_exec_logic = (m_list[job.data.modality]) ? m_list[job.data.modality].execStreamerJob:undefined;
 
             // run the job execution logic
             if ( job_exec_logic ) {
-
                 var cb_remove = function() {
                     return job_removed;
                 }
                 console.log( "mem report@job start, worker " + cluster.worker.id + ": " + JSON.stringify(process.memoryUsage()) );
-                job_exec_logic(job, cb_remove, done);
+                job_exec_logic(job.data.modality, m_config[job.data.modality], job, cb_remove, done);
             }
         });
     });

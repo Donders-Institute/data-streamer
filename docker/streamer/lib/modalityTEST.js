@@ -1,9 +1,12 @@
-var config = require('config');
 var auth = require('basic-auth');
 var utility = require('./utility');
 
+var restPaths = {
+    'postJob': '/:date/:ds?'
+};
+
 // create new streamer job on a POST action to the streamer
-var _createStreamerJob = function(queue) {
+var _createStreamerJob = function(name, config, queue) {
 
   return function( req, res ) {
 
@@ -20,7 +23,7 @@ var _createStreamerJob = function(queue) {
       // - the job has max. 5 attempts in case of failure, each attempt is delayed by 1 min.
       if ( queue ) {
           var job = queue.create('streamer', {
-              modality: 'test',
+              modality: name,
               title: '[' + (new Date()).toISOString() + '] ' + srcPathConsole,
               srcDir: srcPathConsole
           }).attempts(5).ttl(3600*1000).backoff( {delay: 60*1000, type:'fixed'} ).save(function(err) {
@@ -39,7 +42,7 @@ var _createStreamerJob = function(queue) {
 }
 
 // run a streamer job given a job data
-var _execStreamerJob = function( job, cb_remove, cb_done ) {
+var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
     console.log('job data: ' + JSON.stringify(job.data));
     var i = 0;
     var timer = setInterval( function() {
@@ -68,5 +71,6 @@ var _execStreamerJob = function( job, cb_remove, cb_done ) {
     }, 1000);
 }
 
+module.exports.restPaths = restPaths;
 module.exports.createStreamerJob = _createStreamerJob;
 module.exports.execStreamerJob = _execStreamerJob;

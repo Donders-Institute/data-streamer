@@ -1,4 +1,3 @@
-var config = require('config');
 var auth = require('basic-auth');
 var child_process = require('child_process');
 var path = require('path');
@@ -6,8 +5,12 @@ var kill = require('tree-kill');
 var fs = require('fs');
 var utility = require('./utility');
 
+var restPaths = {
+    'postJob': '/series/:id'
+};
+
 // create new streamer job on a POST action to the streamer
-var _createStreamerJob = function(queue) {
+var _createStreamerJob = function(name, config, queue) {
 
     return function( req, res ) {
 
@@ -18,7 +21,7 @@ var _createStreamerJob = function(queue) {
         // - the job has max. 5 attempts in case of failure, each attempt is delayed by 1 min.
         if ( queue ) {
             var job = queue.create('streamer', {
-                modality: 'mri',
+                modality: name,
                 title: '[' + (new Date()).toISOString() + '] series: ' + seriesId,
                 series: seriesId
             }).attempts(5).ttl(3600*1000).backoff( {delay: 60*1000, type:'fixed'} ).save(function(err) {
@@ -37,18 +40,18 @@ var _createStreamerJob = function(queue) {
 }
 
 // run a streamer job given a job data
-var _execStreamerJob = function( job, cb_remove, cb_done) {
+var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
     var http = require('http');
-    var oc_url = require('url').parse(config.get('MRI.orthancEndpoint'));
+    var oc_url = require('url').parse(config.orthancEndpoint);
 
     var async = require('async');
     var oc = require('orthanc-client');
     var oc_cfg = {
-        url: config.get('MRI.orthancEndpoint'),
+        url: config.orthancEndpoint,
         auth: {
-            username: config.get('MRI.orthancUsername'),
-            password: config.get('MRI.orthancPassword')
+            username: config.orthancUsername,
+            password: config.orthancPassword
         }
     }
 
@@ -129,7 +132,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                 var m = prj_sub_regex.exec(sinfo['patientId']);
 
                 if ( isCatchall ) {
-                    baseDir = config.get('MRI.streamerDataDirRoot') + '/';
+                    baseDir = config.streamerDataDirRoot + '/';
                     if (m) {
                         // directory structure for an expected patientId convention
                         baseDir += m[1] + '/' + m[2] + '/' + sinfo['studyId'] + '/' +
@@ -203,7 +206,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
                                 hostname: oc_url.hostname,
                                 port: oc_url.port,
                                 path: '/instances/' + iid + '/file',
-                                auth: "'" + config.get('MRI.orthancUsername') + "':'" + config.get('MRI.orthancPassword') + "'"
+                                auth: "'" + config.orthancUsername + "':'" + config.orthancPassword + "'"
                             }, function(resp) {
                                 if ( resp.statusCode != 200 ) {
                                     fs.unlink(f_dcm, function(err) {});
@@ -284,9 +287,11 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             return cb_async(null, src, projectNumber);
         }
 
+        var sconfig = require('config').get('DataStager');
+
         // construct project and RESTful endpoint for resolving RDM collection namespace
         var p = (toCatchall) ? '_CATCHALL.MRI':projectNumber;
-        var myurl = config.get('DataStager.url') + '/rdm/DAC/project/' + p;
+        var myurl = sconfig.url + '/rdm/DAC/project/' + p;
 
         // general function to construct destination URL for stager job
         var _mkDst = function(_src, _collName) {
@@ -295,7 +300,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
 
             // 1. replace project-storage prefix with collection namespace
             var _dst = 'irods:' + _collName + '/' +
-                       _src.replace(new RegExp(config.get('MRI.projectStorageRegex')), '');
+                       _src.replace(new RegExp(config.projectStorageRegex), '');
             // 2. for project-specific collection, try remove the project number
             //    after the '/raw/' directory, as the project number has been
             //    presented as part of the collection namespace.
@@ -308,8 +313,8 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
         // Initialise RESTful client
         var RestClient = require('node-rest-client').Client;
         var c_stager = new RestClient({
-            user: config.get('DataStager.username'),
-            password: config.get('DataStager.password')
+            user: sconfig.username,
+            password: sconfig.password
         });
         var rget_args = { headers: { 'Accept': 'application/json' } };
 
@@ -350,7 +355,7 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
             };
 
             // Submit stager job
-            c_stager.post(config.get('DataStager.url') + '/job', rpost_args, function(rdata, resp) {
+            c_stager.post(sconfig.url + '/job', rpost_args, function(rdata, resp) {
                 if ( resp.statusCode >= 400 ) {  //HTTP error
                     var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
                     utility.printErr(job.id + ':MRI:execStreamerJob:submitStagerJob', errmsg);
@@ -421,5 +426,6 @@ var _execStreamerJob = function( job, cb_remove, cb_done) {
     );
 }
 
+module.exports.restPaths = restPaths;
 module.exports.createStreamerJob = _createStreamerJob;
 module.exports.execStreamerJob = _execStreamerJob;
