@@ -333,7 +333,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                     });
                 } else {
                     // for individual project, try resolve sub-ses subtree structure if available
-                    dst_list = resolveDatasetProjectPaths('irods:' + rdata.collName + '/raw/', src_list);
+                    dst_list = resolveDatasetProjectPaths('irods:' + rdata.collName + '/', src_list);
                 }
 
                 for( var i=0; i<src_list.length; i++ ) {
