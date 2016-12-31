@@ -47,7 +47,7 @@ The modality plugin is located in the `docker/streamer/lib` directory, and it sh
 
 The modality plugin is required to export two functions and one JSON object.
 
-The JSON object should be exported as `restPaths`.  It defines the RESTful interface for creating a new streamer job.
+The JSON object should be exported as `restPaths`.  It defines the REST interface of creating a streamer job for the specific plugin.
 
 ```javascript
 var restPaths = {
