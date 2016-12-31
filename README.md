@@ -43,29 +43,43 @@ $ curl -X POST -u admin http://{streamer_hostname}:3001/mri/series/1f3df579-b583
 
 ## Extending the service for other modality
 
-The modality plugin is located in the `docker/streamer/lib` directory.
-For each modality plugin, two functions need to be exported. They are:
+The modality plugin is located in the `docker/streamer/lib` directory, and it should be named as `modality<MODALITY_TYPE>.js`.  The `<MODALITY_TYPE>` should also be reflected in the configuration file `docker/streamer/config/default.json`.
+
+The modality plugin is required to export two functions and one JSON object.
+
+The JSON object should be exported as `restPaths`.  It defines the RESTful interface for creating a new streamer job.
+
+```javascript
+var restPaths = {
+    'postJob': '/:date/:ds?'
+};
+module.exports.restPaths = restPaths;
+```
+
+The two required functions are:
 
 - `createStreamerJob`: function to convert RESTful request into streamer job
 - `execStreamerJob`: function to process the streamer job
 
-A code example for a TEST modality is given by `modalityTEST.js`.
+An example for a modality of type `TEST` is given as `modalityTEST.js`.
 
-Furthermore, the plugin needs to be included and used in the main program `docker/streamer/streamer.js`.
-For example,
+To make use of the modality plugin, one should define it in a streamer's configuration file (`docker/streamer/config/default.json`) under the `Modalities` sector.  Define a unique modality name as a `key` in the `Modailities` sector, and the corresponding `value` containing at-least an attribute called `type` referring to the plugin.  When the streamer is started, it will create a new REST interface prefixed with the modality name for creating a streamer job to be processed by the specific plugin.
 
-```
-var m_test = require('./lib/modalityTEST');
-...
-app.post('/test/:date/:ds?', m_test.createStreamerJob(queue));
-...
-switch( job.data.modality ) {
+The following example creates a new modality called `myTest`, using the `modalityTEST.js` as the plugin:
+
+```javascript
+{
     ...
-    
-    case 'test':
-        job_exec_logic = m_test.execStreamerJob;
-        break;
-
-    ...
+    "Modalities": {
+        "myTest": {
+            "type": "TEST"
+        }
+    }
 }
 ```
+
+and the following REST interface for creating new job to be processed by the `modalityTEST.js` plugin:
+
+- `http://<streamer_host>:<streamer_port>/myTest/:date/:ds?`
+
+where the part `/:date/:ds?` is defined by the JSON object `restPaths` exported by the plugin.
