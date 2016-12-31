@@ -77,7 +77,7 @@ if (cluster.isMaster) {
 
     // RESTful interfaces for creating modality-specific streamer job
     Object.keys(m_list).forEach(function(k) {
-        app.post( path.join('/', m_list[k], m_list[k].restPaths.postJob),
+        app.post( path.join('/', k, m_list[k].restPaths.postJob),
                   m_list[k].createStreamerJob(k, m_config[k], queue) );
     });
 

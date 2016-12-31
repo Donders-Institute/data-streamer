@@ -38,6 +38,8 @@
             "streamerDataDirRoot": "/project/3010000.01/raw",
             "projectStorageRegex": "^/project/(30[0-9]{5}\\.[0-9]{2})/"
         },
-        "test": {}
+        "test": {
+            "type": "TEST",
+        }
     }
 }
