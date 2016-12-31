@@ -47,7 +47,7 @@ The modality plugin is located in the `docker/streamer/lib` directory, and it sh
 
 The modality plugin is required to export two functions and one JSON object.
 
-The JSON object should be exported as `restPaths`.  It defines the REST interface of creating a streamer job for the specific plugin.
+The JSON object should be exported as `restPaths`.  It defines the REST interface of creating a streamer job for the plugin.
 
 ```javascript
 var restPaths = {
@@ -65,7 +65,7 @@ An example for a modality of type `TEST` is given as `modalityTEST.js`.
 
 ### Use the modality plugin
 
-To make use of the modality plugin, one should define it in a streamer's configuration file (`docker/streamer/config/default.json`) under the `Modalities` sector.  Define a unique modality name as a `key` in the `Modailities` sector, and the corresponding `value` containing at-least an attribute called `type` referring to the plugin.  When the streamer is started, it will create a new REST interface prefixed with the modality name for creating a streamer job to be processed by the specific plugin.
+To make use of the modality plugin, one should define a modality instance in a streamer's configuration file (`docker/streamer/config/default.json`) under the `Modalities` sector.  Define an unique name of the instance as a `key` in the sector, and a corresponding `value` containing at-least an attribute called `type` referring (case sensitively) to the plugin.  Once the streamer is (re-)started, a new REST interface prefixed with the name of the modality instance will be created for accepting new streamer jobs to be processed by the plugin.
 
 The following example creates a new modality called `myTest`, using the `modalityTEST.js` as the plugin:
 
