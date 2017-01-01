@@ -51,7 +51,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 // graceful stop of the running process
                 console.log('graceful stop of the removed job: ' + job.id);
                 clearInterval(timer);
-                cb_done();
+                cb_done(null, true);
                 return;
             }
 
@@ -61,12 +61,12 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 job.progress(i, 100);
             } else {
                 clearInterval(timer);
-                cb_done();
+                cb_done(null, true);
             }
         } catch(err) {
             console.error('job processing error: ' + err)
             clearInterval(timer);
-            cb_done(err);
+            cb_done(err, false);
         }
     }, 1000);
 }

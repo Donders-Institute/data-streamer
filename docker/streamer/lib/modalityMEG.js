@@ -426,10 +426,10 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
         }],
         function(err, results) {
             if (err) {
-                cb_done(err);
+                cb_done(err, false);
             } else {
                 utility.printLog(job.id + ':MEG:execStreamerJob', 'output: ' + JSON.stringify(results));
-                cb_done();
+                cb_done(null, true);
             }
         }
     );

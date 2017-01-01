@@ -417,10 +417,10 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
         function(err, dataDir, projectNumber) {
             if (err) {
                 utility.printErr(job.id + ':MRI:execStreamerJob', err);
-                cb_done(err);
+                cb_done(err, false);
             } else {
                 utility.printLog(job.id + ':MRI:execStreamerJob', 'success');
-                cb_done();
+                cb_done(null, true);
             }
         }
     );

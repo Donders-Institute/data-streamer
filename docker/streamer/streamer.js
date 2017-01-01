@@ -127,6 +127,9 @@ if ( cluster.isWorker ) {
 
     var job_removed = false;
 
+    // a worker lable indicating whether the worker is busy on a job
+    var isBusy = false;
+
     // message handling when the worker receives message from the master
     process.on('message', function(msg) {
         switch( msg.type ) {
@@ -144,8 +147,10 @@ if ( cluster.isWorker ) {
     queue.process("streamer", function(job, done) {
 
         var domain = require('domain').create();
+        isBusy = true;
 
         domain.on('error', function(err) {
+            isBusy = false;
             done(err);
         });
 
@@ -162,7 +167,21 @@ if ( cluster.isWorker ) {
                     return job_removed;
                 }
                 console.log( "mem report@job start, worker " + cluster.worker.id + ": " + JSON.stringify(process.memoryUsage()) );
-                job_exec_logic(job.data.modality, m_config[job.data.modality], job, cb_remove, done);
+
+                var async = require('async');
+                async.series([
+                    function(cb_done) {
+                        job_exec_logic(job.data.modality, m_config[job.data.modality], job, cb_remove, cb_done);
+                    }
+                ],
+                function(err, results) {
+                    isBusy = false;
+                    if (err) {
+                      done(err);
+                    } else {
+                      done();
+                    }
+                });
             }
         });
     });
@@ -170,7 +189,7 @@ if ( cluster.isWorker ) {
     setInterval( function() {
         // force garbadge collection
         gc();
-        console.log( "mem report, worker " + cluster.worker.id + ": " + JSON.stringify(process.memoryUsage()) );
+        console.log( "mem report, " + ((isBusy)?"busy worker ":"idle worker ") + cluster.worker.id + ": " + JSON.stringify(process.memoryUsage()) );
     }, 60*1000 );
 
 }
