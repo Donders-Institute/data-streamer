@@ -234,7 +234,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
                 if ( useRsync ) {
                     var cmd = 'rsync';
-                    var cmd_args = ['-rpv',src,dst];
+                    var cmd_args = ['-rpv',src, path.dirname(dst)];
                     var cmd_opts = {
                         shell: '/bin/bash'
                     };
