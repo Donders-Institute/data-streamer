@@ -196,7 +196,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
     };
 
     /* General function to copy data from catchall project to individual projects */
-    var copyToProjects = function(prj_ds, minProgress, maxProgress, cb_async) {
+    var copyToProjects = function(prj_ds, useRsync, minProgress, maxProgress, cb_async) {
 
         var p_total = Object.keys(prj_ds).length;
         var p_done = 0;
@@ -232,18 +232,82 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                   child_process.execSync('mkdir -p "' + path.dirname(dst) + '"');
                 } catch(err) {}
 
-                var ncp = require('ncp').ncp;
-                ncp.limit = 10;
-                ncp(src, dst, function(err) {
-                    if (err) {
-                        var errmsg = 'failed copy data: ' + err;
+                if ( useRsync ) {
+                    var cmd = 'rsync';
+                    var cmd_args = ['-rpv',src,dst];
+                    var cmd_opts = {
+                        shell: '/bin/bash'
+                    };
+                    var cp_end = false;
+                    var child = child_process.spawn(cmd, cmd_args, cmd_opts);
+                    // define callback when child process is closed
+                    child.on('close', function(code, signal) {
+                        // notify the timer that the child process has been finished
+                        cp_end = true;
+
+                        // close up the stdin stream
+                        // TODO: is it really necessary??
+                        child.stdin.end();
+
+                        // interruption handling (null if process is not interrupted)
+                        if ( code != 0 ) {
+                            var errmsg = 'rsync process non-zero exit code: ' + code + ' (' + signal + ')';
+                            utility.printErr(job.id + ':MEG:execStreamerJob:copyToProjects', errmsg);
+                            return cb_task(errmsg, false);
+                        } else {
+                            // set job progress to maxProgress
+                            utility.printLog(job.id + ':MEG:execStreamerJob:copyToProjects', src + ' -> ' + dst);
+                            return cb_task(null, true);
+                        }
+                    });
+
+                    child.on('error', function(err) {
+                        utility.printErr(job.id + ':MEG:execStreamerJob:copyToProjects',err);
+                        return cb_task('rsync process error: ' + err, false);
+                    })
+
+                    // define callback when receiving new stderr from the child process
+                    child.stderr.on('data', function(errbuf) {
+                        var errmsg = errbuf.toString();
+                        errbuf = null;
+                        job.log(errmsg);
                         utility.printErr(job.id + ':MEG:execStreamerJob:copyToProjects', errmsg);
-                        return cb_task(errmsg, false);
-                    } else {
-                        utility.printLog(job.id + ':MEG:execStreamerJob:copyToProjects', src + ' -> ' + dst);
-                        return cb_task(null, true);
-                    }
-                });
+                    });
+
+                    // define callback when receiving new stderr from the child process
+                    child.stdout.on('data', function(outbuf) {
+                        outbuf = null;
+                    });
+
+                    // set timer to check whether there is a removal request from end user
+                    var timer = setInterval( function() {
+                        if ( cb_remove() ) {
+                            kill(child.pid, 'SIGKILL', function(err) {
+                                if (err) {
+                                    utility.printErr(job.id + ':MEG:execStreamerJob:copyToProjects', err);
+                                }
+                            });
+                        }
+
+                        // clear the timer when the process has been closed
+                        if ( cp_end ) {
+                            clearInterval(timer);
+                        }
+                    },1000);
+                } else {
+                    var ncp = require('ncp').ncp;
+                    ncp.limit = 10;
+                    ncp(src, dst, function(err) {
+                        if (err) {
+                            var errmsg = 'failed copy data: ' + err;
+                            utility.printErr(job.id + ':MEG:execStreamerJob:copyToProjects', errmsg);
+                            return cb_task(errmsg, false);
+                        } else {
+                            utility.printLog(job.id + ':MEG:execStreamerJob:copyToProjects', src + ' -> ' + dst);
+                            return cb_task(null, true);
+                        }
+                    });
+                }
             }, function( err, results ) {
                 if (err) {
                     return cb_copy(err, false);
@@ -422,7 +486,8 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
         },
         function(prj_ds, cb) {
             // step 5: rsync data from catchall to individual projects
-            copyToProjects(prj_ds, 70, 100, cb);
+            var useRsync = true;
+            copyToProjects(prj_ds, useRsync, 70, 100, cb);
         }],
         function(err, results) {
             if (err) {
