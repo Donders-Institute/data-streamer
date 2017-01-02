@@ -5,7 +5,7 @@ const kill = require('tree-kill');
 const fs = require('fs');
 const utility = require('./utility');
 
-var restPaths = {
+const restPaths = {
     'postJob': '/:date/:ds?'
 };
 

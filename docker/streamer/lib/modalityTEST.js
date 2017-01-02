@@ -1,7 +1,7 @@
-var auth = require('basic-auth');
-var utility = require('./utility');
+const auth = require('basic-auth');
+const utility = require('./utility');
 
-var restPaths = {
+const restPaths = {
     'postJob': '/:date/:ds?'
 };
 

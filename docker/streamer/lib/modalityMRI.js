@@ -1,11 +1,11 @@
-var auth = require('basic-auth');
-var child_process = require('child_process');
-var path = require('path');
-var kill = require('tree-kill');
-var fs = require('fs');
-var utility = require('./utility');
+const auth = require('basic-auth');
+const child_process = require('child_process');
+const path = require('path');
+const kill = require('tree-kill');
+const fs = require('fs');
+const utility = require('./utility');
 
-var restPaths = {
+const restPaths = {
     'postJob': '/series/:id'
 };
 
