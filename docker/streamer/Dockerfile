@@ -39,14 +39,14 @@ RUN ( wget https://pypi.python.org/packages/cd/b0/c2d700252fc251e91c08639ff41a8a
 
 # install nodejs
 ADD https://nodejs.org/dist/v7.3.0/node-v7.3.0-linux-x64.tar.xz /tmp
-RUN ( tar xf https://nodejs.org/dist/v7.3.0/node-v7.3.0-linux-x64.tar.xz && mv node-v7.3.0-linux-x64 /opt/nodejs )
+RUN ( tar xf node-v7.3.0-linux-x64.tar.xz && mv node-v7.3.0-linux-x64 /opt/nodejs )
 
 # install streamer package
 RUN ( mkdir -p /opt/streamer )
 
 WORKDIR /opt/streamer
 COPY package.json package.json
-RUN ( /opt/nodejs/bin/npm install )
+RUN ( export PATH=/opt/nodejs/bin:$PATH && /opt/nodejs/bin/npm install )
 COPY *.js ./
 COPY bin ./bin
 COPY lib ./lib
