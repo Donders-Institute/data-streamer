@@ -4,8 +4,8 @@ var bodyParser = require('body-parser');
 var fs = require('fs')
 var queue = kue.createQueue({
     redis: {
-        port: 6379,
-        host: 'streamer-db'
+        port: process.env.REDIS_PORT,
+        host: process.env.REDIS_HOST
     }
 });
 var path = require('path');
