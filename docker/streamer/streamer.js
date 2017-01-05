@@ -129,7 +129,7 @@ if ( cluster.isWorker ) {
 
     //var heapdump = require('heapdump');
 
-    var job_removed = false;
+    var jid_tbr = '';
 
     // a worker lable indicating whether the worker is busy on a job
     var isBusy = false;
@@ -139,7 +139,7 @@ if ( cluster.isWorker ) {
         switch( msg.type ) {
             case 'KILL':
                 utility.printLog( null, 'job ' + msg['jid'] + ' killed upon user removal');
-                job_removed = true;
+                jid_tbr = msg['jid'];
                 break;
 
             default:
@@ -152,7 +152,6 @@ if ( cluster.isWorker ) {
 
         var domain = require('domain').create();
         isBusy = true;
-        job_removed = false;
 
         domain.on('error', function(err) {
             isBusy = false;
@@ -168,9 +167,12 @@ if ( cluster.isWorker ) {
 
             // run the job execution logic
             if ( job_exec_logic ) {
+
                 var cb_remove = function() {
-                    return job_removed;
+                    // job removal when the current running job is the one to be removed
+                    return (job.id == jid_tbr)?true:false;
                 }
+
                 console.log( "mem report@job start, worker " + cluster.worker.id + ": " + JSON.stringify(process.memoryUsage()) );
 
                 var async = require('async');

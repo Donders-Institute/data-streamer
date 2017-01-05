@@ -165,12 +165,12 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                         // check whether the project directory exists
                         if ( ! fs.existsSync('/project/' + m[1]) ) {
                               // skip: non-existing project in central storage
-                              utility.printLog(job.id + ':MRI:execStreamerJob:getInstanceFiles', 'project storage not found, skip: ' + sid);
+                              utility.printLog(job.id + ':MRI:execStreamerJob:getInstanceFiles', 'storage of project (' + m[1] + ') not found, skip: ' + sid);
                               return _cb(null, true);
                         }
                     } else {
                         // skip: unexpected patientId convention
-                        utility.printLog(job.id + ':MRI:execStreamerJob:getInstanceFiles', 'non-standard patientId, skip: ' + sid);
+                        utility.printLog(job.id + ':MRI:execStreamerJob:getInstanceFiles', 'unresolvable patientId (' + sinfo['patientId'] + '), skip: ' + sid);
                         return _cb(null, true);
                     }
                 }
