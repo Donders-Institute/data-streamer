@@ -30,6 +30,7 @@ const streamer_bindir = __dirname + path.sep + 'bin';
 
 queue.on( 'error', function(err) {
     if ( cluster.isMaster) {
+        delete active_pids[id];
         utility.printErr(null, err);
     }
 }).on( 'job enqueue', function(id, type) {
@@ -38,14 +39,17 @@ queue.on( 'error', function(err) {
     }
 }).on( 'job complete', function(id, result) {
     if ( cluster.isMaster) {
+        delete active_pids[id];
         utility.printLog(null, util.format('job %d complete', id));
     }
 }).on( 'job failed attempt', function(id, err, nattempts) {
     if ( cluster.isMaster) {
+        delete active_pids[id];
         utility.printLog(null, util.format('job %d failed, attempt %d', id, nattempts));
     }
 }).on( 'job failed' , function(id, err) {
     if ( cluster.isMaster) {
+        delete active_pids[id];
         utility.printLog(null, util.format('job %d failed', id));
     }
 }).on( 'job remove', function(id, err) {
