@@ -152,6 +152,7 @@ if ( cluster.isWorker ) {
 
         var domain = require('domain').create();
         isBusy = true;
+        job_removed = false;
 
         domain.on('error', function(err) {
             isBusy = false;
