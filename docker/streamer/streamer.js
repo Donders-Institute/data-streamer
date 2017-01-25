@@ -75,7 +75,7 @@ queue.on( 'error', function(err) {
             msgHtml += '<b>Please be alamed by the following streamer job failure:</b>';
             msgHtml += '<div><table>';
             msgHtml += '<tr><th>id</th><td>' + id + '</td></tr>';
-            msgHtml += '<tr><th>state</th><td>' + job.state + '</td></tr>';
+            msgHtml += '<tr><th>state</th><td>' + job.state() + '</td></tr>';
             msgHtml += '<tr><th>modality</th><td>' + job.data.modality + '</td></tr>';
             msgHtml += '<tr><th>submitted at</th><td>' + t_create.toDateString() + ' ' + t_create.toTimeString() + '</td></tr>';
             msgHtml += '<tr><th>failed at</th><td>' + t_failed.toDateString() + ' ' + t_failed.toTimeString() + '</td></tr>';
