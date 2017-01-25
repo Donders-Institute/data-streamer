@@ -1,7 +1,7 @@
 {
   "name": "streamer",
   "description": "DCCN data streamer",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "Hurng-Chun Lee <h.lee@donders.ru.nl>",
   "main": "streamer.js",
   "dependencies" : {
@@ -23,6 +23,9 @@
     "body-parser": "~1.15.2",
     "posix": "~4.1.1",
     "orthanc-client": "~0.10.5",
-    "heapdump": "~0.3.7"
+    "heapdump": "~0.3.7",
+    "nodemailer": "~2.7.2",
+    "node-html-encoder": "~0.0.2",
+    "node-emoji": "~1.5.1"
   }
 }

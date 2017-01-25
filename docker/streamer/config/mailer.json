@@ -1,0 +1,15 @@
+{
+    "SMTP": {
+        "pool": false,
+        "host": "smtp-auth.ru.nl",
+        "port": 587,
+        "secure": false,
+        "requireTLS": true,
+        "auth": {
+            "user": "xxxxxx",
+            "pass": "xxxxxx"
+        }
+    },
+    "fromAddress": "\"Donders Research Data Repository\" <datasupport@donders.ru.nl>",
+    "adminEmails": "h.lee@donders.ru.nl"
+}

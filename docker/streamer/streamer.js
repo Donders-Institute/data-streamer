@@ -13,6 +13,9 @@ var path = require('path');
 // utility module
 var util = require('util');
 var utility = require('./lib/utility');
+var mailer = require('./lib/mailer');
+var HtmlEncoder = require('node-html-encoder').Encoder;
+var emoji = require('node-emoji');
 
 // modality modules
 var m_list = {};
@@ -50,6 +53,38 @@ queue.on( 'error', function(err) {
 }).on( 'job failed' , function(id, err) {
     if ( cluster.isMaster) {
         delete active_pids[id];
+        // send alarm to system admin
+        kue.Job.get( id, function( error, job ) {
+            if ( error ) {
+                utility.printErr(null, 'cannot retrieve information of job: ' + error);
+                return;
+            }
+
+            var t_create = new Date(parseInt(job.created_at));
+            var t_failed = new Date(parseInt(job.updated_at));
+            var msgSubject = emoji.get('warning') + '[ALARM] streamer job failed';
+            var encoder = new HtmlEncoder('entity');
+            var msgHtml = '<html>'
+            msgHtml += '<style>';
+            msgHtml += 'div { width: 100%; padding-top: 10px; padding-bottom: 10px;}';
+            msgHtml += 'table { width: 95%; border-collapse: collapse; }';
+            msgHtml += 'th { width: 20%; border: 1px solid #ddd; background-color: #f5f5f5; text-align: left; padding: 10px; }';
+            msgHtml += 'td { width: 80%; border: 1px solid #ddd; text-align: left; padding: 10px; }';
+            msgHtml += '</style>';
+            msgHtml += '<body>';
+            msgHtml += '<b>Please be alamed by the following streamer job failure:</b>';
+            msgHtml += '<div><table>';
+            msgHtml += '<tr><th>id</th><td>' + id + '</td></tr>';
+            msgHtml += '<tr><th>state</th><td>' + job.state + '</td></tr>';
+            msgHtml += '<tr><th>modality</th><td>' + job.data.modality + '</td></tr>';
+            msgHtml += '<tr><th>submitted at</th><td>' + t_create.toDateString() + ' ' + t_create.toTimeString() + '</td></tr>';
+            msgHtml += '<tr><th>failed at</th><td>' + t_failed.toDateString() + ' ' + t_failed.toTimeString() + '</td></tr>';
+            msgHtml += '<tr><th>job detail</th><td><pre>' + JSON.stringify(job, null, 2) + '</pre></td></tr>';
+            msgHtml += '</div></table>';
+            msgHtml += '</html>';
+
+            mailer.sendToAdmin(msgSubject, null, msgHtml, null);
+        });
         utility.printLog(null, util.format('job %d failed', id));
     }
 }).on( 'job remove', function(id, err) {
