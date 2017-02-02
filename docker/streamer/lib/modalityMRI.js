@@ -4,6 +4,7 @@ const path = require('path');
 const kill = require('tree-kill');
 const fs = require('fs');
 const utility = require('./utility');
+const targz = require('tar.gz');
 
 const restPaths = {
     'postJob': '/series/:id'
@@ -274,6 +275,24 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
     }
 
     /*
+    // function for compress series data into a tarball (.tar.gz)
+    */
+    var compressSeriesData = function(src, projectNumber, minProgress, maxProgress, cb_async) {
+
+        // resolve the destination path of the tarball
+        var f_tgz = src + '.tar.gz';
+
+        // compress directory into single tarball
+        targz().compress(src, f_tgz, function(err) {
+            if (err) {
+                return cb_async(err, null, projectNumber);
+            }
+            job.progress(maxProcess, 100);
+            return cb_async(null, f_tgz, projectNumber);
+        });
+    }
+
+    /*
     // General function to submit a staging job for uploading series data to
     // RDM.
     */
@@ -295,13 +314,16 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
         // general function to construct destination URL for stager job
         var _mkDst = function(_src, _collName) {
-            // TODO: need a structured way of resolving src path to destination path
-            // The following logic assumes the _src refers to the catch-all project's directory
-
+            // The following logic assumes the _src is a path within the catch-all project's directory
             // 1. replace project-storage prefix with collection namespace
-            var _dst = 'irods:' + _collName + '/' +
-                       _src.replace(new RegExp(config.projectStorageRegex), '');
-            // 2. for project-specific collection, try remove the project number
+            var _dst = 'irods:' + _collName + '/';
+            if ( fs.statSync(_src).isDirectory() ) {
+                _dst += _src.replace(new RegExp(config.projectStorageRegex), '');
+            } else {
+                _dst += path.dirname(_src).replace(new RegExp(config.projectStorageRegex), '');
+            }
+
+            // 2. for project-specific collection, remove the date and project number
             //    after the '/raw/' directory, as the project number has been
             //    presented as part of the collection namespace.
             if ( ! toCatchall ) {
@@ -388,34 +410,39 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
     // here are logical steps run in sequencial order
     async.waterfall([
         function(cb) {
-            // step 1: get all instances of a the series to catch-all buffer
-            //         it returns a directory on central storage, and the
-            //         project number.
-            //         The project number can be null if the subject naming
-            //         convention is not followed.
-            getInstanceFiles(true, true, 0, 40, cb);
+            // get all instances of a the series to catch-all project storage
+            // it returns a directory on central storage, and the
+            // project number.
+            // The project number can be null if the subject naming
+            // convention is not followed.
+            getInstanceFiles(true, true, 0, 30, cb);
         },
-        function(dataDir, projectNumber, cb) {
-            // step 2: archive DICOM images in dataDir (output from the previous task)
-            //         to a catch-all collection in RDM.
-            if ( dataDir ) {
-                submitStagerJob(dataDir, projectNumber, true, 40, 50, cb);
+        function(dataPath, projectNumber, cb) {
+            // compress series data
+            compressSeriesData(dataPath, projectNumber, 30, 40, cb);
+        },
+        function(dataPath, projectNumber, cb) {
+            // archive DICOM images given by dataPath
+            // to a catch-all collection in RDM.
+            if ( dataPath ) {
+                submitStagerJob(dataPath, projectNumber, true, 40, 50, cb);
             } else {
                 // it should never happen that the dataDir of catch-all storage is 'null' or 'undefined'
                 // this call terminates the rest async process immediately
-                cb('dataDir not found: ' + dataDir, dataDir);
+                cb('dataPath not found: ' + dataPath, dataPath);
             }
         },
-        function(dataDir, projectNumber, cb) {
-            // step 3: archive DICOM images in dataDir (output from the previous task)
-            //         to the project-specific collection in RDM.
-            submitStagerJob(dataDir, projectNumber, false, 50, 60, cb);
+        async.constant(dataPath.replace(new RegExp('\.tar\.gz$'), '')),
+        function(dataPath, projectNumber, cb) {
+            // archive DICOM images in dataPath
+            // to the project-specific collection in RDM.
+            submitStagerJob(dataPath, projectNumber, false, 50, 60, cb);
         },
-        function(dataDir, projectNumber, cb) {
+        function(dataPath, projectNumber, cb) {
             // step 4: get all instances of a series to project storage
             getInstanceFiles(false, true, 60, 100, cb);
         }],
-        function(err, dataDir, projectNumber) {
+        function(err, dataPath, projectNumber) {
             if (err) {
                 utility.printErr(job.id + ':MRI:execStreamerJob', err);
                 cb_done(err, false);
