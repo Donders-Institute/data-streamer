@@ -135,7 +135,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                     baseDir = config.streamerDataDirRoot + '/';
                     if (m) {
                         // directory structure for an expected patientId convention
-                        baseDir += m[1] + '/' + m[2] + '/' + sinfo['studyId'] + '/' +
+                        baseDir += sinfo['studyDate'] + '/' + m[1] + '/' + m[2] + '/' + sinfo['studyId'] + '/' +
                                   ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
                                   sinfo['seriesDescription'];
 
