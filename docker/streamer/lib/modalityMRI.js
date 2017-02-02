@@ -305,7 +305,8 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
             //    after the '/raw/' directory, as the project number has been
             //    presented as part of the collection namespace.
             if ( ! toCatchall ) {
-                _dst = _dst.replace('/raw/' + projectNumber + '/', '/raw/');
+                // e.g. transform '/raw/20170201/3010010.01/sub-01/ses-mri02/...' to '/raw/sub-01/ses-mri02/...'
+                _dst = _dst.replace(new RegExp('\/raw\/[1-9][0-9]{7}\/' + projectNumber + '\/'), '/raw/');
             }
             return _dst;
         }
