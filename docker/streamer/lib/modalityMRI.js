@@ -287,7 +287,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
             if (err) {
                 return cb_async(err, null, projectNumber);
             }
-            job.progress(maxProcess, 100);
+            job.progress(maxProgress, 100);
             return cb_async(null, f_tgz, projectNumber);
         });
     }
