@@ -432,7 +432,11 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 cb('dataPath not found: ' + dataPath, dataPath);
             }
         },
-        async.constant(dataPath.replace(new RegExp('\.tar\.gz$'), '')),
+        function( dataPath, projectNumber, cb) {
+            // just convert dataPath back to the directory in which
+            // the instances of the series is stored
+            cb(null, dataPath.replace(new RegExp('\.tar\.gz$'), projectNumber);
+        },
         function(dataPath, projectNumber, cb) {
             // archive DICOM images in dataPath
             // to the project-specific collection in RDM.
