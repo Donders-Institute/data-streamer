@@ -320,7 +320,8 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
             if ( fs.statSync(_src).isDirectory() ) {
                 _dst += _src.replace(new RegExp(config.projectStorageRegex), '');
             } else {
-                _dst += path.dirname(_src).replace(new RegExp(config.projectStorageRegex), '');
+                // put the ending '/' to indicate the destination should be a directory
+                _dst += path.dirname(_src).replace(new RegExp(config.projectStorageRegex), '') + '/';
             }
 
             // 2. for project-specific collection, remove the date and project number
