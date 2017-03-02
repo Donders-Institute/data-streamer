@@ -153,6 +153,7 @@ if (cluster.isMaster) {
     }
 
     //var nworkers = require('os').cpus().length - 1;
+    // TODO: make nworkers configurable
     var nworkers = 2;
     for (var i = 0; i < nworkers; i++) {
         create_worker();
@@ -231,7 +232,7 @@ if ( cluster.isWorker ) {
     setInterval( function() {
         // force garbadge collection
         gc();
-        console.log( "mem report, " + ((isBusy)?"busy worker ":"idle worker ") + cluster.worker.id + ": " + JSON.stringify(process.memoryUsage()) );
+        //console.log( "mem report, " + ((isBusy)?"busy worker ":"idle worker ") + cluster.worker.id + ": " + JSON.stringify(process.memoryUsage()) );
     }, 60*1000 );
 
 }
