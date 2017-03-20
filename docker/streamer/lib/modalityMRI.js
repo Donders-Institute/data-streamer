@@ -252,7 +252,9 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                             (new oc(oc_cfg)).instances.getFile(iid).then( function(buf) {
                                 fs.writeFile(f_dcm, buf, function(err) {
                                     if (err) {
-                                        throw new Error('cannot write instance data: ' + err);
+                                        errmsg = 'cannot write instance data: ' + err;
+                                        utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
+                                        return _cbb(errmsg, false);
                                     }
                                     // set job progress
                                     job.progress(minProgress +
