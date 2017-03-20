@@ -203,7 +203,8 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                             var f = fs.createWriteStream(f_dcm);
                             
                             f.on('error', function(err) {
-                                f.close();
+                                //close the stream and ignore the error during closure 
+                                f.close(function(err) {});
                                 errmsg =  'fail to write to data file: ' + err;
                                 utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
                                 return _cbb(errmsg, false);
