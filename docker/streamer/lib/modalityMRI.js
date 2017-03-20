@@ -215,7 +215,11 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                                     utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
                                     return _cbb(errmsg, false);
                                 }
-                                resp.pipe(f);
+                                resp.pipe(f).on('error', function(err) {
+                                    errmsg = 'fail to write to data file: ' + err;
+                                    utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
+                                    return _cbb(errmsg, false);
+                                });
                                 f.on('finish', function() {
                                     f.close( function(err) {
                                         if (err) {
