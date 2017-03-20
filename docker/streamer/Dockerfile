@@ -44,8 +44,8 @@ RUN ( wget https://pypi.python.org/packages/cd/b0/c2d700252fc251e91c08639ff41a8a
       cd Cheetah-2.4.4 && /opt/python/bin/python setup.py install )
 
 # install nodejs
-ADD https://nodejs.org/dist/v7.3.0/node-v7.3.0-linux-x64.tar.xz /tmp
-RUN ( tar xf node-v7.3.0-linux-x64.tar.xz && mv node-v7.3.0-linux-x64 /opt/nodejs )
+ADD https://nodejs.org/dist/v6.9.4/node-v6.9.4-linux-x64.tar.xz /tmp
+RUN ( tar xf node-v6.9.4-linux-x64.tar.xz && mv node-v6.9.4-linux-x64 /opt/nodejs )
 
 # install streamer package
 RUN ( mkdir -p /opt/streamer )
