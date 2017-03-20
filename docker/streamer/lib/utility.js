@@ -23,7 +23,7 @@ var _printLog = function(header, log) {
 
 // general function to write log to console
 var _printErr = function(header, err) {
-    console.log(_composeLog(header, err));
+    console.error(_composeLog(header, err));
 }
 
 module.exports.responseOnError = _responseOnError;
