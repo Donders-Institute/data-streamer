@@ -85,7 +85,7 @@ queue.on( 'error', function(err) {
 
             mailer.sendToAdmin(msgSubject, null, msgHtml, null);
         });
-        utility.printLog(null, util.format('job %d failed', id));
+        utility.printLog(null, util.format('job %d failed %d', id, process.pid));
     }
 }).on( 'job remove', function(id, err) {
     if ( cluster.isMaster) {
@@ -191,6 +191,7 @@ if ( cluster.isWorker ) {
 
         domain.on('error', function(err) {
             isBusy = false;
+            console.log('domain raises error: ' + err);
             done(err);
         });
 
