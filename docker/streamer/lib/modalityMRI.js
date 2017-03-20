@@ -352,6 +352,8 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                     // it can happen when it's about a PILOT project; or a project not having
                     // a RDM collection being created/mapped properly.
                     utility.printLog(job.id + ':MRI:execStreamerJob:submitStagerJob', 'collection not found for project: ' + p);
+                    // set job process to maxProgress and return successfully
+                    job.progress(maxProgress, 100);
                     return cb_async(null, src, projectNumber);
                 } else {
                     utility.printErr(job.id + ':MRI:execStreamerJob:submitStagerJob', errmsg);
