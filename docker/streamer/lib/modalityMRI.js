@@ -201,6 +201,13 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                                         '_' + data['MainDicomTags']['SOPInstanceUID'] + '.IMA';
                             // get data from Orthanc and write to the filename
                             var f = fs.createWriteStream(f_dcm);
+                            
+                            f.on('error', function(err) {
+                                f.close();
+                                errmsg =  'fail to write to data file: ' + err;
+                                utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
+                                return _cbb(errmsg, false);
+                            });
 
                             /* method 1: using the build-in http client */
                             http.get({
