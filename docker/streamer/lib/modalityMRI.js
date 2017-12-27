@@ -299,7 +299,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
         var f_tgz = src + '.tar.gz';
 
         // compress directory into single tarball
-        tar.c( { gzip: true, file: f_tgz }, src, function(err) {
+        tar.c( { gzip: true, file: f_tgz }, [src], function(err) {
             if (err) {
                 return cb_async(err, null, projectNumber);
             }
