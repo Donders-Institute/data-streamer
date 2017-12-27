@@ -201,9 +201,9 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                                         '_' + data['MainDicomTags']['SOPInstanceUID'] + '.IMA';
                             // get data from Orthanc and write to the filename
                             //var f = fs.createWriteStream(f_dcm);
-                            
+
                             //f.on('error', function(err) {
-                            //    //close the stream and ignore the error during closure 
+                            //    //close the stream and ignore the error during closure
                             //    f.close(function(err) {});
                             //    errmsg =  'fail to write to data file: ' + err;
                             //    utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
@@ -340,12 +340,17 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 _dst += path.dirname(_src).replace(new RegExp(config.projectStorageRegex), '') + '/';
             }
 
-            // 2. for project-specific collection, remove the date and project number
-            //    after the '/raw/' directory, as the project number has been
-            //    presented as part of the collection namespace.
+            // 2. - for project-specific collection, remove the date and project number
+            //      after the '/raw/' directory, as the project number has been
+            //      presented as part of the collection namespace.
+            //    - for catchall collection, insert year sub directory after '/raw/' directory.
             if ( ! toCatchall ) {
                 // e.g. transform '/raw/20170201/3010010.01/sub-01/ses-mri02/...' to '/raw/sub-01/ses-mri02/...'
-                _dst = _dst.replace(new RegExp('\/raw\/[1-9][0-9]{7}\/' + projectNumber + '\/'), '/raw/');
+                _dst = _dst.replace(new RegExp('\/raw\/[2-9][0-9]{7}\/' + projectNumber + '\/'), '/raw/');
+            } else {
+                var year_reg = new RegExp('^\/raw\/([2-9][0-9]{3})[0-9]{4}\/.*');
+                var dst_ydir = ( m = year_reg.exec(_dst) ) ? m[1]:(new Date()).getFullYear().toString();
+                _dst = _dst.replace(new RegExp('\/raw\/'), '/raw/' + dst_ydir + '/');
             }
             return _dst;
         }
