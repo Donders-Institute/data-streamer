@@ -397,7 +397,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                         var dst_sdir = src.replace(config.streamerDataDirRoot + '/', '');
                         var dst_ydir = (m = year_reg.exec(dst_sdir)) ? m[1]:today.getFullYear().toString();
                         dst_list.push('irods:' + rdata.collName + '/raw/' +
-                                      dst_ydir + dst_sdir);
+                                      dst_ydir + '/' + dst_sdir);
                     });
                 } else {
                     // for individual project, try resolve sub-ses subtree structure if available
