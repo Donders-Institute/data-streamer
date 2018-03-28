@@ -183,7 +183,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
     /* General function to resolve the dataset directory within individual project */
     var resolveDatasetProjectPaths = function(prefix_prj, ds_list) {
         var path_list = [];
-        var subses_regex = new RegExp("^.*sub[j]{0,1}([0-9\\S]*)ses[s]{0,1}([0-9\\S]*)_.*$");
+        var subses_regex = new RegExp("^.*sub[j]{0,1}(\\S*)ses[s]{0,1}(\\S*)_.*$");
         ds_list.forEach( function(ds) {
             var m = subses_regex.exec( path.basename(ds).split('_')[0] );
             if ( m ) {
