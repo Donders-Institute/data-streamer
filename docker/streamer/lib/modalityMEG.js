@@ -187,7 +187,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
         ds_list.forEach( function(ds) {
             var m = subses_regex.exec( path.basename(ds).split('_')[0] );
             if ( m ) {
-                path_list.push(path.join(prefix_prj, 'raw', 'sub-' + m[1], 'ses-meg' + m[2], path.basename(ds)));
+                path_list.push(path.join(prefix_prj, 'raw', 'sub-' + m[1], 'ses-meg' + m[2], meg, path.basename(ds)));
             } else {
                 path_list.push(path.join(prefix_prj, 'raw', path.basename(ds)));
             }
