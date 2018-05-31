@@ -55,7 +55,7 @@ w_total=$( rsync -rpvn --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -
 
 # perform the rsync and monitor the progress with a while loop: the progress is reported to STDOUT
 w_done=0
-${mydir}/s-unbuffer rsync -rpv --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -o StrictHostKeyChecking=no -l ${console_user}" \
+${mydir}/s-unbuffer rsync -rpv --update --rsh="/usr/bin/sshpass -p ${console_pass} ssh -x -T -c arcfour -o Compression=no -o StrictHostKeyChecking=no -l ${console_user}" \
 ${console_dir}/ ${local_dir}/ | while read -r line; do
     w_done=$(( $w_done + 1 ))
     if [ $w_done -ge $w_total ]; then
