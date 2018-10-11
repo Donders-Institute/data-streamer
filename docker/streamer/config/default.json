@@ -39,7 +39,7 @@
             "projectStorageRegex": "^/project/(30[0-9]{5}\\.[0-9]{2})/"
         },
         "test": {
-            "type": "TEST",
+            "type": "TEST"
         }
     }
 }
