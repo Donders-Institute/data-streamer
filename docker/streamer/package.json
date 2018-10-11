@@ -24,7 +24,6 @@
     "posix": "~4.1.1",
     "orthanc-client": "~0.10.5",
     "tar": "~4.2.0",
-    "heapdump": "~0.3.7",
     "nodemailer": "~4.0.1",
     "node-html-encoder": "~0.0.2",
     "node-emoji": "~1.5.1"
