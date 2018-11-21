@@ -229,48 +229,48 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                                });
                             });
 
-                            /* method 1: using the build-in http client */
-                            http.get({
-                               hostname: oc_url.hostname,
-                               port: oc_url.port,
-                               path: '/instances/' + iid + '/file',
-                               auth: config.orthancUsername + ":" + config.orthancPassword
-                            }, function(resp) {
-                               if ( resp.statusCode != 200 ) {
-                                   fs.unlink(f_dcm, function(err) {});
-                                   errmsg =  'fail to retrieve instance data: ' + iid + ' (' + resp.statusCode + ') ';
-                                   utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
-                                   return _cbb(errmsg, false);
-                               }
-                               resp.pipe(f).on('error', function(err) {
-                                   errmsg = 'fail to write to data file: ' + err;
-                                   utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
-                                   return _cbb(errmsg, false);
-                               });
-                            }).on('error', function(err) {
-                               fs.unlink(f_dcm, function(err) {});
-                               errmsg = 'fail to download data for instance: ' + err;
-                               utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
-                               return _cbb(errmsg, false);
-                            });
-
-                            // /* method 2: using the orthanc-client */
-                            // (new oc(oc_cfg)).instances.getFile(iid).then( function(buf) {
-                            //     fs.writeFile(f_dcm, buf, function(err) {
-                            //         if (err) {
-                            //             errmsg = 'cannot write instance data: ' + err;
-                            //             utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
-                            //             return _cbb(errmsg, false);
-                            //         }
-                            //         // set job progress
-                            //         job.progress(minProgress +
-                            //                      Math.round((i++)*(maxProgress-minProgress)/total_instances),100);
-                            //         return _cbb(null,true);
-                            //     });
-                            // }).catch( function(err) {
-                            //     utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', err);
-                            //     return _cbb(err, false);
+                            // /* method 1: using the build-in http client */
+                            // http.get({
+                            //    hostname: oc_url.hostname,
+                            //    port: oc_url.port,
+                            //    path: '/instances/' + iid + '/file',
+                            //    auth: config.orthancUsername + ":" + config.orthancPassword
+                            // }, function(resp) {
+                            //    if ( resp.statusCode != 200 ) {
+                            //        fs.unlink(f_dcm, function(err) {});
+                            //        errmsg =  'fail to retrieve instance data: ' + iid + ' (' + resp.statusCode + ') ';
+                            //        utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
+                            //        return _cbb(errmsg, false);
+                            //    }
+                            //    resp.pipe(f).on('error', function(err) {
+                            //        errmsg = 'fail to write to data file: ' + err;
+                            //        utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
+                            //        return _cbb(errmsg, false);
+                            //    });
+                            // }).on('error', function(err) {
+                            //    fs.unlink(f_dcm, function(err) {});
+                            //    errmsg = 'fail to download data for instance: ' + err;
+                            //    utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
+                            //    return _cbb(errmsg, false);
                             // });
+                             
+                            /* method 2: using the orthanc-client */
+                            (new oc(oc_cfg)).instances.getFile(iid).then( function(buf) {
+                                fs.writeFile(f_dcm, buf, function(err) {
+                                    if (err) {
+                                        errmsg = 'cannot write instance data: ' + err;
+                                        utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
+                                        return _cbb(errmsg, false);
+                                    }
+                                    // set job progress
+                                    job.progress(minProgress +
+                                                 Math.round((i++)*(maxProgress-minProgress)/total_instances),100);
+                                    return _cbb(null,true);
+                                });
+                            }).catch( function(err) {
+                                utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', err);
+                                return _cbb(err, false);
+                            });
                         } else {
                             errmsg = 'no DICOM tags for instance: ' + iid;
                             utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
