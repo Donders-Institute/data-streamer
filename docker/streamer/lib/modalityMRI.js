@@ -206,30 +206,30 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                                         ('0000000' + data['MainDicomTags']['InstanceNumber']).slice(-5) +
                                         '_' + data['MainDicomTags']['SOPInstanceUID'] + '.IMA';
                             // get data from Orthanc and write to the filename
-                            var f = fs.createWriteStream(f_dcm);
-
-                            f.on('error', function(err) {
-                               //close the stream and ignore the error during closure
-                               f.close(function(err) {});
-                               errmsg =  'fail to write to data file: ' + err;
-                               utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
-                               return _cbb(errmsg, false);
-                            });
-                            
-                            f.on('finish', function() {
-                               f.close( function(err) {
-                                   if (err) {
-                                       errmsg = 'fail to close instance data file: ' + err;
-                                       utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
-                                       return _cbb(errmsg, false);
-                                    }
-                                    job.progress(minProgress +
-                                                 Math.round((i++)*(maxProgress-minProgress)/total_instances),100);
-                                    return _cbb(null, true);
-                               });
-                            });
-
                             // /* method 1: using the build-in http client */
+                            // var f = fs.createWriteStream(f_dcm);
+                            // 
+                            // f.on('error', function(err) {
+                            //    //close the stream and ignore the error during closure
+                            //    f.close(function(err) {});
+                            //    errmsg =  'fail to write to data file: ' + err;
+                            //    utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
+                            //    return _cbb(errmsg, false);
+                            // });
+                            // 
+                            // f.on('finish', function() {
+                            //    f.close( function(err) {
+                            //        if (err) {
+                            //            errmsg = 'fail to close instance data file: ' + err;
+                            //            utility.printErr(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
+                            //            return _cbb(errmsg, false);
+                            //         }
+                            //         job.progress(minProgress +
+                            //                      Math.round((i++)*(maxProgress-minProgress)/total_instances),100);
+                            //         return _cbb(null, true);
+                            //    });
+                            // });
+                            // 
                             // http.get({
                             //    hostname: oc_url.hostname,
                             //    port: oc_url.port,
