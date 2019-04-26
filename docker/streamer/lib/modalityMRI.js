@@ -170,10 +170,20 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                         projectNumber = m[1];
 
                         // check whether the project directory exists
-                        if ( ! fs.existsSync('/project/' + m[1]) ) {
+                        ppath = path.join("/project", m[1])
+                        if ( ! fs.existsSync(ppath) ) {
                               // skip: non-existing project in central storage
                               utility.printLog(job.id + ':MRI:execStreamerJob:getInstanceFiles', 'storage of project (' + m[1] + ') not found, skip: ' + sid);
                               return _cb(null, true);
+                        }
+
+                        // fail it if the free space of the project storage folder is lower than 1K.
+                        freespace = utility.diskFree(ppath);
+                        if (  freespace < 1 ) {
+                            errmsg = 'project storage freespace too low (' + freespace + 'K): ' + ppath;
+                            utility.printLog(job.id + ':MRI:execStreamerJob:getInstanceFiles', errmsg);
+                            job.log(errmsg);
+                            return _cb(errmsg, false);
                         }
                     } else {
                         // skip: unexpected patientId convention
