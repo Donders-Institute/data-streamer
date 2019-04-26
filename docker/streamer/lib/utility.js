@@ -1,3 +1,5 @@
+const child_process = require('child_process');
+
 // general error handler to send response to the client
 var _responseOnError = function(c_type, c_data, resp) {
     resp.status(500);
@@ -26,6 +28,20 @@ var _printErr = function(header, err) {
     console.error(_composeLog(header, err));
 }
 
+// general function to check freespace using the `df` command in 1K blocks.
+// an error is thrown if the system call to `df` is failed. 
+var _diskFree = function(path) {
+    freespace = 0;
+    stdout = child_process.execSync("df -k --output=avail " + path);
+    stdout.toString().split("\n").forEach(function(line) {
+        if ( line.match(/[0-9]+/) ) {
+            freespace = parseInt(line);
+        }
+    });
+    return freespace;
+}
+
 module.exports.responseOnError = _responseOnError;
 module.exports.printLog = _printLog;
 module.exports.printErr = _printErr;
+module.exports.diskFree = _diskFree;

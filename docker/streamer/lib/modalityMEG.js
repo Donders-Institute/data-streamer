@@ -207,16 +207,26 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 return cb_copy(null, true);
             }
 
+            var ppath = path.join('/project', p);
             // skip if the project storage folder is not presented
-            if ( ! fs.existsSync(path.join('/project', p)) ) {
+            if ( ! fs.existsSync(ppath) ) {
                   // skip: non-existing project in central storage
                   utility.printLog(job.id + ':MEG:execStreamerJob:copyToProjects', 'project storage not found, skip: ' + p);
                   job.progress(minProgress+Math.round((++p_done)*(maxProgress-minProgress)/p_total), 100);
                   return cb_copy(null, true);
             }
 
+            // fail it if the free space of the project storage folder is lower than 1K.
+            freespace = utility.diskFree(ppath);
+            if (  freespace < 1 ) {
+                errmsg = 'project storage freespace too low (' + freespace + 'K): ' + ppath;
+                utility.printLog(job.id + ':MEG:execStreamerJob:copyToProjects', errmsg);
+                job.log(errmsg);
+                return cb_copy(errmsg, false);
+            }
+
             // construct destination directories for ds dep. on the availability of sub-ses number
-            var dst_list = resolveDatasetProjectPaths(path.join('/project', p), src_list);
+            var dst_list = resolveDatasetProjectPaths(ppath, src_list);
 
             // TODO: perform actual data synchronisation from source (src_list) to destination (dst_list)
             var tasks = {};
