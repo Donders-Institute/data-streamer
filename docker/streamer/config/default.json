@@ -40,6 +40,11 @@
         },
         "test": {
             "type": "TEST"
+        },
+        "user": {
+            "type": "USER",
+            "streamerDataDirRoot": "/project/3010000.01/raw",
+            "streamerUiDataDirRoot": "/project/3010000.01/raw"
         }
     }
 }
