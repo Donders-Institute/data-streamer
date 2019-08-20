@@ -1,5 +1,5 @@
 import React from 'react';
-import { Select, Form, Row, Col, Upload, Layout, Card, Icon, Button, Table, notification } from 'antd';
+import { Select, Form, Row, Col, Upload, Layout, Card, Icon, Button, Table, notification, Input } from 'antd';
 import { FormComponentProps } from "antd/lib/form"
 const { Content } = Layout;
 const { Option } = Select;
@@ -26,6 +26,7 @@ type UploaderAppState = {
   isSelectedProject: boolean,
   isSelectedSubjectSession: boolean,
   isSelectedDataType: boolean,
+  isSelectedDataTypeOther: boolean,
   fileList: FileListItem[],
   fileListClean: FileListItem[],
   proceed: boolean,
@@ -130,6 +131,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
       isSelectedProject: false,
       isSelectedSubjectSession: false,
       isSelectedDataType: false,
+      isSelectedDataTypeOther: false,
       fileList: [],
       fileListClean: [],
       proceed: false,
@@ -143,6 +145,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
       isSelectedProject: true,
       isSelectedSubjectSession: false,
       isSelectedDataType: false,
+      isSelectedDataTypeOther: false,
       proceed: false,
     });
   }
@@ -155,16 +158,22 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
       isSelectedSubjectSession: true,
       isSelectedDataType: false,
       proceed: false,
+      isSelectedDataTypeOther: false,
     });
   }
 
   onSelectDataTypeValue = (value: SelectOption) => {
     const selectedDataTypeValue = value.key;
+    let isSelectedDataTypeOther = false;
+    if (selectedDataTypeValue === 'Other') {
+      isSelectedDataTypeOther = true
+    }
     this.setState({
       selectedDataTypeValue,
       isSelectedProject: true,
       isSelectedSubjectSession: true,
       isSelectedDataType: true,
+      isSelectedDataTypeOther: isSelectedDataTypeOther,
       proceed: true,
     });
   }
@@ -347,6 +356,19 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                               style={{ width: '400px' }}>
                               {optionsDataTypes}
                             </Select>
+                          </Form.Item>
+                        </Col>
+                        <Col span={12}>
+
+                        </Col>
+                      </Row>
+                    }
+
+                    {this.state.isSelectedDataTypeOther &&
+                      <Row gutter={16}>
+                        <Col span={12}>
+                          <Form.Item>
+                            <Input placeholder="Insert other data type" />
                           </Form.Item>
                         </Col>
                         <Col span={12}>
