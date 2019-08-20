@@ -365,7 +365,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                     {this.state.isSelectedProject &&
                       <Row gutter={16}>
                         <Col span={12}>
-                          <Form.Item label="Subject">
+                          <Form.Item label="Select subject">
                             <Select
                               labelInValue
                               defaultValue={{ key: this.state.selectedSubjectValue }}
@@ -385,7 +385,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                     {this.state.isSelectedSubject &&
                       <Row gutter={16}>
                         <Col span={12}>
-                          <Form.Item label="Data Type">
+                          <Form.Item label="Select session">
                             <Select
                               labelInValue
                               defaultValue={{ key: this.state.selectedSessionValue }}
@@ -405,7 +405,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                     {this.state.isSelectedSession &&
                       <Row gutter={16}>
                         <Col span={12}>
-                          <Form.Item label="Data Type">
+                          <Form.Item label="Select data type">
                             <Select
                               labelInValue
                               defaultValue={{ key: this.state.selectedDataTypeValue }}
