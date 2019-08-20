@@ -1,1 +1,0 @@
-yarn create react-app data-streamer-ui --typescript
