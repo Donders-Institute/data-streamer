@@ -1,5 +1,5 @@
 import React from 'react';
-import { Select, Form, Row, Col, Upload, Layout, Card, Icon, Button, Table, message } from 'antd';
+import { Select, Form, Row, Col, Upload, Layout, Card, Icon, Button, Table, notification } from 'antd';
 import { FormComponentProps } from "antd/lib/form"
 const { Content } = Layout;
 const { Option } = Select;
@@ -178,14 +178,22 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
     }
   };
 
+  openNotification = (title: string, description: string, category: 'success' | 'info' | 'error' | 'warning', duration: number) => {
+    notification[category]({
+      message: title,
+      description: description,
+      duration: duration,
+    });
+  };
+
   onAdd = (fileItem: FileListItem) => {
     if (this.fileNameExists(fileItem, this.state.fileListClean)) {
-      message.error(`${fileItem.name} filename already exists, please rename.`);
+      this.openNotification('Error', `"${fileItem.name}" filename already exists, please rename.`, 'error', 0);
     } else {
       let fileListClean = this.state.fileListClean;
       fileListClean.push(fileItem);
       this.setState({ fileListClean });
-      message.success(`${fileItem.name} file successfully uploaded to streamer buffer.`);
+      this.openNotification('Success', `"${fileItem.name}" file successfully uploaded to streamer buffer.`, 'success', 4.5);
     }
   };
 
@@ -201,7 +209,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
     if (status === 'done') {
       this.onAdd(info.file);
     } else if (status === 'error') {
-      message.error(`${info.file.name} file upload to streamer buffer failed.`);
+      this.openNotification('Error', `"${info.file.name}" filename already exists, please rename.`, 'error', 0);
     }
     this.setState({ fileList });
   };
