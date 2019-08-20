@@ -100,15 +100,27 @@ const dataSourceProjects = [
 const dataSourceDataTypes = [
   {
     "id": 1,
-    "data_type": "MEG"
+    "data_type": "mri"
   },
   {
     "id": 2,
-    "data_type": "MRI"
+    "data_type": "meg"
   },
   {
     "id": 3,
-    "data_type": "Other"
+    "data_type": "eeg"
+  },
+  {
+    "id": 4,
+    "data_type": "ieee"
+  },
+  {
+    "id": 5,
+    "data_type": "beh"
+  },
+  {
+    "id": 6,
+    "data_type": "other"
   }
 ];
 
@@ -165,7 +177,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
   onSelectDataTypeValue = (value: SelectOption) => {
     const selectedDataTypeValue = value.key;
     let isSelectedDataTypeOther = false;
-    if (selectedDataTypeValue === 'Other') {
+    if (selectedDataTypeValue === 'other') {
       isSelectedDataTypeOther = true
     }
     this.setState({
