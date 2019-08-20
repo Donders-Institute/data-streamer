@@ -27,6 +27,7 @@ type UploaderAppState = {
   isSelectedSubjectSession: boolean,
   isSelectedDataType: boolean,
   fileList: FileListItem[],
+  fileListClean: FileListItem[],
   proceed: boolean,
 }
 
@@ -129,8 +130,8 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
       isSelectedProject: false,
       isSelectedSubjectSession: false,
       isSelectedDataType: false,
-      fileList: [
-      ],
+      fileList: [],
+      fileListClean: [],
       proceed: false,
     };
   }
@@ -168,21 +169,41 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
     });
   }
 
+  fileNameExists = (fileItem: FileListItem, fileList: FileListItem[]) => {
+    const duplicates = fileList.filter(item => (item.name === fileItem.name && item.uid !== fileItem.uid));
+    if (duplicates.length > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+  onAdd = (fileItem: FileListItem) => {
+    if (this.fileNameExists(fileItem, this.state.fileListClean)) {
+      message.error(`${fileItem.name} filename already exists, please rename.`);
+    } else {
+      let fileListClean = this.state.fileListClean;
+      fileListClean.push(fileItem);
+      this.setState({ fileListClean });
+      message.success(`${fileItem.name} file successfully uploaded to streamer buffer.`);
+    }
+  };
+
+  onDelete = (uid: string, filename: string, e: any) => {
+    e.preventDefault();
+    const fileListClean = this.state.fileListClean.filter(item => (item.name !== filename && item.uid !== uid));
+    this.setState({ fileListClean });
+  };
+
   handleChange = (info: any) => {
     let fileList = [...info.fileList];
-    this.setState({ fileList });
-
-    console.log(info);
-
     const { status } = info.file;
-    if (status !== 'uploading to local buffer') {
-      console.log(info.file, info.fileList);
-    }
     if (status === 'done') {
-      message.success(`${info.file.name} file uploaded successfully to local buffer.`);
+      this.onAdd(info.file);
     } else if (status === 'error') {
-      message.error(`${info.file.name} file upload to local buffer failed.`);
+      message.error(`${info.file.name} file upload to streamer buffer failed.`);
     }
+    this.setState({ fileList });
   };
 
   render() {
@@ -212,8 +233,19 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         title: 'filename',
         dataIndex: 'name',
         key: 'name',
-        render: (text: string) => <a style={{ color: '#f45709' }}>{text}</a>,
-      }
+        render: (text: string) => <span style={{ color: '#f45709' }}>{text}</span>,
+      },
+      {
+        title: '',
+        key: 'action',
+        render: (text: string, record: any) => (
+          <span
+            onClick={(e) => { this.onDelete(record.uid, record.name, e); }}
+          >
+            <Icon type="close" />
+          </span>
+        ),
+      },
     ];
 
     return (
@@ -246,7 +278,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                   </p>
                 </Dragger>
                 <br /><br />
-                <Table columns={columns} dataSource={this.state.fileList} pagination={false} size={"small"} />
+                <Table columns={columns} dataSource={this.state.fileListClean} pagination={false} size={"small"} />
               </Card>
             </Col>
             <Col span={12}>
