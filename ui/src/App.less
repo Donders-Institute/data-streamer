@@ -1,0 +1,47 @@
+@import "~antd/lib/style/themes/default";
+@import "~@fullcalendar/core/main.css";
+@import "~@fullcalendar/daygrid/main.css";
+@import '~@fullcalendar/timegrid/main.css';
+
+.App-header-top {
+    background: #f45709 url("./assets/gradient-bar-top.png") 0 0 no-repeat;
+}
+
+.App-header {
+    background: @donders-dark-red;
+
+    .App-header-logo {
+        width: 37px;
+        height: 37px;
+        background-image: url(./assets/DONDERS_D_RGB_small.png);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-color: @primary-1;
+        border-radius: 100%;
+        border-width: 0px 5px 0px;
+        border-style: solid;
+        border-color: @primary-1;
+        margin: 13px 28px 13px 0;
+        float: left;
+      }
+
+    .App-header-menu {
+        background-color: inherit;
+        line-height: 64px;
+    }
+}
+
+.fc-right .fc-prev-button, .fc-right .fc-next-button {
+    background-color: @donders-dark-red;
+    border: 1px solid @donders-dark-red;
+  }  
+
+.fc-today-button.fc-button.fc-button-primary {
+    background-color: @donders-dark-red;
+    border: 1px solid @donders-dark-red;
+} 
+
+.fc-day.fc-widget-content.fc-today {
+    background-color: #f0f2f5;
+    border-color: #ddd;
+}
