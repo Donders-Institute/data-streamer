@@ -1,4 +1,4 @@
-# Data streamer UI mockup
+# Data streamer UI
 
 The data streamer UI is used to upload files from a lab PC to the streamer buffer.
 
