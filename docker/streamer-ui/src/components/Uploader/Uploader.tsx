@@ -21,10 +21,12 @@ type FileListItem = {
 
 type UploaderAppState = {
   selectedProjectValue: string,
-  selectedSubjectSessionValue: string,
+  selectedSubjectValue: string,
+  selectedSessionValue: string,
   selectedDataTypeValue: string,
   isSelectedProject: boolean,
-  isSelectedSubjectSession: boolean,
+  isSelectedSubject: boolean,
+  isSelectedSession: boolean,
   isSelectedDataType: boolean,
   isSelectedDataTypeOther: boolean,
   fileList: FileListItem[],
@@ -45,22 +47,22 @@ const dataSourceProjects = [
         "experiment_name": "",
         "experiment_type": "MRI",
         "duration": "02:00",
-        "list_subject_session": [
+        "list_subjects": [
           {
             "id": 1,
-            "subject_session": "1-1"
+            "subject": "1",
+            "list_sessions": [
+              { "id": 1, "session": "1" },
+              { "id": 2, "session": "2" }
+            ]
           },
           {
             "id": 2,
-            "subject_session": "1-2"
-          },
-          {
-            "id": 1,
-            "subject_session": "2-1"
-          },
-          {
-            "id": 2,
-            "subject_session": "2-2"
+            "subject": "2",
+            "list_sessions": [
+              { "id": 1, "session": "1" },
+              { "id": 2, "session": "2" }
+            ]
           }
         ]
       }
@@ -74,22 +76,22 @@ const dataSourceProjects = [
         "experiment_name": "",
         "experiment_type": "MRI",
         "duration": "02:00",
-        "list_subject_session": [
+        "list_subjects": [
           {
             "id": 1,
-            "subject_session": "1-1"
+            "subject": "1",
+            "list_sessions": [
+              { "id": 1, "session": "1" },
+              { "id": 2, "session": "2" }
+            ]
           },
           {
             "id": 2,
-            "subject_session": "1-2"
-          },
-          {
-            "id": 1,
-            "subject_session": "2-1"
-          },
-          {
-            "id": 2,
-            "subject_session": "2-2"
+            "subject": "2",
+            "list_sessions": [
+              { "id": 1, "session": "1" },
+              { "id": 2, "session": "2" }
+            ]
           }
         ]
       }
@@ -125,23 +127,27 @@ const dataSourceDataTypes = [
 ];
 
 const initialProjectValue: string = dataSourceProjects[0]['project_number'];
-const initialSubjectSessionValue: string = "1-1";
+const initialSubjectValue: string = "1";
+const initialSessionValue: string = "1";
 const initialLabValue: string = dataSourceDataTypes[0]['data_type'];
 
 class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderAppState> {
 
   dataSourceProjects = dataSourceProjects;
-  dataSourceSubjectSessions = dataSourceProjects[0]['list_experiments'][0]['list_subject_session'];
+  dataSourceSubjects = dataSourceProjects[0]['list_experiments'][0]['list_subjects'];
+  dataSourceSessions = dataSourceProjects[0]['list_experiments'][0]['list_subjects'][0]['list_sessions'];
   dataSourceDataTypes = dataSourceDataTypes;
 
   constructor(props: IProps & FormComponentProps) {
     super(props);
     this.state = {
       selectedProjectValue: initialProjectValue,
-      selectedSubjectSessionValue: initialSubjectSessionValue,
+      selectedSubjectValue: initialSubjectValue,
+      selectedSessionValue: initialSessionValue,
       selectedDataTypeValue: initialLabValue,
       isSelectedProject: false,
-      isSelectedSubjectSession: false,
+      isSelectedSubject: false,
+      isSelectedSession: false,
       isSelectedDataType: false,
       isSelectedDataTypeOther: false,
       fileList: [],
@@ -155,19 +161,34 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
     this.setState({
       selectedProjectValue,
       isSelectedProject: true,
-      isSelectedSubjectSession: false,
+      isSelectedSubject: false,
+      isSelectedSession: false,
       isSelectedDataType: false,
       isSelectedDataTypeOther: false,
       proceed: false,
     });
   }
 
-  onSelectSubjectSessionValue = (value: SelectOption) => {
-    const selectedSubjectSessionValue = value.key;
+  onSelectSubjectValue = (value: SelectOption) => {
+    const selectedSubjectValue = value.key;
     this.setState({
-      selectedSubjectSessionValue,
+      selectedSubjectValue,
       isSelectedProject: true,
-      isSelectedSubjectSession: true,
+      isSelectedSubject: true,
+      isSelectedSession: false,
+      isSelectedDataType: false,
+      proceed: false,
+      isSelectedDataTypeOther: false,
+    });
+  }
+
+  onSelectSessionValue = (value: SelectOption) => {
+    const selectedSessionValue = value.key;
+    this.setState({
+      selectedSessionValue,
+      isSelectedProject: true,
+      isSelectedSubject: true,
+      isSelectedSession: true,
       isSelectedDataType: false,
       proceed: false,
       isSelectedDataTypeOther: false,
@@ -183,7 +204,8 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
     this.setState({
       selectedDataTypeValue,
       isSelectedProject: true,
-      isSelectedSubjectSession: true,
+      isSelectedSubject: true,
+      isSelectedSession: true,
       isSelectedDataType: true,
       isSelectedDataTypeOther: isSelectedDataTypeOther,
       proceed: true,
@@ -249,8 +271,12 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
       <Option value={item.project_number}>{item.project_number}</Option>
     );
 
-    const optionsSubjectSessions = this.dataSourceSubjectSessions.map((item, key) =>
-      <Option value={item.subject_session}>{item.subject_session}</Option>
+    const optionsSubjects = this.dataSourceSubjects.map((item, key) =>
+      <Option value={item.subject}>{item.subject}</Option>
+    );
+
+    const optionsSessions = this.dataSourceSessions.map((item, key) =>
+      <Option value={item.session}>{item.session}</Option>
     );
 
     const optionsDataTypes = this.dataSourceDataTypes.map((item, key) =>
@@ -294,7 +320,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
           <Row>
             <Col span={12}>
               <Card
-                style={{ borderRadius: 4, boxShadow: '1px 1px 1px #ddd', minHeight: '500px', marginTop: 10 }}
+                style={{ borderRadius: 4, boxShadow: '1px 1px 1px #ddd', minHeight: '600px', marginTop: 10 }}
                 className="shadow"
               >
                 <Dragger {...props}>
@@ -312,7 +338,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             </Col>
             <Col span={12}>
               <Card
-                style={{ marginLeft: 10, borderRadius: 4, boxShadow: '1px 1px 1px #ddd', minHeight: '500px', marginTop: 10 }}
+                style={{ marginLeft: 10, borderRadius: 4, boxShadow: '1px 1px 1px #ddd', minHeight: '600px', marginTop: 10 }}
                 className="shadow"
               >
                 <h1>Select structure</h1>
@@ -339,14 +365,14 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                     {this.state.isSelectedProject &&
                       <Row gutter={16}>
                         <Col span={12}>
-                          <Form.Item label="Subject-Session">
+                          <Form.Item label="Subject">
                             <Select
                               labelInValue
-                              defaultValue={{ key: this.state.selectedSubjectSessionValue }}
-                              placeholder="Select subject-session"
-                              onSelect={this.onSelectSubjectSessionValue}
+                              defaultValue={{ key: this.state.selectedSubjectValue }}
+                              placeholder="Select subject"
+                              onSelect={this.onSelectSubjectValue}
                               style={{ width: '400px' }}>
-                              {optionsSubjectSessions}
+                              {optionsSubjects}
                             </Select>
                           </Form.Item>
                         </Col>
@@ -356,7 +382,27 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                       </Row>
                     }
 
-                    {this.state.isSelectedSubjectSession &&
+                    {this.state.isSelectedSubject &&
+                      <Row gutter={16}>
+                        <Col span={12}>
+                          <Form.Item label="Data Type">
+                            <Select
+                              labelInValue
+                              defaultValue={{ key: this.state.selectedSessionValue }}
+                              placeholder="Select session"
+                              onSelect={this.onSelectSessionValue}
+                              style={{ width: '400px' }}>
+                              {optionsSessions}
+                            </Select>
+                          </Form.Item>
+                        </Col>
+                        <Col span={12}>
+
+                        </Col>
+                      </Row>
+                    }
+
+                    {this.state.isSelectedSession &&
                       <Row gutter={16}>
                         <Col span={12}>
                           <Form.Item label="Data Type">
