@@ -1,6 +1,7 @@
 import React from 'react';
 import { Select, Form, Row, Col, Upload, Layout, Card, Icon, Button, Table, notification, Input } from 'antd';
 import { FormComponentProps } from "antd/lib/form"
+import { SelectValue } from 'antd/lib/select';
 const { Content } = Layout;
 const { Option } = Select;
 
@@ -137,6 +138,8 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
   dataSourceSubjects = dataSourceProjects[0]['list_experiments'][0]['list_subjects'];
   dataSourceSessions = dataSourceProjects[0]['list_experiments'][0]['list_subjects'][0]['list_sessions'];
   dataSourceDataTypes = dataSourceDataTypes;
+
+  defaultEmpty: SelectOption = { key: "" };
 
   constructor(props: IProps & FormComponentProps) {
     super(props);
@@ -366,7 +369,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                         <Form.Item label="Project">
                           <Select
                             labelInValue
-                            defaultValue={{ key: this.state.selectedProjectValue }}
+                            defaultValue={this.defaultEmpty}
                             placeholder="Select project"
                             onSelect={this.onSelectProjectValue}
                             style={{ width: '400px' }}>
@@ -385,7 +388,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                           <Form.Item label="Select subject">
                             <Select
                               labelInValue
-                              defaultValue={{ key: this.state.selectedSubjectValue }}
+                              defaultValue={this.defaultEmpty}
                               placeholder="Select subject"
                               onSelect={this.onSelectSubjectValue}
                               style={{ width: '400px' }}>
@@ -405,7 +408,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                           <Form.Item label="Select session">
                             <Select
                               labelInValue
-                              defaultValue={{ key: this.state.selectedSessionValue }}
+                              defaultValue={this.defaultEmpty}
                               placeholder="Select session"
                               onSelect={this.onSelectSessionValue}
                               style={{ width: '400px' }}>
@@ -425,7 +428,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                           <Form.Item label="Select data type">
                             <Select
                               labelInValue
-                              defaultValue={{ key: this.state.selectedDataTypeValue }}
+                              defaultValue={this.defaultEmpty}
                               placeholder="Select data type"
                               onSelect={this.onSelectDataTypeValue}
                               style={{ width: '400px' }}>
