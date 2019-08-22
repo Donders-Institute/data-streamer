@@ -198,8 +198,10 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
   onSelectDataTypeValue = (value: SelectOption) => {
     const selectedDataTypeValue = value.key;
     let isSelectedDataTypeOther = false;
+    let proceed = true;
     if (selectedDataTypeValue === 'other') {
       isSelectedDataTypeOther = true
+      proceed = false;
     }
     this.setState({
       selectedDataTypeValue,
@@ -208,7 +210,19 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
       isSelectedSession: true,
       isSelectedDataType: true,
       isSelectedDataTypeOther: isSelectedDataTypeOther,
-      proceed: true,
+      proceed: proceed,
+    });
+  }
+
+  onChangeSelectedDataTypeOther = (event: any) => {
+    let proceed = true;
+    this.setState({
+      isSelectedProject: true,
+      isSelectedSubject: true,
+      isSelectedSession: true,
+      isSelectedDataType: true,
+      isSelectedDataTypeOther: true,
+      proceed: proceed,
     });
   }
 
@@ -429,7 +443,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                       <Row gutter={16}>
                         <Col span={12}>
                           <Form.Item>
-                            <Input placeholder="Insert other data type" />
+                            <Input placeholder="Insert other data type" onChange={this.onChangeSelectedDataTypeOther} />
                           </Form.Item>
                         </Col>
                         <Col span={12}>

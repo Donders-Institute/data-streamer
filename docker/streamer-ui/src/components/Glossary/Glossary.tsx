@@ -13,7 +13,7 @@ class Glossary extends React.Component {
           >
             <h2 id="top">Glossary</h2>
             <div>
-              Project database concepts are listed below, in alphabetical order:
+              Data streamer concepts are listed below, in alphabetical order:
             </div>
 
             <br />
