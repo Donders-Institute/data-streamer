@@ -20,6 +20,7 @@ type FileListItem = {
 }
 
 type UploaderAppState = {
+  destination: string,
   selectedProjectValue: string,
   selectedSubjectValue: string,
   selectedSessionValue: string,
@@ -143,6 +144,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
   constructor(props: IProps & FormComponentProps) {
     super(props);
     this.state = {
+      destination: "",
       selectedProjectValue: initialProjectValue,
       selectedSubjectValue: initialSubjectValue,
       selectedSessionValue: initialSessionValue,
@@ -350,6 +352,24 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
           <Row>
             <Col span={12}>
               <Card
+                style={{ borderRadius: 4, boxShadow: '1px 1px 1px #ddd', marginTop: 10 }}
+                className="shadow"
+              >
+                <span style={{ fontWeight: "bold", width: "200px", float: "left" }}>Source</span>
+              </Card>
+            </Col>
+            <Col span={12}>
+              <Card
+                style={{ marginLeft: 10, borderRadius: 4, boxShadow: '1px 1px 1px #ddd', marginTop: 10 }}
+                className="shadow"
+              >
+                <span style={{ fontWeight: "bold", width: "200px", float: "left" }}>Destination {this.state.destination}</span>
+              </Card>
+            </Col>
+          </Row>
+          <Row>
+            <Col span={12}>
+              <Card
                 style={{ borderRadius: 4, boxShadow: '1px 1px 1px #ddd', minHeight: '600px', marginTop: 10 }}
                 className="shadow"
               >
@@ -455,13 +475,6 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                     {this.state.isSelectedDataTypeOther &&
                       <Row gutter={16}>
                         <Col span={12}>
-                          {/* <Form.Item validateStatus="error"
-                            help="other data type must be all lower case, with no special characters">
-                            <Input placeholder="Insert other data type" onChange={this.onChangeSelectedDataTypeOther} style={{ width: '400px' }} />&nbsp;
-                            <Tooltip title="other data type must be all lower case, with no special characters">
-                              <Icon type="question-circle-o" />
-                            </Tooltip>
-                          </Form.Item> */}
                           <Form.Item>
                             <Input placeholder="Insert other data type" onChange={this.onChangeSelectedDataTypeOther} style={{ width: '400px' }} />&nbsp;
                             <Tooltip title="other data type must be all lower case, with no special characters">
