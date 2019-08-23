@@ -62,9 +62,6 @@ class Footer extends React.Component<AppProps> {
             <div>
               <Link to="/contact/">Contact</Link>
             </div>
-            <div>
-              <img alt="Radboud University/Radboud UMC logo" src={logoRu} width={300} />
-            </div>
           </Col>
         </Row>
       </Layout.Footer>
