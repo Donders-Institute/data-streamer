@@ -144,7 +144,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
   constructor(props: IProps & FormComponentProps) {
     super(props);
     this.state = {
-      destination: "",
+      destination: "projectid/subjectid/sessionid/datatype",
       selectedProjectValue: initialProjectValue,
       selectedSubjectValue: initialSubjectValue,
       selectedSessionValue: initialSessionValue,
@@ -352,24 +352,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
           <Row>
             <Col span={12}>
               <Card
-                style={{ borderRadius: 4, boxShadow: '1px 1px 1px #ddd', marginTop: 10 }}
-                className="shadow"
-              >
-                <span style={{ fontWeight: "bold", width: "200px", float: "left" }}>Source</span>
-              </Card>
-            </Col>
-            <Col span={12}>
-              <Card
-                style={{ marginLeft: 10, borderRadius: 4, boxShadow: '1px 1px 1px #ddd', marginTop: 10 }}
-                className="shadow"
-              >
-                <span style={{ fontWeight: "bold", width: "200px", float: "left" }}>Destination {this.state.destination}</span>
-              </Card>
-            </Col>
-          </Row>
-          <Row>
-            <Col span={12}>
-              <Card
+                title="Source"
                 style={{ borderRadius: 4, boxShadow: '1px 1px 1px #ddd', minHeight: '600px', marginTop: 10 }}
                 className="shadow"
               >
@@ -388,6 +371,8 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             </Col>
             <Col span={12}>
               <Card
+                title="Destination"
+                extra={this.state.destination}
                 style={{ marginLeft: 10, borderRadius: 4, boxShadow: '1px 1px 1px #ddd', minHeight: '600px', marginTop: 10 }}
                 className="shadow"
               >
