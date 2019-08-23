@@ -57,10 +57,7 @@ class Footer extends React.Component<AppProps> {
         <Row type="flex" align-content="flex-end">
           <Col>
             <div>
-              <Link to="/about/">About the Lab Streamer UI</Link>
-            </div>
-            <div>
-              <Link to="/glossary/">Glossary</Link>
+              <Link to="/about/">About the Streamer UI</Link>
             </div>
             <div>
               <Link to="/contact/">Contact</Link>

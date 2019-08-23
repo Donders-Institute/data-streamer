@@ -12,7 +12,7 @@ import { sendMessage } from "../../store/calendars/actions";
 import Auth, { LOGGEDIN } from "../Auth/Auth";
 
 import "../../App.less";
-import logoDonders from "../../assets/DONDERS_LOGO_RGB_small.png";
+import logoDCCN from "../../assets/dccn-logo.png";
 
 import { Layout, Row, Col, Icon, Menu, Button } from "antd";
 
@@ -64,7 +64,7 @@ class Header extends React.Component<AppProps> {
           <Layout.Header style={{ backgroundColor: '#fff', padding: '10px 20px 10px 20px', height: '94px' }}>
             <Row type="flex" justify="space-between">
               <Col>
-                <img alt="Donders Institute" src={logoDonders} height={64} />
+                <img alt="Donders Institute" src={logoDCCN} height={64} />
               </Col>
               <Col>
               </Col>

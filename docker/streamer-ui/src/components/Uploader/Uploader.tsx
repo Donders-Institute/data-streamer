@@ -1,7 +1,6 @@
 import React from 'react';
-import { Select, Form, Row, Col, Upload, Layout, Card, Icon, Button, Table, notification, Input } from 'antd';
+import { Select, Form, Row, Col, Upload, Layout, Card, Icon, Button, Table, notification, Input, Tooltip } from 'antd';
 import { FormComponentProps } from "antd/lib/form"
-import { SelectValue } from 'antd/lib/select';
 const { Content } = Layout;
 const { Option } = Select;
 
@@ -217,8 +216,19 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
     });
   }
 
+  regexp = new RegExp('^[a-z]+$');
+  validateInput = (text: string) => {
+    return this.regexp.test(text);
+  }
+
   onChangeSelectedDataTypeOther = (event: any) => {
-    let proceed = true;
+    let isValid = this.validateInput(event.target.value);
+    let proceed = false;
+    if (isValid) {
+      proceed = true;
+    } else {
+      this.openNotification('Error', `other data type "${event.target.value}" must be all lower case, with no special characters.`, 'error', 4.5);
+    }
     this.setState({
       isSelectedProject: true,
       isSelectedSubject: true,
@@ -445,8 +455,18 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                     {this.state.isSelectedDataTypeOther &&
                       <Row gutter={16}>
                         <Col span={12}>
+                          {/* <Form.Item validateStatus="error"
+                            help="other data type must be all lower case, with no special characters">
+                            <Input placeholder="Insert other data type" onChange={this.onChangeSelectedDataTypeOther} style={{ width: '400px' }} />&nbsp;
+                            <Tooltip title="other data type must be all lower case, with no special characters">
+                              <Icon type="question-circle-o" />
+                            </Tooltip>
+                          </Form.Item> */}
                           <Form.Item>
-                            <Input placeholder="Insert other data type" onChange={this.onChangeSelectedDataTypeOther} />
+                            <Input placeholder="Insert other data type" onChange={this.onChangeSelectedDataTypeOther} style={{ width: '400px' }} />&nbsp;
+                            <Tooltip title="other data type must be all lower case, with no special characters">
+                              <Icon type="question-circle-o" />
+                            </Tooltip>
                           </Form.Item>
                         </Col>
                         <Col span={12}>
