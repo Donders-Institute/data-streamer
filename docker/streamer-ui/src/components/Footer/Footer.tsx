@@ -10,7 +10,6 @@ import { CalendarsState } from "../../store/calendars/types";
 import { sendMessage } from "../../store/calendars/actions";
 
 import "../../App.less";
-import logoRu from "../../assets/RU-UMC-logo-screen.png";
 
 interface AppProps {
   sendMessage: typeof sendMessage;
