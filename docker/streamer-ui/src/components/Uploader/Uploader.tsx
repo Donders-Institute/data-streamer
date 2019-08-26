@@ -308,11 +308,20 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         this.setState({ fileList });
     };
 
+    // Pad with leading zero if number has 1 digit
     cleanLabel = (labelIn: string) => {
-        let labelOut = '01';
+        let labelOut = labelIn;
+        if (labelIn.length == 2) {
+            labelOut = labelIn;
+        } else if (labelIn.length < 2) {
+            labelOut = labelIn.padStart(2, '0');
+        } else {
+            this.openNotification('Error', `"${labelIn}" invalid label to be cleaned.`, 'error', 0);
+        }
         return labelOut;
     }
 
+    //Derive the target path from the target path ingredients
     getTargetPath = (
         isSelectedProject: boolean,
         projectNumber: string,
