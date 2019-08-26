@@ -373,6 +373,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         isSelectedDataType: boolean,
         dataType: string) => {
 
+        let projectPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>/project</span>;
         let forwardSlashPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>/</span>;
         let subjectPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>sub-</span>;
         let sessionPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>ses-</span>;
@@ -404,7 +405,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             }
         }
 
-        return <div>{forwardSlashPath}{projectNumberPath}{forwardSlashPath}{subjectPath}{subjectLabelPath}{forwardSlashPath}{sessionPath}{sessionLabelPath}{forwardSlashPath}{dataTypePath}</div>;
+        return <div>{projectPath}{forwardSlashPath}{projectNumberPath}{forwardSlashPath}{subjectPath}{subjectLabelPath}{forwardSlashPath}{sessionPath}{sessionLabelPath}{forwardSlashPath}{dataTypePath}</div>;
     };
 
     render() {
