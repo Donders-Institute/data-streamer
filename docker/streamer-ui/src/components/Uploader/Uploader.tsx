@@ -29,8 +29,9 @@ type UploaderAppState = {
     isSelectedSession: boolean,
     isSelectedDataType: boolean,
     isSelectedDataTypeOther: boolean,
-    fileList: FileListItem[],
-    fileListClean: FileListItem[],
+    fileList: FileListItem[], // Antd's internal file list
+    fileListClean: FileListItem[], // The file list we use
+    hasFilesSelected: boolean,
     proceed: boolean,
 }
 
@@ -150,6 +151,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             isSelectedDataTypeOther: false,
             fileList: [],
             fileListClean: [],
+            hasFilesSelected: false,
             proceed: false,
         };
     }
@@ -323,7 +325,8 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         } else {
             let fileListClean = this.state.fileListClean;
             fileListClean.push(fileItem);
-            this.setState({ fileListClean });
+            const hasFilesSelected = (fileListClean.length > 0);
+            this.setState({ hasFilesSelected, fileListClean });
             this.openNotification('Success', `"${fileItem.name}" file successfully uploaded to streamer buffer.`, 'success', 4.5);
         }
     };
@@ -331,7 +334,8 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
     onDelete = (uid: string, filename: string, e: any) => {
         e.preventDefault();
         const fileListClean = this.state.fileListClean.filter(item => (item.name !== filename && item.uid !== uid));
-        this.setState({ fileListClean });
+        const hasFilesSelected = (fileListClean.length > 0);
+        this.setState({ hasFilesSelected, fileListClean });
     };
 
     handleChange = (info: any) => {
@@ -463,8 +467,8 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                 style={{ borderRadius: 4, boxShadow: '1px 1px 1px #ddd' }}
                                 className="shadow"
                             >
-                                {this.state.proceed && <Button size="large" style={{ backgroundColor: "#52c41a", color: "#fff", width: "200px", float: "right" }}>Upload</Button>}
-                                {!this.state.proceed && <Button disabled={true} size="large" style={{ width: "200px", float: "right" }}>Upload</Button>}
+                                {this.state.hasFilesSelected && this.state.proceed && <Button size="large" style={{ backgroundColor: "#52c41a", color: "#fff", width: "200px", float: "right" }}>Upload</Button>}
+                                {(!this.state.hasFilesSelected || !this.state.proceed) && <Button disabled={true} size="large" style={{ width: "200px", float: "right" }}>Upload</Button>}
                             </Card>
                         </Col>
                     </Row>
