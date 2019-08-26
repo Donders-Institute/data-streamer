@@ -20,7 +20,6 @@ type FileListItem = {
 }
 
 type UploaderAppState = {
-    destination: string,
     selectedProjectValue: string,
     selectedSubjectValue: string,
     selectedSessionValue: string,
@@ -128,15 +127,11 @@ const dataSourceDataTypes = [
 ];
 
 const initialProjectValue: string = dataSourceProjects[0]['project_number'];
-const initialSubjectValue: string = "1";
-const initialSessionValue: string = "1";
 const initialDataTypeValue: string = dataSourceDataTypes[0]['data_type'];
 
 class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderAppState> {
 
     dataSourceProjects = dataSourceProjects;
-    dataSourceSubjects = dataSourceProjects[0]['list_experiments'][0]['list_subjects'];
-    dataSourceSessions = dataSourceProjects[0]['list_experiments'][0]['list_subjects'][0]['list_sessions'];
     dataSourceDataTypes = dataSourceDataTypes;
 
     defaultEmpty: SelectOption = { key: "" };
@@ -144,10 +139,9 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
     constructor(props: IProps & FormComponentProps) {
         super(props);
         this.state = {
-            destination: "/{projectnumber}/sub-{subjectlabel}/ses-{sessionlabel}/{datatype}",
             selectedProjectValue: initialProjectValue,
-            selectedSubjectValue: initialSubjectValue,
-            selectedSessionValue: initialSessionValue,
+            selectedSubjectValue: '',
+            selectedSessionValue: '',
             selectedDataTypeValue: initialDataTypeValue,
             isSelectedProject: false,
             isSelectedSubject: false,
@@ -162,10 +156,8 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
 
     onSelectProjectValue = (value: SelectOption) => {
         const selectedProjectValue = value.key;
-        const destination = '/' + selectedProjectValue + '/sub-{subjectlabel}/ses-{sessionlabel}/{datatype}';
         this.setState({
             selectedProjectValue,
-            destination,
             isSelectedProject: true,
             isSelectedSubject: false,
             isSelectedSession: false,
@@ -175,39 +167,84 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         });
     }
 
-    onSelectSubjectValue = (value: SelectOption) => {
-        const selectedSubjectValue = value.key;
-        const destination = '/' + this.state.selectedProjectValue + '/sub-' + selectedSubjectValue + '/ses-<sessionlabel>/<datatype>';
-        this.setState({
-            selectedSubjectValue,
-            destination,
-            isSelectedProject: true,
-            isSelectedSubject: true,
-            isSelectedSession: false,
-            isSelectedDataType: false,
-            proceed: false,
-            isSelectedDataTypeOther: false,
-        });
+    regexpSubjectLabel = new RegExp('^[0-9]{1,2}$');
+    validateSubjectLabelInput = (text: string) => {
+        return this.regexpSubjectLabel.test(text);
     }
 
-    onSelectSessionValue = (value: SelectOption) => {
-        const selectedSessionValue = value.key;
-        const destination = '/' + this.state.selectedProjectValue + '/sub-' + this.state.selectedSubjectValue + '/ses-' + selectedSessionValue + '/<datatype>';
-        this.setState({
-            selectedSessionValue,
-            destination,
-            isSelectedProject: true,
-            isSelectedSubject: true,
-            isSelectedSession: true,
-            isSelectedDataType: false,
-            proceed: false,
-            isSelectedDataTypeOther: false,
-        });
+    onChangeSubjectLabel = (event: any) => {
+        let isValid = this.validateSubjectLabelInput(event.target.value);
+        if (isValid) {
+            const selectedSubjectValue = event.target.value;
+            this.setState({
+                selectedSubjectValue,
+                isSelectedProject: true,
+                isSelectedSubject: true,
+                isSelectedSession: false,
+                isSelectedDataType: false,
+                isSelectedDataTypeOther: false,
+                proceed: false,
+            });
+        } else {
+            let selectedSubjectValue = event.target.value;
+            // Do not store invalid strings and show error. 
+            // Silently reset in case of empty string.
+            if (selectedSubjectValue !== '') {
+                selectedSubjectValue = this.state.selectedSubjectValue;
+                this.openNotification('Error', `subject label "${event.target.value}" must be all 1- or 2-digit number.`, 'error', 4.5);
+            }
+            this.setState({
+                selectedSubjectValue,
+                isSelectedProject: true,
+                isSelectedSubject: false,
+                isSelectedSession: false,
+                isSelectedDataType: false,
+                isSelectedDataTypeOther: false,
+                proceed: false,
+            });
+        }
+    }
+
+    regexpSessionLabel = new RegExp('^[0-9]{1,2}$');
+    validateSessionLabelInput = (text: string) => {
+        return this.regexpSessionLabel.test(text);
+    }
+
+    onChangeSessionLabel = (event: any) => {
+        let isValid = this.validateSessionLabelInput(event.target.value);
+        if (isValid) {
+            const selectedSessionValue = event.target.value;
+            this.setState({
+                selectedSessionValue,
+                isSelectedProject: true,
+                isSelectedSubject: true,
+                isSelectedSession: true,
+                isSelectedDataType: false,
+                isSelectedDataTypeOther: false,
+                proceed: false,
+            });
+        } else {
+            let selectedSessionValue = event.target.value;
+            // Do not store invalid strings and show error. 
+            // Silently reset in case of empty string.
+            if (selectedSessionValue !== '') {
+                selectedSessionValue = this.state.selectedSessionValue;
+                this.openNotification('Error', `Session label "${event.target.value}" must be all 1- or 2-digit number.`, 'error', 4.5);
+            }
+            this.setState({
+                selectedSessionValue,
+                isSelectedProject: true,
+                isSelectedSubject: true,
+                isSelectedSession: false,
+                isSelectedDataType: false,
+                isSelectedDataTypeOther: false,
+                proceed: false,
+            });
+        }
     }
 
     onSelectDataTypeValue = (value: SelectOption) => {
         const selectedDataTypeValue = value.key;
-        const destination = '/' + this.state.selectedProjectValue + '/sub-' + this.state.selectedSubjectValue + '/ses-' + this.state.selectedSessionValue + '/' + selectedDataTypeValue;
         let isSelectedDataTypeOther = false;
         let proceed = true;
         if (selectedDataTypeValue === 'other') {
@@ -216,7 +253,6 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         }
         this.setState({
             selectedDataTypeValue,
-            destination,
             isSelectedProject: true,
             isSelectedSubject: true,
             isSelectedSession: true,
@@ -226,13 +262,13 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         });
     }
 
-    regexp = new RegExp('^[a-z]+$');
-    validateInput = (text: string) => {
-        return this.regexp.test(text);
+    regexpSelectedDataTypeOtherInput = new RegExp('^[a-z]+$');
+    validateSelectedDataTypeOtherInput = (text: string) => {
+        return this.regexpSelectedDataTypeOtherInput.test(text);
     }
 
     onChangeSelectedDataTypeOther = (event: any) => {
-        let isValid = this.validateInput(event.target.value);
+        let isValid = this.validateSelectedDataTypeOtherInput(event.target.value);
         if (isValid) {
             const selectedDataTypeValue = event.target.value;
             this.setState({
@@ -246,11 +282,12 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             });
         } else {
             let selectedDataTypeValue = event.target.value;
-            // Do not store invalid strings. Reset in case of empty string.
+            // Do not store invalid strings and show error. 
+            // Silently reset in case of empty string.
             if (selectedDataTypeValue !== '') {
                 selectedDataTypeValue = this.state.selectedDataTypeValue;
+                this.openNotification('Error', `other data type "${event.target.value}" must be all lower case, with no special characters.`, 'error', 4.5);
             }
-            this.openNotification('Error', `other data type "${event.target.value}" must be all lower case, with no special characters.`, 'error', 4.5);
             this.setState({
                 selectedDataTypeValue,
                 isSelectedProject: true,
@@ -311,7 +348,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
     // Pad with leading zero if number has 1 digit
     cleanLabel = (labelIn: string) => {
         let labelOut = labelIn;
-        if (labelIn.length == 2) {
+        if (labelIn.length === 2) {
             labelOut = labelIn;
         } else if (labelIn.length < 2) {
             labelOut = labelIn.padStart(2, '0');
@@ -383,14 +420,6 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             <Option value={item.project_number}>{item.project_number}</Option>
         );
 
-        const optionsSubjects = this.dataSourceSubjects.map((item, key) =>
-            <Option value={item.subject}>{item.subject}</Option>
-        );
-
-        const optionsSessions = this.dataSourceSessions.map((item, key) =>
-            <Option value={item.session}>{item.session}</Option>
-        );
-
         const optionsDataTypes = this.dataSourceDataTypes.map((item, key) =>
             <Option value={item.data_type}>{item.data_type}</Option>
         );
@@ -446,6 +475,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                 style={{ borderRadius: 4, boxShadow: '1px 1px 1px #ddd', minHeight: '600px', marginTop: 10 }}
                                 className="shadow"
                             >
+                                <h1>Select file(s)</h1>
                                 <Dragger {...props}>
                                     <p className="ant-upload-drag-icon">
                                         <Icon type="inbox" />
@@ -491,14 +521,8 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                             <Row gutter={16}>
                                                 <Col span={12}>
                                                     <Form.Item label="Set subject label">
-                                                        <Select
-                                                            labelInValue
-                                                            defaultValue={this.defaultEmpty}
-                                                            placeholder="Select subject"
-                                                            onSelect={this.onSelectSubjectValue}
-                                                            style={{ width: '400px' }}>
-                                                            {optionsSubjects}
-                                                        </Select>
+                                                        <Input placeholder="Set subject label" onChange={this.onChangeSubjectLabel} style={{ width: '400px' }} />&nbsp;
+                                                        <Tooltip title="subject label must be 1- or 2-digit number"><Icon type="question-circle-o" /></Tooltip>
                                                     </Form.Item>
                                                 </Col>
                                                 <Col span={12}>
@@ -511,14 +535,8 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                             <Row gutter={16}>
                                                 <Col span={12}>
                                                     <Form.Item label="Set session label">
-                                                        <Select
-                                                            labelInValue
-                                                            defaultValue={this.defaultEmpty}
-                                                            placeholder="Select session"
-                                                            onSelect={this.onSelectSessionValue}
-                                                            style={{ width: '400px' }}>
-                                                            {optionsSessions}
-                                                        </Select>
+                                                        <Input placeholder="Set session label" onChange={this.onChangeSessionLabel} style={{ width: '400px' }} />&nbsp;
+                                                        <Tooltip title="session label must be 1- or 2-digit number"><Icon type="question-circle-o" /></Tooltip>
                                                     </Form.Item>
                                                 </Col>
                                                 <Col span={12}>
