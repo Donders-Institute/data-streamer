@@ -22,13 +22,14 @@ type FileListItem = {
 type UploaderAppState = {
     selectedProjectValue: string,
     selectedSubjectValue: string,
-    selectedSessionValue: string,
     selectedDataTypeValue: string,
+    selectedSessionValue: string,
     isSelectedProject: boolean,
     isSelectedSubject: boolean,
-    isSelectedSession: boolean,
     isSelectedDataType: boolean,
     isSelectedDataTypeOther: boolean,
+    doneWithSelectDataType: boolean,
+    isSelectedSession: boolean,
     fileList: FileListItem[], // Antd's internal file list
     fileListClean: FileListItem[], // The file list we use
     hasFilesSelected: boolean,
@@ -149,6 +150,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             isSelectedSession: false,
             isSelectedDataType: false,
             isSelectedDataTypeOther: false,
+            doneWithSelectDataType: false,
             fileList: [],
             fileListClean: [],
             hasFilesSelected: false,
@@ -161,10 +163,14 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         this.setState({
             selectedProjectValue,
             isSelectedProject: true,
+            selectedSubjectValue: '',
             isSelectedSubject: false,
-            isSelectedSession: false,
+            selectedDataTypeValue: initialDataTypeValue,
             isSelectedDataType: false,
             isSelectedDataTypeOther: false,
+            doneWithSelectDataType: false,
+            selectedSessionValue: '',
+            isSelectedSession: false,
             proceed: false,
         });
     }
@@ -180,11 +186,12 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             const selectedSubjectValue = event.target.value;
             this.setState({
                 selectedSubjectValue,
-                isSelectedProject: true,
                 isSelectedSubject: true,
-                isSelectedSession: false,
                 isSelectedDataType: false,
                 isSelectedDataTypeOther: false,
+                doneWithSelectDataType: false,
+                isSelectedSession: false,
+                selectedSessionValue: '',
                 proceed: false,
             });
         } else {
@@ -197,11 +204,64 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             }
             this.setState({
                 selectedSubjectValue,
-                isSelectedProject: true,
                 isSelectedSubject: false,
-                isSelectedSession: false,
                 isSelectedDataType: false,
                 isSelectedDataTypeOther: false,
+                doneWithSelectDataType: false,
+                isSelectedSession: false,
+                selectedSessionValue: '',
+                proceed: false,
+            });
+        }
+    }
+
+    onSelectDataTypeValue = (value: SelectOption) => {
+        const selectedDataTypeValue = value.key;
+        let isSelectedDataTypeOther = false;
+        let doneWithSelectDataType = true;
+        if (selectedDataTypeValue === 'other') {
+            isSelectedDataTypeOther = true;
+            doneWithSelectDataType = false;
+        }
+        this.setState({
+            selectedDataTypeValue,
+            isSelectedDataType: true,
+            isSelectedDataTypeOther: isSelectedDataTypeOther,
+            doneWithSelectDataType: doneWithSelectDataType,
+            selectedSessionValue: '',
+            isSelectedSession: false,
+            proceed: false,
+        });
+    }
+
+    regexpSelectedDataTypeOtherInput = new RegExp('^[a-z]+$');
+    validateSelectedDataTypeOtherInput = (text: string) => {
+        return this.regexpSelectedDataTypeOtherInput.test(text);
+    }
+
+    onChangeSelectedDataTypeOther = (event: any) => {
+        let isValid = this.validateSelectedDataTypeOtherInput(event.target.value);
+        if (isValid) {
+            const selectedDataTypeValue = event.target.value;
+            this.setState({
+                selectedDataTypeValue,
+                doneWithSelectDataType: true,
+                isSelectedSession: false,
+                proceed: true,
+            });
+        } else {
+            let selectedDataTypeValue = event.target.value;
+            // Do not store invalid strings and show error. 
+            // Silently reset in case of empty string.
+            if (selectedDataTypeValue !== '') {
+                selectedDataTypeValue = this.state.selectedDataTypeValue;
+                this.openNotification('Error', `other data type "${event.target.value}" must be all lower case, with no special characters.`, 'error', 4.5);
+            }
+            this.setState({
+                selectedDataTypeValue,
+                doneWithSelectDataType: false,
+                selectedSessionValue: '',
+                isSelectedSession: false,
                 proceed: false,
             });
         }
@@ -218,12 +278,8 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             const selectedSessionValue = event.target.value;
             this.setState({
                 selectedSessionValue,
-                isSelectedProject: true,
-                isSelectedSubject: true,
                 isSelectedSession: true,
-                isSelectedDataType: false,
-                isSelectedDataTypeOther: false,
-                proceed: false,
+                proceed: true,
             });
         } else {
             let selectedSessionValue = event.target.value;
@@ -235,68 +291,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             }
             this.setState({
                 selectedSessionValue,
-                isSelectedProject: true,
-                isSelectedSubject: true,
                 isSelectedSession: false,
-                isSelectedDataType: false,
-                isSelectedDataTypeOther: false,
-                proceed: false,
-            });
-        }
-    }
-
-    onSelectDataTypeValue = (value: SelectOption) => {
-        const selectedDataTypeValue = value.key;
-        let isSelectedDataTypeOther = false;
-        let proceed = true;
-        if (selectedDataTypeValue === 'other') {
-            isSelectedDataTypeOther = true
-            proceed = false;
-        }
-        this.setState({
-            selectedDataTypeValue,
-            isSelectedProject: true,
-            isSelectedSubject: true,
-            isSelectedSession: true,
-            isSelectedDataType: true,
-            isSelectedDataTypeOther: isSelectedDataTypeOther,
-            proceed: proceed,
-        });
-    }
-
-    regexpSelectedDataTypeOtherInput = new RegExp('^[a-z]+$');
-    validateSelectedDataTypeOtherInput = (text: string) => {
-        return this.regexpSelectedDataTypeOtherInput.test(text);
-    }
-
-    onChangeSelectedDataTypeOther = (event: any) => {
-        let isValid = this.validateSelectedDataTypeOtherInput(event.target.value);
-        if (isValid) {
-            const selectedDataTypeValue = event.target.value;
-            this.setState({
-                selectedDataTypeValue,
-                isSelectedProject: true,
-                isSelectedSubject: true,
-                isSelectedSession: true,
-                isSelectedDataType: true,
-                isSelectedDataTypeOther: true,
-                proceed: true,
-            });
-        } else {
-            let selectedDataTypeValue = event.target.value;
-            // Do not store invalid strings and show error. 
-            // Silently reset in case of empty string.
-            if (selectedDataTypeValue !== '') {
-                selectedDataTypeValue = this.state.selectedDataTypeValue;
-                this.openNotification('Error', `other data type "${event.target.value}" must be all lower case, with no special characters.`, 'error', 4.5);
-            }
-            this.setState({
-                selectedDataTypeValue,
-                isSelectedProject: true,
-                isSelectedSubject: true,
-                isSelectedSession: true,
-                isSelectedDataType: true,
-                isSelectedDataTypeOther: true,
                 proceed: false,
             });
         }
@@ -369,9 +364,9 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         isSelectedSubject: boolean,
         subjectLabel: string,
         isSelectedSession: boolean,
-        sessionLabel: string,
         isSelectedDataType: boolean,
-        dataType: string) => {
+        dataType: string,
+        sessionLabel: string) => {
 
         let projectPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>/project</span>;
         let forwardSlashPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>/</span>;
@@ -381,8 +376,8 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
 
         let projectNumberPath = <span style={{ fontStyle: 'italic' }}>(projectnumber)</span>;
         let subjectLabelPath = <span style={{ fontStyle: 'italic' }}>(subjectlabel)</span>;
-        let sessionLabelPath = <span style={{ fontStyle: 'italic' }}>(sessionlabel)</span>;
         let dataTypePath = <span style={{ fontStyle: 'italic' }}>(datatype)</span>;
+        let sessionLabelPath = <span style={{ fontStyle: 'italic' }}>(sessionlabel)</span>;
 
         if (isSelectedProject) {
             projectNumberPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>{projectNumber}</span>;
@@ -391,19 +386,19 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             let cleanSubjectLabel = this.cleanLabel(subjectLabel);
             subjectLabelPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>{cleanSubjectLabel}</span>;
         }
-        if (isSelectedSession) {
-            let cleanSessionLabel = this.cleanLabel(sessionLabel);
-            sessionLabelPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>{cleanSessionLabel}</span>;
-        }
         if (isSelectedDataType && dataType !== 'other') {
             dataTypePath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>{dataType}</span>;
         }
         if (isSelectedDataType) {
             if (dataType === 'other' || dataType === '') {
-                dataTypePath = <span style={{ fontStyle: 'italic' }}>datatype</span>;
+                dataTypePath = <span style={{ fontStyle: 'italic' }}>(datatype)</span>;
             } else {
                 dataTypePath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>{dataType}</span>;
             }
+        }
+        if (isSelectedSession) {
+            let cleanSessionLabel = this.cleanLabel(sessionLabel);
+            sessionLabelPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>{cleanSessionLabel}</span>;
         }
 
         return <div>{projectPath}{forwardSlashPath}{projectNumberPath}{forwardSlashPath}{rawPath}{forwardSlashPath}{subjectPath}{subjectLabelPath}{forwardSlashPath}{sessionPath}{dataTypePath}{sessionLabelPath}{forwardSlashPath}</div>;
@@ -456,9 +451,9 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             this.state.isSelectedSubject,
             this.state.selectedSubjectValue,
             this.state.isSelectedSession,
-            this.state.selectedSessionValue,
             this.state.isSelectedDataType,
-            this.state.selectedDataTypeValue);
+            this.state.selectedDataTypeValue,
+            this.state.selectedSessionValue);
 
         return (
             <Content style={{ background: '#f0f2f5' }}>
@@ -540,20 +535,6 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                         {this.state.isSelectedSubject &&
                                             <Row gutter={16}>
                                                 <Col span={12}>
-                                                    <Form.Item label="Set session label">
-                                                        <Input placeholder="Set session label" onChange={this.onChangeSessionLabel} style={{ width: '400px' }} />&nbsp;
-                                                        <Tooltip title="session label must be 1- or 2-digit number"><Icon type="question-circle-o" /></Tooltip>
-                                                    </Form.Item>
-                                                </Col>
-                                                <Col span={12}>
-
-                                                </Col>
-                                            </Row>
-                                        }
-
-                                        {this.state.isSelectedSession &&
-                                            <Row gutter={16}>
-                                                <Col span={12}>
                                                     <Form.Item label="Select data type">
                                                         <Select
                                                             labelInValue
@@ -586,6 +567,21 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                                 </Col>
                                             </Row>
                                         }
+
+                                        {this.state.doneWithSelectDataType &&
+                                            <Row gutter={16}>
+                                                <Col span={12}>
+                                                    <Form.Item label="Set session label">
+                                                        <Input placeholder="Set session label" onChange={this.onChangeSessionLabel} style={{ width: '400px' }} />&nbsp;
+                                                        <Tooltip title="session label must be 1- or 2-digit number"><Icon type="question-circle-o" /></Tooltip>
+                                                    </Form.Item>
+                                                </Col>
+                                                <Col span={12}>
+
+                                                </Col>
+                                            </Row>
+                                        }
+
                                     </Form>
                                 </div>
                             </Card>
