@@ -11,8 +11,8 @@ class About extends React.Component {
             style={{ borderRadius: 4, boxShadow: '1px 1px 1px #ddd' }}
             className="shadow"
           >
-            <h1>About the Lab Streamer UI</h1>
-            The purpose of the lab streamer UI is to upload files to the project storage  in an enforced structure.
+            <h1>About the Streamer UI</h1>
+            The purpose of the streamer UI is to upload files to the project storage in an enforced structure.
           </Card>
         </div>
       </Content>

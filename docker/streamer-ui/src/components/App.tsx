@@ -9,7 +9,6 @@ import Footer from './Footer/Footer';
 
 import About from './About/About';
 import Contact from './Contact/Contact';
-import Glossary from './Glossary/Glossary';
 
 import Uploader from './Uploader/Uploader';
 
@@ -77,7 +76,6 @@ class App extends React.Component<AppProps> {
                                 <Route exact path="/" component={Uploader} />
                                 <Route path="/about" component={About} />
                                 <Route path="/contact" component={Contact} />
-                                <Route path="/glossary" component={Glossary} />
                                 <Route component={NotFound} />
                             </Switch>
                         </Layout>

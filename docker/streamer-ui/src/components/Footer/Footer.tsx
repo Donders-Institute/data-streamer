@@ -10,7 +10,6 @@ import { CalendarsState } from "../../store/calendars/types";
 import { sendMessage } from "../../store/calendars/actions";
 
 import "../../App.less";
-import logoRu from "../../assets/RU-UMC-logo-screen.png";
 
 interface AppProps {
   sendMessage: typeof sendMessage;
@@ -57,16 +56,10 @@ class Footer extends React.Component<AppProps> {
         <Row type="flex" align-content="flex-end">
           <Col>
             <div>
-              <Link to="/about/">About the Lab Streamer UI</Link>
-            </div>
-            <div>
-              <Link to="/glossary/">Glossary</Link>
+              <Link to="/about/">About the Streamer UI</Link>
             </div>
             <div>
               <Link to="/contact/">Contact</Link>
-            </div>
-            <div>
-              <img alt="Radboud University/Radboud UMC logo" src={logoRu} width={300} />
             </div>
           </Col>
         </Row>
