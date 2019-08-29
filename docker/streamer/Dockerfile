@@ -11,9 +11,15 @@ RUN ( yum -y install wget gcc gcc-c++ \
                      make autoconf git zlib zlib-devel \
                      openssl openssl-devel openssl-libs \
                      sssd-client which rsync \
-                     curl curl-devel libxml2-devel epel-release )
+                     curl curl-devel libxml2-devel epel-release \
+   && yum clean all \
+   && rm -rf /var/cache/yum/* \
+   && rm -rf /tmp/* )
 
-RUN ( yum -y install supervisor sshpass pv expect )
+RUN ( yum -y install supervisor sshpass pv expect \
+   && yum clean all \
+   && rm -rf /var/cache/yum/* \
+   && rm -rf /tmp/* )
 
 # create temporary directory
 RUN ( mkdir -p /tmp )
