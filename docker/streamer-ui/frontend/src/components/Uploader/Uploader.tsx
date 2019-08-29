@@ -398,15 +398,31 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         return <div>{projectPath}{forwardSlashPath}{projectNumberPath}{forwardSlashPath}{rawPath}{forwardSlashPath}{subjectPath}{subjectLabelPath}{forwardSlashPath}{sessionPath}{sessionLabelPath}{forwardSlashPath}{dataTypePath}{forwardSlashPath}</div>;
     };
 
+    handleUpload = (info: any) => {
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', "http://localhost:3001", true, "admin", "admin");
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(info));
+
+        // info
+        // onProgress: (event: { percent: number }): void
+        // onError: (event: Error, body?: Object): void
+        // onSuccess: (body: Object): void
+        // data: Object
+        // filename: String
+        // file: File
+        // withCredentials: Boolean
+        // action: String
+        // headers: Object
+    };
+
     render() {
 
         const props = {
             name: 'file',
             multiple: true,
-            action: 'http://localhost:3001',
-            headers: {
-                authorization: 'authorization-text',
-            },
+            customRequest: this.handleUpload,
             onChange: this.handleChange,
             showUploadList: false,
         };
