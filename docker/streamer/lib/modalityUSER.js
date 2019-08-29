@@ -61,6 +61,8 @@ var _createStreamerJob = function(name, config, queue) {
 // run a streamer job given a job data
 var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
+    var async = require('async');
+
     // General function to sync data from one local path to the other.
     var syncPath = function(src, dst, createDir, minProgress, maxProgress, cb_async ) {
 
