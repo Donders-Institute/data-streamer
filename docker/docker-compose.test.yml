@@ -31,6 +31,17 @@ services:
       # - /var/lib/sss/mc:/var/lib/sss/mc:ro
     depends_on:
       - streamer-db
+  streamer-ui:
+    build:
+      context: ./streamer-ui
+    image: streamer-ui
+    networks:
+      - nw_streamer
+    ports:
+      - 3000:80
+    depends_on:
+      - streamer
+
 networks:
     nw_streamer:
         driver: bridge
