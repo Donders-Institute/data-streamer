@@ -43,8 +43,8 @@
         },
         "user": {
             "type": "USER",
-            "streamerDataDirRoot": "/project/3010000.01/raw",
-            "streamerUiDataDirRoot": "/project/3010000.01/raw"
+            "streamerDataDirRoot": "/project/3055000.01/raw",
+            "streamerUiDataDirRoot": "/project/3055000.01/raw"
         }
     }
 }
