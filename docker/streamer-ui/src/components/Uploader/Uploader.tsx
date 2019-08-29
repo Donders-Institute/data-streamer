@@ -26,10 +26,10 @@ type UploaderAppState = {
     selectedSessionValue: string,
     isSelectedProject: boolean,
     isSelectedSubject: boolean,
+    isSelectedSession: boolean,
     isSelectedDataType: boolean,
     isSelectedDataTypeOther: boolean,
     doneWithSelectDataType: boolean,
-    isSelectedSession: boolean,
     fileList: FileListItem[], // Antd's internal file list
     fileListClean: FileListItem[], // The file list we use
     hasFilesSelected: boolean,
@@ -165,17 +165,17 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             isSelectedProject: true,
             selectedSubjectValue: '',
             isSelectedSubject: false,
+            selectedSessionValue: '',
+            isSelectedSession: false,
             selectedDataTypeValue: initialDataTypeValue,
             isSelectedDataType: false,
             isSelectedDataTypeOther: false,
             doneWithSelectDataType: false,
-            selectedSessionValue: '',
-            isSelectedSession: false,
             proceed: false,
         });
     }
 
-    regexpSubjectLabel = new RegExp('^[0-9]{1,2}$');
+    regexpSubjectLabel = new RegExp('^[a-zA-Z0-9]*$');
     validateSubjectLabelInput = (text: string) => {
         return this.regexpSubjectLabel.test(text);
     }
@@ -187,11 +187,11 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             this.setState({
                 selectedSubjectValue,
                 isSelectedSubject: true,
+                isSelectedSession: false,
+                selectedSessionValue: '',
                 isSelectedDataType: false,
                 isSelectedDataTypeOther: false,
                 doneWithSelectDataType: false,
-                isSelectedSession: false,
-                selectedSessionValue: '',
                 proceed: false,
             });
         } else {
@@ -205,11 +205,47 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             this.setState({
                 selectedSubjectValue,
                 isSelectedSubject: false,
+                isSelectedSession: false,
+                selectedSessionValue: '',
                 isSelectedDataType: false,
                 isSelectedDataTypeOther: false,
                 doneWithSelectDataType: false,
+                proceed: false,
+            });
+        }
+    }
+
+    regexpSessionLabel = new RegExp('^[a-zA-Z0-9]*$');
+    validateSessionLabelInput = (text: string) => {
+        return this.regexpSessionLabel.test(text);
+    }
+
+    onChangeSessionLabel = (event: any) => {
+        let isValid = this.validateSessionLabelInput(event.target.value);
+        if (isValid) {
+            const selectedSessionValue = event.target.value;
+            this.setState({
+                isSelectedSession: true,
+                selectedSessionValue,
+                isSelectedDataType: false,
+                isSelectedDataTypeOther: false,
+                doneWithSelectDataType: false,
+                proceed: false,
+            });
+        } else {
+            let selectedSessionValue = event.target.value;
+            // Do not store invalid strings and show error. 
+            // Silently reset in case of empty string.
+            if (selectedSessionValue !== '') {
+                selectedSessionValue = this.state.selectedSessionValue;
+                this.openNotification('Error', `Session label "${event.target.value}" must be all 1- or 2-digit number.`, 'error', 4.5);
+            }
+            this.setState({
                 isSelectedSession: false,
-                selectedSessionValue: '',
+                selectedSessionValue,
+                isSelectedDataType: false,
+                isSelectedDataTypeOther: false,
+                doneWithSelectDataType: false,
                 proceed: false,
             });
         }
@@ -228,13 +264,11 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             isSelectedDataType: true,
             isSelectedDataTypeOther: isSelectedDataTypeOther,
             doneWithSelectDataType: doneWithSelectDataType,
-            selectedSessionValue: '',
-            isSelectedSession: false,
             proceed: false,
         });
     }
 
-    regexpSelectedDataTypeOtherInput = new RegExp('^[a-z]+$');
+    regexpSelectedDataTypeOtherInput = new RegExp('^[a-z]*$');
     validateSelectedDataTypeOtherInput = (text: string) => {
         return this.regexpSelectedDataTypeOtherInput.test(text);
     }
@@ -246,7 +280,6 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             this.setState({
                 selectedDataTypeValue,
                 doneWithSelectDataType: true,
-                isSelectedSession: false,
                 proceed: true,
             });
         } else {
@@ -260,38 +293,6 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             this.setState({
                 selectedDataTypeValue,
                 doneWithSelectDataType: false,
-                selectedSessionValue: '',
-                isSelectedSession: false,
-                proceed: false,
-            });
-        }
-    }
-
-    regexpSessionLabel = new RegExp('^[0-9]{1,2}$');
-    validateSessionLabelInput = (text: string) => {
-        return this.regexpSessionLabel.test(text);
-    }
-
-    onChangeSessionLabel = (event: any) => {
-        let isValid = this.validateSessionLabelInput(event.target.value);
-        if (isValid) {
-            const selectedSessionValue = event.target.value;
-            this.setState({
-                selectedSessionValue,
-                isSelectedSession: true,
-                proceed: true,
-            });
-        } else {
-            let selectedSessionValue = event.target.value;
-            // Do not store invalid strings and show error. 
-            // Silently reset in case of empty string.
-            if (selectedSessionValue !== '') {
-                selectedSessionValue = this.state.selectedSessionValue;
-                this.openNotification('Error', `Session label "${event.target.value}" must be all 1- or 2-digit number.`, 'error', 4.5);
-            }
-            this.setState({
-                selectedSessionValue,
-                isSelectedSession: false,
                 proceed: false,
             });
         }
@@ -344,16 +345,9 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         this.setState({ fileList });
     };
 
-    // Pad with leading zero if number has 1 digit
+    // TODO: Clean label?
     cleanLabel = (labelIn: string) => {
         let labelOut = labelIn;
-        if (labelIn.length === 2) {
-            labelOut = labelIn;
-        } else if (labelIn.length < 2) {
-            labelOut = labelIn.padStart(2, '0');
-        } else {
-            this.openNotification('Error', `"${labelIn}" invalid label to be cleaned.`, 'error', 0);
-        }
         return labelOut;
     }
 
@@ -401,7 +395,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             sessionLabelPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>{cleanSessionLabel}</span>;
         }
 
-        return <div>{projectPath}{forwardSlashPath}{projectNumberPath}{forwardSlashPath}{rawPath}{forwardSlashPath}{subjectPath}{subjectLabelPath}{forwardSlashPath}{sessionPath}{dataTypePath}{sessionLabelPath}{forwardSlashPath}</div>;
+        return <div>{projectPath}{forwardSlashPath}{projectNumberPath}{forwardSlashPath}{rawPath}{forwardSlashPath}{subjectPath}{subjectLabelPath}{forwardSlashPath}{sessionPath}{sessionLabelPath}{forwardSlashPath}{dataTypePath}{forwardSlashPath}</div>;
     };
 
     render() {
@@ -523,7 +517,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                                 <Col span={12}>
                                                     <Form.Item label="Set subject label">
                                                         <Input placeholder="Set subject label" onChange={this.onChangeSubjectLabel} style={{ width: '400px' }} />&nbsp;
-                                                        <Tooltip title="subject label must be 1- or 2-digit number"><Icon type="question-circle-o" /></Tooltip>
+                                                        <Tooltip title="subject label must be of form [a-zA-Z0-9]*"><Icon type="question-circle-o" /></Tooltip>
                                                     </Form.Item>
                                                 </Col>
                                                 <Col span={12}>
@@ -533,6 +527,20 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                         }
 
                                         {this.state.isSelectedSubject &&
+                                            <Row gutter={16}>
+                                                <Col span={12}>
+                                                    <Form.Item label="Set session label">
+                                                        <Input placeholder="Set session label" onChange={this.onChangeSessionLabel} style={{ width: '400px' }} />&nbsp;
+                                                        <Tooltip title="session label must be of form [a-zA-Z0-9]*"><Icon type="question-circle-o" /></Tooltip>
+                                                    </Form.Item>
+                                                </Col>
+                                                <Col span={12}>
+
+                                                </Col>
+                                            </Row>
+                                        }
+
+                                        {this.state.isSelectedSession &&
                                             <Row gutter={16}>
                                                 <Col span={12}>
                                                     <Form.Item label="Select data type">
@@ -557,7 +565,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                                 <Col span={12}>
                                                     <Form.Item>
                                                         <Input placeholder="Insert other data type" onChange={this.onChangeSelectedDataTypeOther} style={{ width: '400px' }} />&nbsp;
-                                                            <Tooltip title="other data type must be all lower case, with no special characters">
+                                                            <Tooltip title="other data type must be lower case string with no special characters">
                                                             <Icon type="question-circle-o" />
                                                         </Tooltip>
                                                     </Form.Item>
@@ -567,21 +575,6 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                                 </Col>
                                             </Row>
                                         }
-
-                                        {this.state.doneWithSelectDataType &&
-                                            <Row gutter={16}>
-                                                <Col span={12}>
-                                                    <Form.Item label="Set session label">
-                                                        <Input placeholder="Set session label" onChange={this.onChangeSessionLabel} style={{ width: '400px' }} />&nbsp;
-                                                        <Tooltip title="session label must be 1- or 2-digit number"><Icon type="question-circle-o" /></Tooltip>
-                                                    </Form.Item>
-                                                </Col>
-                                                <Col span={12}>
-
-                                                </Col>
-                                            </Row>
-                                        }
-
                                     </Form>
                                 </div>
                             </Card>
