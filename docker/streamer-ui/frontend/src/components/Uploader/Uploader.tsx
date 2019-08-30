@@ -1,6 +1,7 @@
 import React from 'react';
 import { Select, Form, Row, Col, Upload, Layout, Card, Icon, Button, Table, notification, Input, Tooltip } from 'antd';
-import { FormComponentProps } from "antd/lib/form"
+import { FormComponentProps } from "antd/lib/form";
+
 const { Content } = Layout;
 const { Option } = Select;
 
@@ -10,14 +11,15 @@ interface IProps {
     title?: string | undefined;
 }
 
-type FileListItem = {
-    uid: string,
-    name: string,
-    url: string,
-    size: number,
-    type: string,
-    status: "done" | "error" | "success" | "uploading" | "removed" | undefined,
-}
+// type FileListItem = {
+//     uid: string,
+//     name: string,
+//     url: string,
+//     size: number,
+//     type: string,
+//     status: "done" | "error" | "success" | "uploading" | "removed" | undefined,
+//     slice: any,
+// }
 
 type UploaderAppState = {
     selectedProjectValue: string,
@@ -30,8 +32,8 @@ type UploaderAppState = {
     isSelectedDataType: boolean,
     isSelectedDataTypeOther: boolean,
     doneWithSelectDataType: boolean,
-    fileList: FileListItem[], // Antd's internal file list
-    fileListClean: FileListItem[], // The file list we use
+    fileList: File[], // Antd's internal file list
+    fileListClean: File[], // The file list we use
     hasFilesSelected: boolean,
     proceed: boolean,
 }
@@ -298,13 +300,14 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         }
     }
 
-    fileNameExists = (fileItem: FileListItem, fileList: FileListItem[]) => {
-        const duplicates = fileList.filter(item => (item.name === fileItem.name && item.uid !== fileItem.uid));
-        if (duplicates.length > 0) {
-            return true;
-        } else {
-            return false;
-        }
+    fileNameExists = (fileItem: File, fileList: File[]) => {
+        // const duplicates = fileList.filter(item => (item.name === fileItem.name && item.uid !== fileItem.uid));
+        // if (duplicates.length > 0) {
+        //     return true;
+        // } else {
+        //     return false;
+        // }
+        return false;
     };
 
     openNotification = (title: string, description: string, category: 'success' | 'info' | 'error' | 'warning', duration: number) => {
@@ -315,7 +318,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         });
     };
 
-    onAdd = (fileItem: FileListItem) => {
+    onAdd = (fileItem: File) => {
         if (this.fileNameExists(fileItem, this.state.fileListClean)) {
             this.openNotification('Error', `"${fileItem.name}" filename already exists, please rename.`, 'error', 0);
         } else {
@@ -329,20 +332,18 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
 
     onDelete = (uid: string, filename: string, e: any) => {
         e.preventDefault();
-        const fileListClean = this.state.fileListClean.filter(item => (item.name !== filename && item.uid !== uid));
+        // const fileListClean = this.state.fileListClean.filter(item => (item.name !== filename && item.uid !== uid));
+        const fileListClean = this.state.fileListClean.filter(item => (item.name !== filename));
         const hasFilesSelected = (fileListClean.length > 0);
         this.setState({ hasFilesSelected, fileListClean });
     };
 
-    handleChange = (info: any) => {
-        let fileList = [...info.fileList];
-        const { status } = info.file;
-        if (status === 'done') {
-            this.onAdd(info.file);
-        } else if (status === 'error') {
-            this.openNotification('Error', `"${info.file.name}" filename already exists, please rename.`, 'error', 0);
-        }
+    handleChange = (file: any, fileList: any) => {
+        let stateFileList = this.state.fileList;
+        fileList = [...stateFileList, file];
         this.setState({ fileList });
+        this.onAdd(file);
+        return false;
     };
 
     // TODO: Clean label?
@@ -399,12 +400,6 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
     };
 
     handleUpload = (info: any) => {
-
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', "http://localhost:3001", true, "admin", "admin");
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.send(JSON.stringify(info));
-
         // info
         // onProgress: (event: { percent: number }): void
         // onError: (event: Error, body?: Object): void
@@ -415,15 +410,36 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         // withCredentials: Boolean
         // action: String
         // headers: Object
+
+        var formData = new FormData();
+        this.state.fileListClean.forEach(file => {
+            formData.append('files', file);
+        });
+
+        var xhr = new XMLHttpRequest();
+        xhr.addEventListener("readystatechange", function () {
+            if (this.readyState === 4) {
+                console.log(this.responseText);
+            }
+        });
+        xhr.open("POST", "http://localhost:9000/upload");
+        xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=--------------------------148791645982018533398636");
+
+        for (var value of formData.values()) {
+            console.log(value);
+        }
+
+        xhr.send(formData);
     };
 
     render() {
 
         const props = {
+            className: "file-uploader",
             name: 'file',
             multiple: true,
+            beforeUpload: this.handleChange,
             customRequest: this.handleUpload,
-            onChange: this.handleChange,
             showUploadList: false,
         };
 
@@ -498,6 +514,13 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                 </Dragger>
                                 <br /><br />
                                 <Table columns={columns} dataSource={this.state.fileListClean} pagination={false} size={"small"} />
+
+                                <Button
+                                    type="primary"
+                                    onClick={this.handleUpload}
+                                    style={{ marginTop: 16 }}
+                                > Upload
+                                </Button>
                             </Card>
                         </Col>
                         <Col span={12}>

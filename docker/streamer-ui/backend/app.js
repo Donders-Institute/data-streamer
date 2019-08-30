@@ -1,14 +1,13 @@
 var createError = require('http-errors');
 var express = require('express');
+var bodyParser = require("body-parser")
+var multer = require('multer');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require("cors");
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var testBackendRouter = require("./routes/testBackend");
-
+var upload = multer({ dest: 'uploads/' })
 var app = express();
 
 // view engine setup
@@ -22,9 +21,33 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use("/testBackend", testBackendRouter);
+// for parsing application/json
+app.use(bodyParser.json()); 
+
+// for parsing application/xwww-
+app.use(bodyParser.urlencoded({ extended: true })); 
+//form-urlencoded
+
+// for parsing multipart/form-data
+app.use(upload.array()); 
+app.use(express.static('public'));
+
+app.post("/upload", upload.array('test', 1), function(req, res, next) {
+    if (Object.keys(req.files).length == 0) {
+      return res.status(400).send('No files were uploaded.');
+    }
+  
+    // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+    let sampleFile = req.files.sampleFile;
+  
+    // Use the mv() method to place the file somewhere on your server
+    sampleFile.mv('/somewhere/on/your/server/filename.jpg', function(err) {
+      if (err)
+        return res.status(500).send(err);
+  
+      res.send('File uploaded!');
+    });
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -43,7 +66,8 @@ app.use(function(err, req, res, next) {
 });
 
 const PORT = 9000;
-const HOST = '0.0.0.0';
+// const HOST = '0.0.0.0';
+const HOST = 'localhost';
 
 app.listen(PORT, HOST);
 console.log(`Running on http://${HOST}:${PORT}`);
