@@ -28,7 +28,7 @@ var _createStreamerJob = function(name, config, queue) {
       var sessId = req.params['sess_id'];
       var dataType = req.params['dtype'];
 
-      var jobTitle = 'UI: ' + projId + '-' + subjId + '-' + sessId + '-' + dataType;
+      var jobTitle = 'UI: /project/' + projId + '/sub-' + subjId + '/ses-' + sessId + '/' + dataType;
 
       console.log('creating job for: ' + jobTitle);
 
