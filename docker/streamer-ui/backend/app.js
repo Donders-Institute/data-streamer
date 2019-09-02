@@ -6,8 +6,13 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
+const fs = require("fs");
 
 var app = express();
+
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'jade');
 
 app.use(cors());
 app.use(logger("dev"));
@@ -32,6 +37,15 @@ function get_num_files(files) {
 }
 
 app.post("/upload", function(req, res) {
+  // Check for structure
+  if (!req.body) {
+    return res.status(400).send(`No attributes were uploaded: "req.body" is empty`);
+  }
+  projectNumber = req.body.projectNumber;
+  subjectLabel = req.body.subjectLabel;
+  sessionLabel = req.body.projectNumber;
+  dataType = req.body.dataType;
+
   // Check for uploaded files
   if (!req.files) {
     return res.status(400).send(`No files were uploaded: "req.files" is empty`);
@@ -50,10 +64,10 @@ app.post("/upload", function(req, res) {
     // Move one file
     file = req.files.files;
 
-    fs.copyFile("source.txt", "destination.txt", err => {
-      if (err) throw err;
-      console.log("source.txt was copied to destination.txt");
-    });
+    // fs.copyFile("source.txt", "destination.txt", err => {
+    //   if (err) throw err;
+    //   console.log("source.txt was copied to destination.txt");
+    // });
 
     res.status(200).send(`File was succesfully uploaded: "${file.name}"`);
   } else {
@@ -63,10 +77,10 @@ app.post("/upload", function(req, res) {
       file = req.files.files[i];
       fileList.push('"' + file.name + '"');
 
-      fs.copyFile("source.txt", "destination.txt", err => {
-        if (err) throw err;
-        console.log("source.txt was copied to destination.txt");
-      });
+      // fs.copyFile("source.txt", "destination.txt", err => {
+      //   if (err) throw err;
+      //   console.log("source.txt was copied to destination.txt");
+      // });
     }
 
     fileListString = "[" + fileList.join(", ") + "]";

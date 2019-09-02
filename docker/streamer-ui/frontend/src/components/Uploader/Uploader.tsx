@@ -20,8 +20,8 @@ interface RcFile extends File {
 type UploaderAppState = {
     selectedProjectValue: string,
     selectedSubjectValue: string,
-    selectedDataTypeValue: string,
     selectedSessionValue: string,
+    selectedDataTypeValue: string,
     isSelectedProject: boolean,
     isSelectedSubject: boolean,
     isSelectedSession: boolean,
@@ -396,6 +396,14 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
 
     handleUpload = (info: any) => {
         var formData = new FormData();
+
+        // Add the attributes
+        formData.append('projectNumber', this.state.selectedProjectValue);
+        formData.append('subjectLabel', this.state.selectedSubjectValue);
+        formData.append('sessionLabel',this.state. selectedSessionValue);
+        formData.append('dataType', this.state.selectedDataTypeValue);
+
+        // Add the files for upload
         this.state.fileListClean.forEach(file => {
             formData.append('files', file);
         });
@@ -491,11 +499,11 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                 <br /><br />
                                 <Table columns={columns} dataSource={this.state.fileListClean} pagination={false} size={"small"} />
 
-                                <Button
+                                {/* <Button
                                     type="primary"
                                     onClick={this.handleUpload}
                                     style={{ marginTop: 16 }}
-                                >Upload</Button>
+                                >Upload</Button> */}
                             </Card>
                         </Col>
                         <Col span={12}>
