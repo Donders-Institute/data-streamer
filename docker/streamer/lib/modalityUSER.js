@@ -105,6 +105,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 return cb_async(errmsg, false);
             } else {
                 // set job progress to maxProgress
+                job.progress(maxProgress, 100);
                 utility.printLog(job.id + ':USER:execStreamerJob:syncPath', src + ' -> ' + dst);
                 return cb_async(null, true);
             }
