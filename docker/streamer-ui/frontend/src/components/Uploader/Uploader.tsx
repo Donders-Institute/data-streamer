@@ -491,11 +491,11 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                 <br /><br />
                                 <Table columns={columns} dataSource={this.state.fileListClean} pagination={false} size={"small"} />
 
-                                {/* <Button
+                                <Button
                                     type="primary"
                                     onClick={this.handleUpload}
                                     style={{ marginTop: 16 }}
-                                >Upload</Button> */}
+                                >Upload</Button>
                             </Card>
                         </Col>
                         <Col span={12}>

@@ -39,6 +39,9 @@ services:
       - nw_streamer
     ports:
       - 9000:9000
+    environment:
+      - HOST=0.0.0.0
+      - PORT=9000
     depends_on:
       - streamer
   streamer-ui-frontend:
@@ -54,5 +57,5 @@ services:
       - streamer-ui-backend
 
 networks:
-    nw_streamer:
-        driver: bridge
+  nw_streamer:
+    driver: bridge
