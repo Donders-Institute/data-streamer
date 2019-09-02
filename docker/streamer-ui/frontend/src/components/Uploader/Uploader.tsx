@@ -28,8 +28,7 @@ type UploaderAppState = {
     isSelectedDataType: boolean,
     isSelectedDataTypeOther: boolean,
     doneWithSelectDataType: boolean,
-    fileList: RcFile[], // Antd's internal file list
-    fileListClean: RcFile[], // The file list we use
+    fileList: RcFile[],
     hasFilesSelected: boolean,
     proceed: boolean,
 }
@@ -150,7 +149,6 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             isSelectedDataTypeOther: false,
             doneWithSelectDataType: false,
             fileList: [],
-            fileListClean: [],
             hasFilesSelected: false,
             proceed: false,
         };
@@ -314,29 +312,24 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
     };
 
     onAdd = (file: RcFile) => {
-        if (this.fileNameExists(file, this.state.fileListClean)) {
+        if (this.fileNameExists(file, this.state.fileList)) {
             this.openNotification('Error', `"${file.name}" filename already exists, please rename.`, 'error', 0);
         } else {
-            let fileListClean = this.state.fileListClean;
-            fileListClean = [...fileListClean, file];
-            const hasFilesSelected = (fileListClean.length > 0);
-            this.setState({ hasFilesSelected, fileListClean });
-            this.openNotification('Success', `"${file.name}" file successfully uploaded to streamer buffer.`, 'success', 4.5);
+            let fileList = [...this.state.fileList, file];
+            const hasFilesSelected = (fileList.length > 0);
+            this.setState({ hasFilesSelected, fileList });
+            this.openNotification('Success', `"${file.name}" file successfully put in streamer buffer.`, 'success', 4.5);
         }
     };
 
     onDelete = (uid: string, filename: string, e: any) => {
         e.preventDefault();
-        // const fileListClean = this.state.fileListClean.filter(item => (item.name !== filename && item.uid !== uid));
-        const fileListClean = this.state.fileListClean.filter(item => (item.name !== filename));
-        const hasFilesSelected = (fileListClean.length > 0);
-        this.setState({ hasFilesSelected, fileListClean });
+        const fileList = this.state.fileList.filter(item => (item.name !== filename && item.uid !== uid));
+        const hasFilesSelected = (fileList.length > 0);
+        this.setState({ hasFilesSelected, fileList });
     };
 
     handleChange = (file: RcFile, fileList: RcFile[]) => {
-        let stateFileList = this.state.fileList;
-        fileList = [...stateFileList, file];
-        this.setState({ fileList });
         this.onAdd(file);
         return false;
     };
@@ -404,7 +397,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         formData.append('dataType', this.state.selectedDataTypeValue);
 
         // Add the files for upload
-        this.state.fileListClean.forEach(file => {
+        this.state.fileList.forEach(file => {
             formData.append('files', file);
         });
 
@@ -426,7 +419,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             multiple: true,
             beforeUpload: this.handleChange,
             customRequest: this.handleUpload,
-            showUploadList: false,
+            showUploadList: true,
         };
 
         const optionsProjects = this.dataSourceProjects.map((item, key) =>
@@ -497,7 +490,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                     <p className="ant-upload-hint">Select one or more files.</p>
                                 </Dragger>
                                 <br /><br />
-                                <Table columns={columns} dataSource={this.state.fileListClean} pagination={false} size={"small"} />
+                                <Table columns={columns} dataSource={this.state.fileList} pagination={false} size={"small"} />
 
                                 {/* <Button
                                     type="primary"
