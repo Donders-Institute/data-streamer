@@ -11,15 +11,11 @@ interface IProps {
     title?: string | undefined;
 }
 
-// type FileListItem = {
-//     uid: string,
-//     name: string,
-//     url: string,
-//     size: number,
-//     type: string,
-//     status: "done" | "error" | "success" | "uploading" | "removed" | undefined,
-//     slice: any,
-// }
+interface RcFile extends File {
+    uid: string;
+    readonly lastModifiedDate: Date;
+    readonly webkitRelativePath: string;
+}
 
 type UploaderAppState = {
     selectedProjectValue: string,
@@ -32,8 +28,8 @@ type UploaderAppState = {
     isSelectedDataType: boolean,
     isSelectedDataTypeOther: boolean,
     doneWithSelectDataType: boolean,
-    fileList: File[], // Antd's internal file list
-    fileListClean: File[], // The file list we use
+    fileList: RcFile[], // Antd's internal file list
+    fileListClean: RcFile[], // The file list we use
     hasFilesSelected: boolean,
     proceed: boolean,
 }
@@ -300,7 +296,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         }
     }
 
-    fileNameExists = (fileItem: File, fileList: File[]) => {
+    fileNameExists = (fileItem: RcFile, fileList: RcFile[]) => {
         // const duplicates = fileList.filter(item => (item.name === fileItem.name && item.uid !== fileItem.uid));
         // if (duplicates.length > 0) {
         //     return true;
@@ -318,11 +314,22 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         });
     };
 
-    onAdd = (fileItem: File) => {
+    onAdd = (fileItem: RcFile) => {
         if (this.fileNameExists(fileItem, this.state.fileListClean)) {
             this.openNotification('Error', `"${fileItem.name}" filename already exists, please rename.`, 'error', 0);
         } else {
             let fileListClean = this.state.fileListClean;
+
+            // var reader = new FileReader();
+            // reader.addEventListener("load", function () {
+            //     var data = reader.result as ArrayBuffer;
+            //     var array = new Int8Array(data);
+            //     console.log(array.length);
+            // });
+            // if (fileItem) {
+            //     reader.readAsArrayBuffer(fileItem);
+            // }
+
             fileListClean.push(fileItem);
             const hasFilesSelected = (fileListClean.length > 0);
             this.setState({ hasFilesSelected, fileListClean });
@@ -338,7 +345,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         this.setState({ hasFilesSelected, fileListClean });
     };
 
-    handleChange = (file: any, fileList: any) => {
+    handleChange = (file: RcFile, fileList: RcFile[]) => {
         let stateFileList = this.state.fileList;
         fileList = [...stateFileList, file];
         this.setState({ fileList });
@@ -423,12 +430,6 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             }
         });
         xhr.open("POST", "http://localhost:9000/upload");
-        xhr.setRequestHeader("Content-Type", "multipart/form-data; boundary=--------------------------148791645982018533398636");
-
-        for (var value of formData.values()) {
-            console.log(value);
-        }
-
         xhr.send(formData);
     };
 
@@ -508,9 +509,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                         <Icon type="inbox" />
                                     </p>
                                     <p className="ant-upload-text">Click or drag files to this area</p>
-                                    <p className="ant-upload-hint">
-                                        Select one or more files.
-                                    </p>
+                                    <p className="ant-upload-hint">Select one or more files.</p>
                                 </Dragger>
                                 <br /><br />
                                 <Table columns={columns} dataSource={this.state.fileListClean} pagination={false} size={"small"} />
@@ -519,8 +518,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                     type="primary"
                                     onClick={this.handleUpload}
                                     style={{ marginTop: 16 }}
-                                > Upload
-                                </Button>
+                                >Upload</Button>
                             </Card>
                         </Col>
                         <Col span={12}>

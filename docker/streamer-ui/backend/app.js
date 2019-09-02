@@ -1,13 +1,13 @@
 var createError = require('http-errors');
 var express = require('express');
 var bodyParser = require("body-parser")
-var multer = require('multer');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require("cors");
+const os = require("os");
+var formidable = require('formidable');
 
-var upload = multer({ dest: 'uploads/' })
 var app = express();
 
 // view engine setup
@@ -28,25 +28,29 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); 
 //form-urlencoded
 
-// for parsing multipart/form-data
-app.use(upload.array()); 
-app.use(express.static('public'));
+app.post("/upload", function(req, res) {
+  var form = new formidable.IncomingForm();
 
-app.post("/upload", upload.array('test', 1), function(req, res, next) {
-    if (Object.keys(req.files).length == 0) {
-      return res.status(400).send('No files were uploaded.');
-    }
+  form.parse(req, function(err, fields, files) {
+    console.log({fields: fields, files: files});
+  });
+
+  if (Object.keys(req.files).length == 0) {
+    return res.status(400).send('No files were uploaded.');
+  }
   
-    // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
-    let sampleFile = req.files.sampleFile;
+    // // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+    // let sampleFile = req.files.sampleFile;
   
-    // Use the mv() method to place the file somewhere on your server
-    sampleFile.mv('/somewhere/on/your/server/filename.jpg', function(err) {
-      if (err)
-        return res.status(500).send(err);
+    // // Use the mv() method to place the file somewhere on your server
+    // sampleFile.mv('/somewhere/on/your/server/filename.jpg', function(err) {
+    //   if (err)
+    //     return res.status(500).send(err);
   
-      res.send('File uploaded!');
-    });
+    //   res.send('File uploaded!');
+    // });
+
+  res.status(200).send('Files were uploaded.');
 });
 
 // catch 404 and forward to error handler
