@@ -262,7 +262,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             isSelectedDataType: true,
             isSelectedDataTypeOther: isSelectedDataTypeOther,
             doneWithSelectDataType: doneWithSelectDataType,
-            proceed: false,
+            proceed: doneWithSelectDataType,
         });
     }
 
@@ -296,14 +296,13 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         }
     }
 
-    fileNameExists = (fileItem: RcFile, fileList: RcFile[]) => {
-        // const duplicates = fileList.filter(item => (item.name === fileItem.name && item.uid !== fileItem.uid));
-        // if (duplicates.length > 0) {
-        //     return true;
-        // } else {
-        //     return false;
-        // }
-        return false;
+    fileNameExists = (file: RcFile, fileList: RcFile[]) => {
+        const duplicates = fileList.filter(item => (item.name === file.name && item.uid !== file.uid));
+        if (duplicates.length > 0) {
+            return true;
+        } else {
+            return false;
+        }
     };
 
     openNotification = (title: string, description: string, category: 'success' | 'info' | 'error' | 'warning', duration: number) => {
@@ -314,26 +313,15 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         });
     };
 
-    onAdd = (fileItem: RcFile) => {
-        if (this.fileNameExists(fileItem, this.state.fileListClean)) {
-            this.openNotification('Error', `"${fileItem.name}" filename already exists, please rename.`, 'error', 0);
+    onAdd = (file: RcFile) => {
+        if (this.fileNameExists(file, this.state.fileListClean)) {
+            this.openNotification('Error', `"${file.name}" filename already exists, please rename.`, 'error', 0);
         } else {
             let fileListClean = this.state.fileListClean;
-
-            // var reader = new FileReader();
-            // reader.addEventListener("load", function () {
-            //     var data = reader.result as ArrayBuffer;
-            //     var array = new Int8Array(data);
-            //     console.log(array.length);
-            // });
-            // if (fileItem) {
-            //     reader.readAsArrayBuffer(fileItem);
-            // }
-
-            fileListClean.push(fileItem);
+            fileListClean = [...fileListClean, file];
             const hasFilesSelected = (fileListClean.length > 0);
             this.setState({ hasFilesSelected, fileListClean });
-            this.openNotification('Success', `"${fileItem.name}" file successfully uploaded to streamer buffer.`, 'success', 4.5);
+            this.openNotification('Success', `"${file.name}" file successfully uploaded to streamer buffer.`, 'success', 4.5);
         }
     };
 
@@ -407,17 +395,6 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
     };
 
     handleUpload = (info: any) => {
-        // info
-        // onProgress: (event: { percent: number }): void
-        // onError: (event: Error, body?: Object): void
-        // onSuccess: (body: Object): void
-        // data: Object
-        // filename: String
-        // file: File
-        // withCredentials: Boolean
-        // action: String
-        // headers: Object
-
         var formData = new FormData();
         this.state.fileListClean.forEach(file => {
             formData.append('files', file);
@@ -491,7 +468,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                 style={{ borderRadius: 4, boxShadow: '1px 1px 1px #ddd' }}
                                 className="shadow"
                             >
-                                {this.state.hasFilesSelected && this.state.proceed && <Button size="large" style={{ backgroundColor: "#52c41a", color: "#fff", width: "200px", float: "right" }}>Upload</Button>}
+                                {this.state.hasFilesSelected && this.state.proceed && <Button size="large" style={{ backgroundColor: "#52c41a", color: "#fff", width: "200px", float: "right" }} onClick={this.handleUpload}>Upload</Button>}
                                 {(!this.state.hasFilesSelected || !this.state.proceed) && <Button disabled={true} size="large" style={{ width: "200px", float: "right" }}>Upload</Button>}
                             </Card>
                         </Col>
@@ -514,11 +491,11 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                 <br /><br />
                                 <Table columns={columns} dataSource={this.state.fileListClean} pagination={false} size={"small"} />
 
-                                <Button
+                                {/* <Button
                                     type="primary"
                                     onClick={this.handleUpload}
                                     style={{ marginTop: 16 }}
-                                >Upload</Button>
+                                >Upload</Button> */}
                             </Card>
                         </Col>
                         <Col span={12}>
