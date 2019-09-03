@@ -315,9 +315,10 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         if (this.fileNameExists(file, this.state.fileList)) {
             this.openNotification('Error', `"${file.name}" filename already exists, please rename.`, 'error', 0);
         } else {
-            let fileList = [...this.state.fileList, file];
-            const hasFilesSelected = (fileList.length > 0);
-            this.setState({ hasFilesSelected, fileList });
+            this.setState(({ fileList }) => ({ 
+                hasFilesSelected: true, 
+                fileList: [...fileList, file] 
+            }));
             this.openNotification('Success', `"${file.name}" file successfully put in streamer buffer.`, 'success', 4.5);
         }
     };
@@ -330,7 +331,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
     };
 
     handleChange = (file: RcFile, fileList: RcFile[]) => {
-        this.onAdd(file);
+        this.onAdd(file);   
         return false;
     };
 
@@ -393,7 +394,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         // Add the attributes
         formData.append('projectNumber', this.state.selectedProjectValue);
         formData.append('subjectLabel', this.state.selectedSubjectValue);
-        formData.append('sessionLabel',this.state. selectedSessionValue);
+        formData.append('sessionLabel', this.state.selectedSessionValue);
         formData.append('dataType', this.state.selectedDataTypeValue);
 
         // Add the files for upload
@@ -419,7 +420,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             multiple: true,
             beforeUpload: this.handleChange,
             customRequest: this.handleUpload,
-            showUploadList: true,
+            showUploadList: false,
         };
 
         const optionsProjects = this.dataSourceProjects.map((item, key) =>
@@ -490,7 +491,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                     <p className="ant-upload-hint">Select one or more files.</p>
                                 </Dragger>
                                 <br /><br />
-                                <Table columns={columns} dataSource={this.state.fileList} pagination={false} size={"small"} />
+                                <Table rowKey={record => record.uid} columns={columns} dataSource={this.state.fileList} pagination={false} size={"small"} />
 
                                 {/* <Button
                                     type="primary"
