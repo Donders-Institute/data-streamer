@@ -28,7 +28,7 @@ var _createStreamerJob = function(name, config, queue) {
       var sessId = req.params['sess_id'];
       var dataType = req.params['dtype'];
 
-      var jobTitle = 'UI: ' + projId + '-' + subjId + '-' + sessId + '-' + dataType;
+      var jobTitle = 'UI: /project/' + projId + '/sub-' + subjId + '/ses-' + sessId + '/' + dataType;
 
       console.log('creating job for: ' + jobTitle);
 
@@ -70,7 +70,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
         if ( src == dst ) {
             utility.printLog(job.id + ':USER:execStreamerJob:syncPath', 'skipped');
             job.progress(maxProgress, 100);
-            return cb_async(null, dst);
+            return cb_async(null, true);
         }
 
         // create destination directory on request
@@ -105,6 +105,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 return cb_async(errmsg, false);
             } else {
                 // set job progress to maxProgress
+                job.progress(maxProgress, 100);
                 utility.printLog(job.id + ':USER:execStreamerJob:syncPath', src + ' -> ' + dst);
                 return cb_async(null, true);
             }
@@ -218,7 +219,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 'data': { 'clientIF': 'irods',
                           'stagerUser': 'root',
                           'rdmUser': 'irods',
-                          'title': '[' + (new Date()).toISOString() + '] Streamer.MEG: ' + path.basename(src_list[i]),
+                          'title': '[' + (new Date()).toISOString() + '] Streamer.USER: ' + src,
                           'timeout': 3600,
                           'timeout_noprogress': 600,
                           'srcURL': src,
@@ -259,27 +260,26 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
     };
 
     // here are logical steps run in sequencial order
-    var i = 0;
+    var pathBuffer   = path.join(config.streamerUiDataDirRoot, job.data.projId, 'sub-' + job.data.subjId, 'ses-' + job.data.sessId, job.data.dataType);
+    var pathCatchall = path.join(config.streamerDataDirRoot,   job.data.projId, 'sub-' + job.data.subjId, 'ses-' + job.data.sessId, job.data.dataType);
+    var pathProject  = path.join('/project', job.data.projId, 'raw', 'sub-' + job.data.subjId, 'ses-' + job.data.sessId, job.data.dataType);
+
     async.waterfall([
         function(cb) {
             // step 1: rsync data from UI buffer to the catch-all project
-            var src = path.join(config.streamerUiDataDirRoot, job.data.projId, 'sub-' + job.data.subjId, 'ses-' + job.data.sessId, job.data.dataType);
-            var dst = path.join(config.streamerDataDirRoot,   job.data.projId, 'sub-' + job.data.subjId, 'ses-' + job.data.sessId, job.data.dataType);
-            syncPath(src, dst, true, 0, 40, cb);
+            syncPath(pathBuffer, pathCatchall, true, 0, 40, cb);
         },
-        function(pathCatchall, cb) {
-            // step 3: archive data to the catch-all collection
+        function(out, cb) {
+            // step 2: archive data to the catch-all collection
             submitStagerJob(pathCatchall, true, 40, 50, cb);
         },
-        function(pathCatchall, cb) {
-            // step 4: archive data to individual project collection
+        function(out, cb) {
+            // step 3: archive data to individual project collection
             submitStagerJob(pathCatchall, false, 50, 60, cb);
         },
-        function(pathCatchall, cb) {
-            // step 5: rsync data from catchall to individual projects
-            var src = pathCatchall;
-            var dst = path.join('project', job.data.projId, 'raw', 'sub-' + job.data.subjId, 'ses-' + job.data.sessId, job.data.dataType);
-            syncPath(src, dst, true, 60, 100, cb);
+        function(out, cb) {
+            // step 4: rsync data from catchall to individual projects
+            syncPath(pathCatchall, pathProject, true, 60, 100, cb);
         }],
         function(err, results) {
             if (err) {
