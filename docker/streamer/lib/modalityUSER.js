@@ -260,7 +260,8 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
     };
 
     // here are logical steps run in sequencial order
-    var pathBuffer   = path.join(config.streamerUiDataDirRoot, job.data.projId, 'sub-' + job.data.subjId, 'ses-' + job.data.sessId, job.data.dataType);
+    var uiBufferDir = process.env.STREAMER_UI_BUFFER_DIR || config.streamerUiDataDirRoot;
+    var pathBuffer   = path.join(uiBufferDir, job.data.projId, 'sub-' + job.data.subjId, 'ses-' + job.data.sessId, job.data.dataType);
     var pathCatchall = path.join(config.streamerDataDirRoot,   job.data.projId, 'sub-' + job.data.subjId, 'ses-' + job.data.sessId, job.data.dataType);
     var pathProject  = path.join('/project', job.data.projId, 'raw', 'sub-' + job.data.subjId, 'ses-' + job.data.sessId, job.data.dataType);
 
