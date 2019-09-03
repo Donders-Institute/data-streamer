@@ -157,11 +157,15 @@ app.post("/upload", function(req, res) {
       }
 
       // make POST call to streamer.
-      var err = request.post(streamerURL, {json: {}}, (err, res, body) => {
+      // TODO: send request with basic authentication with username/password
+      //       provided via configuration or env variable (w/ Docker secret)
+      request.post(streamerURL, {json: {}}, (err, res, body) => {
         console.log(streamerURL);
         if (err) {
           return cb(err, null);
         } else {
+          // TODO: check status code from response, and throw error back to callback if
+          //       the status code is not 200.
           console.log('statusCode:', res && res.statusCode)
           console.log('body:', body); 
           return cb(null, results);
