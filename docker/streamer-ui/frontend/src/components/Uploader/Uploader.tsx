@@ -39,62 +39,10 @@ type SelectOption = {
 
 const dataSourceProjects = [
     {
-        "project_number": "12345678.01",
-        "list_experiments": [
-            {
-                "id": 0,
-                "experiment_name": "",
-                "experiment_type": "MRI",
-                "duration": "02:00",
-                "list_subjects": [
-                    {
-                        "id": 1,
-                        "subject": "1",
-                        "list_sessions": [
-                            { "id": 1, "session": "1" },
-                            { "id": 2, "session": "2" }
-                        ]
-                    },
-                    {
-                        "id": 2,
-                        "subject": "2",
-                        "list_sessions": [
-                            { "id": 1, "session": "1" },
-                            { "id": 2, "session": "2" }
-                        ]
-                    }
-                ]
-            }
-        ]
+        "project_number": "12345678.01"
     },
     {
-        "project_number": "12345678.02",
-        "list_experiments": [
-            {
-                "id": 0,
-                "experiment_name": "",
-                "experiment_type": "MRI",
-                "duration": "02:00",
-                "list_subjects": [
-                    {
-                        "id": 1,
-                        "subject": "1",
-                        "list_sessions": [
-                            { "id": 1, "session": "1" },
-                            { "id": 2, "session": "2" }
-                        ]
-                    },
-                    {
-                        "id": 2,
-                        "subject": "2",
-                        "list_sessions": [
-                            { "id": 1, "session": "1" },
-                            { "id": 2, "session": "2" }
-                        ]
-                    }
-                ]
-            }
-        ]
+        "project_number": "12345678.02"
     }
 ];
 
