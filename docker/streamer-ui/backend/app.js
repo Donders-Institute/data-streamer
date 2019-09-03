@@ -75,6 +75,27 @@ function get_streamer_url(projectNumber, subjectLabel, sessionLabel, dataType) {
   return [err, url];
 }
 
+// Request streamer job
+function request_streamer_job(projectNumber, subjectLabel, sessionLabel, dataType) {
+  var [err, streamerURL] = get_streamer_url(projectNumber, subjectLabel, sessionLabel, dataType);
+  if (err) {
+    return err;
+  }
+  if (!streamerURL) {
+    return 'Error creating streamer URL';
+  }
+  var err = request.post(streamerURL, {json: {}}, (err, res, body) => {
+    console.log(streamerURL);
+    if (err) {
+        console.error(err);
+    }
+    console.log('statusCode:', res && res.statusCode)
+    console.log('body:', body); 
+    return err;
+  })
+  return err;
+}
+
 // Handle POST request
 app.post("/upload", function(req, res) {
 
@@ -116,7 +137,8 @@ app.post("/upload", function(req, res) {
   }
   
   // Store the file(s)
-  num_files = get_num_files(req.files.files);
+  var num_files = get_num_files(req.files.files);
+  var fileListString = "[]";
 
   if (num_files === 0) {
     var msg = `No files were uploaded: file list is empty in request`;
@@ -130,13 +152,11 @@ app.post("/upload", function(req, res) {
     if (err) {
       console.error(err);
       return res.status(500).send(err);
-    } 
-    var msg = `File was succesfully uploaded: "${file.name}"`;
-    console.log(msg);
-    res.status(200).send(msg);
+    }
+    fileListString = `["${file.name}"]`;
 
   } else {
-    // Move multiple files 1-by-1
+    // Move multiple files
     var fileList = [];
     for (var i = 0; i < num_files; i++) {
       file = req.files.files[i];
@@ -148,31 +168,18 @@ app.post("/upload", function(req, res) {
       }
     }
     fileListString = "[" + fileList.join(", ") + "]";
-    var msg = `Files were succesfully uploaded: ${fileListString}`;
-    console.log(msg);
-    res.status(200).send(msg);
   }
 
-  // Send a POST request to the streamer
-  var [err, streamerURL] = get_streamer_url(projectNumber, subjectLabel, sessionLabel, dataType);
+  // Request a streamer job
+  var err = request_streamer_job(projectNumber, subjectLabel, sessionLabel, dataType);
   if (err) {
     console.error(err);
     return res.status(500).send(err);
   }
-  if (!streamerURL) {
-    var msg = 'Error creating streamer URL';
-    console.error(msg);
-    return res.status(500).send(msg);
-  }
-  request.post(streamerURL, {json: {}}, (err, res, body) => {
-    console.log(streamerURL);
-    if (err) {
-        console.error(err);
-    }
-    console.log('statusCode:', res && res.statusCode)
-    console.log('body:', body); 
-  })
 
+  var msg = `File(s) were succesfully uploaded: ${fileListString}`;
+  console.log(msg);
+  return res.status(200).send(msg);
 });
 
 // Catch 404 and forward to error handler
