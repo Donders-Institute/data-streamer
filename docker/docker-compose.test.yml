@@ -23,9 +23,9 @@ services:
       - REDIS_PORT=6379
       - STREAMER_UI_BUFFER_DIR=/project/3055000.01/raw
     volumes:
-      - ./testdata/config:/opt/streamer/config
-      - ./testdata/log:/opt/streamer/log
-      - ./testdata/cron:/cron
+      - ./testdata/streamer/config:/opt/streamer/config
+      - ./testdata/streamer/log:/opt/streamer/log
+      - ./streamer/cron:/cron
       - ./testdata/home:/home:ro
       - ./testdata/project:/project
       # - /var/lib/sss/pipes:/var/lib/sss/pipes
