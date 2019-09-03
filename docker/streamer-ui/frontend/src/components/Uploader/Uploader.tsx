@@ -300,9 +300,8 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         dataType: string,
         sessionLabel: string) => {
 
-        let projectPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>/project</span>;
         let forwardSlashPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>/</span>;
-        let rawPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>raw</span>;
+        let projectPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>project</span>;
         let subjectPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>sub-</span>;
         let sessionPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>ses-</span>;
 
@@ -333,7 +332,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
             sessionLabelPath = <span style={{ fontWeight: 'bold', color: '#f45709' }}>{cleanSessionLabel}</span>;
         }
 
-        return <div>{projectPath}{forwardSlashPath}{projectNumberPath}{forwardSlashPath}{rawPath}{forwardSlashPath}{subjectPath}{subjectLabelPath}{forwardSlashPath}{sessionPath}{sessionLabelPath}{forwardSlashPath}{dataTypePath}{forwardSlashPath}</div>;
+        return <div>{forwardSlashPath}{projectPath}{forwardSlashPath}{projectNumberPath}{forwardSlashPath}{subjectPath}{subjectLabelPath}{forwardSlashPath}{sessionPath}{sessionLabelPath}{forwardSlashPath}{dataTypePath}{forwardSlashPath}</div>;
     };
 
     handleUpload = (info: any) => {
