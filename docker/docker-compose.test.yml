@@ -43,6 +43,8 @@ services:
       - HOST=0.0.0.0
       - PORT=9000
       - STREAMER_BUFFER_DIR=/raw
+      - STREAMER_HOST=streamer
+      - STREAMER_PORT=3001
     depends_on:
       - streamer
   streamer-ui-frontend:

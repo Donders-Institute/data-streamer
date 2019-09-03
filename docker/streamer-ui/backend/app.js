@@ -8,6 +8,7 @@ const cors = require("cors");
 const fileUpload = require("express-fileupload");
 const fs = require("fs");
 const mkdirp = require('mkdirp');
+const request = require('request');
 
 var app = express();
 
@@ -28,6 +29,8 @@ app.use(fileUpload());
 const HOST = process.env.HOST || "localhost";
 const PORT = process.env.PORT || 9000;
 const STREAMER_BUFFER_DIR = process.env.STREAMER_BUFFER_DIR || __dirname + '/uploads';
+const STREAMER_HOST =  process.env.STREAMER_HOST || "localhost";
+const STREAMER_PORT =  process.env.STREAMER_PORT || 3001;
 
 // Given the req.files.files, derive the number of uploaded files
 function get_num_files(files) {
@@ -60,6 +63,18 @@ function get_dirname(projectNumber, subjectLabel, sessionLabel, dataType) {
   return [err, dirname];
 }
 
+// Get the streamer URL
+function get_streamer_url(projectNumber, subjectLabel, sessionLabel, dataType) {
+  var err;
+  var url;
+  if (projectNumber && subjectLabel && sessionLabel && dataType) {
+    var subject = 'sub-' + subjectLabel;
+    var session = 'ses-' + sessionLabel;  
+    url = `http://${STREAMER_HOST}:${STREAMER_PORT}/user/${dataType}/${projectNumber}/${subject}/${session}`;
+  }
+  return [err, url];
+}
+
 // Handle POST request
 app.post("/upload", function(req, res) {
 
@@ -87,12 +102,12 @@ app.post("/upload", function(req, res) {
   // Create the target directory if it does not exist
   var [err, dirname] = get_dirname(projectNumber, subjectLabel, sessionLabel, dataType);
   if (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).send(err);
   }
   if (!dirname) {
     var msg = 'Error creating directory';
-    console.log(msg);
+    console.error(msg);
     return res.status(500).send(msg);
   }
   if (!fs.existsSync(dirname)) {
@@ -105,7 +120,7 @@ app.post("/upload", function(req, res) {
 
   if (num_files === 0) {
     var msg = `No files were uploaded: file list is empty in request`;
-    console.log(msg);
+    console.error(msg);
     return res.status(400).send(msg);
 
   } else if (num_files === 1) {
@@ -113,7 +128,7 @@ app.post("/upload", function(req, res) {
     file = req.files.files;
     var err = store_file(dirname, file);
     if (err) {
-      console.log(err);
+      console.error(err);
       return res.status(500).send(err);
     } 
     var msg = `File was succesfully uploaded: "${file.name}"`;
@@ -128,7 +143,7 @@ app.post("/upload", function(req, res) {
       fileList.push('"' + file.name + '"');
       var err = store_file(dirname, file);
       if (err) {
-        console.log(err);
+        console.error(err);
         return res.status(500).send(err);
       }
     }
@@ -137,6 +152,27 @@ app.post("/upload", function(req, res) {
     console.log(msg);
     res.status(200).send(msg);
   }
+
+  // Send a POST request to the streamer
+  var [err, streamerURL] = get_streamer_url(projectNumber, subjectLabel, sessionLabel, dataType);
+  if (err) {
+    console.error(err);
+    return res.status(500).send(err);
+  }
+  if (!streamerURL) {
+    var msg = 'Error creating streamer URL';
+    console.error(msg);
+    return res.status(500).send(msg);
+  }
+  request.post(streamerURL, {json: {}}, (err, res, body) => {
+    console.log(streamerURL);
+    if (err) {
+        console.error(err);
+    }
+    console.log('statusCode:', res && res.statusCode)
+    console.log('body:', body); 
+  })
+
 });
 
 // Catch 404 and forward to error handler
