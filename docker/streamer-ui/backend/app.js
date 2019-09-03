@@ -7,6 +7,7 @@ const logger = require("morgan");
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
 const fs = require("fs");
+const mkdirp = require('mkdirp');
 
 var app = express();
 
@@ -24,10 +25,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
 
-HOST = process.env.HOST || "localhost";
-PORT = process.env.PORT || 9000;
+const HOST = process.env.HOST || "localhost";
+const PORT = process.env.PORT || 9000;
+const STREAMER_BUFFER_DIR = process.env.STREAMER_BUFFER_DIR || __dirname + '/uploads';
 
-// given the req.files.files, derive the number of uploaded files
+// Given the req.files.files, derive the number of uploaded files
 function get_num_files(files) {
   if (files[0]) {
     return files.length;
@@ -36,64 +38,113 @@ function get_num_files(files) {
   }
 }
 
+// Store the file
+function store_file(dirname, file) {
+  var err;
+  target_path = path.join(dirname, file.name);
+  file.mv(target_path, function(err) {
+    if (err) return err;
+  });
+  return err;
+}
+
+// Get the directory name
+function get_dirname(projectNumber, subjectLabel, sessionLabel, dataType) {
+  var err;
+  var dirname;
+  if (projectNumber && subjectLabel && sessionLabel && dataType) {
+      var subject = 'sub-' + subjectLabel;
+      var session = 'ses-' + sessionLabel;
+      dirname = path.join(STREAMER_BUFFER_DIR, 'project', projectNumber, subject, session, dataType);
+  }
+  return [err, dirname];
+}
+
+// Handle POST request
 app.post("/upload", function(req, res) {
+
   // Check for structure
   if (!req.body) {
     return res.status(400).send(`No attributes were uploaded: "req.body" is empty`);
   }
   projectNumber = req.body.projectNumber;
   subjectLabel = req.body.subjectLabel;
-  sessionLabel = req.body.projectNumber;
+  sessionLabel = req.body.sessionLabel;
   dataType = req.body.dataType;
 
   // Check for uploaded files
   if (!req.files) {
-    return res.status(400).send(`No files were uploaded: "req.files" is empty`);
+    var msg = `No files were uploaded: "req.files" is empty`;
+    console.log(msg);
+    return res.status(400).send(msg);
   }
   if (!req.files.files) {
-    return res
-      .status(400)
-      .send(`No files were uploaded: "req.files.files" is empty`);
+    var msg = `No files were uploaded: "req.files.files" is empty`;
+    console.log(msg);
+    return res.status(400).send(msg);
   }
+
+  // Create the target directory if it does not exist
+  var [err, dirname] = get_dirname(projectNumber, subjectLabel, sessionLabel, dataType);
+  if (err) {
+    console.log(err);
+    return res.status(500).send(err);
+  }
+  if (!dirname) {
+    var msg = 'Error creating directory';
+    console.log(msg);
+    return res.status(500).send(msg);
+  }
+  if (!fs.existsSync(dirname)) {
+    mkdirp.sync(dirname);
+    console.log(`Successfully created directory "${dirname}"`);
+  }
+  
+  // Store the file(s)
   num_files = get_num_files(req.files.files);
+
   if (num_files === 0) {
-    return res
-      .status(400)
-      .send(`No files were uploaded: file list is empty in request`);
+    var msg = `No files were uploaded: file list is empty in request`;
+    console.log(msg);
+    return res.status(400).send(msg);
+
   } else if (num_files === 1) {
     // Move one file
     file = req.files.files;
+    var err = store_file(dirname, file);
+    if (err) {
+      console.log(err);
+      return res.status(500).send(err);
+    } 
+    var msg = `File was succesfully uploaded: "${file.name}"`;
+    console.log(msg);
+    res.status(200).send(msg);
 
-    // fs.copyFile("source.txt", "destination.txt", err => {
-    //   if (err) throw err;
-    //   console.log("source.txt was copied to destination.txt");
-    // });
-
-    res.status(200).send(`File was succesfully uploaded: "${file.name}"`);
   } else {
     // Move multiple files 1-by-1
     var fileList = [];
     for (var i = 0; i < num_files; i++) {
       file = req.files.files[i];
       fileList.push('"' + file.name + '"');
-
-      // fs.copyFile("source.txt", "destination.txt", err => {
-      //   if (err) throw err;
-      //   console.log("source.txt was copied to destination.txt");
-      // });
+      var err = store_file(dirname, file);
+      if (err) {
+        console.log(err);
+        return res.status(500).send(err);
+      }
     }
-
     fileListString = "[" + fileList.join(", ") + "]";
-    res.status(200).send(`Files were succesfully uploaded: ${fileListString}`);
+    var msg = `Files were succesfully uploaded: ${fileListString}`;
+    console.log(msg);
+    res.status(200).send(msg);
   }
 });
 
-// catch 404 and forward to error handler
+// Catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// error handler
+// Error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
