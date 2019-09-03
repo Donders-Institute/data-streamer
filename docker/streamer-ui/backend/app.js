@@ -9,6 +9,7 @@ const fileUpload = require("express-fileupload");
 const fs = require("fs");
 const mkdirp = require('mkdirp');
 const request = require('request');
+const async = require('async');
 
 var app = express();
 
@@ -28,9 +29,8 @@ app.use(fileUpload());
 
 const HOST = process.env.HOST || "localhost";
 const PORT = process.env.PORT || 9000;
-const STREAMER_BUFFER_DIR = process.env.STREAMER_BUFFER_DIR || __dirname + '/uploads';
-const STREAMER_HOST =  process.env.STREAMER_HOST || "localhost";
-const STREAMER_PORT =  process.env.STREAMER_PORT || 3001;
+const STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname + '/uploads';
+const STREAMER_URL_PREFIX = process.env.STREAMER_URL_PREFIX || "http://streamer:3001";
 
 // Given the req.files.files, derive the number of uploaded files
 function get_num_files(files) {
@@ -41,16 +41,6 @@ function get_num_files(files) {
   }
 }
 
-// Store the file
-function store_file(dirname, file) {
-  var err;
-  target_path = path.join(dirname, file.name);
-  file.mv(target_path, function(err) {
-    if (err) return err;
-  });
-  return err;
-}
-
 // Get the directory name
 function get_dirname(projectNumber, subjectLabel, sessionLabel, dataType) {
   var err;
@@ -58,7 +48,7 @@ function get_dirname(projectNumber, subjectLabel, sessionLabel, dataType) {
   if (projectNumber && subjectLabel && sessionLabel && dataType) {
       var subject = 'sub-' + subjectLabel;
       var session = 'ses-' + sessionLabel;
-      dirname = path.join(STREAMER_BUFFER_DIR, 'project', projectNumber, subject, session, dataType);
+      dirname = path.join(STREAMER_UI_BUFFER_DIR, 'project', projectNumber, subject, session, dataType);
   }
   return [err, dirname];
 }
@@ -70,30 +60,9 @@ function get_streamer_url(projectNumber, subjectLabel, sessionLabel, dataType) {
   if (projectNumber && subjectLabel && sessionLabel && dataType) {
     var subject = 'sub-' + subjectLabel;
     var session = 'ses-' + sessionLabel;  
-    url = `http://${STREAMER_HOST}:${STREAMER_PORT}/user/${dataType}/${projectNumber}/${subject}/${session}`;
+    url = `${STREAMER_URL_PREFIX}/user/${projectNumber}/${subject}/${session}/${dataType}`;
   }
   return [err, url];
-}
-
-// Request streamer job
-function request_streamer_job(projectNumber, subjectLabel, sessionLabel, dataType) {
-  var [err, streamerURL] = get_streamer_url(projectNumber, subjectLabel, sessionLabel, dataType);
-  if (err) {
-    return err;
-  }
-  if (!streamerURL) {
-    return 'Error creating streamer URL';
-  }
-  var err = request.post(streamerURL, {json: {}}, (err, res, body) => {
-    console.log(streamerURL);
-    if (err) {
-        console.error(err);
-    }
-    console.log('statusCode:', res && res.statusCode)
-    console.log('body:', body); 
-    return err;
-  })
-  return err;
 }
 
 // Handle POST request
@@ -145,41 +114,71 @@ app.post("/upload", function(req, res) {
     console.error(msg);
     return res.status(400).send(msg);
 
-  } else if (num_files === 1) {
-    // Move one file
-    file = req.files.files;
-    var err = store_file(dirname, file);
-    if (err) {
-      console.error(err);
-      return res.status(500).send(err);
-    }
-    fileListString = `["${file.name}"]`;
+  }
+  
+  // function of moving uploaded file from temporary directory to the UI buffer.
+  function store_file(file, cb) {
+    target_path = path.join(dirname, file.name);
+    file.mv(target_path, function(err) {
+      if (err) {
+        return cb(err, null);
+      } else {
+        return cb(null, file.name);
+      }
+    });
+  };
 
+  // collection file objects from the uploaded FORM data.
+  var files = [];
+  if (num_files === 1) {
+    files.push(req.files.files);
   } else {
-    // Move multiple files
-    var fileList = [];
-    for (var i = 0; i < num_files; i++) {
-      file = req.files.files[i];
-      fileList.push('"' + file.name + '"');
-      var err = store_file(dirname, file);
+    files = req.files.files;
+  }
+
+  async.waterfall([
+    function(cb) {
+      async.mapLimit(files, 4, store_file, function(err, results) {
+        if (err) {
+          return cb(err, null);
+        } else {
+          return cb(null, results);
+        }
+      });
+    },
+    function(results, cb) {
+      // construct Streamer URL for POST a new streamer job.
+      var [err, streamerURL] = get_streamer_url(projectNumber, subjectLabel, sessionLabel, dataType);
+      if (err) {
+        return cb(err, null);
+      }
+      if (!streamerURL) {
+        return cb(Error('Error creating streamer URL'), null);
+      }
+
+      // make POST call to streamer.
+      var err = request.post(streamerURL, {json: {}}, (err, res, body) => {
+        console.log(streamerURL);
+        if (err) {
+          return cb(err, null);
+        } else {
+          console.log('statusCode:', res && res.statusCode)
+          console.log('body:', body); 
+          return cb(null, results);
+        }
+      });
+    }],
+    function(err, results) {
       if (err) {
         console.error(err);
         return res.status(500).send(err);
+      } else {
+        var msg = `File(s) were succesfully uploaded: ${results}`;
+        console.log(msg);
+        return res.status(200).send(msg);
       }
     }
-    fileListString = "[" + fileList.join(", ") + "]";
-  }
-
-  // Request a streamer job
-  var err = request_streamer_job(projectNumber, subjectLabel, sessionLabel, dataType);
-  if (err) {
-    console.error(err);
-    return res.status(500).send(err);
-  }
-
-  var msg = `File(s) were succesfully uploaded: ${fileListString}`;
-  console.log(msg);
-  return res.status(200).send(msg);
+  );
 });
 
 // Catch 404 and forward to error handler
