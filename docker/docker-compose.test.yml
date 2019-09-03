@@ -45,6 +45,8 @@ services:
       - PORT=9000
       - STREAMER_UI_BUFFER_DIR=/project/3055000.01/raw
       - STREAMER_URL_PREFIX=http://streamer:3001
+    volumes:
+      - ./testdata/project:/project
     depends_on:
       - streamer
   streamer-ui-frontend:
