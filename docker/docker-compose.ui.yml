@@ -1,0 +1,29 @@
+version: "2"
+services:
+  ui-backend:
+    build:
+      context: ./streamer-ui/backend
+    image: streamer-ui-backend
+    networks:
+      - nw_streamer
+    ports:
+      - 9000:9000
+    environment:
+      - HOST=0.0.0.0
+      - PORT=9000
+      - STREAMER_UI_BUFFER_DIR=${STREAMER_UI_BUFFER_DIR}
+      - STREAMER_URL_PREFIX=http://service:3001
+    volumes:
+      - ${PROJECT_VOL}:/project
+    depends_on:
+      - service
+  ui-frontend:
+    build:
+      context: ./streamer-ui/frontend
+    image: streamer-ui-frontend
+    networks:
+      - nw_streamer
+    ports:
+      - 3002:80
+    depends_on:
+      - ui-backend

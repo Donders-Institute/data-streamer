@@ -1,6 +1,6 @@
 version: "2"
 services:
-  streamer-db:
+  db:
     build:
       context: ./redis
     image: redis
@@ -8,8 +8,8 @@ services:
     networks:
       - nw_streamer
     volumes:
-      - /data/streamer/db:/data
-  streamer:
+      - ${STREAMER_DB_DATA_VOL}:/data
+  service:
     build:
       context: ./streamer
     image: streamer
@@ -19,18 +19,16 @@ services:
     ports:
       - 3001:3001
     environment:
-      - REDIS_HOST=streamer-db
+      - REDIS_HOST=db
       - REDIS_PORT=6379
     volumes:
-      - /data/streamer/config:/opt/streamer/config
-      - /data/streamer/log:/opt/streamer/log
-      - ./streamer/cron:/cron
-      - /home:/home:ro
-      - /project:/project
-      - /var/lib/sss/pipes:/var/lib/sss/pipes
-      - /var/lib/sss/mc:/var/lib/sss/mc:ro
+      - ${STREAMER_SERVICE_CONFIG_VOL}:/opt/streamer/config
+      - ${STREAMER_SERVICE_LOG_VOL}:/opt/streamer/log
+      - ${STREAMER_SERVICE_CRON_VOL}:/cron
+      - ${HOME_VOL}:/home:ro
+      - ${PROJECT_VOL}:/project
     depends_on:
-      - streamer-db
+      - db
 networks:
     nw_streamer:
         driver: bridge
