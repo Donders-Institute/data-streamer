@@ -39,10 +39,7 @@ type SelectOption = {
 
 const dataSourceProjects = [
     {
-        "project_number": "12345678.01"
-    },
-    {
-        "project_number": "12345678.02"
+        "project_number": "3010000.01"
     }
 ];
 
@@ -119,7 +116,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         });
     }
 
-    regexpSubjectLabel = new RegExp('^[a-zA-Z0-9]*$');
+    regexpSubjectLabel = new RegExp('^[a-zA-Z0-9]+$');
     validateSubjectLabelInput = (text: string) => {
         return this.regexpSubjectLabel.test(text);
     }
@@ -159,7 +156,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         }
     }
 
-    regexpSessionLabel = new RegExp('^[a-zA-Z0-9]*$');
+    regexpSessionLabel = new RegExp('^[a-zA-Z0-9]+$');
     validateSessionLabelInput = (text: string) => {
         return this.regexpSessionLabel.test(text);
     }
@@ -212,7 +209,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         });
     }
 
-    regexpSelectedDataTypeOtherInput = new RegExp('^[a-z]*$');
+    regexpSelectedDataTypeOtherInput = new RegExp('^[a-z]+$');
     validateSelectedDataTypeOtherInput = (text: string) => {
         return this.regexpSelectedDataTypeOtherInput.test(text);
     }
@@ -352,7 +349,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
         var xhr = new XMLHttpRequest();
         xhr.addEventListener("readystatechange", function () {
             if (this.readyState === 4) {
-                console.log(this.responseText);
+               alert(this.responseText);
             }
         });
         xhr.open("POST", "http://localhost:9000/upload");
@@ -480,7 +477,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                                 <Col span={12}>
                                                     <Form.Item label="Set subject label">
                                                         <Input placeholder="Set subject label" onChange={this.onChangeSubjectLabel} style={{ width: '400px' }} />&nbsp;
-                                                        <Tooltip title="subject label must be of form [a-zA-Z0-9]*"><Icon type="question-circle-o" /></Tooltip>
+                                                        <Tooltip title="subject label must be of form [a-zA-Z0-9]+"><Icon type="question-circle-o" /></Tooltip>
                                                     </Form.Item>
                                                 </Col>
                                                 <Col span={12}>
@@ -494,7 +491,7 @@ class UploaderApp extends React.Component<IProps & FormComponentProps, UploaderA
                                                 <Col span={12}>
                                                     <Form.Item label="Set session label">
                                                         <Input placeholder="Set session label" onChange={this.onChangeSessionLabel} style={{ width: '400px' }} />&nbsp;
-                                                        <Tooltip title="session label must be of form [a-zA-Z0-9]*"><Icon type="question-circle-o" /></Tooltip>
+                                                        <Tooltip title="session label must be of form [a-zA-Z0-9]+"><Icon type="question-circle-o" /></Tooltip>
                                                     </Form.Item>
                                                 </Col>
                                                 <Col span={12}>
