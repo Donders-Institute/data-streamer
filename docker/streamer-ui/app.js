@@ -22,13 +22,13 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'frontend')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
 
-const HOST = process.env.HOST || "localhost";
-const PORT = process.env.PORT || 9000;
+const STREAMER_UI_HOST = process.env.STREAMER_UI_HOST || "localhost";
+const STREAMER_UI_PORT = process.env.STREAMER_UI_PORT333 || 9000;
 const STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname + '/uploads';
 const STREAMER_URL_PREFIX = process.env.STREAMER_URL_PREFIX || "http://streamer:3001";
 
@@ -185,6 +185,11 @@ app.post("/upload", function(req, res) {
   );
 });
 
+// Handles any requests that don't match the ones above
+app.get('*', (req, res) =>{
+  res.sendFile(path.join(__dirname + './frontend/index.html'));
+});
+
 // Catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -201,7 +206,7 @@ app.use(function(err, req, res, next) {
   res.render("error");
 });
 
-app.listen(PORT, HOST);
-console.log(`Running on http://${HOST}:${PORT}`);
+app.listen(STREAMER_UI_PORT, STREAMER_UI_HOST);
+console.log(`Running on http://${STREAMER_UI_HOST}:${STREAMER_UI_PORT}`);
 
 module.exports = app;
