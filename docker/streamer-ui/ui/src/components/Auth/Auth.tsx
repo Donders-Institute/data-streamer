@@ -1,163 +1,185 @@
-import gql from "graphql-tag";
-import React, { useRef, useEffect } from "react";
-import { Query, QueryResult, withApollo, WithApolloClient } from "react-apollo";
+// import gql from "graphql-tag";
+import React, { useEffect } from "react";
+import { useQuery, useMutation } from "@apollo/react-hooks";
 import { Button, Typography } from "antd";
-import { Route, Switch, withRouter, RouteComponentProps, Redirect } from "react-router-dom";
-import { UserManager } from "oidc-client";
-import { GetLoginState, StartLogout, StartLogin, EndLoginErrorVariables, EndLoginSuccessVariables, EndLoginSuccess, EndLoginError } from "./gqlTypes";
+import {
+    Route,
+    Switch,
+    withRouter,
+    RouteComponentProps,
+    Redirect
+} from "react-router-dom";
+import {
+    GetLoginState,
+    StartLogout,
+    StartLogin,
+    EndLoginErrorVariables,
+    EndLoginSuccessVariables,
+    EndLoginSuccess,
+    EndLoginError
+} from "../../gqlTypes";
+import { useUserManager } from "./AuthContext";
+// import { DocumentNode } from "graphql";
 
 // To be removed
 export const LOGGEDIN = true;
 
-const GET_LOGIN_STATE = gql`
-    query GetLoginState {
-        loginState @client {
-            status
-            user {
-                userName
-                displayName
-            }
-            error
-        }
-    }
-`;
+// const GET_LOGIN_STATE: DocumentNode = gql`
+//   query GetLoginState {
+//     loginState @client {
+//       status
+//       user {
+//         userName
+//         displayName
+//       }
+//       error
+//     }
+//   }
+// `;
 
-const START_LOGIN = gql`
-    mutation StartLogin {
-        startLogin @client {
-            status
-        }
-    }
-`;
+// const START_LOGIN: DocumentNode = gql`
+//   mutation StartLogin {
+//     startLogin @client {
+//       status
+//     }
+//   }
+// `;
 
-const END_LOGIN_SUCCESS = gql`
-    mutation EndLoginSuccess($userName: String!, $displayName: String) {
-        endLoginSuccess(userName: $userName, displayName: $displayName) @client {
-            status
-        }
-    }
-`;
+// const END_LOGIN_SUCCESS: DocumentNode = gql`
+//   mutation EndLoginSuccess($userName: String!, $displayName: String) {
+//     endLoginSuccess(userName: $userName, displayName: $displayName) @client {
+//       status
+//     }
+//   }
+// `;
 
-const END_LOGIN_ERROR = gql`
-    mutation EndLoginError($error: String!) {
-        endLoginError(error: $error) @client {
-            status
-        }
-    }
-`;
+// const END_LOGIN_ERROR: DocumentNode = gql`
+//   mutation EndLoginError($error: String!) {
+//     endLoginError(error: $error) @client {
+//       status
+//     }
+//   }
+// `;
 
-const START_LOGOUT = gql`
-    mutation StartLogout {
-        startLogout @client {
-            status
-        }
-    }
-`;
+// const START_LOGOUT: DocumentNode = gql`
+//   mutation StartLogout {
+//     startLogout @client {
+//       status
+//     }
+//   }
+// `;
 
-type AuthProps = WithApolloClient<RouteComponentProps>;
+type AuthProps = RouteComponentProps;
 
-const Auth: React.FC<AuthProps> = ({ client, history }) => {
-    const userManager = useRef<UserManager>();
+const Auth: React.FC<AuthProps> = ({ history }) => {
+    // const userManager = useUserManager();
 
-    useEffect(() => {
-        const baseUrl = window.location.origin;
-        userManager.current = new UserManager({
-            client_id: "bookings-ui",
-            redirect_uri: `${baseUrl}/callback`,
-            response_type: "code",
-            scope: "openid profile",
-            authority: "https://auth-dev.dccn.nl",
-            silent_redirect_uri: `${baseUrl}/silent_renew`,
-            automaticSilentRenew: false,
-            filterProtocolClaims: true,
-            loadUserInfo: true,
-            revokeAccessTokenOnSignout: true
-        });
-    }, []);
+    // const options = {
+    //   ignoreResults: true
+    // };
+    // const [startLogin] = useMutation<StartLogin>(START_LOGIN, options);
+    // const [startLogout] = useMutation<StartLogout>(START_LOGOUT, options);
+    // const [endLoginSuccess] = useMutation<
+    //   EndLoginSuccess,
+    //   EndLoginSuccessVariables
+    // >(END_LOGIN_SUCCESS, options);
+    // const [endLoginError] = useMutation<EndLoginError, EndLoginErrorVariables>(
+    //   END_LOGIN_ERROR,
+    //   options
+    // );
 
-    useEffect(() => {
-        const runAsync = async () => {
-            const isCallback = history.location.pathname === "/callback";
-            if (isCallback) {
-                await client.mutate<StartLogin>({
-                    mutation: START_LOGIN,
-                });
-            }
-            try {
-                const user = isCallback
-                    ? await userManager.current!.signinRedirectCallback()
-                    : await userManager.current!.getUser();
+    // useEffect(
+    //   () =>
+    //     void (async () => {
+    //       const isCallback = history.location.pathname === "/callback";
+    //       if (isCallback) {
+    //         await startLogin();
+    //       }
+    //       try {
+    //         const user = isCallback
+    //           ? await userManager.signinRedirectCallback()
+    //           : await userManager.getUser();
 
-                if (user) {
-                    await client.mutate<EndLoginSuccess, EndLoginSuccessVariables>({
-                        mutation: END_LOGIN_SUCCESS,
-                        variables: {
-                            userName: user.profile.sub,
-                            displayName: user.profile.name || null
-                        }
-                    });
-                }
-            } catch (error) {
-                if (error instanceof Error) {
-                    await client.mutate<EndLoginError, EndLoginErrorVariables>({
-                        mutation: END_LOGIN_ERROR,
-                        variables: {
-                            error: error.message
-                        }
-                    });
-                } else {
-                    throw error;
-                }
-            }
-        }
+    //         if (user) {
+    //           await endLoginSuccess({
+    //             variables: {
+    //               userName: user.profile.sub,
+    //               displayName: user.profile.name || null
+    //             }
+    //           });
+    //         }
+    //       } catch (error) {
+    //         if (error instanceof Error) {
+    //           await endLoginError({
+    //             variables: {
+    //               error: error.message
+    //             }
+    //           });
+    //         } else {
+    //           throw error;
+    //         }
+    //       }
+    //     }),
+    //   [history, startLogin, endLoginSuccess, endLoginError, userManager]
+    // );
 
-        runAsync();
-    }, []);
+    // const { loading, error, data } = useQuery<GetLoginState>(GET_LOGIN_STATE, {
+    //   fetchPolicy: "cache-only"
+    // });
 
-    return (
-        <Query query={GET_LOGIN_STATE} fetchPolicy="cache-only">
-            {({ client, loading, error, data }: QueryResult<GetLoginState>) => {
-                const handleLoginClick = async (_event: React.MouseEvent<any>) => {
-                    await client.mutate<StartLogin>({
-                        mutation: START_LOGIN
-                    });
-                    await userManager.current!.signinRedirect();
-                }
+    // if (error) {
+    //   return <Typography.Text type="danger">Error: {error}</Typography.Text>;
+    // }
+    // if (loading) {
+    //   return <Typography.Text type="secondary">Loading...</Typography.Text>;
+    // }
 
-                const handleLogoutClick = async (_event: React.MouseEvent<any>) => {
-                    await client.mutate<StartLogout>({
-                        mutation: START_LOGOUT
-                    });
-                    await userManager.current!.signoutRedirect();
-                }
+    // const { loginState } = data!;
+    // switch (loginState.status) {
+    //   case "LOGGED_IN": {
+    //     const handleLogoutClick = () =>
+    //       void (async () => {
+    //         await startLogout();
+    //         await userManager.signoutRedirect();
+    //       })();
+    //     return (
+    //       <Switch>
+    //         <Redirect from="/callback" to="/" exact />
+    //         <Route
+    //           render={() => (
+    //             <Button size="small" ghost onClick={handleLogoutClick}>
+    //               Log out
+    //             </Button>
+    //           )}
+    //         />
+    //       </Switch>
+    //     );
+    //   }
+    //   case "LOGGING_IN":
+    //     return <Typography.Text type="secondary">Logging in...</Typography.Text>;
+    //   case "LOGGING_OUT":
+    //     return <Typography.Text type="secondary">Logging out...</Typography.Text>;
+    //   case "ERROR":
+    //     return (
+    //       <Typography.Text type="danger">
+    //         Error: {loginState.error}
+    //       </Typography.Text>
+    //     );
+    //   default: {
+    //     const handleLoginClick = () =>
+    //       void (async () => {
+    //         await startLogin();
+    //         await userManager.signinRedirect();
+    //       })();
+    //     return (
+    //       <Button size="small" ghost onClick={handleLoginClick}>
+    //         Log in
+    //       </Button>
+    //     );
+    //   }
+    // }
 
-                if (error) {
-                    return <Typography.Text type="danger">Error: {error}</Typography.Text>;
-                }
-                if (loading) {
-                    return <Typography.Text type="secondary">Loading...</Typography.Text>;
-                }
-                const { loginState } = data!;
-                switch (loginState.status) {
-                    case "LOGGED_IN":
-                        return (
-                            <Switch>
-                                <Redirect from="/callback" to="/" exact />
-                                <Route render={() => <Button size="small" ghost onClick={handleLogoutClick}>Log out</Button>} />
-                            </Switch>
-                        );
-                    case "LOGGING_IN":
-                        return <Typography.Text type="secondary">Logging in...</Typography.Text>;
-                    case "LOGGING_OUT":
-                        return <Typography.Text type="secondary">Logging out...</Typography.Text>;
-                    case "ERROR":
-                        return <Typography.Text type="danger">Error: {loginState.error}</Typography.Text>;
-                    case "NOT_LOGGED_IN":
-                        return <Button size="small" ghost onClick={handleLoginClick}>Log in</Button>;
-                }
-            }}
-        </Query>
-    );
-}
+    return <div></div>;
+};
 
-export default withApollo<{}>(withRouter(Auth));
+export default withRouter(Auth);

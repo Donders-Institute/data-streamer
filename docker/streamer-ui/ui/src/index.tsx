@@ -1,26 +1,49 @@
-import * as React from "react";
+import React, { FC } from "react";
 import * as serviceWorker from "./serviceWorker";
-import { ApolloProvider } from "react-apollo";
+import { ApolloProvider } from "@apollo/react-hooks";
 import { render } from "react-dom";
 import { Provider } from "react-redux";
-import { client } from "./components/Auth/resolvers";
-import { PersistGate } from 'redux-persist/integration/react'
+import { PersistGate } from "redux-persist/integration/react";
 import configureStore from "./store";
-import Oidc from "oidc-client";
+import Oidc, { UserManager } from "oidc-client";
 import App from "./components/App";
+import configureApolloClient from "./apollo";
+
+import "./index.less";
+import { AuthProvider } from "./components/Auth/AuthContext";
 
 Oidc.Log.logger = console;
 Oidc.Log.level = Oidc.Log.DEBUG;
 
 const { store, persistor } = configureStore();
 
-const Root = () => {
+const baseUrl = window.location.origin;
+const userManager = new UserManager({
+    client_id: "bookings-ui",
+    redirect_uri: `${baseUrl}/callback`,
+    response_type: "code",
+    scope: "openid profile",
+    authority: "https://auth-dev.dccn.nl",
+    silent_redirect_uri: `${baseUrl}/silent_renew`,
+    automaticSilentRenew: false,
+    filterProtocolClaims: true,
+    loadUserInfo: true,
+    revokeAccessTokenOnSignout: true
+});
+const apolloClient = configureApolloClient(
+    "http://dccn-pl001.dccn.nl:5060/v1/graphql",
+    userManager
+);
+
+const Root: FC = () => {
     return (
         <Provider store={store}>
             <PersistGate loading={null} persistor={persistor}>
-                <ApolloProvider client={client}>
-                    <App />
-                </ApolloProvider>
+                <AuthProvider userManager={userManager}>
+                    <ApolloProvider client={apolloClient}>
+                        <App />
+                    </ApolloProvider>
+                </AuthProvider>
             </PersistGate>
         </Provider>
     );

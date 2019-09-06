@@ -4,7 +4,9 @@ WORKDIR /usr/src/app
 COPY $pwd/ui/package.json ./ 
 COPY $pwd/ui/yarn.lock ./
 RUN yarn install
-COPY $pwd/ui/tsconfig.json ./ 
+COPY $pwd/ui/tsconfig.json ./
+COPY $pwd/ui/.eslintrc.json ./
+COPY $pwd/ui/*.less ./ 
 COPY $pwd/ui/*.js ./ 
 COPY $pwd/ui/src ./src
 COPY $pwd/ui/public ./public

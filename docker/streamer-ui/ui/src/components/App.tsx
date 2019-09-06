@@ -4,17 +4,17 @@ import { Layout } from "antd";
 import { connect } from "react-redux";
 import { AppState } from "../store";
 
-import Header from './Header/Header';
-import Footer from './Footer/Footer';
+import Header from "./Header/Header";
+import Footer from "./Footer/Footer";
 
-import About from './About/About';
-import Contact from './Contact/Contact';
+import About from "./About/About";
+import Contact from "./Contact/Contact";
 
-import Uploader from './Uploader/Uploader';
+import Uploader from "./Uploader/Uploader";
 
 import { LOGGEDIN } from "./Auth/Auth";
 
-import NotFound from './NotFound/NotFound';
+import NotFound from "./NotFound/NotFound";
 
 import { SystemState } from "../store/system/types";
 import { updateSession } from "../store/system/actions";
@@ -31,7 +31,6 @@ interface AppProps {
 }
 
 class App extends React.Component<AppProps> {
-
     state = {
         loggedIn: this.props.system.loggedIn,
         location: this.props.system.location
@@ -62,7 +61,7 @@ class App extends React.Component<AppProps> {
             userName: "rutvdee",
             location: newLocation
         });
-        this.setState({ location: newLocation })
+        this.setState({ location: newLocation });
     };
 
     render() {
@@ -81,7 +80,7 @@ class App extends React.Component<AppProps> {
                         </Layout>
                     </Layout.Content>
                     <Footer />
-                </Layout >
+                </Layout>
             </Router>
         );
     }
