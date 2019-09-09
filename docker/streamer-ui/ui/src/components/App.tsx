@@ -1,16 +1,12 @@
 import * as React from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { Layout } from "antd";
-import { connect } from "react-redux";
 
 import Header from "./Header/Header";
 import Footer from "./Footer/Footer";
-
 import About from "./About/About";
 import Contact from "./Contact/Contact";
-
 import Uploader from "./Uploader/Uploader";
-
 import NotFound from "./NotFound/NotFound";
 
 import "../App.less";
