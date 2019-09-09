@@ -14,7 +14,6 @@
     "express-form-data": "^2.0.10",
     "formidable": "^1.2.1",
     "http-errors": "~1.6.3",
-    "jade": "~1.11.0",
     "mkdirp": "^0.5.1",
     "morgan": "~1.9.1",
     "async": "~2.1.2",
