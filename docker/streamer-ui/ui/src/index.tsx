@@ -14,30 +14,30 @@ Oidc.Log.level = Oidc.Log.DEBUG;
 
 const baseUrl = window.location.origin;
 const userManager = new UserManager({
-  client_id: "bookings-ui",
-  redirect_uri: `${baseUrl}/callback`,
-  response_type: "code",
-  scope: "openid profile",
-  authority: "https://auth-dev.dccn.nl",
-  silent_redirect_uri: `${baseUrl}/silent_renew`,
-  automaticSilentRenew: false,
-  filterProtocolClaims: true,
-  loadUserInfo: true,
-  revokeAccessTokenOnSignout: true
+    client_id: "bookings-ui",
+    redirect_uri: `${baseUrl}/callback`,
+    response_type: "code",
+    scope: "openid profile",
+    authority: "https://auth-dev.dccn.nl",
+    silent_redirect_uri: `${baseUrl}/silent_renew`,
+    automaticSilentRenew: false,
+    filterProtocolClaims: true,
+    loadUserInfo: true,
+    revokeAccessTokenOnSignout: true
 });
 const apolloClient = configureApolloClient(
-  "http://dccn-pl001.dccn.nl:5060/v1/graphql",
-  userManager
+    "http://dccn-pl001.dccn.nl:5060/v1/graphql",
+    userManager
 );
 
 const Root: FC = () => {
-  return (
-    <AuthProvider userManager={userManager}>
-      <ApolloProvider client={apolloClient}>
-        <App />
-      </ApolloProvider>
-    </AuthProvider>
-  );
+    return (
+        <AuthProvider userManager={userManager}>
+            <ApolloProvider client={apolloClient}>
+                <App />
+            </ApolloProvider>
+        </AuthProvider>
+    );
 };
 
 render(<Root />, document.getElementById("root"));

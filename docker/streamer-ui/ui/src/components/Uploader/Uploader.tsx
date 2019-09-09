@@ -531,7 +531,7 @@ UploaderAppState
                                         }}
                                         onClick={this.handleUpload}
                                     >
-                    Upload
+                                        Upload
                                     </Button>
                                 )}
                                 {(!this.state.hasFilesSelected || !this.state.proceed) && (
@@ -540,7 +540,7 @@ UploaderAppState
                                         size="large"
                                         style={{ width: "200px", float: "right" }}
                                     >
-                    Upload
+                                        Upload
                                     </Button>
                                 )}
                             </Card>
@@ -564,7 +564,7 @@ UploaderAppState
                                         <Icon type="inbox" />
                                     </p>
                                     <p className="ant-upload-text">
-                    Click or drag files to this area
+                                        Click or drag files to this area
                                     </p>
                                     <p className="ant-upload-hint">Select one or more files.</p>
                                 </Dragger>
@@ -627,7 +627,7 @@ UploaderAppState
                                                             onChange={this.onChangeSubjectLabel}
                                                             style={{ width: "400px" }}
                                                         />
-                            &nbsp;
+                                                        &nbsp;
                                                         <Tooltip title="subject label must be of form [a-zA-Z0-9]+">
                                                             <Icon type="question-circle-o" />
                                                         </Tooltip>
@@ -646,7 +646,7 @@ UploaderAppState
                                                             onChange={this.onChangeSessionLabel}
                                                             style={{ width: "400px" }}
                                                         />
-                            &nbsp;
+                                                        &nbsp;
                                                         <Tooltip title="session label must be of form [a-zA-Z0-9]+">
                                                             <Icon type="question-circle-o" />
                                                         </Tooltip>
@@ -684,7 +684,7 @@ UploaderAppState
                                                             onChange={this.onChangeSelectedDataTypeOther}
                                                             style={{ width: "400px" }}
                                                         />
-                            &nbsp;
+                                                        &nbsp;
                                                         <Tooltip title="other data type must be lower case string with no special characters">
                                                             <Icon type="question-circle-o" />
                                                         </Tooltip>

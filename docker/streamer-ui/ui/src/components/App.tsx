@@ -12,26 +12,26 @@ import NotFound from "./NotFound/NotFound";
 import "../App.less";
 
 class App extends React.Component {
-  render() {
-    return (
-      <Router>
-        <Layout>
-          <Header />
-          <Layout.Content>
-            <Layout>
-              <Switch>
-                <Route exact path="/" component={Uploader} />
-                <Route path="/about" component={About} />
-                <Route path="/contact" component={Contact} />
-                <Route component={NotFound} />
-              </Switch>
-            </Layout>
-          </Layout.Content>
-          <Footer />
-        </Layout>
-      </Router>
-    );
-  }
+    render() {
+        return (
+            <Router>
+                <Layout>
+                    <Header />
+                    <Layout.Content>
+                        <Layout>
+                            <Switch>
+                                <Route exact path="/" component={Uploader} />
+                                <Route path="/about" component={About} />
+                                <Route path="/contact" component={Contact} />
+                                <Route component={NotFound} />
+                            </Switch>
+                        </Layout>
+                    </Layout.Content>
+                    <Footer />
+                </Layout>
+            </Router>
+        );
+    }
 }
 
 export default App;
