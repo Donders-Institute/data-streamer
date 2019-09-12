@@ -25,7 +25,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
 
 const STREAMER_UI_HOST = process.env.STREAMER_UI_HOST || "localhost";
-const STREAMER_UI_PORT = process.env.STREAMER_UI_PORT333 || 9000;
+const STREAMER_UI_PORT = process.env.STREAMER_UI_PORT || 9000;
 const STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname + '/uploads';
 const STREAMER_URL_PREFIX = process.env.STREAMER_URL_PREFIX || "http://streamer:3001";
 
@@ -65,6 +65,8 @@ function get_streamer_url(projectNumber, subjectLabel, sessionLabel, dataType) {
 // Handle POST request
 app.post("/upload", function(req, res) {
 
+  var msg;
+
   // Check for structure
   if (!req.body) {
     return res.status(400).send(`No attributes were uploaded: "req.body" is empty`);
@@ -76,12 +78,12 @@ app.post("/upload", function(req, res) {
 
   // Check for uploaded files
   if (!req.files) {
-    var msg = `No files were uploaded: "req.files" is empty`;
+    msg = `No files were uploaded: "req.files" is empty`;
     console.log(msg);
     return res.status(400).send(msg);
   }
   if (!req.files.files) {
-    var msg = `No files were uploaded: "req.files.files" is empty`;
+    msg = `No files were uploaded: "req.files.files" is empty`;
     console.log(msg);
     return res.status(400).send(msg);
   }
@@ -93,7 +95,7 @@ app.post("/upload", function(req, res) {
     return res.status(500).send(err);
   }
   if (!dirname) {
-    var msg = 'Error creating directory';
+    msg = 'Error creating directory';
     console.error(msg);
     return res.status(500).send(msg);
   }
@@ -104,10 +106,9 @@ app.post("/upload", function(req, res) {
   
   // Store the file(s)
   var num_files = get_num_files(req.files.files);
-  var fileListString = "[]";
 
   if (num_files === 0) {
-    var msg = `No files were uploaded: file list is empty in request`;
+    msg = `No files were uploaded: file list is empty in request`;
     console.error(msg);
     return res.status(400).send(msg);
 
@@ -184,7 +185,7 @@ app.post("/upload", function(req, res) {
 
 // Handles any requests that don't match the ones above
 app.get('/', (req, res) =>{
-  // res.sendFile(path.join(__dirname + './frontend/index.html'));
+  res.sendFile(path.join(__dirname + './frontend/index.html'));
 });
 
 // Catch 404 and forward to error handler
