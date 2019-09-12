@@ -22,6 +22,7 @@ services:
           - streamer-ui
 
 networks:
+  default:
   proxynet:
     external: true
 
