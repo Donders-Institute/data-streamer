@@ -69,10 +69,10 @@ app.post("/upload", function(req, res) {
   if (!req.body) {
     return res.status(400).send(`No attributes were uploaded: "req.body" is empty`);
   }
-  projectNumber = req.body.projectNumber;
-  subjectLabel = req.body.subjectLabel;
-  sessionLabel = req.body.sessionLabel;
-  dataType = req.body.dataType;
+  var projectNumber = req.body.projectNumber;
+  var subjectLabel = req.body.subjectLabel;
+  var sessionLabel = req.body.sessionLabel;
+  var dataType = req.body.dataType;
 
   // Check for uploaded files
   if (!req.files) {
@@ -115,7 +115,7 @@ app.post("/upload", function(req, res) {
   
   // function of moving uploaded file from temporary directory to the UI buffer.
   function store_file(file, cb) {
-    target_path = path.join(dirname, file.name);
+    var target_path = path.join(dirname, file.name);
     file.mv(target_path, function(err) {
       if (err) {
         return cb(err, null);
@@ -123,7 +123,7 @@ app.post("/upload", function(req, res) {
         return cb(null, file.name);
       }
     });
-  };
+  }
 
   // collection file objects from the uploaded FORM data.
   var files = [];
