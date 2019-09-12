@@ -1,55 +1,8 @@
-version: "2"
+version: "3.7"
 services:
-  streamer-db:
-    build:
-      context: ./redis
-    image: redis
-    user: root
-    networks:
-      - nw_streamer
-    volumes:
-      - ./testdata/db:/data
-  streamer:
-    build:
-      context: ./streamer
-    image: streamer
-    user: root
-    networks:
-      - nw_streamer
+  service:
     ports:
-      - 3001:3001
-    environment:
-      - REDIS_HOST=streamer-db
-      - REDIS_PORT=6379
-      - STREAMER_UI_BUFFER_DIR=/project/3055000.01/raw
-    volumes:
-      - ./testdata/streamer/config:/opt/streamer/config
-      - ./testdata/streamer/log:/opt/streamer/log
-      - ./streamer/cron:/cron
-      - ./testdata/home:/home:ro
-      - ./testdata/project:/project
-      # - /var/lib/sss/pipes:/var/lib/sss/pipes
-      # - /var/lib/sss/mc:/var/lib/sss/mc:ro
-    depends_on:
-      - streamer-db
-  streamer-ui:
-    build:
-      context: ./streamer-ui
-    image: streamer-ui
-    networks:
-      - nw_streamer
+      - ${STREAMER_SERVICE_PORT:-3001}:${STREAMER_SERVICE_PORT:-3001}
+  ui:
     ports:
-      - 9000:9000
-    environment:
-      - STREAMER_UI_HOST=0.0.0.0
-      - STREAMER_UI_PORT=9000
-      - STREAMER_UI_BUFFER_DIR=/project/3055000.01/raw
-      - STREAMER_URL_PREFIX=http://streamer:3001
-    volumes:
-      - ./testdata/project:/project
-    depends_on:
-      - streamer
-
-networks:
-  nw_streamer:
-    driver: bridge
+      - ${STREAMER_UI_PORT:-9000}:${STREAMER_UI_PORT:-9000}

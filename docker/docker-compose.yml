@@ -1,4 +1,4 @@
-version: "2"
+version: "3.7"
 services:
   db:
     build:
@@ -12,15 +12,14 @@ services:
   service:
     build:
       context: ./streamer
-    image: streamer
+    image: ${DOCKER_REGISTRY:-dccn}/streamer
     user: root
     networks:
       - nw_streamer
-    ports:
-      - 3001:3001
     environment:
       - REDIS_HOST=db
       - REDIS_PORT=6379
+      - STREAMER_SERVICE_PORT=${STREAMER_SERVICE_PORT:-3001}
     volumes:
       - ${STREAMER_SERVICE_CONFIG_VOL}:/opt/streamer/config
       - ${STREAMER_SERVICE_LOG_VOL}:/opt/streamer/log
@@ -29,6 +28,19 @@ services:
       - ${PROJECT_VOL}:/project
     depends_on:
       - db
+  ui:
+    build:
+      context: ./streamer-ui
+    image: ${DOCKER_REGISTRY:-dccn}/streamer-ui
+    networks:
+      - nw_streamer
+    environment:
+      - STREAMER_UI_HOST=${STREAMER_UI_HOST:-0.0.0.0}
+      - STREAMER_UI_PORT=${STREAMER_UI_PORT:-9000}
+      - STREAMER_UI_BUFFER_DIR=${STREAMER_UI_BUFFER_DIR}
+      - STREAMER_URL_PREFIX=http://service:${STREAMER_SERVICE_PORT:-3001}
+    volumes:
+      - ${PROJECT_VOL}:/project
 networks:
     nw_streamer:
         driver: bridge
