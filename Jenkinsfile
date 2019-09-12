@@ -41,7 +41,7 @@ pipeline {
 
                 configFileProvider([configFile(fileId: 'streamer_service_config.json', variable: 'SERVICE_CONFIG')]) {
                     sh 'docker secret rm service_config.json || true'
-                    sh 'docker secret create service_config.json $SERVER_CONFIG'
+                    sh 'docker secret create service_config.json $SERVICE_CONFIG'
                 }
                 configFileProvider([configFile(fileId: 'streamer_mailer_config.json', variable: 'MAILER_CONFIG')]) {
                     sh 'docker secret rm mailer_config.json || true'
