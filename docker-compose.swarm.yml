@@ -12,8 +12,8 @@ services:
         aliases:
           - streamer
     secrets:
-      - service_config.json
-      - mailer_config.json
+      - streamer-service-config.json
+      - streamer-mailer-config.json
   ui:
     networks:
       default:
@@ -26,7 +26,7 @@ networks:
     external: true
 
 secrets:
-  service_config.json:
+  streamer-service-config.json:
     external: true
-  mailer_config.json:
+  streamer-mailer-config.json:
     external: true

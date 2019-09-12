@@ -40,12 +40,12 @@ pipeline {
                 sh 'docker stack rm streamer4user'
 
                 configFileProvider([configFile(fileId: 'streamer_service_config.json', variable: 'SERVICE_CONFIG')]) {
-                    sh 'docker secret rm service_config.json || true'
-                    sh 'docker secret create service_config.json $SERVICE_CONFIG'
+                    sh 'docker secret rm streamer-service-config.json || true'
+                    sh 'docker secret create streamer-service-config.json $SERVICE_CONFIG'
                 }
                 configFileProvider([configFile(fileId: 'streamer_mailer_config.json', variable: 'MAILER_CONFIG')]) {
-                    sh 'docker secret rm mailer_config.json || true'
-                    sh 'docker secret create mailer_config.json $MAILER_CONFIG'
+                    sh 'docker secret rm streamer-mailer-config.json || true'
+                    sh 'docker secret create streamer-mailer-config.json $MAILER_CONFIG'
                 }
 
                 sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml streamer4user'
