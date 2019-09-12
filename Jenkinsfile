@@ -60,7 +60,7 @@ pipeline {
 
     post {
         always {
-            sh 'echo done'
+            sh 'echo cleaning'
         }
     }
 }
