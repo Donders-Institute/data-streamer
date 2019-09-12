@@ -15,9 +15,9 @@ RUN yarn build
 # Create the server
 FROM node:10
 WORKDIR /usr/src/app
-COPY package*.json ./
+COPY $pwd/server/package*.json ./
 RUN npm install
-COPY . .
+COPY $pwd/server/* ./
 COPY --from=build /usr/src/app/build /usr/src/app/frontend
 EXPOSE 9000
 CMD [ "node", "app.js" ]
