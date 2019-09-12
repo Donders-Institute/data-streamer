@@ -41,6 +41,8 @@ services:
       - STREAMER_URL_PREFIX=http://service:${STREAMER_SERVICE_PORT:-3001}
     volumes:
       - ${PROJECT_VOL}:/project
+    depends_on:
+      - service 
 networks:
     nw_streamer:
         driver: bridge
