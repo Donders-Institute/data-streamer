@@ -126,7 +126,7 @@ if (cluster.isMaster) {
     // start service for RESTful APIs
     app.use(kue.app);
 
-    app.listen(3001);
+    app.listen(process.env.STREAMER_SERVICE_PORT);
 
     // fork workers
     var create_worker = function() {
