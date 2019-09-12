@@ -41,11 +41,9 @@ pipeline {
         }
 
         stage('Staging') {
-            stages {
-                steps {
-                        sh 'docker -H env.DOCKER_SWARM_MASTER_HOST stack rm streamer4user'
-                        sh 'docker -H env.DOCKER_SWARM_MASTER_HOST stack up -c docker-compose.yml -c docker-compose.swarm.yml streamer4user'
-                }
+            steps {
+                    sh 'docker -H env.DOCKER_SWARM_MASTER_HOST stack rm streamer4user'
+                    sh 'docker -H env.DOCKER_SWARM_MASTER_HOST stack up -c docker-compose.yml -c docker-compose.swarm.yml streamer4user'
             }
         }
         stage('Integration test') {
