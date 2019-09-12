@@ -11,6 +11,9 @@ services:
       proxynet:
         aliases:
           - streamer
+    secrets:
+      - service_config.json
+      - mailer_config.json
   ui:
     networks:
       default:
@@ -20,4 +23,10 @@ services:
 
 networks:
   proxynet:
+    external: true
+
+secrets:
+  service_config.json:
+    external: true
+  mailer_config.json:
     external: true
