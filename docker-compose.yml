@@ -5,8 +5,6 @@ services:
       context: ./redis
     image: ${DOCKER_REGISTRY:-dccn}/redis
     user: root
-    networks:
-      - nw_streamer
     volumes:
       - ${STREAMER_DB_DATA_VOL}:/data
   service:
@@ -14,8 +12,6 @@ services:
       context: ./streamer
     image: ${DOCKER_REGISTRY:-dccn}/streamer
     user: root
-    networks:
-      - nw_streamer
     environment:
       - REDIS_HOST=db
       - REDIS_PORT=6379
@@ -32,8 +28,6 @@ services:
     build:
       context: ./streamer-ui
     image: ${DOCKER_REGISTRY:-dccn}/streamer-ui
-    networks:
-      - nw_streamer
     environment:
       - STREAMER_UI_HOST=${STREAMER_UI_HOST:-0.0.0.0}
       - STREAMER_UI_PORT=${STREAMER_UI_PORT:-9000}
@@ -43,6 +37,3 @@ services:
       - ${PROJECT_VOL}:/project
     depends_on:
       - service 
-networks:
-    nw_streamer:
-        driver: bridge

@@ -1,8 +1,18 @@
 version: "3.7"
 services:
+  db:
+    networks:
+      - nw_streamer
   service:
+    networks:
+      - nw_streamer
     ports:
       - ${STREAMER_SERVICE_PORT:-3001}:${STREAMER_SERVICE_PORT:-3001}
   ui:
+    networks:
+      - nw_streamer
     ports:
       - ${STREAMER_UI_PORT:-9000}:${STREAMER_UI_PORT:-9000}
+networks:
+    nw_streamer:
+        driver: bridge
