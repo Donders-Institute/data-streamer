@@ -12,6 +12,9 @@ const async = require('async');
 
 var app = express();
 
+app.set('view engine', 'jade');
+app.set('views', path.join(__dirname, 'views'));
+
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -180,8 +183,8 @@ app.post("/upload", function(req, res) {
 });
 
 // Handles any requests that don't match the ones above
-app.get('*', (req, res) =>{
-  res.sendFile(path.join(__dirname + './frontend/index.html'));
+app.get('/', (req, res) =>{
+  // res.sendFile(path.join(__dirname + './frontend/index.html'));
 });
 
 // Catch 404 and forward to error handler
@@ -189,16 +192,30 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// Error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
+// error handlers
 
-  // render the error page
+// development error handler
+// will print stacktrace
+if (app.get('env') === 'development') {
+  app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error', {
+      message: err.message,
+      error: err
+    });
+  });
+}
+
+// production error handler
+// no stacktraces leaked to user
+app.use(function(err, req, res, next) {
   res.status(err.status || 500);
-  res.render("error");
+  res.render('error', {
+    message: err.message,
+    error: {}
+  });
 });
+
 
 app.listen(STREAMER_UI_PORT, STREAMER_UI_HOST);
 console.log(`Running on http://${STREAMER_UI_HOST}:${STREAMER_UI_PORT}`);

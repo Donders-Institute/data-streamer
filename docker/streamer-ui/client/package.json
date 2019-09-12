@@ -1,20 +1,10 @@
 {
-  "name": "streamer-ui-ui",
+  "name": "streamer-ui-client",
   "version": "0.1.0",
   "private": true,
   "license": "MIT",
   "dependencies": {
-    "@apollo/react-hooks": "^3.0.1",
-    "@types/graphql": "^14.5.0",
     "antd": "^3.19.0",
-    "apollo-cache-inmemory": "^1.6.3",
-    "apollo-client": "^2.6.4",
-    "apollo-link": "^1.2.12",
-    "apollo-link-context": "^1.0.18",
-    "apollo-link-error": "^1.1.11",
-    "apollo-link-http": "^1.5.15",
-    "graphql": "^14.3.0",
-    "graphql-tag": "^2.10.1",
     "oidc-client": "^1.7.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
@@ -39,8 +29,7 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "react-scripts eject",
-    "lint": "eslint src/**/*.{js,jsx,ts,tsx}",
-    "codegen": "apollo client:codegen --target typescript --outputFlat src/gqlTypes.ts"
+    "lint": "eslint src/**/*.{js,jsx,ts,tsx}"
   },
   "browserslist": {
     "production": [
