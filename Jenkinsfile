@@ -40,11 +40,11 @@ pipeline {
                 sh 'docker stack rm streamer4user'
 
                 configFileProvider([configFile(fileId: 'streamer_service_config.json', variable: 'SERVICE_CONFIG')]) {
-                    sh 'docker secret rm service_config.json'
+                    sh 'docker secret rm service_config.json || true'
                     sh 'docker secret create service_config.json $SERVER_CONFIG'
                 }
                 configFileProvider([configFile(fileId: 'streamer_mailer_config.json', variable: 'MAILER_CONFIG')]) {
-                    sh 'docker secret rm mailer_config.json'
+                    sh 'docker secret rm mailer_config.json || true'
                     sh 'docker secret create mailer_config.json $MAILER_CONFIG'
                 }
 
