@@ -36,8 +36,10 @@ pipeline {
                 label 'swarm-manager'
             }
             steps {
-                
+
                 sh 'docker stack rm streamer4user'
+                
+                sleep(30)
 
                 configFileProvider([configFile(fileId: 'streamer_service_config.json', variable: 'SERVICE_CONFIG')]) {
                     sh 'docker secret rm streamer-service-config.json || true'
@@ -48,7 +50,7 @@ pipeline {
                     sh 'docker secret create streamer-mailer-config.json $MAILER_CONFIG'
                 }
 
-                sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml streamer4user'
+                sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml --prune --with-registry-auth --resolve-image always streamer4user'
             }
         }
         stage('Integration test') {
