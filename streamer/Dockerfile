@@ -39,6 +39,7 @@ RUN ( export PATH=/opt/nodejs/bin:$PATH && export USER=root && /opt/nodejs/bin/n
 COPY *.js ./
 COPY bin ./bin
 COPY lib ./lib
+COPY config ./config
 COPY start_streamer.sh start_streamer.sh
 RUN ( chmod +x bin/* )
 RUN ( chmod +x start_streamer.sh )
