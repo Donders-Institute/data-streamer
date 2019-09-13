@@ -1,0 +1,10 @@
+version: "3.7"
+services:
+  ui:
+    networks:
+      - nw_streamer
+    ports:
+      - ${STREAMER_UI_PORT:-9000}:${STREAMER_UI_PORT:-9000}
+networks:
+    nw_streamer:
+        driver: bridge

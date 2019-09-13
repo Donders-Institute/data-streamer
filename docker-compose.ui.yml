@@ -1,0 +1,13 @@
+version: "3.7"
+services:
+  ui:
+    build:
+      context: ./streamer-ui
+    image: ${DOCKER_REGISTRY:-dccn}/streamer-ui
+    environment:
+      - STREAMER_UI_HOST=${STREAMER_UI_HOST:-0.0.0.0}
+      - STREAMER_UI_PORT=${STREAMER_UI_PORT:-9000}
+      - STREAMER_UI_BUFFER_DIR=${STREAMER_UI_BUFFER_DIR}
+      - STREAMER_URL_PREFIX=http://service:${STREAMER_SERVICE_PORT:-3001}
+    volumes:
+      - ${PROJECT_VOL}:/project
