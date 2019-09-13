@@ -16,6 +16,11 @@ import {
 } from "antd";
 import { FormComponentProps } from "antd/lib/form";
 
+import Header from "../Header/Header";
+import Footer from "../Footer/Footer";
+
+import "../../App.less";
+
 const { Content } = Layout;
 const { Option } = Select;
 
@@ -448,7 +453,7 @@ UploaderAppState
         });
 
         var xhr = new XMLHttpRequest();
-        xhr.addEventListener("readystatechange", function() {
+        xhr.addEventListener("readystatechange", function () {
             if (this.readyState === 4) {
                 alert(this.responseText);
             }
@@ -513,6 +518,7 @@ UploaderAppState
 
         return (
             <Content style={{ background: "#f0f2f5" }}>
+                <Header />
                 <div style={{ padding: 10 }}>
                     <Row>
                         <Col span={24}>
@@ -699,6 +705,7 @@ UploaderAppState
                         </Col>
                     </Row>
                 </div>
+                <Footer />
             </Content>
         );
     }

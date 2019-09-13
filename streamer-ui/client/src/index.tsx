@@ -1,19 +1,17 @@
 import React, { FC } from "react";
-import * as serviceWorker from "./serviceWorker";
 import { render } from "react-dom";
-import Oidc, { UserManager } from "oidc-client";
+import { BrowserRouter } from "react-router-dom";
+import * as serviceWorker from "./serviceWorker";
+
 import App from "./components/App";
 
 import "./index.less";
 
-Oidc.Log.logger = console;
-Oidc.Log.level = Oidc.Log.DEBUG;
-
-const baseUrl = window.location.origin;
-
 const Root: FC = () => {
     return (
-        <App />
+        <BrowserRouter>
+            <App />
+        </BrowserRouter>
     );
 };
 
