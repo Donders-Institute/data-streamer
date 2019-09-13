@@ -2,12 +2,17 @@ version: "3.7"
 
 services:
   service:
-    # bind-mount for sss authentication
     volumes:
+      # bind-mount for sss authentication
       - /var/lib/sss/pipes:/var/lib/sss/pipes
       - /var/lib/sss/mc:/var/lib/sss/mc:ro
+    environments:
+      # provides configuration files from docker secrets
+      - STREAMER_SERVICE_CONFIG=/run/secrets/streamer-service-config.json
+      - STREAMER_MAILER_CONFIG=/run/secrets/streamer-mailer-config.json
     networks:
       default:
+      # join the proxynet with hostname alias
       proxynet:
         aliases:
           - streamer
@@ -17,6 +22,7 @@ services:
   ui:
     networks:
       default:
+      # join the proxynet with hostname alias
       proxynet:
         aliases:
           - streamer-ui

@@ -17,7 +17,6 @@ services:
       - REDIS_PORT=6379
       - STREAMER_SERVICE_PORT=${STREAMER_SERVICE_PORT:-3001}
     volumes:
-      - ${STREAMER_SERVICE_CONFIG_VOL}:/opt/streamer/config
       - ${STREAMER_SERVICE_LOG_VOL}:/opt/streamer/log
       - ${STREAMER_SERVICE_CRON_VOL}:/cron
       - ${HOME_VOL}:/home:ro
