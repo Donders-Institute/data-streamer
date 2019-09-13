@@ -106,6 +106,12 @@ if (cluster.isMaster) {
     var express = require('express');
     var app = express();
 
+    // add simple log function
+    app.use(function(req, rsp, next) {
+        console.info(`${req.method} ${req.originalUrl}`);
+        next();
+    });
+
     // basicAuth
     var auth = require('./lib/auth');
     app.use(auth.basicAuth);
