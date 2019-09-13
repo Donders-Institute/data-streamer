@@ -48,7 +48,7 @@ pipeline {
                     sh 'docker secret create streamer-mailer-config.json $MAILER_CONFIG'
                 }
 
-                sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml streamer4user'
+                sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml --prune --with-registry-auth --resolve-image always streamer4user'
             }
         }
         stage('Integration test') {
