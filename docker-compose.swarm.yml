@@ -6,7 +6,7 @@ services:
       # bind-mount for sss authentication
       - /var/lib/sss/pipes:/var/lib/sss/pipes
       - /var/lib/sss/mc:/var/lib/sss/mc:ro
-    environments:
+    environment:
       # provides configuration files from docker secrets
       - STREAMER_SERVICE_CONFIG=/run/secrets/streamer-service-config.json
       - STREAMER_MAILER_CONFIG=/run/secrets/streamer-mailer-config.json
