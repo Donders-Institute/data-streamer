@@ -1,9 +1,10 @@
 # Streamer for lab dataflow
 
-This package implements a data streamer service allowing user/service on a scanner
-console to trigger an automatic dataflow to the project storage and RDM collections.
+This package implements a data streamer service allowing an automatic dataflow from the scanner consoles to the project storage and RDM collections.
 
-It is firstly implemented for the MRI and MEG labs at DCCN.
+It is currently implemented for the MRI and MEG labs at the DCCN. The TG is now also working on an implementation of a standard dataflow for the other labs and data types (e.g. behavior, eye tracking, etc.). 
+
+Most of the documentation that you find below is for system administrators rather than for researchers. 
 
 ## Introduction
 
