@@ -37,6 +37,10 @@ pipeline {
             }
             steps {
 
+                sh 'docker stack rm streamer4user'
+                
+                sleep(10)
+
                 configFileProvider([configFile(fileId: 'streamer_service_config.json', variable: 'SERVICE_CONFIG')]) {
                     sh 'docker secret rm streamer-service-config.json || true'
                     sh 'docker secret create streamer-service-config.json $SERVICE_CONFIG'
