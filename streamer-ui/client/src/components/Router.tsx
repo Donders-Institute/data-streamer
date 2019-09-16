@@ -18,7 +18,7 @@ function PrivateRoute({ component: Component, authed, ...rest }: any) {
                 ? <Component {...props} />
                 : <Redirect to='/login' />}
         />
-    )
+    );
 }
 
 const Router = (props: any) => (

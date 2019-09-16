@@ -1,6 +1,6 @@
 const Auth = {
     isAuthenticated: false,
-    authenticate() {
+    authenticate(username: string, password: string) {
         this.isAuthenticated = true;
     },
     signout() {

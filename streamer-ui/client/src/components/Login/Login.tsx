@@ -8,9 +8,11 @@ import {
     Layout,
     Row,
     Col,
-    Tooltip
+    Tooltip,
+    Spin
 } from "antd";
 import { FormComponentProps } from "antd/lib/form";
+import { Redirect } from "react-router-dom";
 
 import Auth from "../Auth/Auth";
 import "../../App.less";
@@ -26,103 +28,128 @@ type LoginState = {
     username: string;
     password: string;
     submitted: boolean;
+    loggingIn: boolean;
 };
+
+const authenticate = (username: string, password: string) => new Promise(() => Auth.authenticate(username, password));
+
+function timeout(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 class LoginForm extends React.Component<IProps & FormComponentProps, LoginState> {
     constructor(props: IProps & FormComponentProps) {
         super(props);
 
-        // reset login status
+        // Reset login status
         Auth.signout();
 
         this.state = {
             username: "",
             password: "",
-            submitted: false
+            submitted: false,
+            loggingIn: false
         };
 
-        this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-    }
-
-    handleChange(e: any) {
-        // const { name, value } = e.target;
-        // this.setState({} => { [name]: value });
-        console.log(e);
     }
 
     handleSubmit(e: any) {
         e.preventDefault();
-        this.setState(({ submitted }) => ({
-            submitted: true
-        }));
-        // const { username, password } = this.state;
-        // if (username && password) {
-        //     Auth.authenticate(); // (username, password);
-        // }
-        Auth.authenticate();
+        this.props.form.validateFields(async (err, values) => {
+            if (!err) {
+                this.setState(({ submitted, loggingIn }) => ({
+                    submitted: true,
+                    loggingIn: true
+                }));
+                // TODO
+                let username = values.username;
+                let password = values.password;
+                authenticate(username, password);
+                await timeout(3000);
+                this.setState(({ submitted, loggingIn }) => ({
+                    username: username,
+                    password: password,
+                    submitted: true,
+                    loggingIn: false
+                }));
+            }
+        });
     }
 
     render() {
+        const antIcon = <Icon type="loading" style={{ fontSize: 18 }} spin />;
         const { getFieldDecorator } = this.props.form;
-        // const { loggingIn } = this.props;
-        // const { username, password, submitted } = this.state;
         return (
-            <Content style={{ background: "#f0f2f5", marginTop: "10px" }}>
-                <Row justify="center" style={{ height: "100%" }}>
-                    <Col span={10}>
-                    </Col>
-                    <Col span={4}>
-                        <Card
-                            style={{
-                                borderRadius: 4,
-                                boxShadow: "1px 1px 1px #ddd",
-                                marginTop: 10
-                            }}
-                            className="shadow"
-                        >
-                            <div style={{ display: "flex", justifyContent: "center", marginBottom: 30 }}>
-                                <img alt="Donders Institute" src={logoDCCN} height={64} />
-                            </div>
-                            <Form onSubmit={this.handleSubmit} className="login-form">
-                                <Form.Item>
-                                    {getFieldDecorator("username", {
-                                        rules: [{ required: true, message: "Please input your username" }]
-                                    })(
-                                        <Input
-                                            prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
-                                            placeholder="DCCN Username"
-                                        />,
-                                    )}
-                                </Form.Item>
-                                <Form.Item>
-                                    {getFieldDecorator("password", {
-                                        rules: [{ required: true, message: "Please input your Password" }]
-                                    })(
-                                        <Input
-                                            prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
-                                            type="password"
-                                            placeholder="Password"
-                                        />,
-                                    )}
-                                </Form.Item>
-                                <Form.Item>
-                                    <Button type="primary" htmlType="submit" className="login-form-button">
-                                        Log in
-                                    </Button>
-                                </Form.Item>
-                                <div style={{ display: "flex", justifyContent: "center" }}>
-                                    <Tooltip title="This is the login page for the data streamer UI">
-                                        <Icon type="question-circle" />
-                                    </Tooltip>
-                                </div>
-                            </Form>
-                        </Card>
-                    </Col>
-                    <Col span={10}>
-                    </Col>
-                </Row>
-            </Content>
+            <div>
+                {!this.state.submitted &&
+                    <Content style={{ background: "#f0f2f5", marginTop: "10px" }}>
+                        <Row justify="center" style={{ height: "100%" }}>
+                            <Col span={10}>
+                            </Col>
+                            <Col span={4}>
+                                <Card
+                                    style={{
+                                        borderRadius: 4,
+                                        boxShadow: "1px 1px 1px #ddd",
+                                        marginTop: 10
+                                    }}
+                                    className="shadow"
+                                >
+                                    <div style={{ display: "flex", justifyContent: "center", marginBottom: 30 }}>
+                                        <img alt="Donders Institute" src={logoDCCN} height={64} />
+                                    </div>
+                                    <Form onSubmit={this.handleSubmit} className="login-form">
+                                        <Form.Item>
+                                            {getFieldDecorator("username", {
+                                                rules: [{ required: true, message: "Please input your DCCN username" }]
+                                            })(
+                                                <Input
+                                                    prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
+                                                    placeholder="DCCN Username"
+                                                />,
+                                            )}
+                                        </Form.Item>
+                                        <Form.Item>
+                                            {getFieldDecorator("password", {
+                                                rules: [{ required: true, message: "Please input your password" }]
+                                            })(
+                                                <Input
+                                                    prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+                                                    type="password"
+                                                    placeholder="Password"
+                                                />,
+                                            )}
+                                        </Form.Item>
+                                        <Form.Item>
+                                            {!this.state.loggingIn &&
+                                                <Button type="primary" htmlType="submit" className="login-form-button">
+                                                    Log in
+                                        </Button>
+                                            }
+                                            {this.state.loggingIn &&
+                                                <Button type="primary" htmlType="submit" className="login-form-button" disabled>
+                                                    <Spin indicator={antIcon} />
+                                                </Button>
+                                            }
+                                        </Form.Item>
+                                        <div style={{ display: "flex", justifyContent: "center" }}>
+                                            <Tooltip title="This is the login page for the data streamer UI">
+                                                <Icon type="question-circle" />
+                                            </Tooltip>
+                                        </div>
+                                    </Form>
+                                </Card>
+                            </Col>
+                            <Col span={10}>
+                            </Col>
+                        </Row>
+                    </Content>
+                }
+                {this.state.submitted && !this.state.loggingIn &&
+                    <Redirect to="/" />
+                }
+            </div>
         );
     }
 }

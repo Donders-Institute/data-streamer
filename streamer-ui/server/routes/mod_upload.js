@@ -44,6 +44,7 @@ var _upload = function (req, res) {
 
     var msg;
 
+
     // Check for structure
     if (!req.body) {
         return res.status(400).send(`No attributes were uploaded: "req.body" is empty`);
