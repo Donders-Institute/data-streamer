@@ -19,7 +19,6 @@ COPY $pwd/server/package*.json ./
 RUN npm install
 COPY $pwd/server/*.js ./
 COPY $pwd/server/routes ./routes
-COPY $pwd/server/public ./public
 COPY $pwd/server/views ./views
 COPY $pwd/server/config ./config
 COPY --from=build /usr/src/app/build /usr/src/app/frontend
