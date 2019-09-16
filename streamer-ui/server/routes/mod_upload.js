@@ -134,25 +134,35 @@ var _upload = function (req, res) {
             // make POST call to streamer.
             // TODO: send request with basic authentication with username/password
             //       provided via configuration or env variable (w/ Docker secret)
-            request.post(streamerURL, { json: {} }, (err, res, body) => {
-                console.log(streamerURL);
-                if (err) {
-                    return cb(err, null);
-                } else {
-                    // TODO: check status code from response, and throw error back to callback if
-                    //       the status code is not 200.
-                    console.log('statusCode:', res && res.statusCode)
-                    console.log('body:', body);
-                    return cb(null, results);
-                }
-            });
+            var username = 'Test';
+            var password = '123';
+            request.post(
+                {
+                    'hostname': streamerURL,
+                    'auth': `${username}:${password}`
+                },
+                {
+                    json: {}
+                },
+                (err, res, body) => {
+                    console.log(streamerURL);
+                    if (err) {
+                        return cb(err, null);
+                    } else {
+                        // TODO: check status code from response, and throw error back to callback if
+                        //       the status code is not 200.
+                        console.log('statusCode:', res && res.statusCode)
+                        console.log('body:', body);
+                        return cb(null, results);
+                    }
+                });
         }],
         function (err, results) {
             if (err) {
                 console.error(err);
                 return res.status(500).send(err);
             } else {
-                var msg = `File(s) were succesfully uploaded: ${results}`;
+                msg = `File(s) were succesfully uploaded: ${results}`;
                 console.log(msg);
                 return res.status(200).send(msg);
             }

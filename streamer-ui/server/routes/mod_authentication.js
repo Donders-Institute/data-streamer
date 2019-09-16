@@ -1,56 +1,70 @@
-const config = require('config');
+const ActiveDirectory = require('activedirectory');
+const path = require('path');
+const fs = require('fs');
 
-var Client = require('ssh2').Client;
+const adconfig = require(path.join(__dirname + '/../config/adconfig.json'));
+const tlsOptions = {
+    ca: [fs.readFileSync(path.join(__dirname + '/../config/ldapscert.crt'))]
+}
+adconfig.tlsOptions = tlsOptions;
 
-/* Authenticate user against a FTP server */
-var _authenticateUser = function (req, res) {
-
-    var cfg = {
-        host: config.get('projectStorage.host'),
-        port: config.get('projectStorage.port'),
-        username: req.body.username,
-        password: req.body.password
-    };
-
-    var c = new Client();
-
-    var handleError = function (err) {
-        c.end();
-        console.error(err);
-        res.status(404);
-        res.json({});
-    };
-
-    try {
-        c.on('ready', function () {
-            c.end();
-            // Set session data
-            var sess = req.session;
-            if (typeof sess.user === "undefined" ||
-                typeof sess.user === "undefined") {
-                sess.user = { projectStorage: req.body.username };
-                sess.pass = { projectStorage: req.body.password };
-            } else {
-                sess.user.projectStorage = req.body.username;
-                sess.pass.projectStorage = req.body.password;
-            }
-            res.status(200);
-            res.json({});
-        }).on('error', function (err) {
-            handleError(err);
-        }).connect(cfg);
-    } catch (err) {
-        handleError(err);
+var _isAuthenticated = function (req, res, next) {
+    if (req.session && typeof req.session.user !== 'undefined' && typeof req.session.authenticated !== 'undefined') {
+        if (req.session.authenticated == true) {
+            next();
+        } else {
+            res.redirect('/login');
+        }
+    } else {
+        res.redirect('/login');
     }
 }
 
-/* logout user by removing corresponding session data */
-var _logoutUser = function (req, res) {
-    var sess = req.session;
-    delete sess.user.projectStorage;
-    delete sess.pass.projectStorage;
-    res.json({ 'logout': true });
+/* Authenticate user with Active Directory */
+var _authenticateUser = function (req, res) {
+    if (typeof req.body.username !== 'undefined') {
+
+        var ad = new ActiveDirectory(adconfig);
+
+        //Check wether user exists. And if it exists get the userPrincipalName and use that to authenticate
+        ad.findUser(req.body.username, function (err, user) {
+            if (err) {
+                console.log('ERROR: ' + JSON.stringify(err));
+                res.status(200).json({ success: false, error: "Something went wrong. Try again later." });
+                return;
+            }
+            if (!user) {
+                res.status(200).json({ success: false, error: "Username not found." });
+            } else {
+                ad.authenticate(user.userPrincipalName, req.body.password, function (err, auth) {
+                    if (auth) {
+                        // Authentication success
+                        req.session.user = req.body.username;
+                        req.session.authenticated = true;
+                        res.status(200).json({ success: true, data: "You will soon be redirected to the index." });
+                        return;
+                    } else {
+                        // Authentication failed
+                        res.status(200).json({ success: false, error: "Wrong username or password." });
+                        return;
+                    }
+                });
+            }
+        });
+    } else {
+        res.status(200).json({ success: false, error: "No username provided." });
+    }
 }
 
+/* Logout user by removing corresponding session data */
+var _logoutUser = function (req, res) {
+    var sess = req.session;
+    delete sess.user;
+    delete sess.password;
+    req.session.destroy();
+    res.redirect('/login');
+}
+
+module.exports.isAuthenticated = _isAuthenticated;
 module.exports.authenticateUser = _authenticateUser;
 module.exports.logoutUser = _logoutUser;

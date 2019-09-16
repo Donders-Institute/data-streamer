@@ -51,12 +51,12 @@ app.use(session({
 // Serve static frontend files
 app.use('/', routes);
 
-// Authentication
+// POST Authentication
 app.post('/login', modAuthentication.authenticateUser);
 app.post('/logout', modAuthentication.logoutUser);
 
-// Handle uploading file(s) in backend
-app.post('/upload', modUpload.upload);
+// POST Handle uploading file(s) in backend
+app.post('/upload', modAuthentication.isAuthenticated, modUpload.upload);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {
