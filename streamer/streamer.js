@@ -107,10 +107,10 @@ if (cluster.isMaster) {
     var app = express();
 
     // add simple log function
-    app.use(function(req, rsp, next) {
-        console.info(`${req.method} ${req.originalUrl}`);
-        next();
-    });
+    //app.use(function(req, rsp, next) {
+    //    console.info(`${req.method} ${req.originalUrl}`);
+    //    next();
+    //});
 
     // basicAuth
     var auth = require('./lib/auth');
