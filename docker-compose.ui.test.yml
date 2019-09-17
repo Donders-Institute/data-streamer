@@ -1,6 +1,10 @@
 version: "3.7"
 services:
   ui:
+    environment:
+      - STREAMER_UI_CONFIG=${STREAMER_UI_CONFIG:-/opt/streamer-ui-server/config/streamer-ui-config.json.template}
+      - STREAMER_UI_ADCONFIG=${STREAMER_UI_ADCONFIG:-/opt/streamer-ui-server/config/streamer-ui-adconfig.json.template}
+      - STREAMER_UI_LDAPSCERT=${STREAMER_UI_LDAPSCERT:-/opt/streamer-ui-server/config/streamer-ui-ldapscert.crt.template}
     networks:
       - nw_streamer
     ports:
