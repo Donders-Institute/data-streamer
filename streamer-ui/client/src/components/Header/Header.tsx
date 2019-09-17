@@ -47,7 +47,7 @@ const Header: React.FC = () => {
                                 <Menu.Item key="home" style={{ float: "left" }}>
                                     <Link to="/">
                                         <Icon type="home" />
-                    Lab Streamer UI
+                                        Lab Streamer UI
                                     </Link>
                                 </Menu.Item>
                             </Menu>
@@ -55,7 +55,7 @@ const Header: React.FC = () => {
                         <Col>
                             <Link to="/logout">
                                 <Button size="small" ghost>
-                  Log out
+                                    Log out
                                 </Button>
                             </Link>
                         </Col>

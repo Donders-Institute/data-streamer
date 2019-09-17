@@ -64,14 +64,6 @@ const dataSourceProjects = [
     {
         id: 1,
         project_number: "3010000.01"
-    },
-    {
-        id: 2,
-        project_number: "3010000.02"
-    },
-    {
-        id: 2,
-        project_number: "3010000.03"
     }
 ];
 
@@ -329,14 +321,14 @@ class UploaderApp extends React.Component<
             );
         } else {
 
-            this.setState(({ fileList, fileListSummary }) => ({
+            this.setState(({ hasFilesSelected, fileList, fileListSummary }) => ({
                 hasFilesSelected: true,
                 fileList: [...fileList, file],
                 fileListSummary: fileListSummary + file.size
             }));
             this.openNotification(
                 "Success",
-                `"${file.name}" file successfully put in streamer buffer.`,
+                `"${file.name}" file successfully added to list.`,
                 "success",
                 4.5,
                 "bottomLeft"
@@ -344,16 +336,26 @@ class UploaderApp extends React.Component<
         }
     };
 
-    onDelete = (uid: string, filename: string, e: any) => {
+    onDelete = (uid: string, filename: string, size: number, e: any) => {
         e.preventDefault();
-        const fileList = this.state.fileList.filter(
+        const fileListUpdated = this.state.fileList.filter(
             item => item.name !== filename && item.uid !== uid
         );
-        const hasFilesSelected = fileList.length > 0;
-        // TODO: Obtain size
-        const fileSize = 0;
-        const total = this.state.fileListSummary - fileSize;
-        this.setState({ hasFilesSelected, fileList, fileListSummary: total });
+        const hasFilesSelectedUpdated = fileListUpdated.length > 0;
+        const total = this.state.fileListSummary - size;
+        this.setState(({ hasFilesSelected, fileList, fileListSummary }) => ({
+            hasFilesSelected: hasFilesSelectedUpdated,
+            fileList: fileListUpdated,
+            fileListSummary: total
+        }));
+    };
+
+    onDeleteList = () => {
+        this.setState(({ hasFilesSelected, fileList, fileListSummary }) => ({
+            hasFilesSelected: false,
+            fileList: [],
+            fileListSummary: 0
+        }));
     };
 
     handleChange = (file: RcFile, fileList: RcFile[]) => {
@@ -461,7 +463,6 @@ class UploaderApp extends React.Component<
         );
     };
 
-
     handleUpload = (info: any) => {
         var formData = new FormData();
 
@@ -516,7 +517,7 @@ class UploaderApp extends React.Component<
                 )
             },
             {
-                title: "filesize [bytes]",
+                title: "size [bytes]",
                 dataIndex: "size",
                 key: "size",
                 width: '20%',
@@ -531,7 +532,7 @@ class UploaderApp extends React.Component<
                 render: (text: string, record: any) => (
                     <span
                         onClick={e => {
-                            this.onDelete(record.uid, record.name, e);
+                            this.onDelete(record.uid, record.name, record.size, e);
                         }}
                     >
                         <Icon type="close" />
@@ -565,12 +566,12 @@ class UploaderApp extends React.Component<
                 width: '10%',
                 render: (text: string, record: any) => (
                     <span
-                        onClick={e => {
-                            console.log(e);
-                            //this.nogiets
+                        style={{ color: "black", }}
+                        onClick={() => {
+                            this.onDeleteList();
                         }}
                     >
-                        <span style={{ color: "black" }}>Clear all</span>
+                        Clear all
                     </span>
                 )
             }
@@ -590,7 +591,7 @@ class UploaderApp extends React.Component<
         const dataSourceFileListSummary = [
             {
                 id: 1,
-                name: "Total",
+                name: "total",
                 total: this.state.fileListSummary
             }
         ];
@@ -602,7 +603,6 @@ class UploaderApp extends React.Component<
                     <Row>
                         <Col span={12}>
                             <Card
-                                title="Source"
                                 style={{
                                     borderRadius: 4,
                                     boxShadow: "1px 1px 1px #ddd",
@@ -611,7 +611,9 @@ class UploaderApp extends React.Component<
                                 }}
                                 className="shadow"
                             >
-                                <h1>Select file(s)</h1>
+                                <h2>Local PC</h2>
+                                <Divider />
+                                <h2>Select file(s)</h2>
                                 <Dragger {...props}>
                                     <p className="ant-upload-drag-icon">
                                         <Icon type="inbox" />
@@ -665,23 +667,19 @@ class UploaderApp extends React.Component<
                                 }}
                                 className="shadow"
                             >
-                                <table style={{ width: "100%" }}>
-
+                                {/* <table style={{ width: "100%" }}>
                                     <tr>
-                                        <td><h1>Donders repository</h1></td><td style={{ float: "right" }}>{targetPath}</td>
+                                        <td><h2>Donders repository</h2></td><td style={{ float: "right" }}>{targetPath}</td>
+                                    </tr>
+                                </table>
+                                <Divider /> */}
+                                <table style={{ width: "100%" }}>
+                                    <tr>
+                                        <td><h2>Project storage</h2></td><td style={{ float: "right" }}>{targetPath}</td>
                                     </tr>
                                 </table>
                                 <Divider />
-                                <table style={{ width: "100%" }}>
-                                    <tr>
-                                        <td><h1>Project storage</h1></td><td style={{ float: "right" }}>{targetPath}</td>
-                                    </tr>
-                                </table>
-                                <Divider />
-
-
-
-                                <h1>Select structure</h1>
+                                <h2>Select structure</h2>
                                 <div style={{ marginTop: "20px" }}>
                                     <Form layout="vertical" hideRequiredMark>
                                         <Row gutter={16}>
