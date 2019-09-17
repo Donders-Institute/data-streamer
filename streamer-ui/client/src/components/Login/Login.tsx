@@ -31,11 +31,13 @@ type LoginState = {
     loggingIn: boolean;
 };
 
-const authenticate = (username: string, password: string) => new Promise(() => Auth.authenticate(username, password));
-
-function timeout(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+const login = (username: string, password: string) => {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(Auth.authenticate(username, password));
+        }, 2000);
+    });
+};
 
 class LoginForm extends React.Component<IProps & FormComponentProps, LoginState> {
     constructor(props: IProps & FormComponentProps) {
@@ -58,31 +60,41 @@ class LoginForm extends React.Component<IProps & FormComponentProps, LoginState>
         e.preventDefault();
         this.props.form.validateFields(async (err, values) => {
             if (!err) {
+                // Set state to loggingIn
                 this.setState(({ submitted, loggingIn }) => ({
                     submitted: true,
                     loggingIn: true
                 }));
-                // TODO
+
                 let username = values.username;
                 let password = values.password;
-                authenticate(username, password);
-                await timeout(3000);
-                this.setState(({ submitted, loggingIn }) => ({
-                    username: username,
-                    password: password,
-                    submitted: true,
-                    loggingIn: false
-                }));
+                try {
+                    const res = await login(username, password);
+                    // let data = await res.json();
+                    // console.log(data);
+                    console.log(res);
+
+                    // Done, logged in
+                    this.setState(({ submitted, loggingIn }) => ({
+                        username: username,
+                        password: password,
+                        submitted: true,
+                        loggingIn: false
+                    }));
+                } catch (err) {
+                    console.log(err);
+                }
             }
         });
     }
 
     render() {
-        const antIcon = <Icon type="loading" style={{ fontSize: 18 }} spin />;
+        const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
         const { getFieldDecorator } = this.props.form;
         return (
             <div>
-                {!this.state.submitted &&
+                {
+                    !this.state.loggingIn &&
                     <Content style={{ background: "#f0f2f5", marginTop: "10px" }}>
                         <Row justify="center" style={{ height: "100%" }}>
                             <Col span={10}>
@@ -122,16 +134,9 @@ class LoginForm extends React.Component<IProps & FormComponentProps, LoginState>
                                             )}
                                         </Form.Item>
                                         <Form.Item>
-                                            {!this.state.loggingIn &&
-                                                <Button type="primary" htmlType="submit" className="login-form-button">
-                                                    Log in
-                                        </Button>
-                                            }
-                                            {this.state.loggingIn &&
-                                                <Button type="primary" htmlType="submit" className="login-form-button" disabled>
-                                                    <Spin indicator={antIcon} />
-                                                </Button>
-                                            }
+                                            <Button type="primary" htmlType="submit" className="login-form-button">
+                                                Log in
+                                            </Button>
                                         </Form.Item>
                                         <div style={{ display: "flex", justifyContent: "center" }}>
                                             <Tooltip title="This is the login page for the data streamer UI">
@@ -146,10 +151,19 @@ class LoginForm extends React.Component<IProps & FormComponentProps, LoginState>
                         </Row>
                     </Content>
                 }
-                {this.state.submitted && !this.state.loggingIn &&
-                    <Redirect to="/" />
+                {
+                    this.state.loggingIn &&
+                    <Content style={{ background: "#f0f2f5", marginTop: "10px" }}>
+                        <Spin indicator={antIcon} />
+                    </Content>
                 }
-            </div>
+                {
+                    this.state.submitted && !this.state.loggingIn &&
+                    <Content style={{ background: "#f0f2f5", marginTop: "10px" }}>
+                        <Redirect to="/" />
+                    </Content>
+                }
+            </div >
         );
     }
 }

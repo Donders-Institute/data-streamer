@@ -1,5 +1,7 @@
-config/adconfig.json
-config/ldapscert.crt
+# Secrets
+config/streamer-ui-adconfig.json
+config/streamer-ui-config.json
+config/streamer-ui-ldapscert.crt
 
 # Uploaded files
 uploads/

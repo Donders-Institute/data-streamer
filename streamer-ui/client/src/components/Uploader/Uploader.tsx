@@ -12,14 +12,14 @@ import {
     Table,
     notification,
     Input,
-    Tooltip
+    Tooltip,
+    Divider,
+    BackTop
 } from "antd";
 import { FormComponentProps } from "antd/lib/form";
 
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
-
-import "../../App.less";
 
 const { Content } = Layout;
 const { Option } = Select;
@@ -51,6 +51,7 @@ type UploaderAppState = {
     isSelectedDataTypeOther: boolean;
     doneWithSelectDataType: boolean;
     fileList: RcFile[];
+    fileListSummary: number;
     hasFilesSelected: boolean;
     proceed: boolean;
 };
@@ -61,7 +62,16 @@ type SelectOption = {
 
 const dataSourceProjects = [
     {
+        id: 1,
         project_number: "3010000.01"
+    },
+    {
+        id: 2,
+        project_number: "3010000.02"
+    },
+    {
+        id: 2,
+        project_number: "3010000.03"
     }
 ];
 
@@ -92,13 +102,13 @@ const dataSourceDataTypes = [
     }
 ];
 
-const initialProjectValue: string = dataSourceProjects[0]["project_number"];
+const initialProjectValue: any = dataSourceProjects[0]["project_number"];
 const initialDataTypeValue: string = dataSourceDataTypes[0]["data_type"];
 
 class UploaderApp extends React.Component<
-IProps & FormComponentProps,
-UploaderAppState
-> {
+    IProps & FormComponentProps,
+    UploaderAppState
+    > {
     dataSourceProjects = dataSourceProjects;
     dataSourceDataTypes = dataSourceDataTypes;
 
@@ -118,6 +128,7 @@ UploaderAppState
             isSelectedDataTypeOther: false,
             doneWithSelectDataType: false,
             fileList: [],
+            fileListSummary: 0,
             hasFilesSelected: false,
             proceed: false
         };
@@ -169,7 +180,8 @@ UploaderAppState
                     "Error",
                     `subject label "${event.target.value}" must be all 1- or 2-digit number.`,
                     "error",
-                    4.5
+                    4.5,
+                    "bottomLeft"
                 );
             }
             this.setState({
@@ -212,7 +224,8 @@ UploaderAppState
                     "Error",
                     `Session label "${event.target.value}" must be all 1- or 2-digit number.`,
                     "error",
-                    4.5
+                    4.5,
+                    "bottomLeft"
                 );
             }
             this.setState({
@@ -267,7 +280,8 @@ UploaderAppState
                     "Error",
                     `other data type "${event.target.value}" must be all lower case, with no special characters.`,
                     "error",
-                    4.5
+                    4.5,
+                    "bottomLeft"
                 );
             }
             this.setState({
@@ -293,12 +307,14 @@ UploaderAppState
         title: string,
         description: string,
         category: "success" | "info" | "error" | "warning",
-        duration: number
+        duration: number,
+        placement: "topLeft" | "topRight" | "bottomLeft" | "bottomRight"
     ) => {
         notification[category]({
             message: title,
             description: description,
-            duration: duration
+            duration: duration,
+            placement: placement
         });
     };
 
@@ -308,18 +324,22 @@ UploaderAppState
                 "Error",
                 `"${file.name}" filename already exists, please rename.`,
                 "error",
-                0
+                0,
+                "bottomLeft"
             );
         } else {
-            this.setState(({ fileList }) => ({
+
+            this.setState(({ fileList, fileListSummary }) => ({
                 hasFilesSelected: true,
-                fileList: [...fileList, file]
+                fileList: [...fileList, file],
+                fileListSummary: fileListSummary + file.size
             }));
             this.openNotification(
                 "Success",
                 `"${file.name}" file successfully put in streamer buffer.`,
                 "success",
-                4.5
+                4.5,
+                "bottomLeft"
             );
         }
     };
@@ -330,7 +350,10 @@ UploaderAppState
             item => item.name !== filename && item.uid !== uid
         );
         const hasFilesSelected = fileList.length > 0;
-        this.setState({ hasFilesSelected, fileList });
+        // TODO: Obtain size
+        const fileSize = 0;
+        const total = this.state.fileListSummary - fileSize;
+        this.setState({ hasFilesSelected, fileList, fileListSummary: total });
     };
 
     handleChange = (file: RcFile, fileList: RcFile[]) => {
@@ -438,6 +461,7 @@ UploaderAppState
         );
     };
 
+
     handleUpload = (info: any) => {
         var formData = new FormData();
 
@@ -481,18 +505,29 @@ UploaderAppState
             <Option value={item.data_type}>{item.data_type}</Option>
         ));
 
-        const columns = [
+        const columnsFileList = [
             {
                 title: "filename",
                 dataIndex: "name",
                 key: "name",
+                width: '70%',
                 render: (text: string) => (
                     <span style={{ color: "#f45709" }}>{text}</span>
                 )
             },
             {
+                title: "filesize [bytes]",
+                dataIndex: "size",
+                key: "size",
+                width: '20%',
+                render: (text: string) => (
+                    <span style={{ color: "black" }}>{text}</span>
+                )
+            },
+            {
                 title: "",
                 key: "action",
+                width: '10%',
                 render: (text: string, record: any) => (
                     <span
                         onClick={e => {
@@ -500,6 +535,42 @@ UploaderAppState
                         }}
                     >
                         <Icon type="close" />
+                    </span>
+                )
+            }
+        ];
+
+        const columnsSummary = [
+            {
+                title: "",
+                dataIndex: "name",
+                key: "name",
+                width: '70%',
+                render: (text: string) => (
+                    <span style={{ color: "black" }}>{text}</span>
+                )
+            },
+            {
+                title: "total [bytes]",
+                dataIndex: "total",
+                key: "total",
+                width: '20%',
+                render: (text: string) => (
+                    <span style={{ color: "black" }}>{text}</span>
+                )
+            },
+            {
+                title: "clear all",
+                key: "action",
+                width: '10%',
+                render: (text: string, record: any) => (
+                    <span
+                        onClick={e => {
+                            console.log(e);
+                            //this.nogiets
+                        }}
+                    >
+                        <span style={{ color: "black" }}>Clear all</span>
                     </span>
                 )
             }
@@ -516,42 +587,18 @@ UploaderAppState
             this.state.selectedSessionValue
         );
 
+        const dataSourceFileListSummary = [
+            {
+                id: 1,
+                name: "Total",
+                total: this.state.fileListSummary
+            }
+        ];
+
         return (
             <Content style={{ background: "#f0f2f5" }}>
                 <Header />
                 <div style={{ padding: 10 }}>
-                    <Row>
-                        <Col span={24}>
-                            <Card
-                                style={{ borderRadius: 4, boxShadow: "1px 1px 1px #ddd" }}
-                                className="shadow"
-                            >
-                                {this.state.hasFilesSelected && this.state.proceed && (
-                                    <Button
-                                        size="large"
-                                        style={{
-                                            backgroundColor: "#52c41a",
-                                            color: "#fff",
-                                            width: "200px",
-                                            float: "right"
-                                        }}
-                                        onClick={this.handleUpload}
-                                    >
-                                        Upload
-                                    </Button>
-                                )}
-                                {(!this.state.hasFilesSelected || !this.state.proceed) && (
-                                    <Button
-                                        disabled={true}
-                                        size="large"
-                                        style={{ width: "200px", float: "right" }}
-                                    >
-                                        Upload
-                                    </Button>
-                                )}
-                            </Card>
-                        </Col>
-                    </Row>
                     <Row>
                         <Col span={12}>
                             <Card
@@ -578,11 +625,26 @@ UploaderAppState
                                 <br />
                                 <Table
                                     rowKey={record => record.uid}
-                                    columns={columns}
+                                    columns={columnsFileList}
                                     dataSource={this.state.fileList}
                                     pagination={false}
                                     size={"small"}
                                 />
+                                {this.state.hasFilesSelected &&
+                                    <Table
+                                        columns={columnsSummary}
+                                        dataSource={dataSourceFileListSummary}
+                                        pagination={false}
+                                        size={"small"}
+                                        showHeader={false}
+                                    />
+                                }
+                                <div>
+                                    <BackTop />
+                                    <strong style={{ color: 'rgba(64, 64, 64, 0.6)' }}></strong>
+                                </div>
+
+
 
                                 {/* <Button
                                     type="primary"
@@ -590,11 +652,10 @@ UploaderAppState
                                     style={{ marginTop: 16 }}
                                 >Upload</Button> */}
                             </Card>
+
                         </Col>
                         <Col span={12}>
                             <Card
-                                title="Destination"
-                                extra={targetPath}
                                 style={{
                                     marginLeft: 10,
                                     borderRadius: 4,
@@ -604,6 +665,22 @@ UploaderAppState
                                 }}
                                 className="shadow"
                             >
+                                <table style={{ width: "100%" }}>
+
+                                    <tr>
+                                        <td><h1>Donders repository</h1></td><td style={{ float: "right" }}>{targetPath}</td>
+                                    </tr>
+                                </table>
+                                <Divider />
+                                <table style={{ width: "100%" }}>
+                                    <tr>
+                                        <td><h1>Project storage</h1></td><td style={{ float: "right" }}>{targetPath}</td>
+                                    </tr>
+                                </table>
+                                <Divider />
+
+
+
                                 <h1>Select structure</h1>
                                 <div style={{ marginTop: "20px" }}>
                                     <Form layout="vertical" hideRequiredMark>
@@ -697,8 +774,34 @@ UploaderAppState
                                                     </Form.Item>
                                                 </Col>
                                                 <Col span={12}></Col>
+
                                             </Row>
                                         )}
+
+                                        {this.state.isSelectedSession && this.state.hasFilesSelected && this.state.proceed && (
+                                            <Button
+                                                size="large"
+                                                style={{
+                                                    backgroundColor: "#52c41a",
+                                                    color: "#fff",
+                                                    width: "200px",
+                                                    float: "right"
+                                                }}
+                                                onClick={this.handleUpload}
+                                            >
+                                                Upload
+                                            </Button>
+                                        )}
+                                        {(!this.state.hasFilesSelected || !this.state.proceed) && (
+                                            <Button
+                                                disabled={true}
+                                                size="large"
+                                                style={{ width: "200px", float: "right" }}
+                                            >
+                                                Upload
+                                        </Button>
+                                        )}
+
                                     </Form>
                                 </div>
                             </Card>
@@ -712,4 +815,5 @@ UploaderAppState
 }
 
 const Uploader = Form.create<IProps & FormComponentProps>()(UploaderApp);
+
 export default Uploader;

@@ -2,9 +2,9 @@ const ActiveDirectory = require('activedirectory');
 const path = require('path');
 const fs = require('fs');
 
-const adconfig = require(path.join(__dirname + '/../config/adconfig.json'));
+const adconfig = require(path.join(__dirname + '/../config/streamer-ui-adconfig.json'));
 const tlsOptions = {
-    ca: [fs.readFileSync(path.join(__dirname + '/../config/ldapscert.crt'))]
+    ca: [fs.readFileSync(path.join(__dirname + '/../config/streamer-ui-ldapscert.crt'))]
 }
 adconfig.tlsOptions = tlsOptions;
 
