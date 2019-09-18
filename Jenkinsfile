@@ -72,7 +72,7 @@ pipeline {
             agent {
                 docker {
                     image 'jwilder/dockerize'
-                    args '--network streamer4user-default'
+                    args '--network streamer4user_default'
                 }
             }
             steps {
