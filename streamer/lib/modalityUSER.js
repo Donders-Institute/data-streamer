@@ -1,7 +1,7 @@
 /*
 
 This module is for handling streamer jobs for lab data with
-input provided by the streamer-ui interface.  
+input provided by the streamer-ui interface.
 
 */
 const child_process = require('child_process');
@@ -28,7 +28,7 @@ var _createStreamerJob = function(name, config, queue) {
       var sessId = req.params['sess_id'];
       var dataType = req.params['dtype'];
 
-      var jobTitle = 'UI: /project/' + projId + '/sub-' + subjId + '/ses-' + sessId + '/' + dataType;
+      var jobTitle = 'Streamer UI: /project/' + projId + '/sub-' + subjId + '/ses-' + sessId + '/' + dataType;
 
       console.log('creating job for: ' + jobTitle);
 
@@ -39,6 +39,8 @@ var _createStreamerJob = function(name, config, queue) {
           var job = queue.create('streamer', {
               modality: name,
               title: '[' + (new Date()).toISOString() + '] ' + jobTitle,
+              streamerUser: (typeof req.body.streamerUser !== 'undefined' && req.body.streamerUser) ? req.body.streamerUser : 'admin',
+              drUser: (typeof req.body.drUser !== 'undefined' && req.body.drUser) ? req.body.drUser : 'admin',
               projId: projId,
               subjId: subjId,
               sessId: sessId,
