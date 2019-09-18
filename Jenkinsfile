@@ -61,8 +61,8 @@ pipeline {
                     sh 'docker secret create streamer-ui-adconfig.json $UI_ADCONFIG'
                 }
                 configFileProvider([configFile(fileId: 'streamer_ui_ldapscert.crt', variable: 'UI_LDAPSCERT')]) {
-                    sh 'docker secret rm streamer-ui-ldapscert.json || true'
-                    sh 'docker secret create streamer-ui-ldapscert.json $UI_LDAPSCERT'
+                    sh 'docker secret rm streamer-ui-ldapscert.crt || true'
+                    sh 'docker secret create streamer-ui-ldapscert.crt $UI_LDAPSCERT'
                 }
 
                 sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml --prune --with-registry-auth --resolve-image always streamer4user'
