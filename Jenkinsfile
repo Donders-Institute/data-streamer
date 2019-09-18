@@ -81,7 +81,7 @@ pipeline {
                     script: 'dockerize \
                         -timeout 120s \
                         -wait http://service:3001 \
-                        -wait http://ui:9000
+                        -wait http://ui:9000'
                 )
             }
         }
