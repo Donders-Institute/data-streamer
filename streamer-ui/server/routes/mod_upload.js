@@ -139,11 +139,16 @@ var _upload = function (req, res) {
             var password = '123';
             request.post(
                 {
-                    'hostname': streamerURL,
-                    'auth': `${username}:${password}`
-                },
-                {
-                    json: {}
+                    'url': streamerURL,
+                    'auth': {
+                        'user': username,
+                        'pass': password
+                    },
+                    'json': true,
+                    'body': {
+                        streamerUser: '',
+                        drUser: ''
+                    }
                 },
                 (err, res, body) => {
                     console.log(streamerURL);
