@@ -13,8 +13,9 @@ var path = require('path');
 // utility module
 var util = require('util');
 var utility = require('./lib/utility');
+var utility_ad = require('./lib/utility_ad');
 var mailer = require('./lib/mailer');
-var HtmlEncoder = require('node-html-encoder').Encoder;
+//var HtmlEncoder = require('node-html-encoder').Encoder;
 var emoji = require('node-emoji');
 
 // modality modules
@@ -43,6 +44,55 @@ queue.on( 'error', function(err) {
 }).on( 'job complete', function(id, result) {
     if ( cluster.isMaster) {
         delete active_pids[id];
+
+        // sending email notification to job submitter when streamer job is finished successfully.
+        kue.Job.get( id, function( error, job ) {
+
+            if (error) {
+                console.error('[' + new Date().toISOString() + '] cannot retrieve information of job: ' + error);
+                return;
+            }
+
+            // compose email content
+            var t_create = new Date(parseInt(job.created_at));
+            var t_update = new Date(parseInt(job.updated_at));
+            var t_start = new Date(parseInt(job.started_at));
+            var msgSubject = emoji.get('ok_hand') + '[INFO] streamer job complete';
+            //var encoder = new HtmlEncoder('entity');
+            var msgHtml = '<html>'
+            msgHtml += '<style>';
+            msgHtml += 'div { width: 100%; padding-top: 10px; padding-bottom: 10px;}';
+            msgHtml += 'table { width: 95%; border-collapse: collapse; }';
+            msgHtml += 'th { width: 20%; border: 1px solid #ddd; background-color: #f5f5f5; text-align: left; padding: 10px; }';
+            msgHtml += 'td { width: 80%; border: 1px solid #ddd; text-align: left; padding: 10px; }';
+            msgHtml += '</style>';
+            msgHtml += '<body>';
+            msgHtml += '<b>Please be informed by the following completed streamer job:</b>';
+            msgHtml += '<div style="width: 100%; padding-top: 10px; padding-bottom: 10px;">';
+            msgHtml += '<table style="width: 95%; border-collapse: collapse;">';
+            msgHtml += '<tr><th style="width: 20%; border: 1px solid #ddd; background-color: #f5f5f5; text-align: left; padding: 10px;">id</th>'
+            msgHtml += '<td style="width: 80%; border: 1px solid #ddd; text-align: left; padding: 10px;">' + id + '</td></tr>';
+            msgHtml += '<tr><th>state</th><td>' + job.state() + '</td></tr>';
+            msgHtml += '<tr><th>owner</th><td>' + job.data.streamerUser + '</td></tr>';
+            msgHtml += '<tr><th>submitted at</th><td>' + t_create.toDateString() + ' ' + t_create.toTimeString() + '</td></tr>';
+            msgHtml += '<tr><th>started at</th><td>' + t_start.toDateString() + ' ' + t_start.toTimeString() + '</td></tr>';
+            msgHtml += '<tr><th>complete at</th><td>' + t_update.toDateString() + ' ' + t_update.toTimeString() + '</td></tr>';
+            msgHtml += '<tr><th>job detail</th><td><pre>' + JSON.stringify(job, null, 2) + '</pre></td></tr>';
+            msgHtml += '</div></table>';
+            msgHtml += '</html>';
+
+            // when streamer user is defined and non trivial, send email notification.
+            if (typeof job.data.streamerUser !== 'undefined' &&  job.data.streamerUser && job.data.streamerUser != 'admin' ) {
+                // get user profile
+                utility_ad.findUser(job.data.streamerUser, function(err, uprofile) {
+                    if (! uprofile) {
+                        console.error('[' + new Date().toISOString() + '] cannot retrieve profile of user: ' + job.data.streamerUser);
+                        return;
+                    }
+                    mailer.sendToAddresses(uprofile.mail, false, msgSubject, null, msgHtml, null);
+                });
+            }
+        });
         utility.printLog(null, util.format('job %d complete', id));
     }
 }).on( 'job failed attempt', function(id, err, nattempts) {
@@ -60,10 +110,11 @@ queue.on( 'error', function(err) {
                 return;
             }
 
+            // compose email content
             var t_create = new Date(parseInt(job.created_at));
             var t_failed = new Date(parseInt(job.updated_at));
             var msgSubject = emoji.get('warning') + '[ALARM] streamer job failed';
-            var encoder = new HtmlEncoder('entity');
+            //var encoder = new HtmlEncoder('entity');
             var msgHtml = '<html>'
             msgHtml += '<style>';
             msgHtml += 'div { width: 100%; padding-top: 10px; padding-bottom: 10px;}';
@@ -73,17 +124,41 @@ queue.on( 'error', function(err) {
             msgHtml += '</style>';
             msgHtml += '<body>';
             msgHtml += '<b>Please be alamed by the following streamer job failure:</b>';
-            msgHtml += '<div><table>';
-            msgHtml += '<tr><th>id</th><td>' + id + '</td></tr>';
+            msgHtml += '<div style="width: 100%; padding-top: 10px; padding-bottom: 10px;">';
+            msgHtml += '<table style="width: 95%; border-collapse: collapse;">';
+            msgHtml += '<tr><th style="width: 20%; border: 1px solid #ddd; background-color: #f5f5f5; text-align: left; padding: 10px;">id</th>'
+            msgHtml += '<td style="width: 80%; border: 1px solid #ddd; text-align: left; padding: 10px;">' + id + '</td></tr>';
             msgHtml += '<tr><th>state</th><td>' + job.state() + '</td></tr>';
+            msgHtml += '<tr><th>owner</th><td>' + job.data.streamerUser + '</td></tr>';
             msgHtml += '<tr><th>modality</th><td>' + job.data.modality + '</td></tr>';
             msgHtml += '<tr><th>submitted at</th><td>' + t_create.toDateString() + ' ' + t_create.toTimeString() + '</td></tr>';
             msgHtml += '<tr><th>failed at</th><td>' + t_failed.toDateString() + ' ' + t_failed.toTimeString() + '</td></tr>';
-            msgHtml += '<tr><th>job detail</th><td><pre>' + JSON.stringify(job, null, 2) + '</pre></td></tr>';
-            msgHtml += '</div></table>';
-            msgHtml += '</html>';
 
-            mailer.sendToAdmin(msgSubject, null, msgHtml, null);
+            // append job's log to the message
+            // NOTE: this makes use the underlying Redis client object associated with the job after analyzing the
+            //       source code of https://github.com/Automattic/kue/blob/master/lib/queue/job.js
+            job.client.lrange(job.client.getKey('job:' + id + ':log'), 0, -1, function(error, logdata) {
+                if ( ! error ) {
+                    msgHtml += '<tr><th>job log</th><td>' + logdata.join("</br>") + '</td></tr>';
+                }
+                msgHtml += '<tr><th>job detail</th><td><pre>' + JSON.stringify(job, null, 2) + '</pre></td></tr>';
+                msgHtml += '</div></table>';
+                msgHtml += '</html>';
+
+                mailer.sendToAdmin(msgSubject, null, msgHtml, null);
+
+                // send job failure alarm to job owner
+                if (typeof job.data.streamerUser !== 'undefined' &&  job.data.streamerUser && job.data.streamerUser != 'admin' ) {
+                    // get user profile
+                    utility_ad.findUser(job.data.streamerUser, function(err, uprofile) {
+                        if ( ! uprofile ) {
+                            console.error('[' + new Date().toISOString() + '] cannot retrieve profile of user: ' + job.data.streamerUser);
+                            return;
+                        }
+                        mailer.sendToAddresses(uprofile.mail, false, msgSubject, null, msgHtml, null);
+                    });
+                } 
+            });
         });
         utility.printLog(null, util.format('job %d failed %d', id, process.pid));
     }
