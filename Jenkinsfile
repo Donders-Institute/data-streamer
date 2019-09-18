@@ -68,6 +68,23 @@ pipeline {
                 sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml --prune --with-registry-auth --resolve-image always streamer4user'
             }
         }
+        stage('Health check') {
+            agent {
+                docker {
+                    image 'jwilder/dockerize'
+                    args '--network streamer4user-default'
+                }
+            }
+            steps {
+                sh (
+                    label: 'Waiting for services to become available',
+                    script: 'dockerize \
+                        -timeout 120s \
+                        -wait http://service:3001 \
+                        -wait http://ui:9000
+                )
+            }
+        }
         stage('Integration test') {
             steps {
                 sh 'echo hi'
