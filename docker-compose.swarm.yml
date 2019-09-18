@@ -42,3 +42,9 @@ secrets:
     external: true
   streamer-mailer-config.json:
     external: true
+  streamer-ui-config.json:
+    external: true
+  streamer-ui-adconfig.json:
+    external: true
+  streamer-ui-ldapscert.crt:
+    external: true
