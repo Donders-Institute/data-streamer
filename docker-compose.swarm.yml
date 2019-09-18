@@ -31,6 +31,10 @@ services:
       proxynet:
         aliases:
           - streamer-ui
+    secrets:
+      - streamer-ui-config.json
+      - streamer-ui-adconfig.json
+      - streamer-ui-ldapscert.crt
 
 networks:
   default:
