@@ -35,7 +35,7 @@ type LoginState = {
 const login = (username: string, password: string, callback: any) => {
     return new Promise((resolve) => {
         resolve(
-            axios.post('/login', { username: username, password: password }, { timeout: 10 })
+            axios.post('/login', { username: username, password: password }, { timeout: 1000 })
                 .then((response: any) => {
                     Auth.authenticate();
                 })
