@@ -1,10 +1,7 @@
-// consider axios
-
 const Auth = {
     isAuthenticated: false,
-    authenticate(username: string, password: string) {
+    authenticate() {
         this.isAuthenticated = true;
-        return "success";
     },
     signout() {
         this.isAuthenticated = false;

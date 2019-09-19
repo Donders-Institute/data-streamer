@@ -27,7 +27,7 @@ const { Option } = Select;
 const { Dragger } = Upload;
 
 const STREAMER_UI_HOSTNAME = "ui";
-const STREAMER_UI_PORT = process.env.STREAMER_UI_PORT333 || 9000;
+const STREAMER_UI_PORT = process.env.STREAMER_UI_PORT || 9000;
 
 interface IProps {
     title?: string | undefined;
@@ -98,9 +98,9 @@ const initialProjectValue: any = dataSourceProjects[0]["project_number"];
 const initialDataTypeValue: string = dataSourceDataTypes[0]["data_type"];
 
 class UploaderApp extends React.Component<
-IProps & FormComponentProps,
-UploaderAppState
-> {
+    IProps & FormComponentProps,
+    UploaderAppState
+    > {
     dataSourceProjects = dataSourceProjects;
     dataSourceDataTypes = dataSourceDataTypes;
 
