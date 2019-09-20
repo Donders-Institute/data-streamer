@@ -56,7 +56,8 @@ app.post('/login', modAuthentication.authenticateUser);
 app.post('/logout', modAuthentication.logoutUser);
 
 // POST Handle uploading file(s) in backend
-app.post('/upload', modAuthentication.isAuthenticated, modUpload.upload);
+// app.post('/upload', modAuthentication.isAuthenticated, modUpload.upload);
+app.post('/upload', function (req, res, next) { next(); }, modUpload.upload);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {

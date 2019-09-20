@@ -386,6 +386,9 @@ class UploaderApp extends React.Component<
         let projectPath = (
             <span style={{ fontWeight: "bold", color: "#f45709" }}>project</span>
         );
+        let rawPath = (
+            <span style={{ fontWeight: "bold", color: "#f45709" }}>raw</span>
+        );
         let subjectPath = (
             <span style={{ fontWeight: "bold", color: "#f45709" }}>sub-</span>
         );
@@ -448,6 +451,8 @@ class UploaderApp extends React.Component<
             <div>
                 {forwardSlashPath}
                 {projectPath}
+                {forwardSlashPath}
+                {rawPath}
                 {forwardSlashPath}
                 {projectNumberPath}
                 {forwardSlashPath}
