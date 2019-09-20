@@ -176,11 +176,11 @@ var _upload = function (req, res) {
         function (err, results) {
             if (err) {
                 console.error(err);
-                return res.status(500).send(err);
+                return res.status(500).json({ "error": err });
             } else {
                 msg = `File(s) were succesfully uploaded: ${results}`;
                 console.log(msg);
-                return res.status(200).send(msg);
+                return res.status(200).json({ "message": msg });
             }
         }
     );
