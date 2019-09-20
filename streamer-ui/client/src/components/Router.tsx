@@ -8,6 +8,8 @@ import Login from "./Login/Login";
 import Logout from "./Logout/Logout";
 import NotFound from "./NotFound/NotFound";
 
+import Auth from "./Auth/Auth";
+
 import "../App.less";
 
 function PrivateRoute({ component: Component, authed, ...rest }: any) {
@@ -26,10 +28,11 @@ const Router = (props: any) => (
         <Switch>
             <Route path="/login" exact={true} component={Login} />
             <Route path="/logout" exact={true} component={Logout} />
+            {/* <PrivateRoute authed={Auth.getAuth()} path="/" exact={true} component={Uploader} />  */}
             <PrivateRoute authed={true} path="/" exact={true} component={Uploader} />
-            <PrivateRoute authed={true} path="/about" exact={true} component={About} />
-            <PrivateRoute authed={true} path="/contact" exact={true} component={Contact} />
-            <PrivateRoute authed={true} component={NotFound} />
+            <PrivateRoute authed={Auth.getAuth()} path="/about" exact={true} component={About} />
+            <PrivateRoute authed={Auth.getAuth()} path="/contact" exact={true} component={Contact} />
+            <PrivateRoute authed={Auth.getAuth()} component={NotFound} />
         </Switch>
     </div>
 );

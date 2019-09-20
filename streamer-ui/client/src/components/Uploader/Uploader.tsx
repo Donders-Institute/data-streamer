@@ -27,7 +27,7 @@ const { Option } = Select;
 const { Dragger } = Upload;
 
 const STREAMER_UI_HOSTNAME = "ui";
-const STREAMER_UI_PORT = process.env.STREAMER_UI_PORT333 || 9000;
+const STREAMER_UI_PORT = process.env.STREAMER_UI_PORT || 9000;
 
 interface IProps {
     title?: string | undefined;
@@ -511,7 +511,7 @@ class UploaderApp extends React.Component<
                 title: "filename",
                 dataIndex: "name",
                 key: "name",
-                width: '70%',
+                width: "70%",
                 render: (text: string) => (
                     <span style={{ color: "#f45709" }}>{text}</span>
                 )
@@ -520,7 +520,7 @@ class UploaderApp extends React.Component<
                 title: "size [bytes]",
                 dataIndex: "size",
                 key: "size",
-                width: '20%',
+                width: "20%",
                 render: (text: string) => (
                     <span style={{ color: "black" }}>{text}</span>
                 )
@@ -528,7 +528,7 @@ class UploaderApp extends React.Component<
             {
                 title: "",
                 key: "action",
-                width: '10%',
+                width: "10%",
                 render: (text: string, record: any) => (
                     <span
                         onClick={e => {
@@ -546,7 +546,7 @@ class UploaderApp extends React.Component<
                 title: "",
                 dataIndex: "name",
                 key: "name",
-                width: '70%',
+                width: "70%",
                 render: (text: string) => (
                     <span style={{ color: "black" }}>{text}</span>
                 )
@@ -555,7 +555,7 @@ class UploaderApp extends React.Component<
                 title: "total [bytes]",
                 dataIndex: "total",
                 key: "total",
-                width: '20%',
+                width: "20%",
                 render: (text: string) => (
                     <span style={{ color: "black" }}>{text}</span>
                 )
@@ -563,10 +563,10 @@ class UploaderApp extends React.Component<
             {
                 title: "clear all",
                 key: "action",
-                width: '10%',
+                width: "10%",
                 render: (text: string, record: any) => (
                     <span
-                        style={{ color: "black", }}
+                        style={{ color: "black" }}
                         onClick={() => {
                             this.onDeleteList();
                         }}
@@ -643,7 +643,7 @@ class UploaderApp extends React.Component<
                                 }
                                 <div>
                                     <BackTop />
-                                    <strong style={{ color: 'rgba(64, 64, 64, 0.6)' }}></strong>
+                                    <strong style={{ color: "rgba(64, 64, 64, 0.6)" }}></strong>
                                 </div>
 
 
@@ -797,7 +797,7 @@ class UploaderApp extends React.Component<
                                                 style={{ width: "200px", float: "right" }}
                                             >
                                                 Upload
-                                        </Button>
+                                            </Button>
                                         )}
 
                                     </Form>

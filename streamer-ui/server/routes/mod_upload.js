@@ -92,7 +92,7 @@ var _upload = function (req, res) {
 
     }
 
-    // function of moving uploaded file from temporary directory to the UI buffer.
+    // Function for moving uploaded file from temporary directory to the UI buffer
     function store_file(file, cb) {
         var target_path = path.join(dirname, file.name);
         file.mv(target_path, function (err) {
@@ -104,7 +104,7 @@ var _upload = function (req, res) {
         });
     }
 
-    // collection file objects from the uploaded FORM data.
+    // Collection of file objects from the uploaded FORM data
     var files = [];
     if (num_files === 1) {
         files.push(req.files.files);
@@ -123,7 +123,7 @@ var _upload = function (req, res) {
             });
         },
         function (results, cb) {
-            // construct Streamer URL for POST a new streamer job.
+            // Construct Streamer URL for POST a new streamer job.
             var [err, streamerURL] = get_streamer_url(projectNumber, subjectLabel, sessionLabel, dataType);
             if (err) {
                 return cb(err, null);
@@ -132,11 +132,18 @@ var _upload = function (req, res) {
                 return cb(Error('Error creating streamer URL'), null);
             }
 
-            // make POST call to streamer.
-            // TODO: send request with basic authentication with username/password
-            //       provided via configuration or env variable (w/ Docker secret)
-            var username = 'Test';
-            var password = '123';
+            // Make POST call to streamer with basic authentication with username/password
+            if (!req.session) {
+                return cb(Error('Session empty'), null);
+            }
+            var username = req.session.user;
+            var password = req.session.password;
+            if (!username) {
+                return cb(Error('Username empty'), null);
+            }
+            if (!password) {
+                return cb(Error('Password empty'), null);
+            }
             request.post(
                 {
                     'url': streamerURL,
@@ -155,8 +162,11 @@ var _upload = function (req, res) {
                     if (err) {
                         return cb(err, null);
                     } else {
-                        // TODO: check status code from response, and throw error back to callback if
-                        //       the status code is not 200.
+                        // Check status code from response, and throw error back to callback 
+                        // if the status code is not 200
+                        if (res.statusCode != 200) {
+                            return cb(Error(`Wrong response status code ${res.statusCode}`), null);
+                        }
                         console.log('statusCode:', res && res.statusCode)
                         console.log('body:', body);
                         return cb(null, results);

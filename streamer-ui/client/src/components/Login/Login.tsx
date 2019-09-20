@@ -13,6 +13,7 @@ import {
 } from "antd";
 import { FormComponentProps } from "antd/lib/form";
 import { Redirect } from "react-router-dom";
+import axios from 'axios';
 
 import Auth from "../Auth/Auth";
 import "../../App.less";
@@ -31,11 +32,17 @@ type LoginState = {
     loggingIn: boolean;
 };
 
-const login = (username: string, password: string) => {
-    return new Promise(resolve => {
-        setTimeout(() => {
-            resolve(Auth.authenticate(username, password));
-        }, 2000);
+const login = (username: string, password: string, callback: any) => {
+    return new Promise((resolve) => {
+        resolve(
+            axios.post('/login', { username: username, password: password }, { timeout: 1000 })
+                .then((response: any) => {
+                    Auth.authenticate();
+                })
+                .catch((error: Error) => {
+                    return error;
+                })
+        )
     });
 };
 
@@ -65,15 +72,12 @@ class LoginForm extends React.Component<IProps & FormComponentProps, LoginState>
                     submitted: true,
                     loggingIn: true
                 }));
-
                 let username = values.username;
                 let password = values.password;
                 try {
-                    const res = await login(username, password);
-                    // let data = await res.json();
-                    // console.log(data);
-                    console.log(res);
-
+                    const cb = (e?: Error) => { };
+                    const err = await login(username, password, cb);
+                    if (err) { throw err; }
                     // Done, logged in
                     this.setState(({ submitted, loggingIn }) => ({
                         username: username,
@@ -82,7 +86,14 @@ class LoginForm extends React.Component<IProps & FormComponentProps, LoginState>
                         loggingIn: false
                     }));
                 } catch (err) {
-                    console.log(err);
+                    // Report error
+                    alert(err);
+                    this.setState(({ submitted, loggingIn }) => ({
+                        username: username,
+                        password: password,
+                        submitted: false,
+                        loggingIn: false
+                    }));
                 }
             }
         });
