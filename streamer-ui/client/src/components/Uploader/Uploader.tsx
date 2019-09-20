@@ -645,14 +645,6 @@ class UploaderApp extends React.Component<
                                     <BackTop />
                                     <strong style={{ color: "rgba(64, 64, 64, 0.6)" }}></strong>
                                 </div>
-
-
-
-                                {/* <Button
-                                    type="primary"
-                                    onClick={this.handleUpload}
-                                    style={{ marginTop: 16 }}
-                                >Upload</Button> */}
                             </Card>
 
                         </Col>
@@ -667,12 +659,12 @@ class UploaderApp extends React.Component<
                                 }}
                                 className="shadow"
                             >
-                                {/* <table style={{ width: "100%" }}>
+                                <table style={{ width: "100%" }}>
                                     <tr>
                                         <td><h2>Donders repository</h2></td><td style={{ float: "right" }}>{targetPath}</td>
                                     </tr>
                                 </table>
-                                <Divider /> */}
+                                <Divider />
                                 <table style={{ width: "100%" }}>
                                     <tr>
                                         <td><h2>Project storage</h2></td><td style={{ float: "right" }}>{targetPath}</td>
