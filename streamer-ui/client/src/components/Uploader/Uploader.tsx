@@ -483,7 +483,7 @@ class UploaderApp extends React.Component<
                 alert(this.responseText);
             }
         });
-        xhr.open("POST", `${STREAMER_UI_HOSTNAME}:${STREAMER_UI_PORT}/upload`);
+        xhr.open("POST", `/upload`);
         xhr.send(formData);
     };
 
