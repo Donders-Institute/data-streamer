@@ -13,7 +13,7 @@ import {
 } from "antd";
 import { FormComponentProps } from "antd/lib/form";
 import { Redirect } from "react-router-dom";
-import axios from 'axios';
+import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
 import Auth from "../Auth/Auth";
 import "../../App.less";
@@ -32,17 +32,44 @@ type LoginState = {
     loggingIn: boolean;
 };
 
+const handleResponse = (response: AxiosResponse) => {
+    console.log(response.data);
+    console.log(response.status);
+    console.log(response.statusText);
+    console.log(response.headers);
+    console.log(response.config);
+    Auth.authenticate();
+};
+
+const handleError = (error: AxiosError) => {
+    if (error.response) {
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+    } else {
+        console.log(error.message);
+    }
+    return error;
+};
+
 const login = (username: string, password: string, callback: any) => {
     return new Promise((resolve) => {
+        const config: AxiosRequestConfig = {
+            url: "/login",
+            method: "post",
+            timeout: 10000,
+            withCredentials: true,
+            auth: {
+                username: username,
+                password: password
+            },
+            responseType: "json"
+        };
+
         resolve(
-            axios.post('/login', { username: username, password: password }, { timeout: 1000 })
-                .then((response: any) => {
-                    Auth.authenticate();
-                })
-                .catch((error: Error) => {
-                    return error;
-                })
-        )
+            axios(config)
+                .then(handleResponse)
+                .catch(handleError));
     });
 };
 

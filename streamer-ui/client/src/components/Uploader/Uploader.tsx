@@ -17,6 +17,7 @@ import {
     BackTop
 } from "antd";
 import { FormComponentProps } from "antd/lib/form";
+import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
@@ -25,9 +26,6 @@ const { Content } = Layout;
 const { Option } = Select;
 
 const { Dragger } = Upload;
-
-const STREAMER_UI_HOSTNAME = "ui";
-const STREAMER_UI_PORT = process.env.STREAMER_UI_PORT || 9000;
 
 interface IProps {
     title?: string | undefined;
@@ -59,6 +57,48 @@ type UploaderAppState = {
 
 type SelectOption = {
     key: string;
+};
+
+const handleResponse = (response: AxiosResponse) => {
+    console.log(response.data);
+    console.log(response.status);
+    console.log(response.statusText);
+    console.log(response.headers);
+    console.log(response.config);
+};
+
+const handleError = (error: AxiosError) => {
+    if (error.response) {
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+    } else {
+        console.log(error.message);
+    }
+};
+
+const upload = (formData: any, callback: any) => {
+    return new Promise((resolve) => {
+
+        const config: AxiosRequestConfig = {
+            url: "/upload",
+            method: "post",
+            headers: { "Content-Type": "multipart/form-data" },
+            data: formData,
+            timeout: 10000,
+            withCredentials: true,
+            auth: {
+                username: "janedoe",
+                password: "s00pers3cret"
+            },
+            responseType: "json"
+        };
+
+        resolve(
+            axios(config)
+                .then(handleResponse)
+                .catch(handleError));
+    });
 };
 
 const dataSourceProjects = [
@@ -99,9 +139,9 @@ const initialProjectValue: any = dataSourceProjects[0]["project_number"];
 const initialDataTypeValue: string = dataSourceDataTypes[0]["data_type"];
 
 class UploaderApp extends React.Component<
-    IProps & FormComponentProps,
-    UploaderAppState
-    > {
+IProps & FormComponentProps,
+UploaderAppState
+> {
     dataSourceProjects = dataSourceProjects;
     dataSourceDataTypes = dataSourceDataTypes;
 
@@ -490,7 +530,7 @@ class UploaderApp extends React.Component<
                 alert(this.responseText);
             }
         });
-        xhr.open("POST", `/upload`);
+        xhr.open("POST", "/upload");
         xhr.send(formData);
     };
 
