@@ -40,6 +40,7 @@ interface RcFile extends File {
 }
 
 type UploaderAppState = {
+    username: string;
     selectedProjectValue: string;
     selectedSubjectValue: string;
     selectedSessionValue: string;
@@ -109,6 +110,7 @@ class UploaderApp extends React.Component<
     constructor(props: IProps & FormComponentProps) {
         super(props);
         this.state = {
+            username: "",
             selectedProjectValue: initialProjectValue,
             selectedSubjectValue: "",
             selectedSessionValue: "",
@@ -536,11 +538,12 @@ class UploaderApp extends React.Component<
                 width: "10%",
                 render: (text: string, record: any) => (
                     <span
+                        style={{ float: "right" }}
                         onClick={e => {
                             this.onDelete(record.uid, record.name, record.size, e);
                         }}
                     >
-                        <Icon type="close" />
+                        <Icon type="close" /> &nbsp;&nbsp;
                     </span>
                 )
             }
@@ -570,14 +573,15 @@ class UploaderApp extends React.Component<
                 key: "action",
                 width: "10%",
                 render: (text: string, record: any) => (
-                    <span
-                        style={{ color: "black" }}
-                        onClick={() => {
+                    <Button
+                        style={{ float: "right" }}
+                        type="link"
+                        onClick={(e) => {
                             this.onDeleteList();
                         }}
                     >
                         Clear all
-                    </span>
+                    </Button>
                 )
             }
         ];
@@ -616,7 +620,11 @@ class UploaderApp extends React.Component<
                                 }}
                                 className="shadow"
                             >
-                                <h2>Local PC</h2>
+                                <table style={{ width: "100%" }}>
+                                    <tr>
+                                        <td><h2>Local PC</h2></td>
+                                    </tr>
+                                </table>
                                 <Divider />
                                 <h2>Select file(s)</h2>
                                 <Dragger {...props}>
@@ -664,12 +672,6 @@ class UploaderApp extends React.Component<
                                 }}
                                 className="shadow"
                             >
-                                <table style={{ width: "100%" }}>
-                                    <tr>
-                                        <td><h2>Donders repository</h2></td><td style={{ float: "right" }}>{targetPath}</td>
-                                    </tr>
-                                </table>
-                                <Divider />
                                 <table style={{ width: "100%" }}>
                                     <tr>
                                         <td><h2>Project storage</h2></td><td style={{ float: "right" }}>{targetPath}</td>

@@ -53,6 +53,7 @@ const Header: React.FC = () => {
                             </Menu>
                         </Col>
                         <Col>
+                            <span style={{ fontWeight: "bold", color: "#fff" }}>pethag</span>&nbsp;&nbsp;
                             <Link to="/logout">
                                 <Button size="small" ghost>
                                     Log out
@@ -62,7 +63,7 @@ const Header: React.FC = () => {
                     </Row>
                 </Layout.Header>
             </Layout>
-        </Layout>
+        </Layout >
     );
 };
 
