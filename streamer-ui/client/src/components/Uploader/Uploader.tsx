@@ -452,9 +452,9 @@ class UploaderApp extends React.Component<
                 {forwardSlashPath}
                 {projectPath}
                 {forwardSlashPath}
-                {rawPath}
-                {forwardSlashPath}
                 {projectNumberPath}
+                {forwardSlashPath}
+                {rawPath}
                 {forwardSlashPath}
                 {subjectPath}
                 {subjectLabelPath}
