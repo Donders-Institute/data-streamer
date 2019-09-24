@@ -1,5 +1,5 @@
 import React from "react";
-import { Layout, Card } from "antd";
+import { Layout, Card, BackTop } from "antd";
 
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
@@ -20,30 +20,59 @@ const Help: React.FC = () => {
                     <div>
                         Please find instructions how to use the streamer UI below.
                     </div>
-                    <div style={{ zoom: 1, padding: "7px", border: "1px solid", background: "#f8f9fa", font: "95%", width: "11%", marginTop: 20 }}>
+                    <div style={{ zoom: 1, padding: "7px", border: "1px solid", background: "#f8f9fa", font: "95%", width: "25%", marginTop: 20 }}>
                         <div>
                             <h2>Content</h2>
                         </div>
                         <ul>
                             <li>
                                 <a href="#quickguide">
-                                    <span>Quick guide</span>
+                                    Quick guide
                                 </a>
+                                <ol>
+                                    <li>
+                                        Select file(s)
+                                    </li>
+                                    <li>
+                                        Select project, subject, session, and data type
+                                    </li>
+                                    <li>
+                                        Upload file(s)
+                                    </li>
+                                </ol>
                             </li>
                             <li>
                                 <a href="#troubleshooting">
-                                    <span>Troubleshooting</span>
+                                    Troubleshooting
                                 </a>
                             </li>
                         </ul>
                     </div>
-                    <h2 style={{ marginTop: 20 }}><a id="quickguide"></a>Quick guide</h2>
+
+                    <h2 style={{ marginTop: 40 }}><a id="quickguide"></a>Quick guide</h2>
+
+                    <h3>1. Select file(s)</h3>
+                    <div>
+                        <img src={process.env.PUBLIC_URL + "/images/screenshot-quick-guide-01.png"} style={{ width: "50%", border: "1px solid", boxShadow: "8px 8px 8px #ddd" }} />
+                    </div>
+
+                    <h3 style={{ marginTop: 20 }}>2. Select project, subject, session, and data type</h3>
+                    <div>
+                        <img src={process.env.PUBLIC_URL + "/images/screenshot-quick-guide-01.png"} style={{ width: "50%", border: "1px solid", boxShadow: "8px 8px 8px #ddd" }} />
+                    </div>
+
+                    <h3 style={{ marginTop: 20 }}>3. Upload file(s)</h3>
+                    <div>
+                        <img src={process.env.PUBLIC_URL + "/images/screenshot-quick-guide-01.png"} style={{ width: "50%", border: "1px solid", boxShadow: "8px 8px 8px #ddd" }} />
+                    </div>
+
+                    <h2 style={{ marginTop: 40 }}><a id="troubleshooting"></a>Troubleshooting</h2>
                     <div>
                         TBD
                     </div>
-                    <h2 style={{ marginTop: 20 }}><a id="troubleshooting"></a>Troubleshooting</h2>
+
                     <div>
-                        TBD
+                        <BackTop />
                     </div>
                 </Card>
             </div>
