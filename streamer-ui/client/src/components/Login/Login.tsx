@@ -121,94 +121,89 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
     };
 
     return (
-        <AuthContextConsumer>
-            {(authContext) => (
-                <div>
-                    {
-                        authContext!.isAuthenticated &&
-                        <Redirect to="/" />
-                    }
-                    {
-                        !authContext!.isAuthenticated &&
-                        <Button
-                            onClick={() => authContext!.authenticate("testuser", "testpassword")}>
-                            Authenticate testuser
-                        </Button>
-                    }
-                    {
-                        isAuthenticated &&
-                        <Redirect to="/" />
-                    }
-                    {
-                        loggingIn && hasSubmitted && !isAuthenticated &&
-                        <Content style={{ background: "#f0f2f5", marginTop: "10px" }}>
-                            <Spin indicator={antIcon} />
-                        </Content>
-                    }
-                    {
-                        !loggingIn && !hasSubmitted && !isAuthenticated &&
-                        <Content style={{ background: "#f0f2f5", marginTop: "10px" }}>
-                            <Row justify="center" style={{ height: "100%" }}>
-                                <Col span={10}>
-                                </Col>
-                                <Col span={4}>
-                                    <Card
-                                        style={{
-                                            borderRadius: 4,
-                                            boxShadow: "1px 1px 1px #ddd",
-                                            marginTop: 10
-                                        }}
-                                        className="shadow"
-                                    >
-                                        <div style={{ display: "flex", justifyContent: "center", marginBottom: 30 }}>
-                                            <img alt="Donders Institute" src={logoDCCN} height={64} />
-                                        </div>
-                                        <Form className="login-form">
-                                            <Form.Item>
-                                                {getFieldDecorator("username", {
-                                                    rules: [{ required: true, message: "Please input your DCCN username" }]
-                                                })(
-                                                    <Input
-                                                        prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
-                                                        placeholder="DCCN Username"
-                                                        onChange={handleUsernameChange}
-                                                    />,
-                                                )}
-                                            </Form.Item>
-                                            <Form.Item>
-                                                {getFieldDecorator("password", {
-                                                    rules: [{ required: true, message: "Please input your password" }]
-                                                })(
-                                                    <Input
-                                                        prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
-                                                        type="password"
-                                                        placeholder="Password"
-                                                        onChange={handlePasswordChange}
-                                                    />,
-                                                )}
-                                            </Form.Item>
-                                            <Form.Item>
-                                                <Button type="primary" className="login-form-button" onClick={handleClick}>
-                                                    Log in
-                                                </Button>
-                                            </Form.Item>
-                                            <div style={{ display: "flex", justifyContent: "center" }}>
-                                                <Tooltip title="This is the login page for the data streamer UI. Please login with your DCCN credentials.">
-                                                    <Icon type="question-circle" />
-                                                </Tooltip>
-                                            </div>
-                                        </Form>
-                                    </Card>
-                                </Col>
-                                <Col span={10}>
-                                </Col>
-                            </Row>
-                        </Content>
-                    }
-                </div>
-            )
+        <div>
+            {
+                authContext!.isAuthenticated &&
+                <Redirect to="/" />
             }
-        </AuthContextConsumer >
+            {
+                !authContext!.isAuthenticated &&
+                <Button
+                    onClick={() => authContext!.authenticate("testuser", "testpassword")}>
+                    Authenticate testuser
+                        </Button>
+            }
+            {
+                isAuthenticated &&
+                <Redirect to="/" />
+            }
+            {
+                loggingIn && hasSubmitted && !isAuthenticated &&
+                <Content style={{ background: "#f0f2f5", marginTop: "10px" }}>
+                    <Spin indicator={antIcon} />
+                </Content>
+            }
+            {
+                !loggingIn && !hasSubmitted && !isAuthenticated &&
+                <Content style={{ background: "#f0f2f5", marginTop: "10px" }}>
+                    <Row justify="center" style={{ height: "100%" }}>
+                        <Col span={10}>
+                        </Col>
+                        <Col span={4}>
+                            <Card
+                                style={{
+                                    borderRadius: 4,
+                                    boxShadow: "1px 1px 1px #ddd",
+                                    marginTop: 10
+                                }}
+                                className="shadow"
+                            >
+                                <div style={{ display: "flex", justifyContent: "center", marginBottom: 30 }}>
+                                    <img alt="Donders Institute" src={logoDCCN} height={64} />
+                                </div>
+                                <Form className="login-form">
+                                    <Form.Item>
+                                        {getFieldDecorator("username", {
+                                            rules: [{ required: true, message: "Please input your DCCN username" }]
+                                        })(
+                                            <Input
+                                                prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
+                                                placeholder="DCCN Username"
+                                                onChange={handleUsernameChange}
+                                            />,
+                                        )}
+                                    </Form.Item>
+                                    <Form.Item>
+                                        {getFieldDecorator("password", {
+                                            rules: [{ required: true, message: "Please input your password" }]
+                                        })(
+                                            <Input
+                                                prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+                                                type="password"
+                                                placeholder="Password"
+                                                onChange={handlePasswordChange}
+                                            />,
+                                        )}
+                                    </Form.Item>
+                                    <Form.Item>
+                                        <Button type="primary" className="login-form-button" onClick={handleClick}>
+                                            Log in
+                                                </Button>
+                                    </Form.Item>
+                                    <div style={{ display: "flex", justifyContent: "center" }}>
+                                        <Tooltip title="This is the login page for the data streamer UI. Please login with your DCCN credentials.">
+                                            <Icon type="question-circle" />
+                                        </Tooltip>
+                                    </div>
+                                </Form>
+                            </Card>
+                        </Col>
+                        <Col span={10}>
+                        </Col>
+                    </Row>
+                </Content>
+            }
+        </div>
     );
 };
 
