@@ -35,7 +35,7 @@ RUN ( mkdir -p /opt/streamer )
 
 WORKDIR /opt/streamer
 COPY package.json package.json
-RUN ( export PATH=/opt/nodejs/bin:$PATH && export USER=root && /opt/nodejs/bin/npm install -g )
+RUN ( export PATH=/opt/nodejs/bin:$PATH && export USER=root && /opt/nodejs/bin/npm install -g node-gyp && /opt/nodejs/bin/npm install -g --unsafe-perm)
 COPY *.js ./
 COPY bin ./bin
 COPY lib ./lib
