@@ -59,6 +59,19 @@ type SelectOption = {
     key: string;
 };
 
+const formatBytes = (bytesAsString: string, decimals = 2) => {
+    let bytes = parseInt(bytesAsString);
+    if (bytes === 0) return '0 B';
+
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
 const handleResponse = (response: AxiosResponse) => {
     console.log(response.data);
     console.log(response.status);
@@ -564,12 +577,12 @@ class UploaderApp extends React.Component<
                 )
             },
             {
-                title: "size [bytes]",
+                title: "size",
                 dataIndex: "size",
                 key: "size",
                 width: "20%",
                 render: (text: string) => (
-                    <span style={{ color: "black" }}>{text}</span>
+                    <span style={{ color: "black" }}>{formatBytes(text)}</span>
                 )
             },
             {
@@ -600,12 +613,12 @@ class UploaderApp extends React.Component<
                 )
             },
             {
-                title: "total [bytes]",
+                title: "total size",
                 dataIndex: "total",
                 key: "total",
                 width: "20%",
                 render: (text: string) => (
-                    <span style={{ color: "black" }}>{text}</span>
+                    <span style={{ color: "black" }}>{formatBytes(text)}</span>
                 )
             },
             {

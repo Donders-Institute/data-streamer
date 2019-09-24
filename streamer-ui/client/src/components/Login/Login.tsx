@@ -103,7 +103,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                         !authContext!.isAuthenticated &&
                         <Button
                             onClick={() => authContext!.authenticate("testuser", "testpassword")}>
-                            Authenticate
+                            Authenticate testuser
                         </Button>
                     }
                     {
