@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useState, useContext } from "react";
 import {
     Card,
     Form,
@@ -15,7 +15,7 @@ import { FormComponentProps } from "antd/lib/form";
 import { Redirect } from "react-router-dom";
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
-import { AuthContextConsumer } from "../Auth/AuthContext";
+import { AuthContextConsumer, AuthContext } from "../Auth/AuthContext";
 
 import "../../App.less";
 import logoDCCN from "../../assets/dccn-logo.png";
@@ -27,6 +27,7 @@ interface IProps {
 }
 
 const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
+    const authContext = useContext(AuthContext);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -36,14 +37,17 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
 
     const handleLoginResponse = (response: AxiosResponse) => {
-        console.log(response.data);
-        console.log(response.status);
-        console.log(response.statusText);
-        console.log(response.headers);
-        console.log(response.config);
+        // console.log(response.data);
+        // console.log(response.status);
+        // console.log(response.statusText);
+        // console.log(response.headers);
+        // console.log(response.config);
         setIsAuthenticated(() => true);
         setLoggingIn(() => false);
         setHasSubmitted(() => false);
+        setUsername(() => username);
+        setPassword(() => password);
+        authContext!.authenticate(username, password);
     };
 
     const handleLoginError = (error: AxiosError) => {
@@ -57,6 +61,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
         setIsAuthenticated(() => false);
         setLoggingIn(() => false);
         setHasSubmitted(() => false);
+        alert(error);
         return error;
     };
 
@@ -81,15 +86,25 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
         });
     };
 
-    const handleSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
+    const handleClick = (event: any) => {
         event.preventDefault();
-        setUsername(username => username);
-        setPassword(password => password);
+        setUsername(() => username);
+        setPassword(() => password);
         setIsAuthenticated(() => false);
         setLoggingIn(() => true);
         setHasSubmitted(() => true);
         handleLogin(username, password);
-    }, [handleLogin, username, password]);
+    };
+
+    const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const username = e.target.value;
+        setUsername(() => username);
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const password = e.target.value;
+        setPassword(() => password);
+    };
 
     return (
         <AuthContextConsumer>
@@ -134,7 +149,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                                         <div style={{ display: "flex", justifyContent: "center", marginBottom: 30 }}>
                                             <img alt="Donders Institute" src={logoDCCN} height={64} />
                                         </div>
-                                        <Form onSubmit={handleSubmit} className="login-form">
+                                        <Form className="login-form">
                                             <Form.Item>
                                                 {getFieldDecorator("username", {
                                                     rules: [{ required: true, message: "Please input your DCCN username" }]
@@ -142,6 +157,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                                                     <Input
                                                         prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
                                                         placeholder="DCCN Username"
+                                                        onChange={handleUsernameChange}
                                                     />,
                                                 )}
                                             </Form.Item>
@@ -153,11 +169,12 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                                                         prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
                                                         type="password"
                                                         placeholder="Password"
+                                                        onChange={handlePasswordChange}
                                                     />,
                                                 )}
                                             </Form.Item>
                                             <Form.Item>
-                                                <Button type="primary" htmlType="submit" className="login-form-button">
+                                                <Button type="primary" className="login-form-button" onClick={handleClick}>
                                                     Log in
                                                 </Button>
                                             </Form.Item>
@@ -175,8 +192,9 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                         </Content>
                     }
                 </div>
-            )}
-        </AuthContextConsumer>
+            )
+            }
+        </AuthContextConsumer >
     );
 };
 

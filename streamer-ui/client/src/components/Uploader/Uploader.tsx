@@ -152,9 +152,9 @@ const initialProjectValue: any = dataSourceProjects[0]["project_number"];
 const initialDataTypeValue: string = dataSourceDataTypes[0]["data_type"];
 
 class UploaderApp extends React.Component<
-IProps & FormComponentProps,
-UploaderAppState
-> {
+    IProps & FormComponentProps,
+    UploaderAppState
+    > {
     dataSourceProjects = dataSourceProjects;
     dataSourceDataTypes = dataSourceDataTypes;
 
@@ -700,6 +700,7 @@ UploaderAppState
                                 />
                                 {this.state.hasFilesSelected &&
                                     <Table
+                                        rowKey="total"
                                         columns={columnsSummary}
                                         dataSource={dataSourceFileListSummary}
                                         pagination={false}
