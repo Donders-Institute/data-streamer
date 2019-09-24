@@ -89,7 +89,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
         setLoggingIn(() => true);
         setHasSubmitted(() => true);
         handleLogin(username, password);
-    }, [setUsername, setIsAuthenticated, setHasSubmitted]);
+    }, [handleLogin, username, password]);
 
     return (
         <AuthContextConsumer>

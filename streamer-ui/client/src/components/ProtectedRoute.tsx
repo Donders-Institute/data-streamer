@@ -1,6 +1,6 @@
-import React from 'react';
-import { Route, Redirect } from 'react-router-dom';
-import { AuthContextConsumer } from './Auth/AuthContext';
+import React from "react";
+import { Route, Redirect } from "react-router-dom";
+import { AuthContextConsumer } from "./Auth/AuthContext";
 
 const ProtectedRoute = ({ component: Component, ...rest }: any) => (
     <AuthContextConsumer>
@@ -11,6 +11,6 @@ const ProtectedRoute = ({ component: Component, ...rest }: any) => (
             />
         )}
     </AuthContextConsumer>
-)
+);
 
-export default ProtectedRoute
+export default ProtectedRoute;

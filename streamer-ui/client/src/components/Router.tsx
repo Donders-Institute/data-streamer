@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Switch, Route } from "react-router-dom";
 
-import { AuthContextProvider } from './Auth/AuthContext';
-import ProtectedRoute from './ProtectedRoute';
+import { AuthContextProvider } from "./Auth/AuthContext";
+import ProtectedRoute from "./ProtectedRoute";
 
 import About from "./About/About";
 import Help from "./Help/Help";
@@ -21,11 +21,11 @@ interface IProps {
 const Router: React.FC<IProps> = ({ }) => {
     const authenticate = (username: string, password: string) => {
         setAuthContext(state => ({ ...state, username: username, password: password, isAuthenticated: true }));
-    }
+    };
 
     const signout = () => {
         setAuthContext(state => ({ ...state, username: "", password: "", isAuthenticated: false }));
-    }
+    };
 
     const [authContext, setAuthContext] = useState({
         username: "",
@@ -48,6 +48,6 @@ const Router: React.FC<IProps> = ({ }) => {
             </Switch>
         </AuthContextProvider>
     );
-}
+};
 
 export default Router;
