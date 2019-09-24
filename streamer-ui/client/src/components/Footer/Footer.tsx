@@ -10,10 +10,13 @@ const Footer: React.FC = () => {
             <Row type="flex" align-content="flex-end">
                 <Col>
                     <div>
-                        <Link to="/about/">About the Streamer UI</Link>
+                        <Link to="/about">About the Streamer UI</Link>
                     </div>
                     <div>
-                        <Link to="/contact/">Contact</Link>
+                        <Link to="/help">Help</Link>
+                    </div>
+                    <div>
+                        <Link to="/contact">Contact</Link>
                     </div>
                 </Col>
             </Row>

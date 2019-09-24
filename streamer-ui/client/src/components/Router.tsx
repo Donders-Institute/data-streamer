@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Switch, Route } from "react-router-dom";
 
-import { IAuthContext, AuthContextProvider } from './Auth/AuthContext';
+import { AuthContextProvider } from './Auth/AuthContext';
 import ProtectedRoute from './ProtectedRoute';
 
 import About from "./About/About";
+import Help from "./Help/Help";
 import Contact from "./Contact/Contact";
 import Uploader from "./Uploader/Uploader";
 import Login from "./Login/Login";
@@ -41,6 +42,7 @@ const Router: React.FC<IProps> = ({ }) => {
                 <Route path="/logout" exact={true} component={Logout} />
                 <ProtectedRoute path="/" exact={true} component={Uploader} />
                 <ProtectedRoute path="/about" exact={true} component={About} />
+                <ProtectedRoute path="/help" exact={true} component={Help} />
                 <ProtectedRoute path="/contact" exact={true} component={Contact} />
                 <ProtectedRoute component={NotFound} />
             </Switch>
