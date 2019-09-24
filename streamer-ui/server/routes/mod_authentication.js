@@ -20,13 +20,13 @@ var _isAuthenticated = function (req, res, next) {
     }
 }
 
-/* Authenticate user with Active Directory */
+// Authenticate user with Active Directory
 var _authenticateUser = function (req, res) {
     if (typeof req.body.username !== 'undefined') {
 
         var ad = new ActiveDirectory(adconfig);
 
-        //Check wether user exists. And if it exists get the userPrincipalName and use that to authenticate
+        // Check wether user exists. And if it exists get the userPrincipalName and use that to authenticate
         ad.findUser(req.body.username, function (err, user) {
             if (err) {
                 console.log('ERROR: ' + JSON.stringify(err));
@@ -56,7 +56,7 @@ var _authenticateUser = function (req, res) {
     }
 }
 
-/* Logout user by removing corresponding session data */
+// Logout user by removing corresponding session data
 var _logoutUser = function (req, res) {
     var sess = req.session;
     delete sess.user;

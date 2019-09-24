@@ -9,7 +9,6 @@ import Help from "./Help/Help";
 import Contact from "./Contact/Contact";
 import Uploader from "./Uploader/Uploader";
 import Login from "./Login/Login";
-import Logout from "./Logout/Logout";
 import NotFound from "./NotFound/NotFound";
 
 import "../App.less";
@@ -39,7 +38,6 @@ const Router: React.FC<IProps> = ({ }) => {
         <AuthContextProvider value={authContext}>
             <Switch>
                 <Route path="/login" exact={true} component={Login} />
-                <Route path="/logout" exact={true} component={Logout} />
                 <ProtectedRoute path="/" exact={true} component={Uploader} />
                 <ProtectedRoute path="/about" exact={true} component={About} />
                 <ProtectedRoute path="/help" exact={true} component={Help} />

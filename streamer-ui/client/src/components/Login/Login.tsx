@@ -42,12 +42,22 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
         // console.log(response.statusText);
         // console.log(response.headers);
         // console.log(response.config);
-        setIsAuthenticated(() => true);
-        setLoggingIn(() => false);
-        setHasSubmitted(() => false);
-        setUsername(() => username);
-        setPassword(() => password);
-        authContext!.authenticate(username, password);
+        if (response.data) {
+            if (response.data.error) {
+                const error = new Error(response.data.error)
+                setIsAuthenticated(() => false);
+                setLoggingIn(() => false);
+                setHasSubmitted(() => false);
+                alert(error);
+                return error;
+            }
+            setIsAuthenticated(() => true);
+            setLoggingIn(() => false);
+            setHasSubmitted(() => false);
+            setUsername(() => username);
+            setPassword(() => password);
+            authContext!.authenticate(username, password);
+        }
     };
 
     const handleLoginError = (error: AxiosError) => {
@@ -73,6 +83,10 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                 timeout: 1000,
                 withCredentials: true,
                 auth: {
+                    username: username,
+                    password: password
+                },
+                data: {
                     username: username,
                     password: password
                 },
