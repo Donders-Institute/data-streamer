@@ -51,8 +51,7 @@ const Header: React.FC = () => {
                                         >
                                             <Menu.Item key="home" style={{ float: "left" }}>
                                                 <Link to="/">
-                                                    <Icon type="home" />
-                                                    Lab Streamer UI
+                                                    &nbsp;&nbsp;<Icon type="home" />
                                                 </Link>
                                             </Menu.Item>
                                         </Menu>

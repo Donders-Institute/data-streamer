@@ -17,7 +17,7 @@ const About: React.FC = () => {
                 >
                     <h1>About the Streamer UI</h1>
                     The purpose of the streamer UI is to upload files to the project
-                    storage in an enforced structure.
+                    storage in an enforced folder structure.
                 </Card>
             </div>
             <Footer />
