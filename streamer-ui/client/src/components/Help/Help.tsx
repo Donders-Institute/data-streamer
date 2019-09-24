@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { Layout, Card, BackTop } from "antd";
 
 import Header from "../Header/Header";
@@ -68,7 +69,7 @@ const Help: React.FC = () => {
 
                     <h2 style={{ marginTop: 40 }}><a id="troubleshooting"></a>Troubleshooting</h2>
                     <div>
-                        TBD
+                        <Link to="/contact">Contact</Link> one of the adminstrators
                     </div>
 
                     <div>
