@@ -88,9 +88,11 @@ const handleError = (error: AxiosError) => {
     } else {
         console.log(error.message);
     }
+    alert(error);
+    return error;
 };
 
-const upload = (formData: any, callback: any) => {
+const handleUploadRequest = (username: string, password: string, formData: any) => {
     return new Promise((resolve) => {
 
         const config: AxiosRequestConfig = {
@@ -101,8 +103,8 @@ const upload = (formData: any, callback: any) => {
             timeout: 10000,
             withCredentials: true,
             auth: {
-                username: "janedoe",
-                password: "s00pers3cret"
+                username: username,
+                password: password
             },
             responseType: "json"
         };
@@ -537,14 +539,7 @@ class UploaderApp extends React.Component<
             formData.append("files", file);
         });
 
-        var xhr = new XMLHttpRequest();
-        xhr.addEventListener("readystatechange", function () {
-            if (this.readyState === 4) {
-                alert(this.responseText);
-            }
-        });
-        xhr.open("POST", "/upload");
-        xhr.send(formData);
+        handleUploadRequest("testuser", "testpassword", formData)
     };
 
     render() {
