@@ -1,358 +1,116 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import {
-    Select,
-    Form,
+    Layout,
     Row,
     Col,
-    Upload,
-    Layout,
     Card,
     Icon,
     Button,
-    Table,
-    notification,
-    Input,
-    Tooltip,
     Divider,
-    BackTop
+    BackTop,
+    Spin,
+    notification
 } from "antd";
-import { FormComponentProps } from "antd/lib/form";
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
+import { AuthContext } from "../Auth/AuthContext";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
+import FileSelector from "./FileSelector";
+import FileList from "./FileList";
+import TargetPath from "./TargetPath";
+import StructureSelector from "./StructureSelector";
+import { RcFile, Project, SelectOption } from "./types";
 
 const { Content } = Layout;
-const { Option } = Select;
 
-const { Dragger } = Upload;
+const Uploader: React.FC = () => {
+    const authContext = useContext(AuthContext);
+    const [isLoadingProjectList, setIsLoadingProjectList] = useState(false);
+    const [projectList, setProjectList] = useState([
+        {
+            id: 1,
+            number: "3010000.01"
+        }
+    ] as Project[]);
+    const [selectedProjectValue, setSelectedProjectValue] = useState("");
+    const [selectedSubjectValue, setSelectedSubjectValue] = useState("");
+    const [selectedSessionValue, setSelectedSessionValue] = useState("");
+    const [selectedDataTypeValue, setSelectedDataTypeValue] = useState("");
+    const [isSelectedProject, setIsSelectedProject] = useState(false);
+    const [isSelectedSubject, setIsSelectedSubject] = useState(false);
+    const [isSelectedSession, setIsSelectedSession] = useState(false);
+    const [isSelectedDataType, setIsSelectedDataType] = useState(false);
+    const [isSelectedDataTypeOther, setIsSelectedDataTypeOther] = useState(false);
+    const [doneWithSelectDataType, setDoneWithSelectedDataType] = useState(false);
+    const [fileList, setFileList] = useState([] as RcFile[]);
+    const [fileListSummary, setFileListSummary] = useState(0);
+    const [hasFilesSelected, setHasFilesSelected] = useState(false);
+    const [proceed, setProceed] = useState(false);
+    const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
 
-interface IProps {
-    title?: string | undefined;
-}
+    const handleUploadResponse = (response: AxiosResponse) => {
+        console.log(response.data);
+        console.log(response.status);
+        console.log(response.statusText);
+        console.log(response.headers);
+        console.log(response.config);
+    };
 
-interface RcFile extends File {
-    uid: string;
-    readonly lastModifiedDate: Date;
-    readonly webkitRelativePath: string;
-}
+    const handleUploadError = (error: AxiosError) => {
+        if (error.response) {
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+        } else {
+            console.log(error.message);
+        }
+        alert(error);
+        return error;
+    };
 
-type UploaderAppState = {
-    username: string;
-    selectedProjectValue: string;
-    selectedSubjectValue: string;
-    selectedSessionValue: string;
-    selectedDataTypeValue: string;
-    isSelectedProject: boolean;
-    isSelectedSubject: boolean;
-    isSelectedSession: boolean;
-    isSelectedDataType: boolean;
-    isSelectedDataTypeOther: boolean;
-    doneWithSelectDataType: boolean;
-    fileList: RcFile[];
-    fileListSummary: number;
-    hasFilesSelected: boolean;
-    proceed: boolean;
-};
+    const handleUploadRequest = (username: string, password: string, formData: any) => {
+        return new Promise((resolve) => {
 
-type SelectOption = {
-    key: string;
-};
+            const config: AxiosRequestConfig = {
+                url: "/upload",
+                method: "post",
+                headers: { "Content-Type": "multipart/form-data" },
+                data: formData,
+                timeout: 10000,
+                withCredentials: true,
+                auth: {
+                    username: username,
+                    password: password
+                },
+                responseType: "json"
+            };
 
-const formatBytes = (bytesAsString: string, decimals = 2) => {
-    let bytes = parseInt(bytesAsString);
-    if (bytes === 0) return "0 B";
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-};
-
-const handleResponse = (response: AxiosResponse) => {
-    console.log(response.data);
-    console.log(response.status);
-    console.log(response.statusText);
-    console.log(response.headers);
-    console.log(response.config);
-};
-
-const handleError = (error: AxiosError) => {
-    if (error.response) {
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
-    } else {
-        console.log(error.message);
-    }
-    alert(error);
-    return error;
-};
-
-const handleUploadRequest = (username: string, password: string, formData: any) => {
-    return new Promise((resolve) => {
-
-        const config: AxiosRequestConfig = {
-            url: "/upload",
-            method: "post",
-            headers: { "Content-Type": "multipart/form-data" },
-            data: formData,
-            timeout: 10000,
-            withCredentials: true,
-            auth: {
-                username: username,
-                password: password
-            },
-            responseType: "json"
-        };
-
-        resolve(
-            axios(config)
-                .then(handleResponse)
-                .catch(handleError));
-    });
-};
-
-const dataSourceProjects = [
-    {
-        id: 1,
-        project_number: "3010000.01"
-    }
-];
-
-const dataSourceDataTypes = [
-    {
-        id: 1,
-        data_type: "mri"
-    },
-    {
-        id: 2,
-        data_type: "meg"
-    },
-    {
-        id: 3,
-        data_type: "eeg"
-    },
-    {
-        id: 4,
-        data_type: "ieee"
-    },
-    {
-        id: 5,
-        data_type: "beh"
-    },
-    {
-        id: 6,
-        data_type: "other"
-    }
-];
-
-const initialProjectValue: any = dataSourceProjects[0]["project_number"];
-const initialDataTypeValue: string = dataSourceDataTypes[0]["data_type"];
-
-class UploaderApp extends React.Component<
-    IProps & FormComponentProps,
-    UploaderAppState
-    > {
-    dataSourceProjects = dataSourceProjects;
-    dataSourceDataTypes = dataSourceDataTypes;
-
-    defaultEmpty: SelectOption = { key: "" };
-
-    constructor(props: IProps & FormComponentProps) {
-        super(props);
-        this.state = {
-            username: "",
-            selectedProjectValue: initialProjectValue,
-            selectedSubjectValue: "",
-            selectedSessionValue: "",
-            selectedDataTypeValue: initialDataTypeValue,
-            isSelectedProject: false,
-            isSelectedSubject: false,
-            isSelectedSession: false,
-            isSelectedDataType: false,
-            isSelectedDataTypeOther: false,
-            doneWithSelectDataType: false,
-            fileList: [],
-            fileListSummary: 0,
-            hasFilesSelected: false,
-            proceed: false
-        };
-    }
-
-    onSelectProjectValue = (value: SelectOption) => {
-        const selectedProjectValue = value.key;
-        this.setState({
-            selectedProjectValue,
-            isSelectedProject: true,
-            selectedSubjectValue: "",
-            isSelectedSubject: false,
-            selectedSessionValue: "",
-            isSelectedSession: false,
-            selectedDataTypeValue: initialDataTypeValue,
-            isSelectedDataType: false,
-            isSelectedDataTypeOther: false,
-            doneWithSelectDataType: false,
-            proceed: false
+            resolve(
+                axios(config)
+                    .then(handleUploadResponse)
+                    .catch(handleUploadError));
         });
     };
 
-    regexpSubjectLabel = new RegExp("^[a-zA-Z0-9]+$");
-    validateSubjectLabelInput = (text: string) => {
-        return this.regexpSubjectLabel.test(text);
-    };
+    const handleUpload = (event: any) => {
+        var formData = new FormData();
 
-    onChangeSubjectLabel = (event: any) => {
-        let isValid = this.validateSubjectLabelInput(event.target.value);
-        if (isValid) {
-            const selectedSubjectValue = event.target.value;
-            this.setState({
-                selectedSubjectValue,
-                isSelectedSubject: true,
-                isSelectedSession: false,
-                selectedSessionValue: "",
-                isSelectedDataType: false,
-                isSelectedDataTypeOther: false,
-                doneWithSelectDataType: false,
-                proceed: false
-            });
-        } else {
-            let selectedSubjectValue = event.target.value;
-            // Do not store invalid strings and show error.
-            // Silently reset in case of empty string.
-            if (selectedSubjectValue !== "") {
-                selectedSubjectValue = this.state.selectedSubjectValue;
-                this.openNotification(
-                    "Error",
-                    `subject label "${event.target.value}" must be all 1- or 2-digit number.`,
-                    "error",
-                    4.5,
-                    "bottomLeft"
-                );
-            }
-            this.setState({
-                selectedSubjectValue,
-                isSelectedSubject: false,
-                isSelectedSession: false,
-                selectedSessionValue: "",
-                isSelectedDataType: false,
-                isSelectedDataTypeOther: false,
-                doneWithSelectDataType: false,
-                proceed: false
-            });
-        }
-    };
+        // Add the attributes
+        formData.append("projectNumber", selectedProjectValue);
+        formData.append("subjectLabel", selectedSubjectValue);
+        formData.append("sessionLabel", selectedSessionValue);
+        formData.append("dataType", selectedDataTypeValue);
 
-    regexpSessionLabel = new RegExp("^[a-zA-Z0-9]+$");
-    validateSessionLabelInput = (text: string) => {
-        return this.regexpSessionLabel.test(text);
-    };
-
-    onChangeSessionLabel = (event: any) => {
-        let isValid = this.validateSessionLabelInput(event.target.value);
-        if (isValid) {
-            const selectedSessionValue = event.target.value;
-            this.setState({
-                isSelectedSession: true,
-                selectedSessionValue,
-                isSelectedDataType: false,
-                isSelectedDataTypeOther: false,
-                doneWithSelectDataType: false,
-                proceed: false
-            });
-        } else {
-            let selectedSessionValue = event.target.value;
-            // Do not store invalid strings and show error.
-            // Silently reset in case of empty string.
-            if (selectedSessionValue !== "") {
-                selectedSessionValue = this.state.selectedSessionValue;
-                this.openNotification(
-                    "Error",
-                    `Session label "${event.target.value}" must be all 1- or 2-digit number.`,
-                    "error",
-                    4.5,
-                    "bottomLeft"
-                );
-            }
-            this.setState({
-                isSelectedSession: false,
-                selectedSessionValue,
-                isSelectedDataType: false,
-                isSelectedDataTypeOther: false,
-                doneWithSelectDataType: false,
-                proceed: false
-            });
-        }
-    };
-
-    onSelectDataTypeValue = (value: SelectOption) => {
-        const selectedDataTypeValue = value.key;
-        let isSelectedDataTypeOther = false;
-        let doneWithSelectDataType = true;
-        if (selectedDataTypeValue === "other") {
-            isSelectedDataTypeOther = true;
-            doneWithSelectDataType = false;
-        }
-        this.setState({
-            selectedDataTypeValue,
-            isSelectedDataType: true,
-            isSelectedDataTypeOther: isSelectedDataTypeOther,
-            doneWithSelectDataType: doneWithSelectDataType,
-            proceed: doneWithSelectDataType
+        // Add the files for upload
+        fileList.forEach((file: any) => {
+            formData.append("files", file);
         });
+
+        handleUploadRequest(authContext!.username, authContext!.password, formData);
     };
 
-    regexpSelectedDataTypeOtherInput = new RegExp("^[a-z]+$");
-    validateSelectedDataTypeOtherInput = (text: string) => {
-        return this.regexpSelectedDataTypeOtherInput.test(text);
-    };
-
-    onChangeSelectedDataTypeOther = (event: any) => {
-        let isValid = this.validateSelectedDataTypeOtherInput(event.target.value);
-        if (isValid) {
-            const selectedDataTypeValue = event.target.value;
-            this.setState({
-                selectedDataTypeValue,
-                doneWithSelectDataType: true,
-                proceed: true
-            });
-        } else {
-            let selectedDataTypeValue = event.target.value;
-            // Do not store invalid strings and show error.
-            // Silently reset in case of empty string.
-            if (selectedDataTypeValue !== "") {
-                selectedDataTypeValue = this.state.selectedDataTypeValue;
-                this.openNotification(
-                    "Error",
-                    `other data type "${event.target.value}" must be all lower case, with no special characters.`,
-                    "error",
-                    4.5,
-                    "bottomLeft"
-                );
-            }
-            this.setState({
-                selectedDataTypeValue,
-                doneWithSelectDataType: false,
-                proceed: false
-            });
-        }
-    };
-
-    fileNameExists = (file: RcFile, fileList: RcFile[]) => {
-        const duplicates = fileList.filter(
-            item => item.name === file.name && item.uid !== file.uid
-        );
-        if (duplicates.length > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    };
-
-    openNotification = (
+    const openNotification = (
         title: string,
         description: string,
         category: "success" | "info" | "error" | "warning",
@@ -367,9 +125,20 @@ class UploaderApp extends React.Component<
         });
     };
 
-    onAdd = (file: RcFile) => {
-        if (this.fileNameExists(file, this.state.fileList)) {
-            this.openNotification(
+    const fileNameExists = (file: RcFile, fileList: RcFile[]) => {
+        const duplicates = fileList.filter(
+            item => item.name === file.name && item.uid !== file.uid
+        );
+        if (duplicates.length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+    const handleAdd = (file: RcFile) => {
+        if (fileNameExists(file, fileList)) {
+            openNotification(
                 "Error",
                 `"${file.name}" filename already exists, please rename.`,
                 "error",
@@ -377,488 +146,307 @@ class UploaderApp extends React.Component<
                 "bottomLeft"
             );
         } else {
-
-            this.setState(({ hasFilesSelected, fileList, fileListSummary }) => ({
-                hasFilesSelected: true,
-                fileList: [...fileList, file],
-                fileListSummary: fileListSummary + file.size
-            }));
-            this.openNotification(
-                "Success",
-                `"${file.name}" file successfully added to list.`,
-                "success",
-                4.5,
-                "bottomLeft"
-            );
+            setHasFilesSelected(true);
+            setFileList(fileList => [...fileList, file]);
+            setFileListSummary(fileListSummary => fileListSummary + file.size);
+            // openNotification(
+            //     "Success",
+            //     `"${file.name}" file successfully added to list.`,
+            //     "success",
+            //     4.5,
+            //     "bottomLeft"
+            // );
         }
     };
 
-    onDelete = (uid: string, filename: string, size: number, e: any) => {
-        e.preventDefault();
-        const fileListUpdated = this.state.fileList.filter(
-            item => item.name !== filename && item.uid !== uid
+    const handleDelete = (uid: string, filename: string, size: number) => {
+        const fileListUpdated = fileList.filter(
+            (item: any) => item.name !== filename && item.uid !== uid
         );
         const hasFilesSelectedUpdated = fileListUpdated.length > 0;
-        const total = this.state.fileListSummary - size;
-        this.setState(({ hasFilesSelected, fileList, fileListSummary }) => ({
-            hasFilesSelected: hasFilesSelectedUpdated,
-            fileList: fileListUpdated,
-            fileListSummary: total
-        }));
+        setHasFilesSelected(hasFilesSelectedUpdated);
+        setFileList(fileListUpdated);
+        setFileListSummary(fileListSummary => fileListSummary - size);
     };
 
-    onDeleteList = () => {
-        this.setState(({ hasFilesSelected, fileList, fileListSummary }) => ({
-            hasFilesSelected: false,
-            fileList: [],
-            fileListSummary: 0
-        }));
+    const handleDeleteList = () => {
+        setHasFilesSelected(false);
+        setFileList([] as RcFile[]);
+        setFileListSummary(0);
     };
 
-    handleChange = (file: RcFile, fileList: RcFile[]) => {
-        this.onAdd(file);
+    const handleChange = (file: RcFile, fileList: RcFile[]) => {
+        handleAdd(file);
         return false;
     };
 
-    // TODO: Clean label?
-    cleanLabel = (labelIn: string) => {
-        let labelOut = labelIn;
-        return labelOut;
+    const handleSelectProjectValue = (value: SelectOption) => {
+        setSelectedProjectValue(value.key);
+        setIsSelectedProject(true);
+        setSelectedSubjectValue("");
+        setIsSelectedSubject(false);
+        setSelectedSessionValue("");
+        setIsSelectedSession(false);
+        setSelectedDataTypeValue("");
+        setIsSelectedDataType(false);
+        setIsSelectedDataTypeOther(false);
+        setDoneWithSelectedDataType(false);
+        setProceed(false);
     };
 
-    //Derive the target path from the target path ingredients
-    getTargetPath = (
-        isSelectedProject: boolean,
-        projectNumber: string,
-        isSelectedSubject: boolean,
-        subjectLabel: string,
-        isSelectedSession: boolean,
-        isSelectedDataType: boolean,
-        dataType: string,
-        sessionLabel: string
-    ) => {
-        let forwardSlashPath = (
-            <span style={{ fontWeight: "bold", color: "#f45709" }}>/</span>
-        );
-        let projectPath = (
-            <span style={{ fontWeight: "bold", color: "#f45709" }}>project</span>
-        );
-        let rawPath = (
-            <span style={{ fontWeight: "bold", color: "#f45709" }}>raw</span>
-        );
-        let subjectPath = (
-            <span style={{ fontWeight: "bold", color: "#f45709" }}>sub-</span>
-        );
-        let sessionPath = (
-            <span style={{ fontWeight: "bold", color: "#f45709" }}>ses-</span>
-        );
+    const regexpSubjectLabel = new RegExp("^[a-zA-Z0-9]+$");
+    const validateSubjectLabelInput = (text: string) => {
+        return regexpSubjectLabel.test(text);
+    };
 
-        let projectNumberPath = (
-            <span style={{ fontStyle: "italic" }}>(projectnumber)</span>
-        );
-        let subjectLabelPath = (
-            <span style={{ fontStyle: "italic" }}>(subjectlabel)</span>
-        );
-        let dataTypePath = <span style={{ fontStyle: "italic" }}>(datatype)</span>;
-        let sessionLabelPath = (
-            <span style={{ fontStyle: "italic" }}>(sessionlabel)</span>
-        );
-
-        if (isSelectedProject) {
-            projectNumberPath = (
-                <span style={{ fontWeight: "bold", color: "#f45709" }}>
-                    {projectNumber}
-                </span>
-            );
-        }
-        if (isSelectedSubject) {
-            let cleanSubjectLabel = this.cleanLabel(subjectLabel);
-            subjectLabelPath = (
-                <span style={{ fontWeight: "bold", color: "#f45709" }}>
-                    {cleanSubjectLabel}
-                </span>
-            );
-        }
-        if (isSelectedDataType && dataType !== "other") {
-            dataTypePath = (
-                <span style={{ fontWeight: "bold", color: "#f45709" }}>{dataType}</span>
-            );
-        }
-        if (isSelectedDataType) {
-            if (dataType === "other" || dataType === "") {
-                dataTypePath = <span style={{ fontStyle: "italic" }}>(datatype)</span>;
-            } else {
-                dataTypePath = (
-                    <span style={{ fontWeight: "bold", color: "#f45709" }}>
-                        {dataType}
-                    </span>
+    const handleChangeSubjectLabel = (event: any) => {
+        let isValid = validateSubjectLabelInput(event.target.value);
+        if (isValid) {
+            setSelectedSubjectValue(event.target.value);
+            setIsSelectedSubject(true);
+            setSelectedSessionValue("");
+            setIsSelectedSession(false);
+            setSelectedDataTypeValue("");
+            setIsSelectedDataType(false);
+            setIsSelectedDataTypeOther(false);
+            setDoneWithSelectedDataType(false);
+            setProceed(false);
+        } else {
+            let value = event.target.value;
+            // Do not store invalid strings and show error.
+            // Silently reset in case of empty string.
+            if (value !== "") {
+                value = selectedSubjectValue;
+                openNotification(
+                    "Error",
+                    `subject label "${event.target.value}" must be of form [a-zA-Z0-9]+.`,
+                    "error",
+                    4.5,
+                    "bottomLeft"
                 );
             }
+            setSelectedSubjectValue(value);
+            setIsSelectedSubject(false);
+            setSelectedSessionValue("");
+            setIsSelectedSession(false);
+            setSelectedDataTypeValue("");
+            setIsSelectedDataType(false);
+            setIsSelectedDataTypeOther(false);
+            setDoneWithSelectedDataType(false);
+            setProceed(false);
         }
-        if (isSelectedSession) {
-            let cleanSessionLabel = this.cleanLabel(sessionLabel);
-            sessionLabelPath = (
-                <span style={{ fontWeight: "bold", color: "#f45709" }}>
-                    {cleanSessionLabel}
-                </span>
-            );
-        }
-
-        return (
-            <div>
-                {forwardSlashPath}
-                {projectPath}
-                {forwardSlashPath}
-                {projectNumberPath}
-                {forwardSlashPath}
-                {rawPath}
-                {forwardSlashPath}
-                {subjectPath}
-                {subjectLabelPath}
-                {forwardSlashPath}
-                {sessionPath}
-                {sessionLabelPath}
-                {forwardSlashPath}
-                {dataTypePath}
-                {forwardSlashPath}
-            </div>
-        );
     };
 
-    handleUpload = (info: any) => {
-        var formData = new FormData();
-
-        // Add the attributes
-        formData.append("projectNumber", this.state.selectedProjectValue);
-        formData.append("subjectLabel", this.state.selectedSubjectValue);
-        formData.append("sessionLabel", this.state.selectedSessionValue);
-        formData.append("dataType", this.state.selectedDataTypeValue);
-
-        // Add the files for upload
-        this.state.fileList.forEach(file => {
-            formData.append("files", file);
-        });
-
-        handleUploadRequest("testuser", "testpassword", formData)
+    const regexpSessionLabel = new RegExp("^[a-zA-Z0-9]+$");
+    const validateSessionLabelInput = (text: string) => {
+        return regexpSessionLabel.test(text);
     };
 
-    render() {
-        const props = {
-            className: "file-uploader",
-            name: "file",
-            multiple: true,
-            beforeUpload: this.handleChange,
-            customRequest: this.handleUpload,
-            showUploadList: false,
-            directory: false
-        };
-
-        const optionsProjects = this.dataSourceProjects.map((item, key) => (
-            <Option value={item.project_number}>{item.project_number}</Option>
-        ));
-
-        const optionsDataTypes = this.dataSourceDataTypes.map((item, key) => (
-            <Option value={item.data_type}>{item.data_type}</Option>
-        ));
-
-        const columnsFileList = [
-            {
-                title: "filename",
-                dataIndex: "name",
-                key: "name",
-                width: "70%",
-                render: (text: string) => (
-                    <span style={{ color: "#f45709" }}>{text}</span>
-                )
-            },
-            {
-                title: "size",
-                dataIndex: "size",
-                key: "size",
-                width: "20%",
-                render: (text: string) => (
-                    <span style={{ color: "black" }}>{formatBytes(text)}</span>
-                )
-            },
-            {
-                title: "",
-                key: "action",
-                width: "10%",
-                render: (text: string, record: any) => (
-                    <span
-                        style={{ float: "right" }}
-                        onClick={e => {
-                            this.onDelete(record.uid, record.name, record.size, e);
-                        }}
-                    >
-                        <Icon type="close" /> &nbsp;&nbsp;
-                    </span>
-                )
+    const handleChangeSessionLabel = (event: any) => {
+        let isValid = validateSessionLabelInput(event.target.value);
+        if (isValid) {
+            setSelectedSessionValue(event.target.value);
+            setIsSelectedSession(true);
+            setSelectedDataTypeValue("");
+            setIsSelectedDataType(false);
+            setIsSelectedDataTypeOther(false);
+            setDoneWithSelectedDataType(false);
+            setProceed(false);
+        } else {
+            let value = event.target.value;
+            // Do not store invalid strings and show error.
+            // Silently reset in case of empty string.
+            if (value !== "") {
+                value = selectedSessionValue;
+                openNotification(
+                    "Error",
+                    `Session label "${event.target.value}" must be of form [a-zA-Z0-9]+.`,
+                    "error",
+                    4.5,
+                    "bottomLeft"
+                );
             }
-        ];
+            setSelectedSessionValue(value);
+            setIsSelectedSession(false);
+            setSelectedDataTypeValue("");
+            setIsSelectedDataType(false);
+            setIsSelectedDataTypeOther(false);
+            setDoneWithSelectedDataType(false);
+            setProceed(false);
+        }
+    };
 
-        const columnsSummary = [
-            {
-                title: "",
-                dataIndex: "name",
-                key: "name",
-                width: "70%",
-                render: (text: string) => (
-                    <span style={{ color: "black" }}>{text}</span>
-                )
-            },
-            {
-                title: "total size",
-                dataIndex: "total",
-                key: "total",
-                width: "20%",
-                render: (text: string) => (
-                    <span style={{ color: "black" }}>{formatBytes(text)}</span>
-                )
-            },
-            {
-                title: "clear all",
-                key: "action",
-                width: "10%",
-                render: (text: string, record: any) => (
-                    <Button
-                        style={{ float: "right" }}
-                        type="link"
-                        onClick={(e) => {
-                            this.onDeleteList();
-                        }}
-                    >
-                        Clear all
-                    </Button>
-                )
+    const handleSelectDataTypeValue = (value: SelectOption) => {
+        setSelectedDataTypeValue(value.key);
+        setIsSelectedDataType(true);
+        setIsSelectedDataTypeOther(false);
+        let proceed = true;
+        if (value.key === "other") {
+            setIsSelectedDataTypeOther(true);
+            proceed = false;
+        }
+        setDoneWithSelectedDataType(proceed);
+        setProceed(proceed);
+    };
+
+    const regexpSelectedDataTypeOtherInput = new RegExp("^[a-z]+$");
+    const validateSelectedDataTypeOtherInput = (text: string) => {
+        return regexpSelectedDataTypeOtherInput.test(text);
+    };
+
+    const handleChangeSelectedDataTypeOther = (event: any) => {
+        let isValid = validateSelectedDataTypeOtherInput(event.target.value);
+        if (isValid) {
+            setSelectedDataTypeValue(event.target.value);
+            setDoneWithSelectedDataType(true);
+            setProceed(true);
+        } else {
+            let value = event.target.value;
+            // Do not store invalid strings and show error.
+            // Silently reset in case of empty string.
+            if (value !== "") {
+                value = selectedDataTypeValue;
+                openNotification(
+                    "Error",
+                    `other data type "${event.target.value}" must be all lower case, with no special characters.`,
+                    "error",
+                    4.5,
+                    "bottomLeft"
+                );
             }
-        ];
+            setSelectedDataTypeValue(value);
+            setDoneWithSelectedDataType(false);
+            setProceed(false);
+        }
+    };
 
-        const targetPath = this.getTargetPath(
-            this.state.isSelectedProject,
-            this.state.selectedProjectValue,
-            this.state.isSelectedSubject,
-            this.state.selectedSubjectValue,
-            this.state.isSelectedSession,
-            this.state.isSelectedDataType,
-            this.state.selectedDataTypeValue,
-            this.state.selectedSessionValue
-        );
-
-        const dataSourceFileListSummary = [
-            {
-                id: 1,
-                name: "total",
-                total: this.state.fileListSummary
-            }
-        ];
-
-        return (
-            <Content style={{ background: "#f0f2f5" }}>
-                <Header />
-                <div style={{ padding: 10 }}>
-                    <Row>
-                        <Col span={12}>
-                            <Card
-                                style={{
-                                    borderRadius: 4,
-                                    boxShadow: "1px 1px 1px #ddd",
-                                    minHeight: "600px",
-                                    marginTop: 10
-                                }}
-                                className="shadow"
-                            >
-                                <table style={{ width: "100%" }}>
-                                    <tr>
-                                        <td><h2>Local PC</h2></td>
-                                    </tr>
-                                </table>
-                                <Divider />
-                                <h2>Select file(s)</h2>
-                                <Dragger {...props}>
-                                    <p className="ant-upload-drag-icon">
-                                        <Icon type="inbox" />
-                                    </p>
-                                    <p className="ant-upload-text">
-                                        Click or drag files to this area
-                                    </p>
-                                    <p className="ant-upload-hint">Select one or more files.</p>
-                                </Dragger>
-                                <br />
-                                <br />
-                                <Table
-                                    rowKey={record => record.uid}
-                                    columns={columnsFileList}
-                                    dataSource={this.state.fileList}
-                                    pagination={false}
-                                    size={"small"}
+    return (
+        <Content style={{ background: "#f0f2f5" }}>
+            <Header />
+            <div style={{ padding: 10 }}>
+                <Row>
+                    <Col span={12}>
+                        <Card
+                            style={{
+                                borderRadius: 4,
+                                boxShadow: "1px 1px 1px #ddd",
+                                minHeight: "600px",
+                                marginTop: 10
+                            }}
+                            className="shadow"
+                        >
+                            <table style={{ width: "100%" }}>
+                                <tr>
+                                    <td><h2>Local PC</h2></td>
+                                </tr>
+                            </table>
+                            <Divider />
+                            <FileSelector
+                                fileList={fileList}
+                                fileListSummary={fileListSummary}
+                                hasFilesSelected={hasFilesSelected}
+                                handleChange={handleChange}
+                            />
+                            <br />
+                            <br />
+                            <FileList
+                                fileList={fileList}
+                                fileListSummary={fileListSummary}
+                                hasFilesSelected={hasFilesSelected}
+                                handleDelete={handleDelete}
+                                handleDeleteList={handleDeleteList}
+                            />
+                            <div>
+                                <BackTop />
+                            </div>
+                        </Card>
+                    </Col>
+                    <Col span={12}>
+                        <Card
+                            style={{
+                                marginLeft: 10,
+                                borderRadius: 4,
+                                boxShadow: "1px 1px 1px #ddd",
+                                minHeight: "600px",
+                                marginTop: 10
+                            }}
+                            className="shadow"
+                        >
+                            <table style={{ width: "100%" }}>
+                                <tr>
+                                    <td>
+                                        <h2>Project storage</h2>
+                                    </td>
+                                    <td style={{ float: "right" }}>
+                                        <TargetPath
+                                            isSelectedProject={isSelectedProject}
+                                            projectNumber={selectedProjectValue}
+                                            isSelectedSubject={isSelectedSubject}
+                                            subjectLabel={selectedSubjectValue}
+                                            isSelectedSession={isSelectedSession}
+                                            sessionLabel={selectedSessionValue}
+                                            isSelectedDataType={isSelectedDataType}
+                                            dataType={selectedDataTypeValue}
+                                        />
+                                    </td>
+                                </tr>
+                            </table>
+                            <Divider />
+                            {isLoadingProjectList &&
+                                <Content style={{ marginTop: "10px" }}>
+                                    <div>Loading projects for {authContext!.username} ...</div>
+                                    <Spin indicator={antIcon} />
+                                </Content>
+                            }
+                            {!isLoadingProjectList &&
+                                <StructureSelector
+                                    projectList={projectList}
+                                    isSelectedProject={isSelectedProject}
+                                    projectNumber={selectedProjectValue}
+                                    isSelectedSubject={isSelectedSubject}
+                                    subjectLabel={selectedSubjectValue}
+                                    isSelectedSession={isSelectedSession}
+                                    sessionLabel={selectedSessionValue}
+                                    isSelectedDataType={isSelectedDataType}
+                                    isSelectedDataTypeOther={isSelectedDataTypeOther}
+                                    dataType={selectedDataTypeValue}
+                                    handleSelectProjectValue={handleSelectProjectValue}
+                                    handleChangeSubjectLabel={handleChangeSubjectLabel}
+                                    handleChangeSessionLabel={handleChangeSessionLabel}
+                                    handleSelectDataTypeValue={handleSelectDataTypeValue}
+                                    handleChangeSelectedDataTypeOther={handleChangeSelectedDataTypeOther}
                                 />
-                                {this.state.hasFilesSelected &&
-                                    <Table
-                                        rowKey="total"
-                                        columns={columnsSummary}
-                                        dataSource={dataSourceFileListSummary}
-                                        pagination={false}
-                                        size={"small"}
-                                        showHeader={false}
-                                    />
-                                }
-                                <div>
-                                    <BackTop />
-                                </div>
-                            </Card>
-
-                        </Col>
-                        <Col span={12}>
-                            <Card
-                                style={{
-                                    marginLeft: 10,
-                                    borderRadius: 4,
-                                    boxShadow: "1px 1px 1px #ddd",
-                                    minHeight: "600px",
-                                    marginTop: 10
-                                }}
-                                className="shadow"
-                            >
-                                <table style={{ width: "100%" }}>
-                                    <tr>
-                                        <td><h2>Project storage</h2></td><td style={{ float: "right" }}>{targetPath}</td>
-                                    </tr>
-                                </table>
-                                <Divider />
-                                <h2>Select structure</h2>
-                                <div style={{ marginTop: "20px" }}>
-                                    <Form layout="vertical" hideRequiredMark>
-                                        <Row gutter={16}>
-                                            <Col span={12}>
-                                                <Form.Item label="Project number">
-                                                    <Select
-                                                        labelInValue
-                                                        defaultValue={this.defaultEmpty}
-                                                        placeholder="Select project"
-                                                        onSelect={this.onSelectProjectValue}
-                                                        style={{ width: "400px" }}
-                                                    >
-                                                        {optionsProjects}
-                                                    </Select>
-                                                </Form.Item>
-                                            </Col>
-                                            <Col span={12}></Col>
-                                        </Row>
-
-                                        {this.state.isSelectedProject && (
-                                            <Row gutter={16}>
-                                                <Col span={12}>
-                                                    <Form.Item label="Set subject label">
-                                                        <Input
-                                                            placeholder="Set subject label"
-                                                            onChange={this.onChangeSubjectLabel}
-                                                            style={{ width: "400px" }}
-                                                        />
-                                                        &nbsp;
-                                                        <Tooltip title="subject label must be of form [a-zA-Z0-9]+">
-                                                            <Icon type="question-circle-o" />
-                                                        </Tooltip>
-                                                    </Form.Item>
-                                                </Col>
-                                                <Col span={12}></Col>
-                                            </Row>
-                                        )}
-
-                                        {this.state.isSelectedSubject && (
-                                            <Row gutter={16}>
-                                                <Col span={12}>
-                                                    <Form.Item label="Set session label">
-                                                        <Input
-                                                            placeholder="Set session label"
-                                                            onChange={this.onChangeSessionLabel}
-                                                            style={{ width: "400px" }}
-                                                        />
-                                                        &nbsp;
-                                                        <Tooltip title="session label must be of form [a-zA-Z0-9]+">
-                                                            <Icon type="question-circle-o" />
-                                                        </Tooltip>
-                                                    </Form.Item>
-                                                </Col>
-                                                <Col span={12}></Col>
-                                            </Row>
-                                        )}
-
-                                        {this.state.isSelectedSession && (
-                                            <Row gutter={16}>
-                                                <Col span={12}>
-                                                    <Form.Item label="Select data type">
-                                                        <Select
-                                                            labelInValue
-                                                            defaultValue={this.defaultEmpty}
-                                                            placeholder="Select data type"
-                                                            onSelect={this.onSelectDataTypeValue}
-                                                            style={{ width: "400px" }}
-                                                        >
-                                                            {optionsDataTypes}
-                                                        </Select>
-                                                    </Form.Item>
-                                                </Col>
-                                                <Col span={12}></Col>
-                                            </Row>
-                                        )}
-
-                                        {this.state.isSelectedDataTypeOther && (
-                                            <Row gutter={16}>
-                                                <Col span={12}>
-                                                    <Form.Item>
-                                                        <Input
-                                                            placeholder="Insert other data type"
-                                                            onChange={this.onChangeSelectedDataTypeOther}
-                                                            style={{ width: "400px" }}
-                                                        />
-                                                        &nbsp;
-                                                        <Tooltip title="other data type must be lower case string with no special characters">
-                                                            <Icon type="question-circle-o" />
-                                                        </Tooltip>
-                                                    </Form.Item>
-                                                </Col>
-                                                <Col span={12}></Col>
-
-                                            </Row>
-                                        )}
-
-                                        {this.state.isSelectedSession && this.state.hasFilesSelected && this.state.proceed && (
-                                            <Button
-                                                size="large"
-                                                style={{
-                                                    backgroundColor: "#52c41a",
-                                                    color: "#fff",
-                                                    width: "200px",
-                                                    float: "right"
-                                                }}
-                                                onClick={this.handleUpload}
-                                            >
-                                                Upload
-                                            </Button>
-                                        )}
-                                        {(!this.state.hasFilesSelected || !this.state.proceed) && (
-                                            <Button
-                                                disabled={true}
-                                                size="large"
-                                                style={{ width: "200px", float: "right" }}
-                                            >
-                                                Upload
-                                            </Button>
-                                        )}
-
-                                    </Form>
-                                </div>
-                            </Card>
-                        </Col>
-                    </Row>
-                </div>
-                <Footer />
-            </Content>
-        );
-    }
-}
-
-const Uploader = Form.create<IProps & FormComponentProps>()(UploaderApp);
+                            }
+                            {isSelectedSession && hasFilesSelected && proceed && (
+                                <Button
+                                    size="large"
+                                    style={{
+                                        backgroundColor: "#52c41a",
+                                        color: "#fff",
+                                        width: "200px",
+                                        float: "right"
+                                    }}
+                                    onClick={handleUpload}
+                                >
+                                    Upload
+                                </Button>
+                            )}
+                            {(!hasFilesSelected || !proceed) && (
+                                <Button
+                                    disabled={true}
+                                    size="large"
+                                    style={{ width: "200px", float: "right" }}
+                                >
+                                    Upload
+                                </Button>
+                            )}
+                        </Card>
+                    </Col>
+                </Row>
+            </div>
+            <Footer />
+        </Content>
+    );
+};
 
 export default Uploader;

@@ -15,7 +15,7 @@ import { FormComponentProps } from "antd/lib/form";
 import { Redirect } from "react-router-dom";
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
-import { AuthContextConsumer, AuthContext } from "../Auth/AuthContext";
+import { AuthContext } from "../Auth/AuthContext";
 
 import "../../App.less";
 import logoDCCN from "../../assets/dccn-logo.png";
