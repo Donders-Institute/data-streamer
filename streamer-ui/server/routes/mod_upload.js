@@ -4,6 +4,10 @@ const mkdirp = require('mkdirp');
 const request = require('request');
 const async = require('async');
 
+const config = require(path.join(__dirname + '/../config/streamer-ui-config.json'));
+const SERVICE_ADMIN_USERNAME = config.serviceAdmin.username;
+const SERVICE_ADMIN_PASSWORD = config.serviceAdmin.password;
+
 const STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname + '/uploads';
 const STREAMER_URL_PREFIX = process.env.STREAMER_URL_PREFIX || "http://streamer:3001";
 
@@ -53,8 +57,15 @@ var _upload = function (req, res) {
     // Verify auth credentials
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-    const [username, password] = credentials.split(':');
+    var [username, password] = credentials.split(':');
     const streamerUser = username;
+
+    // Check if we need to user service admin credentials
+    if (SERVICE_ADMIN_USERNAME && SERVICE_ADMIN_USERNAME !== "" &&
+        SERVICE_ADMIN_PASSWORD && SERVICE_ADMIN_PASSWORD !== "") {
+        username = SERVICE_ADMIN_USERNAME;
+        password = SERVICE_ADMIN_PASSWORD;
+    }
 
     // Check for structure
     if (!req.body) {
