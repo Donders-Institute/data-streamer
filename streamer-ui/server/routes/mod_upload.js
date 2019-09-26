@@ -44,6 +44,16 @@ var _upload = function (req, res) {
 
     var msg;
 
+    // Check for basic auth header
+    if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
+        msg = 'Missing Authorization Header'
+        return res.status(401).send(msg);
+    }
+
+    // Verify auth credentials
+    const base64Credentials = req.headers.authorization.split(' ')[1];
+    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+    const [username, password] = credentials.split(':');
 
     // Check for structure
     if (!req.body) {
@@ -133,11 +143,6 @@ var _upload = function (req, res) {
             }
 
             // Make POST call to streamer with basic authentication with username/password
-            if (!req.session) {
-                return cb(Error('Session empty'), null);
-            }
-            var username = req.session.user;
-            var password = req.session.password;
             if (!username) {
                 return cb(Error('Username empty'), null);
             }
