@@ -8,6 +8,7 @@ const child_process = require('child_process');
 const path = require('path');
 const kill = require('tree-kill');
 const fs = require('fs');
+const posix = require('posix');
 const utility = require('./utility');
 
 const restPaths = {
@@ -64,6 +65,83 @@ var _createStreamerJob = function(name, config, queue) {
 var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
     var async = require('async');
+
+    // General function to check whether the streamer User has write permission in the given `dir`.
+    // The way to check is by touching a file `.streamer` under the given `dir`.
+    var checkWritePermission = function(dir, minProgress, maxProgress, cb_async) {
+
+        // create directory `dir` if it doesn't exist
+        if ( ! fs.existsSync(dir) ) {
+            try {
+                //TODO: this is NOT a good way to create directory recursively
+                child_process.execSync('mkdir -p "' + dir + '"');
+            } catch(err) {}
+        }
+
+        var proc_user = posix.getpwnam(job.data.streamerUser.split('@')[0]);
+        var cmd = 'touch';
+        var cmd_args = [path.join(dir,'.streamer')];
+        var cmd_opts = {
+            shell: '/bin/bash',
+            uid: proc_user.uid,
+            gid: proc_user.gid
+        };
+
+        var cp_end = false;
+        var child = child_process.spawn(cmd, cmd_args, cmd_opts);
+        // define callback when child process is closed
+        child.on('close', function(code, signal) {
+            // notify the timer that the child process has been finished
+            cp_end = true;
+
+            child.stdin.end();
+
+            // interruption handling (null if process is not interrupted)
+            if ( code != 0 ) {
+                var errmsg = 'cannot write to ' + dir + ': ' + code + ' (' + signal + ')';
+                utility.printErr(job.id + ':USER:execStreamerJob:checkWritePermission', errmsg);
+                return cb_async(errmsg, false);
+            } else {
+                // set job progress to maxProgress
+                job.progress(maxProgress, 100);
+                return cb_async(null, true);
+            }
+        });
+
+        child.on('error', function(err) {
+            utility.printErr(job.id + ':USER:execStreamerJob:checkWritePermission',err);
+            return cb_async('cannot write to ' + dir + ': ' + err, false);
+        });
+
+        // define callback when receiving new stderr from the child process
+        child.stderr.on('data', function(errbuf) {
+            var errmsg = errbuf.toString();
+            errbuf = null;
+            job.log(errmsg);
+            utility.printErr(job.id + ':USER:execStreamerJob:checkWritePermission', errmsg);
+        });
+
+        // define callback when receiving new stderr from the child process
+        child.stdout.on('data', function(outbuf) {
+            outbuf = null;
+        });
+
+        // set timer to check whether there is a removal request from end user
+        var timer = setInterval( function() {
+            if ( cb_remove() ) {
+                kill(child.pid, 'SIGKILL', function(err) {
+                    if (err) {
+                        utility.printErr(job.id + ':USER:execStreamerJob:checkWritePermission', err);
+                    }
+                });
+            }
+
+            // clear the timer when the process has been closed
+            if ( cp_end ) {
+                clearInterval(timer);
+            }
+        },1000);
+    }
 
     // General function to sync data from one local path to the other.
     var syncPath = function(src, dst, createDir, minProgress, maxProgress, cb_async ) {
@@ -269,19 +347,23 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
     async.waterfall([
         function(cb) {
-            // step 1: rsync data from UI buffer to the catch-all project
-            syncPath(pathBuffer, pathCatchall, true, 0, 40, cb);
+            // step 1: check whether the user has write permission on pathProject
+            checkWritePermission(pathProject, 0, 10, cb);
         },
         function(out, cb) {
-            // step 2: archive data to the catch-all collection
+            // step 2: rsync data from UI buffer to the catch-all project
+            syncPath(pathBuffer, pathCatchall, true, 10, 40, cb);
+        },
+        function(out, cb) {
+            // step 3: archive data to the catch-all collection
             submitStagerJob(pathCatchall, true, 40, 50, cb);
         },
         function(out, cb) {
-            // step 3: archive data to individual project collection
+            // step 4: archive data to individual project collection
             submitStagerJob(pathCatchall, false, 50, 60, cb);
         },
         function(out, cb) {
-            // step 4: rsync data from catchall to individual projects
+            // step 5: rsync data from catchall to individual projects
             syncPath(pathCatchall, pathProject, true, 60, 100, cb);
         }],
         function(err, results) {
