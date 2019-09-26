@@ -54,6 +54,7 @@ var _upload = function (req, res) {
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
     const [username, password] = credentials.split(':');
+    const streamerUser = username;
 
     // Check for structure
     if (!req.body) {
@@ -149,6 +150,9 @@ var _upload = function (req, res) {
             if (!password) {
                 return cb(Error('Password empty'), null);
             }
+            if (!streamerUser) {
+                return cb(Error('streamerUser empty'), null);
+            }
             request.post(
                 {
                     'url': streamerURL,
@@ -158,7 +162,7 @@ var _upload = function (req, res) {
                     },
                     'json': true,
                     'body': {
-                        streamerUser: '',
+                        streamerUser: streamerUser,
                         drUser: ''
                     }
                 },

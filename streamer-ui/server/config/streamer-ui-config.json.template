@@ -1,4 +1,8 @@
 {
+    "serviceAdmin": {
+        "username": "",
+        "password": ""    
+    },
     "projectStorage": {
         "displayName": "DCCN project storage",
         "rootDir": "/project/",
@@ -13,7 +17,7 @@
         "displayName": "Donders Repository",
         "rootDir": "/",
         "prefixTurl": "irods:/rdm/di",
-        "hintLogin": "Sing in with the data-access account",
+        "hintLogin": "Sign in with the data-access account",
         "pathLogin": "/rdm/login",
         "pathLogout": "/rdm/logout",
         "exampleLogin": "U123456-ru.nl",
