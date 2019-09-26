@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React from "react";
 import {
     Select,
     Form,
@@ -76,7 +76,6 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
         handleChangeSessionLabel,
         handleSelectDataTypeValue,
         handleChangeSelectedDataTypeOther
-
     }) => {
     const { getFieldDecorator } = form;
 

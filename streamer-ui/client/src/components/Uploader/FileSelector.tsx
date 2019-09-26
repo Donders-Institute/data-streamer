@@ -33,7 +33,7 @@ const FileSelector: React.FC<IProps> = ({ fileList, fileListSummary, hasFilesSel
                 </p>
                 <p className="ant-upload-text">
                     Click or drag files to this area
-                                    </p>
+                </p>
                 <p className="ant-upload-hint">Select one or more files.</p>
             </Dragger>
 

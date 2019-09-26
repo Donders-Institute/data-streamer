@@ -44,7 +44,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
         // console.log(response.config);
         if (response.data) {
             if (response.data.error) {
-                const error = new Error(response.data.error)
+                const error = new Error(response.data.error);
                 setIsAuthenticated(() => false);
                 setLoggingIn(() => false);
                 setHasSubmitted(() => false);
@@ -131,7 +131,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                 <Button
                     onClick={() => authContext!.authenticate("testuser", "testpassword")}>
                     Authenticate testuser
-                        </Button>
+                </Button>
             }
             {
                 isAuthenticated &&
@@ -188,7 +188,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                                     <Form.Item>
                                         <Button type="primary" className="login-form-button" onClick={handleClick}>
                                             Log in
-                                                </Button>
+                                        </Button>
                                     </Form.Item>
                                     <div style={{ display: "flex", justifyContent: "center" }}>
                                         <Tooltip title="This is the login page for the data streamer UI. Please login with your DCCN credentials.">

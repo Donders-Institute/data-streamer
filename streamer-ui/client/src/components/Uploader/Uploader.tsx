@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
     Layout,
     Row,
@@ -22,6 +22,7 @@ import FileSelector from "./FileSelector";
 import FileList from "./FileList";
 import TargetPath from "./TargetPath";
 import StructureSelector from "./StructureSelector";
+import { fetchDummyProjectList } from "./fetch";
 import { RcFile, Project, SelectOption } from "./types";
 
 const { Content } = Layout;
@@ -31,13 +32,8 @@ const Uploader: React.FC = () => {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showUploadErrorModal, setShowUploadErrorModal] = useState(false);
     const [uploadErrorMessage, setUploadErrorMessage] = useState("");
-    const [isLoadingProjectList, setIsLoadingProjectList] = useState(false);
-    const [projectList, setProjectList] = useState([
-        {
-            id: 1,
-            number: "3010000.01"
-        }
-    ] as Project[]);
+    const [isLoadingProjectList, setIsLoadingProjectList] = useState(true);
+    const [projectList, setProjectList] = useState([] as Project[]);
     const [selectedProjectValue, setSelectedProjectValue] = useState("");
     const [selectedSubjectValue, setSelectedSubjectValue] = useState("");
     const [selectedSessionValue, setSelectedSessionValue] = useState("");
@@ -47,12 +43,21 @@ const Uploader: React.FC = () => {
     const [isSelectedSession, setIsSelectedSession] = useState(false);
     const [isSelectedDataType, setIsSelectedDataType] = useState(false);
     const [isSelectedDataTypeOther, setIsSelectedDataTypeOther] = useState(false);
-    const [doneWithSelectDataType, setDoneWithSelectedDataType] = useState(false);
     const [fileList, setFileList] = useState([] as RcFile[]);
     const [fileListSummary, setFileListSummary] = useState(0);
     const [hasFilesSelected, setHasFilesSelected] = useState(false);
     const [proceed, setProceed] = useState(false);
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
+
+    useEffect(() => {
+        const fetchData = async (username: string, password: string) => {
+            setIsLoadingProjectList(true);
+            const data = await fetchDummyProjectList(username, password);
+            setProjectList(data);
+            setIsLoadingProjectList(false);
+        };
+        fetchData(authContext!.username, authContext!.password);
+    }, [authContext]);
 
     const handleUploadResponse = (response: AxiosResponse) => {
         console.log(response.data);
@@ -74,6 +79,7 @@ const Uploader: React.FC = () => {
             console.log(error.message);
             errorMessage = error.message;
         }
+        console.log(errorMessage);
         setUploadErrorMessage(errorMessage);
         setShowUploadErrorModal(true);
         return error;
@@ -199,7 +205,6 @@ const Uploader: React.FC = () => {
         setSelectedDataTypeValue("");
         setIsSelectedDataType(false);
         setIsSelectedDataTypeOther(false);
-        setDoneWithSelectedDataType(false);
         setProceed(false);
     };
 
@@ -218,7 +223,6 @@ const Uploader: React.FC = () => {
             setSelectedDataTypeValue("");
             setIsSelectedDataType(false);
             setIsSelectedDataTypeOther(false);
-            setDoneWithSelectedDataType(false);
             setProceed(false);
         } else {
             let value = event.target.value;
@@ -241,7 +245,6 @@ const Uploader: React.FC = () => {
             setSelectedDataTypeValue("");
             setIsSelectedDataType(false);
             setIsSelectedDataTypeOther(false);
-            setDoneWithSelectedDataType(false);
             setProceed(false);
         }
     };
@@ -259,7 +262,6 @@ const Uploader: React.FC = () => {
             setSelectedDataTypeValue("");
             setIsSelectedDataType(false);
             setIsSelectedDataTypeOther(false);
-            setDoneWithSelectedDataType(false);
             setProceed(false);
         } else {
             let value = event.target.value;
@@ -280,7 +282,6 @@ const Uploader: React.FC = () => {
             setSelectedDataTypeValue("");
             setIsSelectedDataType(false);
             setIsSelectedDataTypeOther(false);
-            setDoneWithSelectedDataType(false);
             setProceed(false);
         }
     };
@@ -294,7 +295,6 @@ const Uploader: React.FC = () => {
             setIsSelectedDataTypeOther(true);
             proceed = false;
         }
-        setDoneWithSelectedDataType(proceed);
         setProceed(proceed);
     };
 
@@ -307,7 +307,6 @@ const Uploader: React.FC = () => {
         let isValid = validateSelectedDataTypeOtherInput(event.target.value);
         if (isValid) {
             setSelectedDataTypeValue(event.target.value);
-            setDoneWithSelectedDataType(true);
             setProceed(true);
         } else {
             let value = event.target.value;
@@ -324,7 +323,6 @@ const Uploader: React.FC = () => {
                 );
             }
             setSelectedDataTypeValue(value);
-            setDoneWithSelectedDataType(false);
             setProceed(false);
         }
     };
@@ -476,7 +474,7 @@ const Uploader: React.FC = () => {
                 visible={showUploadErrorModal}
                 closable={false}
                 footer={[
-                    <Button onClick={(event) => { setShowUploadErrorModal(false) }}>
+                    <Button onClick={(event) => { setShowUploadErrorModal(false); }}>
                         OK
                     </Button>
                 ]}

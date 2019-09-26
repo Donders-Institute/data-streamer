@@ -13,11 +13,11 @@ const Header: React.FC = () => {
     const authContext = useContext(AuthContext);
 
     const handleLogoutResponse = (response: AxiosResponse) => {
-        // console.log(response.data);
-        // console.log(response.status);
-        // console.log(response.statusText);
-        // console.log(response.headers);
-        // console.log(response.config);
+        console.log(response.data);
+        console.log(response.status);
+        console.log(response.statusText);
+        console.log(response.headers);
+        console.log(response.config);
         authContext!.signout();
     };
 
