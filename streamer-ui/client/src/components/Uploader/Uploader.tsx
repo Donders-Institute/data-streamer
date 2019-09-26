@@ -9,7 +9,9 @@ import {
     Divider,
     BackTop,
     Spin,
-    notification
+    notification,
+    Modal,
+    Progress
 } from "antd";
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
@@ -26,6 +28,9 @@ const { Content } = Layout;
 
 const Uploader: React.FC = () => {
     const authContext = useContext(AuthContext);
+    const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showUploadErrorModal, setShowUploadErrorModal] = useState(false);
+    const [uploadErrorMessage, setUploadErrorMessage] = useState("");
     const [isLoadingProjectList, setIsLoadingProjectList] = useState(false);
     const [projectList, setProjectList] = useState([
         {
@@ -55,23 +60,27 @@ const Uploader: React.FC = () => {
         console.log(response.statusText);
         console.log(response.headers);
         console.log(response.config);
+        setShowUploadModal(true);
     };
 
     const handleUploadError = (error: AxiosError) => {
+        var errorMessage = "";
         if (error.response) {
             console.log(error.response.data);
             console.log(error.response.status);
             console.log(error.response.headers);
+            errorMessage = JSON.stringify(error.response.data, null, 2);
         } else {
             console.log(error.message);
+            errorMessage = error.message;
         }
-        alert(error);
+        setUploadErrorMessage(errorMessage);
+        setShowUploadErrorModal(true);
         return error;
     };
 
     const handleUploadRequest = (username: string, password: string, formData: any) => {
         return new Promise((resolve) => {
-
             const config: AxiosRequestConfig = {
                 url: "/upload",
                 method: "post",
@@ -445,7 +454,36 @@ const Uploader: React.FC = () => {
                 </Row>
             </div>
             <Footer />
-        </Content>
+            <Modal
+                title="Uploading"
+                visible={showUploadModal}
+                closable={false}
+                footer={[
+                    <Button type="primary" disabled={true} onClick={() => { }}>
+                        Another batch
+                    </Button>,
+                    <Button disabled={true} onClick={(e) => authContext!.signout()}>
+                        Log out
+                    </Button>
+                ]}
+            >
+                <p>This may take a while ...</p>
+                <Progress percent={50} />
+                <p>Do not close the browser</p>
+            </Modal>
+            <Modal
+                title="Error"
+                visible={showUploadErrorModal}
+                closable={false}
+                footer={[
+                    <Button onClick={(event) => { setShowUploadErrorModal(false) }}>
+                        OK
+                    </Button>
+                ]}
+            >
+                {uploadErrorMessage}
+            </Modal >
+        </Content >
     );
 };
 
