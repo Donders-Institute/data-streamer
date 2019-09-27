@@ -27,7 +27,8 @@ function get_dirname(projectNumber, subjectLabel, sessionLabel, dataType) {
     if (projectNumber && subjectLabel && sessionLabel && dataType) {
         var sub = 'sub-' + subjectLabel;
         var ses = 'ses-' + sessionLabel;
-        dirname = path.join(STREAMER_UI_BUFFER_DIR, projectNumber, sub, ses, dataType);
+        // dirname = path.join(STREAMER_UI_BUFFER_DIR, projectNumber, sub, ses, dataType);
+        dirname = path.join(STREAMER_UI_BUFFER_DIR, sub, ses, dataType); // Use catchall
     }
     return [err, dirname];
 }
