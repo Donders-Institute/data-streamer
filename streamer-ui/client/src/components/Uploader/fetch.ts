@@ -22,6 +22,7 @@ const handleGetProjectsResponse = (response: AxiosResponse) => {
     console.log(response.statusText);
     console.log(response.headers);
     console.log(response.config);
+    return response;
 };
 
 const handleGetProjectsError = (error: AxiosError) => {
@@ -48,7 +49,7 @@ const handleGetProjectsRequest = (username: string, password: string) => {
             data: { 
                 username: username
             },
-            timeout: 10000,
+            timeout: 5000,
             withCredentials: true,
             auth: {
                 username: username,

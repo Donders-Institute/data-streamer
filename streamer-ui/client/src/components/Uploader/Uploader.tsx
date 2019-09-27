@@ -22,7 +22,7 @@ import FileSelector from "./FileSelector";
 import FileList from "./FileList";
 import TargetPath from "./TargetPath";
 import StructureSelector from "./StructureSelector";
-import { fetchDummyProjectList } from "./fetch";
+import { fetchProjectList } from "./fetch";
 import { RcFile, Project, SelectOption } from "./types";
 
 const { Content } = Layout;
@@ -52,7 +52,7 @@ const Uploader: React.FC = () => {
     useEffect(() => {
         const fetchData = async (username: string, password: string) => {
             setIsLoadingProjectList(true);
-            const data = await fetchDummyProjectList(username, password);
+            const data = await fetchProjectList(username, password);
             setProjectList(data);
             setIsLoadingProjectList(false);
         };
