@@ -27,8 +27,7 @@ function get_dirname(projectNumber, subjectLabel, sessionLabel, dataType) {
     if (projectNumber && subjectLabel && sessionLabel && dataType) {
         var sub = 'sub-' + subjectLabel;
         var ses = 'ses-' + sessionLabel;
-        // dirname = path.join(STREAMER_UI_BUFFER_DIR, projectNumber, sub, ses, dataType);
-        dirname = path.join(STREAMER_UI_BUFFER_DIR, sub, ses, dataType); // Use catchall
+        dirname = path.join(STREAMER_UI_BUFFER_DIR, projectNumber, sub, ses, dataType);
     }
     return [err, dirname];
 }
@@ -38,9 +37,7 @@ function get_streamer_url(projectNumber, subjectLabel, sessionLabel, dataType) {
     var err;
     var url;
     if (projectNumber && subjectLabel && sessionLabel && dataType) {
-        var sub = 'sub-' + subjectLabel;
-        var ses = 'ses-' + sessionLabel;
-        url = `${STREAMER_URL_PREFIX}/user/${projectNumber}/${sub}/${ses}/${dataType}`;
+        url = `${STREAMER_URL_PREFIX}/user/${projectNumber}/${subjectLabel}/${sessionLabel}/${dataType}`;
     }
     return [err, url];
 }
