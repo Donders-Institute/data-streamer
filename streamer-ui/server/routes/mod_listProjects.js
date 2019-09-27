@@ -8,14 +8,14 @@ const PROJECT_DATABASE_USERNAME = config.projectDatabase.username;
 const PROJECT_DATABASE_PASSWORD = config.projectDatabase.password;
 const PROJECT_DATABASE_DATABASE_NAME = config.projectDatabase.databaseName;
 
-var _getListProjects = async function (req, res) {
+var _getListProjects = function (req, res) {
 
     var msg;
 
     // Check for basic auth header
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
         msg = 'Missing Authorization Header'
-        return res.status(401).send(msg);
+        return res.status(401).json({ "error": msg });
     }
 
     // Verify auth credentials
@@ -23,11 +23,8 @@ var _getListProjects = async function (req, res) {
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
     var username = credentials.split(':')[0];
     if (!req.body) {
-        return res.status(400).send(`No attributes were uploaded: "req.body" is empty`);
-    }
-    if (req.body.username !== username) {
-        msg = 'Basic auth username inconsistent with request body username';
-        return res.status(401).send(msg);
+        msg = `No attributes were uploaded: "req.body" is empty`;
+        return res.status(400).json({ "error": msg });
     }
 
     // Create SQL statement
@@ -41,23 +38,22 @@ var _getListProjects = async function (req, res) {
         database: PROJECT_DATABASE_DATABASE_NAME
     });
 
-    await con.connect(function (err) {
+    con.connect(function (err) {
         if (err) {
             console.error(err);
             return res.status(500).json({ "error": err });
         }
-    });
-
-    con.query(sql, function (err, results) {
-        if (err) {
-            con.end();
-            console.error(err);
-            return res.status(500).json({ "error": err });
-        } else {
-            con.end();
-            console.log(results);
-            return res.status(200).json({ "data": results });
-        }
+        con.query(sql, function (err, results) {
+            if (err) {
+                con.end();
+                console.error(err);
+                return res.status(500).json({ "error": err });
+            } else {
+                con.end();
+                console.log(results);
+                return res.status(200).json({ "data": results });
+            }
+        });
     });
 }
 

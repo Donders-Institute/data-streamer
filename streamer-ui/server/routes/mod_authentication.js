@@ -22,12 +22,23 @@ var _isAuthenticated = function (req, res, next) {
 
 // Authenticate user with Active Directory
 var _authenticateUser = function (req, res) {
+
+    // Check for basic auth header
+    if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
+        return res.status(401).json({ success: false, error: "Missing Authorization Header." });
+    }
+
+    // Verify auth credentials
+    const base64Credentials = req.headers.authorization.split(' ')[1];
+    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+    var [username, password] = credentials.split(':');
+
     if (typeof req.body.username !== 'undefined') {
 
         var ad = new ActiveDirectory(adconfig);
 
         // Check wether user exists. And if it exists get the userPrincipalName and use that to authenticate
-        ad.findUser(req.body.username, function (err, user) {
+        ad.findUser(username, function (err, user) {
             if (err) {
                 console.log('ERROR: ' + JSON.stringify(err));
                 res.status(200).json({ success: false, error: "Something went wrong. Try again later." });
@@ -36,10 +47,10 @@ var _authenticateUser = function (req, res) {
             if (!user) {
                 res.status(200).json({ success: false, error: "Username not found." });
             } else {
-                ad.authenticate(user.userPrincipalName, req.body.password, function (err, auth) {
+                ad.authenticate(user.userPrincipalName, password, function (err, auth) {
                     if (auth) {
                         // Authentication success
-                        req.session.user = req.body.username;
+                        req.session.user = username;
                         req.session.authenticated = true;
                         res.status(200).json({ success: true, data: "You will soon be redirected to the index." });
                         return;

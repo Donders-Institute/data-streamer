@@ -37,6 +37,7 @@ const handleGetProjectsError = (error: AxiosError) => {
         errorMessage = error.message;
     }
     console.log(errorMessage);
+    alert(error);
     return error;
 };
 
@@ -46,8 +47,7 @@ const handleGetProjectsRequest = (username: string, password: string) => {
             url: "/projects",
             method: "get",
             headers: { "Content-Type": "application/json" },
-            data: { 
-                username: username
+            data: {
             },
             timeout: 5000,
             withCredentials: true,

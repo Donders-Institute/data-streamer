@@ -57,12 +57,10 @@ app.post('/login', modAuthentication.authenticateUser);
 app.post('/logout', modAuthentication.logoutUser);
 
 // POST Handle uploading file(s) in backend
-// app.post('/upload', modAuthentication.isAuthenticated, modUpload.upload);
-app.post('/upload', function (req, res, next) { next(); }, modUpload.upload);
+app.post('/upload', modAuthentication.isAuthenticated, modUpload.upload);
 
-// GET Obtain lis of projects for user
-// app.get('/projects', modAuthentication.isAuthenticated, modListProjects.getListProjects);
-app.get('/projects', function (req, res, next) { next(); }, modListProjects.getListProjects);
+// GET Obtain list of projects for user
+app.get('/projects', modAuthentication.isAuthenticated, modListProjects.getListProjects);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {
