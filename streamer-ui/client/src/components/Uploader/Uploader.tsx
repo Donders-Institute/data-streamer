@@ -48,7 +48,6 @@ const Uploader: React.FC = () => {
     const [fileListSummary, setFileListSummary] = useState(0);
     const [hasFilesSelected, setHasFilesSelected] = useState(false);
     const [proceed, setProceed] = useState(false);
-    const [refresh, setRefresh] = useState(false);
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
 
     useEffect(() => {
@@ -461,9 +460,23 @@ const Uploader: React.FC = () => {
                 footer={[
                     <Button type="primary" onClick={(e) => {
                         setShowUploadModal(false);
-                        setRefresh(true);
+
+                        // Keep projectList, refresh the rest
+                        setFileList([] as RcFile[]);
+                        setFileListSummary(0);
+                        setHasFilesSelected(false);
+                        setSelectedProjectValue("");
+                        setIsSelectedProject(false);
+                        setSelectedSubjectValue("");
+                        setIsSelectedSubject(false);
+                        setSelectedSessionValue("");
+                        setIsSelectedSession(false);
+                        setSelectedDataTypeValue("");
+                        setIsSelectedDataType(false);
+                        setIsSelectedDataTypeOther(false);
+                        setProceed(false);
                     }}>
-                        Another batch
+                        Upload another batch
                     </Button>,
                     <Button onClick={(e) => authContext!.signout()}>
                         Log out
