@@ -17,11 +17,11 @@ export const fetchDummyProjectList = async (username: string, password: string) 
 };
 
 const handleGetProjectsResponse = (response: AxiosResponse) => {
-    console.log(response.data);
-    console.log(response.status);
-    console.log(response.statusText);
-    console.log(response.headers);
-    console.log(response.config);
+    // console.log(response.data);
+    // console.log(response.status);
+    // console.log(response.statusText);
+    // console.log(response.headers);
+    // console.log(response.config);
     return response;
 };
 
