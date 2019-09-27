@@ -3,6 +3,13 @@
         "username": "",
         "password": ""    
     },
+    "projectDatabase": {
+        "host": "db.example.com",
+        "port": "3306",
+        "username": "user",
+        "password": "password",
+        "databaseName": "database"
+    },
     "projectStorage": {
         "displayName": "DCCN project storage",
         "rootDir": "/project/",
