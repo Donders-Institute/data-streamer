@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect } from "react";
+import { Redirect } from "react-router-dom";
 import {
     Layout,
     Row,
@@ -47,6 +48,7 @@ const Uploader: React.FC = () => {
     const [fileListSummary, setFileListSummary] = useState(0);
     const [hasFilesSelected, setHasFilesSelected] = useState(false);
     const [proceed, setProceed] = useState(false);
+    const [refresh, setRefresh] = useState(false);
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
 
     useEffect(() => {
@@ -457,16 +459,19 @@ const Uploader: React.FC = () => {
                 visible={showUploadModal}
                 closable={false}
                 footer={[
-                    <Button type="primary" disabled={true} onClick={() => { }}>
+                    <Button type="primary" onClick={(e) => {
+                        setShowUploadModal(false);
+                        setRefresh(true);
+                    }}>
                         Another batch
                     </Button>,
-                    <Button disabled={true} onClick={(e) => authContext!.signout()}>
+                    <Button onClick={(e) => authContext!.signout()}>
                         Log out
                     </Button>
                 ]}
             >
                 <p>This may take a while ...</p>
-                <Progress percent={50} />
+                <Progress percent={100} />
                 <p>Do not close the browser</p>
             </Modal>
             <Modal
