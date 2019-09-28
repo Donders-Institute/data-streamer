@@ -42,7 +42,7 @@ const handleGetProjectsError = (error: AxiosError) => {
 };
 
 const handleGetProjectsRequest = (username: string, password: string) => {
-    return new Promise((resolve) => {
+    return new Promise<AxiosResponse|AxiosError>((resolve) => {
         const config: AxiosRequestConfig = {
             url: "/projects",
             method: "get",
@@ -65,16 +65,31 @@ const handleGetProjectsRequest = (username: string, password: string) => {
     });
 };
 
+function isAxiosResponse(result: AxiosResponse|AxiosError): result is AxiosResponse {
+    return (result as AxiosResponse).data !== undefined;
+}
+
+interface SQLQueryProjectElement {
+    project: string;
+}
+
 export const fetchProjectList = async (username: string, password: string) => {
-    console.log(`Fetching data for ${username} ...`);
-    const response = await handleGetProjectsRequest(username, password);
-    // TODO grab the data from the response
-    let projectList = [
-        {
-            id: 1,
-            number: "3010000.01"
+    console.log(`Fetching projects for ${username} ...`);
+    const result = await handleGetProjectsRequest(username, password);
+    let projectList = [] as Project[];
+    if (isAxiosResponse(result)) {
+        if (result.data) {
+            if (result.data.data) {
+                const data = result.data.data;
+                for (let i = 0; i < data.length; i++){
+                    let projectElement: SQLQueryProjectElement = data[i];
+                    let projectNumber = projectElement.project;
+                    let project = {id: i, number: projectNumber} as Project;
+                    console.log(projectNumber);
+                    projectList.push(project);
+                }
+            }
         }
-    ] as Project[];
-    console.log(response);
+    }
     return projectList;
 };
