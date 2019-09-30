@@ -1,9 +1,9 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { Layout, Row, Col, Icon, Menu, Button } from "antd";
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
-import { AuthContextConsumer, AuthContext } from "../Auth/AuthContext";
+import { AuthContext } from "../Auth/AuthContext";
 
 import "../../App.less";
 

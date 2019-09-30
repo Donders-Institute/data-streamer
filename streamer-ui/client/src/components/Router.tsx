@@ -17,7 +17,7 @@ interface IProps {
     title?: string | undefined;
 }
 
-const Router: React.FC<IProps> = ({ }) => {
+const Router: React.FC<IProps> = () => {
     const authenticate = (username: string, password: string) => {
         setAuthContext(state => ({ ...state, username: username, password: password, isAuthenticated: true }));
     };

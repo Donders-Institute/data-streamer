@@ -1,5 +1,4 @@
 import React, { useState, useContext, useEffect } from "react";
-import { Redirect } from "react-router-dom";
 import {
     Layout,
     Row,

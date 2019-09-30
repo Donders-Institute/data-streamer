@@ -100,7 +100,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
         });
     };
 
-    const handleClick = (event: any) => {
+    const handleSubmit = (event: any) => {
         event.preventDefault();
         setUsername(() => username);
         setPassword(() => password);
@@ -154,14 +154,15 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                                 style={{
                                     borderRadius: 4,
                                     boxShadow: "1px 1px 1px #ddd",
-                                    marginTop: 10
+                                    marginTop: 10,
+                                    width: "350px"
                                 }}
                                 className="shadow"
                             >
                                 <div style={{ display: "flex", justifyContent: "center", marginBottom: 30 }}>
                                     <img alt="Donders Institute" src={logoDCCN} height={64} />
                                 </div>
-                                <Form className="login-form">
+                                <Form className="login-form" onSubmit={handleSubmit}>
                                     <Form.Item>
                                         {getFieldDecorator("username", {
                                             rules: [{ required: true, message: "Please input your DCCN username" }]
@@ -186,7 +187,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                                         )}
                                     </Form.Item>
                                     <Form.Item>
-                                        <Button type="primary" className="login-form-button" onClick={handleClick}>
+                                        <Button className="login-form-button" type="primary" htmlType="submit">
                                             Log in
                                         </Button>
                                     </Form.Item>
