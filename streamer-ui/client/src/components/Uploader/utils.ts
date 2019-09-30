@@ -14,3 +14,18 @@ export const formatBytes = (bytesAsString: string, decimals = 2) => {
 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
 };
+
+const regexpSubjectLabel = new RegExp("^[a-zA-Z0-9]+$");
+export const validateSubjectLabelInput = (text: string) => {
+    return regexpSubjectLabel.test(text);
+};
+
+const regexpSessionLabel = new RegExp("^[a-zA-Z0-9]+$");
+export const validateSessionLabelInput = (text: string) => {
+    return regexpSessionLabel.test(text);
+};
+
+const regexpSelectedDataTypeOtherInput = new RegExp("^[a-z]+$");
+export const validateSelectedDataTypeOtherInput = (text: string) => {
+    return regexpSelectedDataTypeOtherInput.test(text);
+};

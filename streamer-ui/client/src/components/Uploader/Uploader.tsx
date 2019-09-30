@@ -24,6 +24,7 @@ import TargetPath from "./TargetPath";
 import StructureSelector from "./StructureSelector";
 import { fetchProjectList } from "./fetch";
 import { RcFile, Project, SelectOption } from "./types";
+import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "./utils";
 
 const { Content } = Layout;
 
@@ -208,11 +209,6 @@ const Uploader: React.FC = () => {
         setProceed(false);
     };
 
-    const regexpSubjectLabel = new RegExp("^[a-zA-Z0-9]+$");
-    const validateSubjectLabelInput = (text: string) => {
-        return regexpSubjectLabel.test(text);
-    };
-
     const handleChangeSubjectLabel = (event: any) => {
         let isValid = validateSubjectLabelInput(event.target.value);
         if (isValid) {
@@ -230,13 +226,13 @@ const Uploader: React.FC = () => {
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = selectedSubjectValue;
-                openNotification(
-                    "Error",
-                    `subject label "${event.target.value}" must be of form [a-zA-Z0-9]+.`,
-                    "error",
-                    4.5,
-                    "bottomLeft"
-                );
+                // openNotification(
+                //     "Error",
+                //     `subject label "${event.target.value}" must be of form [a-zA-Z0-9]+.`,
+                //     "error",
+                //     4.5,
+                //     "bottomLeft"
+                // );
             }
             setSelectedSubjectValue(value);
             setIsSelectedSubject(false);
@@ -247,11 +243,6 @@ const Uploader: React.FC = () => {
             setIsSelectedDataTypeOther(false);
             setProceed(false);
         }
-    };
-
-    const regexpSessionLabel = new RegExp("^[a-zA-Z0-9]+$");
-    const validateSessionLabelInput = (text: string) => {
-        return regexpSessionLabel.test(text);
     };
 
     const handleChangeSessionLabel = (event: any) => {
@@ -269,13 +260,13 @@ const Uploader: React.FC = () => {
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = selectedSessionValue;
-                openNotification(
-                    "Error",
-                    `Session label "${event.target.value}" must be of form [a-zA-Z0-9]+.`,
-                    "error",
-                    4.5,
-                    "bottomLeft"
-                );
+                // openNotification(
+                //     "Error",
+                //     `Session label "${event.target.value}" must be of form [a-zA-Z0-9]+.`,
+                //     "error",
+                //     4.5,
+                //     "bottomLeft"
+                // );
             }
             setSelectedSessionValue(value);
             setIsSelectedSession(false);
@@ -298,11 +289,6 @@ const Uploader: React.FC = () => {
         setProceed(proceed);
     };
 
-    const regexpSelectedDataTypeOtherInput = new RegExp("^[a-z]+$");
-    const validateSelectedDataTypeOtherInput = (text: string) => {
-        return regexpSelectedDataTypeOtherInput.test(text);
-    };
-
     const handleChangeSelectedDataTypeOther = (event: any) => {
         let isValid = validateSelectedDataTypeOtherInput(event.target.value);
         if (isValid) {
@@ -314,13 +300,13 @@ const Uploader: React.FC = () => {
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = selectedDataTypeValue;
-                openNotification(
-                    "Error",
-                    `other data type "${event.target.value}" must be all lower case, with no special characters.`,
-                    "error",
-                    4.5,
-                    "bottomLeft"
-                );
+                // openNotification(
+                //     "Error",
+                //     `other data type "${event.target.value}" must be all lower case, with no special characters.`,
+                //     "error",
+                //     4.5,
+                //     "bottomLeft"
+                // );
             }
             setSelectedDataTypeValue(value);
             setProceed(false);

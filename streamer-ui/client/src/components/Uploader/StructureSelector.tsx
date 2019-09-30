@@ -11,6 +11,8 @@ import {
 import { FormComponentProps } from "antd/lib/form";
 import { Project, SelectOption } from "./types";
 
+import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "./utils";
+
 const { Option } = Select;
 
 interface IProps {
@@ -89,6 +91,27 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
         <Option value={item.dataType}>{item.dataType}</Option>
     ));
 
+    const validateSubjectLabel = async (rule: any, value: string) => {
+        let isValid = validateSubjectLabelInput(value);
+        if (!isValid) {
+            throw new Error('Must be of form [a-zA-Z0-9]+');
+        }
+    }
+
+    const validateSessionLabel = async (rule: any, value: string) => {
+        let isValid = validateSessionLabelInput(value);
+        if (!isValid) {
+            throw new Error('Must be of form [a-zA-Z0-9]+');
+        }
+    }
+
+    const validateDataTypeOther = async (rule: any, value: string) => {
+        let isValid = validateSelectedDataTypeOtherInput(value);
+        if (!isValid) {
+            throw new Error('Must be of form [a-z]+');
+        }
+    }
+
     return (
         <Form layout="vertical" hideRequiredMark>
             <Row gutter={16}>
@@ -103,6 +126,10 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         >
                             {optionsProjects}
                         </Select>
+                        &nbsp;
+                            <Tooltip title="only the projects are shown for which you are manager or contributor">
+                            <Icon type="question-circle-o" />
+                        </Tooltip>
                     </Form.Item>
                 </Col>
                 <Col span={12}></Col>
@@ -112,11 +139,18 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item label="Set subject label">
-                            <Input
-                                placeholder="Set subject label"
-                                onChange={handleChangeSubjectLabel}
-                                style={{ width: "400px" }}
-                            />
+                            {getFieldDecorator("subjectlabel", {
+                                rules: [
+                                    { required: true, message: "Please input your subject label" },
+                                    { validator: validateSubjectLabel }
+                                ]
+                            })(
+                                <Input
+                                    placeholder="Set subject label"
+                                    onChange={handleChangeSubjectLabel}
+                                    style={{ width: "400px" }}
+                                />,
+                            )}
                             &nbsp;
                             <Tooltip title="subject label must be of form [a-zA-Z0-9]+">
                                 <Icon type="question-circle-o" />
@@ -131,15 +165,22 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item label="Set session label">
-                            <Input
-                                placeholder="Set session label"
-                                onChange={handleChangeSessionLabel}
-                                style={{ width: "400px" }}
-                            />
+                            {getFieldDecorator("sessionlabel", {
+                                rules: [
+                                    { required: true, message: "Please input your session label" },
+                                    { validator: validateSessionLabel }
+                                ]
+                            })(
+                                <Input
+                                    placeholder="Set session label"
+                                    onChange={handleChangeSessionLabel}
+                                    style={{ width: "400px" }}
+                                />,
+                            )}
                             &nbsp;
                             <Tooltip title="session label must be of form [a-zA-Z0-9]+">
                                 <Icon type="question-circle-o" />
-                            </Tooltip>
+                            </Tooltip>,
                         </Form.Item>
                     </Col>
                     <Col span={12}></Col>
@@ -169,11 +210,18 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item>
-                            <Input
-                                placeholder="Insert other data type"
-                                onChange={handleChangeSelectedDataTypeOther}
-                                style={{ width: "400px" }}
-                            />
+                            {getFieldDecorator("datatypeother", {
+                                rules: [
+                                    { required: true, message: "Please input your other data type" },
+                                    { validator: validateDataTypeOther }
+                                ]
+                            })(
+                                <Input
+                                    placeholder="Insert other data type"
+                                    onChange={handleChangeSelectedDataTypeOther}
+                                    style={{ width: "400px" }}
+                                />,
+                            )}
                             &nbsp;
                             <Tooltip title="other data type must be lower case string with no special characters">
                                 <Icon type="question-circle-o" />
