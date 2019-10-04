@@ -12,10 +12,10 @@ interface IProps {
     fileList: RcFile[];
     fileListSummary: number;
     hasFilesSelected: boolean;
-    handleChange: (file: RcFile, fileList: RcFile[]) => boolean;
+    handleBeforeUpload: (file: RcFile, fileList: RcFile[]) => boolean | PromiseLike<void>;
 }
 
-const FileSelector: React.FC<IProps> = ({ fileList, fileListSummary, hasFilesSelected, handleChange }) => {
+const FileSelector: React.FC<IProps> = ({ handleBeforeUpload }) => {
 
     return (
         <div>
@@ -24,7 +24,7 @@ const FileSelector: React.FC<IProps> = ({ fileList, fileListSummary, hasFilesSel
                 className="file-uploader"
                 name="file"
                 multiple={true}
-                beforeUpload={handleChange}
+                beforeUpload={handleBeforeUpload}
                 showUploadList={false}
                 directory={false}
             >

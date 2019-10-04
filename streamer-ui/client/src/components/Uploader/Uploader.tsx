@@ -9,7 +9,6 @@ import {
     Divider,
     BackTop,
     Spin,
-    notification,
     Modal,
     Progress
 } from "antd";
@@ -28,11 +27,19 @@ import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedD
 
 const { Content } = Layout;
 
+function modalError(msg: string) {
+    Modal.error({
+        title: 'Error',
+        content: msg,
+        onOk() {
+            Modal.destroyAll();
+        }
+    });
+}
+
 const Uploader: React.FC = () => {
     const authContext = useContext(AuthContext);
     const [showUploadModal, setShowUploadModal] = useState(false);
-    const [showUploadErrorModal, setShowUploadErrorModal] = useState(false);
-    const [uploadErrorMessage, setUploadErrorMessage] = useState("");
     const [isLoadingProjectList, setIsLoadingProjectList] = useState(true);
     const [projectList, setProjectList] = useState([] as Project[]);
     const [selectedProjectValue, setSelectedProjectValue] = useState("");
@@ -81,8 +88,7 @@ const Uploader: React.FC = () => {
             errorMessage = error.message;
         }
         console.log(errorMessage);
-        setUploadErrorMessage(errorMessage);
-        setShowUploadErrorModal(true);
+        modalError(errorMessage);
         return error;
     };
 
@@ -126,55 +132,6 @@ const Uploader: React.FC = () => {
         handleUploadRequest(authContext!.username, authContext!.password, formData);
     };
 
-    const openNotification = (
-        title: string,
-        description: string,
-        category: "success" | "info" | "error" | "warning",
-        duration: number,
-        placement: "topLeft" | "topRight" | "bottomLeft" | "bottomRight"
-    ) => {
-        notification[category]({
-            message: title,
-            description: description,
-            duration: duration,
-            placement: placement
-        });
-    };
-
-    const fileNameExists = (file: RcFile, fileList: RcFile[]) => {
-        const duplicates = fileList.filter(
-            item => item.name === file.name && item.uid !== file.uid
-        );
-        if (duplicates.length > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    };
-
-    const handleAdd = (file: RcFile) => {
-        if (fileNameExists(file, fileList)) {
-            openNotification(
-                "Error",
-                `"${file.name}" filename already exists, please rename.`,
-                "error",
-                0,
-                "bottomLeft"
-            );
-        } else {
-            setHasFilesSelected(true);
-            setFileList(fileList => [...fileList, file]);
-            setFileListSummary(fileListSummary => fileListSummary + file.size);
-            // openNotification(
-            //     "Success",
-            //     `"${file.name}" file successfully added to list.`,
-            //     "success",
-            //     4.5,
-            //     "bottomLeft"
-            // );
-        }
-    };
-
     const handleDelete = (uid: string, filename: string, size: number) => {
         const fileListUpdated = fileList.filter(
             (item: any) => item.name !== filename && item.uid !== uid
@@ -191,9 +148,44 @@ const Uploader: React.FC = () => {
         setFileListSummary(0);
     };
 
-    const handleChange = (file: RcFile, fileList: RcFile[]) => {
-        handleAdd(file);
-        return false;
+    const fileNameExists = (file: RcFile, fileList: RcFile[]) => {
+        const duplicates = fileList.filter(
+            item => item.name === file.name && item.uid !== file.uid
+        );
+        if (duplicates.length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+    const handleBeforeUpload = (file: RcFile, batch: RcFile[]) => {
+        let isValidBatch = true;
+        let duplicates = [] as string[];
+        // TODO: Find a way to do this check only once (i.e. per batch)
+        for (let i = 0; i < batch.length; i++) {
+            if (fileNameExists(batch[i], fileList)) {
+                duplicates.push(batch[i].name);
+                isValidBatch = false;
+            }
+        }
+        if (isValidBatch) {
+            setHasFilesSelected(true);
+            setFileList(fileList => [...fileList, file]);
+            setFileListSummary(fileListSummary => fileListSummary + file.size);
+        } else {
+            setFileList(fileList => [...fileList]);
+            setHasFilesSelected(fileList.length > 0);
+            setFileListSummary(fileListSummary => fileListSummary);
+            let msg = "";
+            if (duplicates.length === 1) {
+                msg = `Filename already exists, please rename: "${duplicates[0]}"`;
+            } else {
+                msg = `Filenames already exist, please rename: [${duplicates.join(', ')}]`;
+            }
+            modalError(msg);
+        }
+        return true; // bypass default behaviour
     };
 
     const handleSelectProjectValue = (value: SelectOption) => {
@@ -222,17 +214,10 @@ const Uploader: React.FC = () => {
             setProceed(false);
         } else {
             let value = event.target.value;
-            // Do not store invalid strings and show error.
+            // Do not store invalid strings.
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = selectedSubjectValue;
-                // openNotification(
-                //     "Error",
-                //     `subject label "${event.target.value}" must be of form [a-zA-Z0-9]+.`,
-                //     "error",
-                //     4.5,
-                //     "bottomLeft"
-                // );
             }
             setSelectedSubjectValue(value);
             setIsSelectedSubject(false);
@@ -256,17 +241,10 @@ const Uploader: React.FC = () => {
             setProceed(false);
         } else {
             let value = event.target.value;
-            // Do not store invalid strings and show error.
+            // Do not store invalid strings.
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = selectedSessionValue;
-                // openNotification(
-                //     "Error",
-                //     `Session label "${event.target.value}" must be of form [a-zA-Z0-9]+.`,
-                //     "error",
-                //     4.5,
-                //     "bottomLeft"
-                // );
             }
             setSelectedSessionValue(value);
             setIsSelectedSession(false);
@@ -296,17 +274,10 @@ const Uploader: React.FC = () => {
             setProceed(true);
         } else {
             let value = event.target.value;
-            // Do not store invalid strings and show error.
+            // Do not store invalid strings.
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = selectedDataTypeValue;
-                // openNotification(
-                //     "Error",
-                //     `other data type "${event.target.value}" must be all lower case, with no special characters.`,
-                //     "error",
-                //     4.5,
-                //     "bottomLeft"
-                // );
             }
             setSelectedDataTypeValue(value);
             setProceed(false);
@@ -338,7 +309,7 @@ const Uploader: React.FC = () => {
                                 fileList={fileList}
                                 fileListSummary={fileListSummary}
                                 hasFilesSelected={hasFilesSelected}
-                                handleChange={handleChange}
+                                handleBeforeUpload={handleBeforeUpload}
                             />
                             <br />
                             <br />
@@ -472,18 +443,6 @@ const Uploader: React.FC = () => {
                 <Progress percent={100} />
                 <p>Do not close the browser</p>
             </Modal>
-            <Modal
-                title="Error"
-                visible={showUploadErrorModal}
-                closable={false}
-                footer={[
-                    <Button onClick={(event) => { setShowUploadErrorModal(false); }}>
-                        OK
-                    </Button>
-                ]}
-            >
-                {uploadErrorMessage}
-            </Modal >
         </Content >
     );
 };
