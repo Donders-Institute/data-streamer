@@ -9,7 +9,8 @@ import {
     Row,
     Col,
     Tooltip,
-    Spin
+    Spin,
+    Modal
 } from "antd";
 import { FormComponentProps } from "antd/lib/form";
 import { Redirect } from "react-router-dom";
@@ -26,6 +27,16 @@ interface IProps {
     title?: string | undefined;
 }
 
+function modalError(msg: string) {
+    Modal.error({
+        title: 'Error',
+        content: msg,
+        onOk() {
+            Modal.destroyAll();
+        }
+    });
+}
+
 const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
     const authContext = useContext(AuthContext);
     const [username, setUsername] = useState("");
@@ -37,18 +48,13 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
 
     const handleLoginResponse = (response: AxiosResponse) => {
-        // console.log(response.data);
-        // console.log(response.status);
-        // console.log(response.statusText);
-        // console.log(response.headers);
-        // console.log(response.config);
         if (response.data) {
             if (response.data.error) {
                 const error = new Error(response.data.error);
                 setIsAuthenticated(() => false);
                 setLoggingIn(() => false);
                 setHasSubmitted(() => false);
-                alert(error);
+                modalError(error.message);
                 return error;
             }
             setIsAuthenticated(() => true);
@@ -61,17 +67,20 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
     };
 
     const handleLoginError = (error: AxiosError) => {
+        var errorMessage = "";
         if (error.response) {
             console.log(error.response.data);
             console.log(error.response.status);
             console.log(error.response.headers);
+            errorMessage = JSON.stringify(error.response.data, null, 2);
         } else {
             console.log(error.message);
+            errorMessage = error.message;
         }
         setIsAuthenticated(() => false);
         setLoggingIn(() => false);
         setHasSubmitted(() => false);
-        alert(error);
+        modalError(errorMessage);
         return error;
     };
 

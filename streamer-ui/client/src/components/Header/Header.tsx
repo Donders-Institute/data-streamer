@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import { Layout, Row, Col, Icon, Menu, Button } from "antd";
+import { Layout, Row, Col, Icon, Menu, Button, Modal } from "antd";
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
 import { AuthContext } from "../Auth/AuthContext";
@@ -8,6 +8,16 @@ import { AuthContext } from "../Auth/AuthContext";
 import "../../App.less";
 
 import logoDCCN from "../../assets/dccn-logo.png";
+
+function modalError(msg: string) {
+    Modal.error({
+        title: 'Error',
+        content: msg,
+        onOk() {
+            Modal.destroyAll();
+        }
+    });
+}
 
 const Header: React.FC = () => {
     const authContext = useContext(AuthContext);
@@ -22,14 +32,17 @@ const Header: React.FC = () => {
     };
 
     const handleLogoutError = (error: AxiosError) => {
+        var errorMessage = "";
         if (error.response) {
             console.log(error.response.data);
             console.log(error.response.status);
             console.log(error.response.headers);
+            errorMessage = JSON.stringify(error.response.data, null, 2);
         } else {
             console.log(error.message);
+            errorMessage = error.message;
         }
-        alert(error);
+        modalError(errorMessage);
         return error;
     };
 
