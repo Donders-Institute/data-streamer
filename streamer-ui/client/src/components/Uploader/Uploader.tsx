@@ -40,6 +40,9 @@ function modalError(msg: string) {
 const Uploader: React.FC = () => {
     const authContext = useContext(AuthContext);
     const [showUploadModal, setShowUploadModal] = useState(false);
+    const [uploadingPercentage, setUploadingPercentage] = useState(0);
+    const [isUploading, setIsUploading] = useState(true);
+    const [failed, setFailed] = useState(false);
     const [isLoadingProjectList, setIsLoadingProjectList] = useState(true);
     const [projectList, setProjectList] = useState([] as Project[]);
     const [selectedProjectValue, setSelectedProjectValue] = useState("");
@@ -73,7 +76,7 @@ const Uploader: React.FC = () => {
         // console.log(response.statusText);
         // console.log(response.headers);
         // console.log(response.config);
-        setShowUploadModal(true);
+        return response;
     };
 
     const handleUploadError = (error: AxiosError) => {
@@ -88,7 +91,7 @@ const Uploader: React.FC = () => {
             errorMessage = error.message;
         }
         console.log(errorMessage);
-        modalError(errorMessage);
+        // modalError(errorMessage);
         return error;
     };
 
@@ -99,7 +102,7 @@ const Uploader: React.FC = () => {
                 method: "post",
                 headers: { "Content-Type": "multipart/form-data" },
                 data: formData,
-                timeout: 10000,
+                timeout: 60000,
                 withCredentials: true,
                 auth: {
                     username: username,
@@ -109,27 +112,99 @@ const Uploader: React.FC = () => {
             };
 
             resolve(
-                axios(config)
+                axios.request(config)
                     .then(handleUploadResponse)
+                    .then(function (response: AxiosResponse) {
+                        let value = uploadingPercentage + Math.floor(100.0 / fileList.length);
+                        setUploadingPercentage(uploadingPercentage => uploadingPercentage + Math.floor(100.0 / fileList.length));
+                        return value;
+                    })
+                    .catch(handleUploadError));
+        });
+    };
+
+    function dummyAxiosRequest<T = any, R = AxiosResponse<T>>(config: AxiosRequestConfig): Promise<R> {
+        const promise = new Promise<R>(function (resolve, reject) {
+            setTimeout(function () {
+                let response = {
+                    data: { test: "test" },
+                    status: 200,
+                    statusText: "OK",
+                    headers: {},
+                    config: config
+                } as unknown as (R | PromiseLike<R> | undefined);
+                resolve(response);
+            }, 10);
+        });
+        return promise;
+    }
+
+    const handleDummyUploadRequest = (username: string, password: string, formData: any) => {
+        return new Promise((resolve) => {
+            const config: AxiosRequestConfig = {
+                url: "/upload",
+                method: "post",
+                headers: { "Content-Type": "multipart/form-data" },
+                data: formData,
+                timeout: 60000,
+                withCredentials: true,
+                auth: {
+                    username: username,
+                    password: password
+                },
+                responseType: "json"
+            };
+
+            resolve(
+                dummyAxiosRequest(config)
+                    .then(handleUploadResponse)
+                    .then(function (response: AxiosResponse) {
+                        let value = uploadingPercentage + Math.floor(100.0 / fileList.length);
+                        setUploadingPercentage(uploadingPercentage => uploadingPercentage + Math.floor(100.0 / fileList.length));
+                        return value;
+                    })
                     .catch(handleUploadError));
         });
     };
 
     const handleUpload = (event: any) => {
-        var formData = new FormData();
+        setUploadingPercentage(uploadingPercentage => 0);
+        setIsUploading(true);
+        setShowUploadModal(true);
 
-        // Add the attributes
-        formData.append("projectNumber", selectedProjectValue);
-        formData.append("subjectLabel", selectedSubjectValue);
-        formData.append("sessionLabel", selectedSessionValue);
-        formData.append("dataType", selectedDataTypeValue);
-
-        // Add the files for upload
+        let work = [] as Promise<unknown>[];
         fileList.forEach((file: any) => {
-            formData.append("files", file);
-        });
+            var formData = new FormData();
 
-        handleUploadRequest(authContext!.username, authContext!.password, formData);
+            // Add the attributes
+            formData.append("projectNumber", selectedProjectValue);
+            formData.append("subjectLabel", selectedSubjectValue);
+            formData.append("sessionLabel", selectedSessionValue);
+            formData.append("dataType", selectedDataTypeValue);
+
+            formData.append("filename", file.name);
+            formData.append("filesize", file.size);
+            formData.append("uid", file.uid);
+
+            // Add one file
+            formData.append("files", file);
+
+            const p = handleUploadRequest(authContext!.username, authContext!.password, formData);
+            // const p = handleDummyUploadRequest(authContext!.username, authContext!.password, formData);
+            work.push(p.catch(error => {
+                setFailed(true);
+                setIsUploading(false);
+                console.log(error);
+                modalError(error.message);
+            }));
+        })
+
+        Promise.all(work).then(function (results) {
+            setUploadingPercentage(uploadingPercentage => 100);
+            setIsUploading(false);
+            setFailed(false);
+            console.log(results);
+        })
     };
 
     const handleDelete = (uid: string, filename: string, size: number) => {
@@ -414,34 +489,50 @@ const Uploader: React.FC = () => {
                 visible={showUploadModal}
                 closable={false}
                 footer={[
-                    <Button type="primary" onClick={(e) => {
+                    <Button type="primary" disabled={isUploading} onClick={(e) => {
                         setShowUploadModal(false);
+                        setFailed(false);
 
-                        // Keep projectList, refresh the rest
+                        // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
                         setFileList([] as RcFile[]);
                         setFileListSummary(0);
                         setHasFilesSelected(false);
-                        setSelectedProjectValue("");
-                        setIsSelectedProject(false);
-                        setSelectedSubjectValue("");
-                        setIsSelectedSubject(false);
-                        setSelectedSessionValue("");
-                        setIsSelectedSession(false);
-                        setSelectedDataTypeValue("");
-                        setIsSelectedDataType(false);
-                        setIsSelectedDataTypeOther(false);
-                        setProceed(false);
                     }}>
                         Upload another batch
                     </Button>,
-                    <Button onClick={(e) => authContext!.signout()}>
+                    <Button disabled={isUploading} onClick={(e) => authContext!.signout()}>
                         Log out
                     </Button>
                 ]}
             >
-                <p>This may take a while ...</p>
-                <Progress percent={100} />
-                <p>Do not close the browser</p>
+                {
+                    !failed && (
+                        <Progress percent={uploadingPercentage} />)
+                }
+                {
+                    failed && (
+                        <Progress status="exception" percent={uploadingPercentage} />)
+                }
+                {
+                    isUploading && (
+                        <div>
+                            <p>This may take a while ...</p>
+                            <p style={{ fontWeight: "bold" }}>Do not close the browser</p>
+                            <Spin indicator={antIcon} />
+                        </div>)
+                }
+                {
+                    !isUploading && !failed && (
+                        <div>
+                            <p>Done</p>
+                        </div>)
+                }
+                {
+                    !isUploading && failed && (
+                        <div>
+                            <p>Failed</p>
+                        </div>)
+                }
             </Modal>
         </Content >
     );
