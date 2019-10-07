@@ -27,7 +27,7 @@ const Contact: React.FC = () => {
             <Header />
             <div style={{ padding: 10 }}>
                 <Card
-                    style={{ borderRadius: 4, boxShadow: "1px 1px 1px #ddd" }}
+                    style={{ borderRadius: 4, boxShadow: "1px 1px 1px #ddd", marginTop: 10 }}
                     className="shadow"
                 >
                     <h1>Contact</h1>
