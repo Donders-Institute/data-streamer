@@ -1,0 +1,920 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<TargetPath /> renders initial targetpath component 1`] = `
+<div>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    project
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "fontStyle": "italic",
+      }
+    }
+  >
+    (projectnumber)
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    raw
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    sub-
+  </span>
+  <span
+    style={
+      Object {
+        "fontStyle": "italic",
+      }
+    }
+  >
+    (subjectlabel)
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    ses-
+  </span>
+  <span
+    style={
+      Object {
+        "fontStyle": "italic",
+      }
+    }
+  >
+    (sessionlabel)
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "fontStyle": "italic",
+      }
+    }
+  >
+    (datatype)
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+</div>
+`;
+
+exports[`<TargetPath /> renders targetpath component with data type 1`] = `
+<div>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    project
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    12345678.01
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    raw
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    sub-
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    1
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    ses-
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    2
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    mri
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+</div>
+`;
+
+exports[`<TargetPath /> renders targetpath component with data type other 1`] = `
+<div>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    project
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    12345678.01
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    raw
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    sub-
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    1
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    ses-
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    2
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "fontStyle": "italic",
+      }
+    }
+  >
+    (datatype)
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+</div>
+`;
+
+exports[`<TargetPath /> renders targetpath component with project selected 1`] = `
+<div>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    project
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    12345678.01
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    raw
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    sub-
+  </span>
+  <span
+    style={
+      Object {
+        "fontStyle": "italic",
+      }
+    }
+  >
+    (subjectlabel)
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    ses-
+  </span>
+  <span
+    style={
+      Object {
+        "fontStyle": "italic",
+      }
+    }
+  >
+    (sessionlabel)
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "fontStyle": "italic",
+      }
+    }
+  >
+    (datatype)
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+</div>
+`;
+
+exports[`<TargetPath /> renders targetpath component with session selected 1`] = `
+<div>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    project
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    12345678.01
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    raw
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    sub-
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    1
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    ses-
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    2
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "fontStyle": "italic",
+      }
+    }
+  >
+    (datatype)
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+</div>
+`;
+
+exports[`<TargetPath /> renders targetpath component with subject selected 1`] = `
+<div>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    project
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    12345678.01
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    raw
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    sub-
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    1
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    ses-
+  </span>
+  <span
+    style={
+      Object {
+        "fontStyle": "italic",
+      }
+    }
+  >
+    (sessionlabel)
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+  <span
+    style={
+      Object {
+        "fontStyle": "italic",
+      }
+    }
+  >
+    (datatype)
+  </span>
+  <span
+    style={
+      Object {
+        "color": "#f45709",
+        "fontWeight": "bold",
+      }
+    }
+  >
+    /
+  </span>
+</div>
+`;
