@@ -27,6 +27,10 @@ import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedD
 
 const { Content } = Layout;
 
+// Default NGINX client_max_body_size is 1 Mb
+const maxSizeLimitBytes = 1000000;
+const maxSizeLimitAsString = "1 Mb";
+
 function modalError(msg: string) {
     Modal.error({
         title: "Error",
@@ -236,9 +240,16 @@ const Uploader: React.FC = () => {
 
     const handleBeforeUpload = (file: RcFile, batch: RcFile[]) => {
         let isValidBatch = true;
+        let maxFileSizeExceeded = false;
+        let largeFiles = [] as string[];
         let duplicates = [] as string[];
         // TODO: Find a way to do this check only once (i.e. per batch)
         for (let i = 0; i < batch.length; i++) {
+            if (file.size >= maxSizeLimitBytes) {
+                largeFiles.push(batch[i].name);
+                maxFileSizeExceeded = true;
+                isValidBatch = false;
+            }
             if (fileNameExists(batch[i], fileList)) {
                 duplicates.push(batch[i].name);
                 isValidBatch = false;
@@ -257,6 +268,13 @@ const Uploader: React.FC = () => {
                 msg = `Filename already exists, please rename: "${duplicates[0]}"`;
             } else {
                 msg = `Filenames already exist, please rename: [${duplicates.join(", ")}]`;
+            }
+            if (duplicates.length === 0 && maxFileSizeExceeded) {
+                if (largeFiles.length === 1) {
+                    msg = `Maximum file size exceeded (file size must be less than ${maxSizeLimitAsString} for a single file): "${largeFiles[0]}"`;
+                } else {
+                    msg = `Maximum file size exceeded (file size must be less than ${maxSizeLimitAsString} for a single file): [${largeFiles.join(", ")}]`;
+                }
             }
             modalError(msg);
         }
