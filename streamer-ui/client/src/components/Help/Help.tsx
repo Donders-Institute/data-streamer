@@ -68,7 +68,7 @@ const Help: React.FC = () => {
                         Login with your DCCN credentials.
                     </div>
                     <div style={{ marginTop: 20 }}>
-                        <img src={process.env.PUBLIC_URL + "/images/quick-guide-screenshot-00-login.png"} style={{ width: "50%", border: "1px solid", boxShadow: "8px 8px 8px #ddd" }} />
+                        <img alt="quick-guide-screenshot-00-login" src={process.env.PUBLIC_URL + "/images/quick-guide-screenshot-00-login.png"} style={{ width: "50%", border: "1px solid", boxShadow: "8px 8px 8px #ddd" }} />
                     </div>
 
                     <h3 id="quickguideselectfiles" style={{ marginTop: 20 }}>2. Select file(s)</h3>
@@ -76,10 +76,10 @@ const Help: React.FC = () => {
                         Select one or more files.
                     </div>
                     <div style={{ marginTop: 20 }}>
-                        <img src={process.env.PUBLIC_URL + "/images/quick-guide-screenshot-01-uploader-start.png"} style={{ width: "50%", border: "1px solid", boxShadow: "8px 8px 8px #ddd" }} />
+                        <img alt="quick-guide-screenshot-01-uploader-start" src={process.env.PUBLIC_URL + "/images/quick-guide-screenshot-01-uploader-start.png"} style={{ width: "50%", border: "1px solid", boxShadow: "8px 8px 8px #ddd" }} />
                     </div>
                     <div style={{ marginTop: 20 }}>
-                        <img src={process.env.PUBLIC_URL + "/images/quick-guide-screenshot-02-uploader-select-files.png"} style={{ width: "50%", border: "1px solid", boxShadow: "8px 8px 8px #ddd" }} />
+                        <img alt="quick-guide-screenshot-02-uploader-select-files" src={process.env.PUBLIC_URL + "/images/quick-guide-screenshot-02-uploader-select-files.png"} style={{ width: "50%", border: "1px solid", boxShadow: "8px 8px 8px #ddd" }} />
                     </div>
 
                     <h3 id="quickguideselectstructure" style={{ marginTop: 20 }}>3. Select project number, subject, session, and data type</h3>
@@ -87,7 +87,7 @@ const Help: React.FC = () => {
                         Select project number, subject, session, and data type.
                     </div>
                     <div style={{ marginTop: 20 }}>
-                        <img src={process.env.PUBLIC_URL + "/images/quick-guide-screenshot-03-uploader-select-structure.png"} style={{ width: "50%", border: "1px solid", boxShadow: "8px 8px 8px #ddd" }} />
+                        <img alt="quick-guide-screenshot-03-uploader-select-structure" src={process.env.PUBLIC_URL + "/images/quick-guide-screenshot-03-uploader-select-structure.png"} style={{ width: "50%", border: "1px solid", boxShadow: "8px 8px 8px #ddd" }} />
                     </div>
 
                     <h3 id="quickguideuploadfiles" style={{ marginTop: 20 }}>4. Upload file(s)</h3>
@@ -95,7 +95,7 @@ const Help: React.FC = () => {
                         Press the upload button.
                     </div>
                     <div style={{ marginTop: 20 }}>
-                        <img src={process.env.PUBLIC_URL + "/images/quick-guide-screenshot-04-uploader-progress.png"} style={{ width: "50%", border: "1px solid", boxShadow: "8px 8px 8px #ddd" }} />
+                        <img alt="quick-guide-screenshot-04-uploader-progress" src={process.env.PUBLIC_URL + "/images/quick-guide-screenshot-04-uploader-progress.png"} style={{ width: "50%", border: "1px solid", boxShadow: "8px 8px 8px #ddd" }} />
                     </div>
                     <div style={{ marginTop: 20 }}>
                         Upload another batch of files or log out when you are done.

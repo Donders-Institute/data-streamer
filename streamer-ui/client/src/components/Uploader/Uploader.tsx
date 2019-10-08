@@ -29,7 +29,7 @@ const { Content } = Layout;
 
 function modalError(msg: string) {
     Modal.error({
-        title: 'Error',
+        title: "Error",
         content: msg,
         onOk() {
             Modal.destroyAll();
@@ -197,14 +197,14 @@ const Uploader: React.FC = () => {
                 console.log(error);
                 modalError(error.message);
             }));
-        })
+        });
 
         Promise.all(work).then(function (results) {
             setUploadingPercentage(uploadingPercentage => 100);
             setIsUploading(false);
             setFailed(false);
             console.log(results);
-        })
+        });
     };
 
     const handleDelete = (uid: string, filename: string, size: number) => {
@@ -256,7 +256,7 @@ const Uploader: React.FC = () => {
             if (duplicates.length === 1) {
                 msg = `Filename already exists, please rename: "${duplicates[0]}"`;
             } else {
-                msg = `Filenames already exist, please rename: [${duplicates.join(', ')}]`;
+                msg = `Filenames already exist, please rename: [${duplicates.join(", ")}]`;
             }
             modalError(msg);
         }

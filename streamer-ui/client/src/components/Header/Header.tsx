@@ -11,7 +11,7 @@ import logoDCCN from "../../assets/dccn-logo.png";
 
 function modalError(msg: string) {
     Modal.error({
-        title: 'Error',
+        title: "Error",
         content: msg,
         onOk() {
             Modal.destroyAll();

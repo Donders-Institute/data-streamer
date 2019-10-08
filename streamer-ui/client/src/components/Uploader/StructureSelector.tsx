@@ -94,23 +94,23 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
     const validateSubjectLabel = async (rule: any, value: string) => {
         let isValid = validateSubjectLabelInput(value);
         if (!isValid) {
-            throw new Error('Must be of form [a-zA-Z0-9]+');
+            throw new Error("Must be of form [a-zA-Z0-9]+");
         }
-    }
+    };
 
     const validateSessionLabel = async (rule: any, value: string) => {
         let isValid = validateSessionLabelInput(value);
         if (!isValid) {
-            throw new Error('Must be of form [a-zA-Z0-9]+');
+            throw new Error("Must be of form [a-zA-Z0-9]+");
         }
-    }
+    };
 
     const validateDataTypeOther = async (rule: any, value: string) => {
         let isValid = validateSelectedDataTypeOtherInput(value);
         if (!isValid) {
-            throw new Error('Must be of form [a-z]+');
+            throw new Error("Must be of form [a-z]+");
         }
-    }
+    };
 
     return (
         <Form layout="vertical" hideRequiredMark>
@@ -127,7 +127,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                             {optionsProjects}
                         </Select>
                         &nbsp;
-                            <Tooltip title="only the projects are shown for which you are manager or contributor">
+                        <Tooltip title="only the projects are shown for which you are manager or contributor">
                             <Icon type="question-circle-o" />
                         </Tooltip>
                     </Form.Item>
