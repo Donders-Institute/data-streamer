@@ -48,7 +48,7 @@ const dataTypesList = [
     },
     {
         id: 4,
-        dataType: "ieee"
+        dataType: "ieeg"
     },
     {
         id: 5,
