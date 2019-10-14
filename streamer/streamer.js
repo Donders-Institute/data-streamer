@@ -77,21 +77,30 @@ queue.on( 'error', function(err) {
             msgHtml += '<tr><th>submitted at</th><td>' + t_create.toDateString() + ' ' + t_create.toTimeString() + '</td></tr>';
             msgHtml += '<tr><th>started at</th><td>' + t_start.toDateString() + ' ' + t_start.toTimeString() + '</td></tr>';
             msgHtml += '<tr><th>complete at</th><td>' + t_update.toDateString() + ' ' + t_update.toTimeString() + '</td></tr>';
-            msgHtml += '<tr><th>job detail</th><td><pre>' + JSON.stringify(job, null, 2) + '</pre></td></tr>';
-            msgHtml += '</div></table>';
-            msgHtml += '</html>';
 
-            // when streamer user is defined and non trivial, send email notification.
-            if (typeof job.data.streamerUser !== 'undefined' &&  job.data.streamerUser && job.data.streamerUser != 'admin' && job.data.streamerUser != 'root') {
-                // get user profile
-                utility_ad.findUser(job.data.streamerUser, function(err, uprofile) {
-                    if (! uprofile) {
-                        console.error('[' + new Date().toISOString() + '] cannot retrieve profile of user: ' + job.data.streamerUser);
-                        return;
-                    }
-                    mailer.sendToAddresses(uprofile.mail, false, msgSubject, null, msgHtml, null);
-                });
-            }
+            // append job's log to the message
+            // NOTE: this makes use the underlying Redis client object associated with the job after analyzing the
+            //       source code of https://github.com/Automattic/kue/blob/master/lib/queue/job.js
+            job.client.lrange(job.client.getKey('job:' + id + ':log'), 0, -1, function(error, logdata) {
+                if ( ! error ) {
+                    msgHtml += '<tr><th>job log</th><td>' + logdata.join("</br>") + '</td></tr>';
+                }
+                msgHtml += '<tr><th>job detail</th><td><pre>' + JSON.stringify(job, null, 2) + '</pre></td></tr>';
+                msgHtml += '</div></table>';
+                msgHtml += '</html>';
+
+                // send job complete email notification to job owner
+                if (typeof job.data.streamerUser !== 'undefined' &&  job.data.streamerUser && job.data.streamerUser != 'admin' && job.data.streamerUser != 'root') {
+                    // get user profile
+                    utility_ad.findUser(job.data.streamerUser, function(err, uprofile) {
+                        if ( ! uprofile ) {
+                            console.error('[' + new Date().toISOString() + '] cannot retrieve profile of user: ' + job.data.streamerUser);
+                            return;
+                        }
+                        mailer.sendToAddresses(uprofile.mail, false, msgSubject, null, msgHtml, null);
+                    });
+                }
+            });
         });
         utility.printLog(null, util.format('job %d complete', id));
     }
