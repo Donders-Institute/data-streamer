@@ -257,6 +257,8 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                     // it can happen when it's about a PILOT project; or a project not having
                     // a RDM collection being created/mapped properly.
                     utility.printLog(job.id + ':USER:execStreamerJob:submitStagerJob', 'collection not found for project: ' + p);
+                    // write a message to job's log in case the stager cannot determine the DAC corresponding to the projectId.
+                    job.log("No editable DAC found for project: staging data to the Donders Repository has been skipped.");
                     job.progress(maxProgress, 100);
                     return cb_async(null, true);
                 } else {
