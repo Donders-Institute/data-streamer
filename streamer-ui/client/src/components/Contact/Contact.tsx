@@ -1,25 +1,10 @@
 import React from "react";
-import { Avatar, List, Layout, Card } from "antd";
+import { Layout, Card, Icon } from "antd";
 
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
 
 const { Content } = Layout;
-
-const data = [
-    {
-        avatar: <Avatar src={process.env.PUBLIC_URL + "/images/honglee.jpg"} />,
-        title: "Hong Lee",
-        description: "h.lee@donders.ru.nl"
-    },
-    {
-        avatar: (
-            <Avatar src={process.env.PUBLIC_URL + "/images/rutgervandeelen.jpg"} />
-        ),
-        title: "Rutger van Deelen",
-        description: "R.vanDeelen@donders.ru.nl"
-    }
-];
 
 const Contact: React.FC = () => {
     return (
@@ -31,24 +16,15 @@ const Contact: React.FC = () => {
                     className="shadow"
                 >
                     <h1>Contact</h1>
-                    Administrators:
-                    <List
-                        itemLayout="horizontal"
-                        dataSource={data}
-                        renderItem={item => (
-                            <List.Item>
-                                <List.Item.Meta
-                                    avatar={<div>{item.avatar}</div>}
-                                    title={item.title}
-                                    description={
-                                        <a href={"mailto:" + item.description}>
-                                            {item.description}
-                                        </a>
-                                    }
-                                />
-                            </List.Item>
-                        )}
-                    />
+                    <div>
+                        If you encounter any issues, please send an email to the helpdesk:
+                    </div>
+                    <div>
+                        <a href={"mailto:helpdesk@fcdonders.ru.nl"}>
+                            <Icon type="mail" style={{ marginRight: "4px" }} />
+                            helpdesk@fcdonders.ru.nl
+                        </a>
+                    </div>
                 </Card>
             </div>
             <Footer />
