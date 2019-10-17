@@ -27,9 +27,12 @@ import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedD
 
 const { Content } = Layout;
 
-// Default NGINX client_max_body_size is 1 Mb
-const maxSizeLimitBytes = 1000000;
-const maxSizeLimitAsString = "1 Mb";
+// 1 GB = 1024 * 1024 * 1024 bytes = 1073741824 bytes
+const maxSizeLimitBytes = 1073741824;
+const maxSizeLimitAsString = "1 GB";
+
+// 5 minutes = 5 * 60 * 1000 ms = 300000 ms
+const uploadTimeout = 300000;
 
 function modalError(msg: string) {
     Modal.error({
@@ -95,7 +98,7 @@ const Uploader: React.FC = () => {
             errorMessage = error.message;
         }
         console.log(errorMessage);
-        // modalError(errorMessage);
+        modalError(errorMessage);
         return error;
     };
 
@@ -106,7 +109,7 @@ const Uploader: React.FC = () => {
                 method: "post",
                 headers: { "Content-Type": "multipart/form-data" },
                 data: formData,
-                timeout: 60000,
+                timeout: uploadTimeout,
                 withCredentials: true,
                 auth: {
                     username: username,
@@ -150,7 +153,7 @@ const Uploader: React.FC = () => {
                 method: "post",
                 headers: { "Content-Type": "multipart/form-data" },
                 data: formData,
-                timeout: 60000,
+                timeout: uploadTimeout,
                 withCredentials: true,
                 auth: {
                     username: username,
