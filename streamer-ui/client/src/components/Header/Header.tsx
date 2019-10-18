@@ -9,6 +9,8 @@ import "../../App.less";
 
 import logoDCCN from "../../assets/dccn-logo.png";
 
+const { SubMenu } = Menu;
+
 function modalError(msg: string) {
     Modal.error({
         title: "Error",
@@ -20,6 +22,10 @@ function modalError(msg: string) {
 }
 
 const Header: React.FC = () => {
+    const LOCATION_HOME = "home";
+    const LOCATION_HELP = "help";
+    const LOCATION_AUTH = "auth";
+
     const authContext = useContext(AuthContext);
 
     const handleLogoutResponse = (response: AxiosResponse) => {
@@ -91,7 +97,7 @@ const Header: React.FC = () => {
                 <Layout>
                     <Layout.Header
                         className="App-header"
-                        style={{ padding: "0px 20px 0px 0px" }}
+                        style={{ padding: "0px 0px 0px 0px", height: "30px" }}
                     >
                         <Row type="flex" justify="space-between">
                             <Col>
@@ -99,20 +105,37 @@ const Header: React.FC = () => {
                                     className="App-header-menu"
                                     theme="dark"
                                     mode="horizontal"
-                                    selectedKeys={["home"]}
+                                    selectedKeys={[]}
                                 >
-                                    <Menu.Item key="home" style={{ float: "left" }}>
-                                        <Link to="/">
-                                            &nbsp;&nbsp;<Icon type="home" />
-                                        </Link>
+                                    <Menu.Item key={LOCATION_HOME} style={{ float: "left", margin: "0px 0px 0px 20px" }}>
+                                        <Link to="/"><Icon type="home" /></Link>
                                     </Menu.Item>
                                 </Menu>
                             </Col>
                             <Col>
-                                <span style={{ fontWeight: "bold", color: "#fff" }}>{authContext!.username}</span>&nbsp;&nbsp;
-                                <Button size="small" ghost onClick={handleLogout}>
-                                    Log out
-                                </Button>
+                                <Menu
+                                    className="App-header-menu"
+                                    theme="dark"
+                                    mode="horizontal"
+                                    selectedKeys={[]}
+                                >
+                                    <Menu.Item key={LOCATION_HELP}><Link to="/help"><span style={{ fontWeight: "bold" }}>HELP</span></Link></Menu.Item>
+                                    <SubMenu
+                                        key="profile"
+                                        title={
+                                            <span>
+                                                <Icon type="user" style={{ marginRight: "4px" }} /><span>{authContext!.username}</span><Icon type="caret-down" style={{ margin: "0px" }} />
+                                            </span>
+                                        }
+                                        style={{ float: "right", margin: "0px 0px 0px 0px" }}
+                                    >
+                                        <Menu.Item key={LOCATION_AUTH}>
+                                            <Button size="small" ghost onClick={handleLogout}>
+                                                Log out
+                                            </Button>
+                                        </Menu.Item>
+                                    </SubMenu>
+                                </Menu>
                             </Col>
                         </Row>
                     </Layout.Header>
