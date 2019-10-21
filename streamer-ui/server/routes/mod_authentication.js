@@ -1,6 +1,7 @@
 const ActiveDirectory = require('activedirectory');
 const path = require('path');
 const fs = require('fs');
+const db = require('./db');
 
 const adconfig = require(path.join(__dirname + '/../config/streamer-ui-adconfig.json'));
 const tlsOptions = {
@@ -21,17 +22,28 @@ var _isAuthenticated = function (req, res, next) {
 }
 
 // Authenticate user with Active Directory
-var _authenticateUser = function (req, res) {
+var _authenticateUser = async function (req, res) {
+
+    var msg = "";
+    var username = "";
+    var password = "";
+    var ip_address = "";
+    var user_agent = "";
 
     // Check for basic auth header
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
-        return res.status(401).json({ success: false, error: "Missing Authorization Header." });
+        msg = "Missing Authorization Header"
+        db.insert_login_event(username, ip_address, user_agent, msg).catch(console.log(msg));
+        return res.status(401).json({ success: false, error: msg });
     }
 
     // Verify auth credentials
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-    var [username, password] = credentials.split(':');
+    [username, password] = credentials.split(':');
+
+    // Obtain the user agent
+    user_agent = req.headers['user-agent'];
 
     if (typeof req.body.username !== 'undefined') {
 
@@ -40,11 +52,14 @@ var _authenticateUser = function (req, res) {
         // Check wether user exists. And if it exists get the userPrincipalName and use that to authenticate
         ad.findUser(username, function (err, user) {
             if (err) {
-                console.log('ERROR: ' + JSON.stringify(err));
+                msg = 'ERROR: ' + JSON.stringify(err);
+                db.insert_login_event(username, ip_address, user_agent, msg).catch(console.log(msg));
+                console.log(msg);
                 res.status(200).json({ success: false, error: "Something went wrong. Try again later." });
                 return;
             }
             if (!user) {
+                db.insert_login_event();
                 res.status(200).json({ success: false, error: "Username not found." });
             } else {
                 ad.authenticate(user.userPrincipalName, password, function (err, auth) {
@@ -52,27 +67,56 @@ var _authenticateUser = function (req, res) {
                         // Authentication success
                         req.session.user = username;
                         req.session.authenticated = true;
-                        res.status(200).json({ success: true, data: "You will soon be redirected to the index." });
+                        msg = "You will soon be redirected to the index";
+                        db.insert_login_event(username, ip_address, user_agent, '').catch(console.log(msg));
+                        res.status(200).json({ success: true, data: msg });
                         return;
                     } else {
                         // Authentication failed
-                        res.status(200).json({ success: false, error: "Wrong username or password." });
+                        msg = "Wrong username or password";
+                        db.insert_login_event(username, ip_address, user_agent, msg).catch(console.log(msg));
+                        res.status(200).json({ success: false, error: msg });
                         return;
                     }
                 });
             }
         });
     } else {
-        res.status(200).json({ success: false, error: "No username provided." });
+        msg = "No username provided";
+        db.insert_login_event(username, ip_address, user_agent, msg).catch(console.log(msg));
+        res.status(200).json({ success: false, error: msg });
     }
 }
 
 // Logout user by removing corresponding session data
-var _logoutUser = function (req, res) {
+var _logoutUser = async function (req, res) {
     var sess = req.session;
+    var msg;
+    var username = "";
+    var ip_address = "";
+    var user_agent = "";
+
+    // Check for basic auth header
+    if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
+        msg = "Missing Authorization Header"
+        db.insert_logout_event(username, ip_address, user_agent, msg).catch(console.log(msg));
+        return res.status(401).json({ success: false, error: msg });
+    }
+
+    // Verify auth credentials
+    const base64Credentials = req.headers.authorization.split(' ')[1];
+    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+    username = credentials.split(':')[0];
+
+    // Obtain the user agent
+    user_agent = req.headers['user-agent'];
+
     delete sess.user;
     delete sess.password;
     req.session.destroy();
+
+    db.insert_logout_event(username, ip_address, user_agent, '');
+
     res.redirect('/login');
 }
 

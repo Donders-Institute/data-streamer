@@ -4,7 +4,8 @@ export interface IAuthContext {
     isAuthenticated: boolean,
     username: string,
     password: string,
-    authenticate: (username: string, password: string) => void,
+    ipAddress: string,
+    authenticate: (username: string, password: string, ipAddress: string) => void,
     signout: () => void
 }
 

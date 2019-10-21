@@ -189,6 +189,7 @@ const Uploader: React.FC = () => {
             formData.append("sessionLabel", selectedSessionValue);
             formData.append("dataType", selectedDataTypeValue);
 
+            formData.append("ipAddress", authContext!.ipAddress);
             formData.append("filename", file.name);
             formData.append("filesize", file.size);
             formData.append("uid", file.uid);

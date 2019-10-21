@@ -5,6 +5,11 @@ services:
       - STREAMER_UI_CONFIG=${STREAMER_UI_CONFIG:-/opt/streamer-ui-server/config/streamer-ui-config.json.template}
       - STREAMER_UI_ADCONFIG=${STREAMER_UI_ADCONFIG:-/opt/streamer-ui-server/config/streamer-ui-adconfig.json.template}
       - STREAMER_UI_LDAPSCERT=${STREAMER_UI_LDAPSCERT:-/opt/streamer-ui-server/config/streamer-ui-ldapscert.crt.template}
+      - STREAMER_UI_DATABASE_HOST=${STREAMER_UI_DATABASE_HOST:-0.0.0.0}
+      - STREAMER_UI_DATABASE_PORT=${STREAMER_UI_DATABASE_PORT:-5432}
+      - STREAMER_UI_DATABASE_USER=${STREAMER_UI_DATABASE_USER:-postgres}
+      - STREAMER_UI_DATABASE_PASSWORD=${STREAMER_UI_DATABASE_PASSWORD:-postgres}
+      - STREAMER_UI_DATABASE_NAME=${STREAMER_UI_DATABASE_NAME:-postgres}
     networks:
       - nw_streamer
     ports:
@@ -16,12 +21,12 @@ services:
     environment:
       - POSTGRES_HOST=${STREAMER_UI_HOST:-0.0.0.0}
       - POSTGRES_PORT=${STREAMER_UI_DATABASE_PORT:-5432}
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DATABASE=postgres
+      - POSTGRES_USER=${STREAMER_UI_DATABASE_USER:-postgres}
+      - POSTGRES_PASSWORD=${STREAMER_UI_DATABASE_PASSWORD:-postgres}
+      - POSTGRES_DATABASE=${STREAMER_UI_DATABASE_NAME:-postgres}
       - PGDATA=/data/postgres
-      - GRAFANA_USER=grafanareader
-      - GRAFANA_PASSWORD=password
+      - GRAFANA_USER=${STREAMER_UI_GRAFANA_USER:-grafanareader}
+      - GRAFANA_PASSWORD=${STREAMER_UI_GRAFANA_PASSWORD:-password}
     ports:
       - ${STREAMER_UI_DATABASE_PORT:-5432}:${STREAMER_UI_DATABASE_PORT:-5432}
     volumes:
