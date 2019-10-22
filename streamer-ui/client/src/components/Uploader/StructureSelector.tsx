@@ -4,9 +4,7 @@ import {
     Form,
     Row,
     Col,
-    Icon,
-    Input,
-    Tooltip
+    Input
 } from "antd";
 import { FormComponentProps } from "antd/lib/form";
 import { Project, SelectOption } from "./types";
