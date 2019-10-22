@@ -59,7 +59,7 @@ services:
       - ${STREAMER_UI_DATABASE_PORT:-5432}:${STREAMER_UI_DATABASE_PORT:-5432}
     volumes:
       - ./streamer-ui//ui-db/init/01-initialize-database.sh:/docker-entrypoint-initdb.d/01-initialize-database.sh:ro
-      - ./streamer-ui/ui-db/pgdata:/var/lib/postgresql/data
+      - ${STREAMER_UI_DATABASE_VOL}:/var/lib/postgresql/data
     networks:
       - ui_net
     restart: always
