@@ -46,6 +46,7 @@ function get_streamer_url(projectNumber, subjectLabel, sessionLabel, dataType) {
 var _upload = function (req, res) {
 
     var msg = "";
+    var dccn_username = "";
     var username = "";
     var password = "";
     var ip_address = "";
@@ -58,7 +59,7 @@ var _upload = function (req, res) {
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
         msg = 'Missing Authorization Header'
         console.log(msg);
-        db.insert_upload_event(username, ip_address, user_agent, start_time, end_time, filesize_bytes, msg).catch(console.log(msg));
+        db.insert_upload_event(dccn_username, ip_address, user_agent, start_time, end_time, filesize_bytes, msg).catch(console.log(msg));
         return res.status(401).send(msg);
     }
 
@@ -67,6 +68,7 @@ var _upload = function (req, res) {
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
     [username, password] = credentials.split(':');
     const streamerUser = username;
+    dccn_username = username;
 
     // Check if we need to user service admin credentials
     if (SERVICE_ADMIN_USERNAME && SERVICE_ADMIN_USERNAME !== "" &&
@@ -81,7 +83,7 @@ var _upload = function (req, res) {
     // Check for structure
     if (!req.body) {
         msg = `No attributes were uploaded: "req.body" is empty`
-        db.insert_upload_event(username, ip_address, user_agent, start_time, end_time, filesize_bytes, msg).catch(console.log(msg));
+        db.insert_upload_event(dccn_username, ip_address, user_agent, start_time, end_time, filesize_bytes, msg).catch(console.log(msg));
         return res.status(400).send(msg);
     }
     var projectNumber = req.body.projectNumber;
@@ -94,13 +96,13 @@ var _upload = function (req, res) {
     if (!req.files) {
         msg = `No files were uploaded: "req.files" is empty`;
         console.log(msg);
-        db.insert_upload_event(username, ip_address, user_agent, start_time, end_time, filesize_bytes, msg).catch(console.log(msg));
+        db.insert_upload_event(dccn_username, ip_address, user_agent, start_time, end_time, filesize_bytes, msg).catch(console.log(msg));
         return res.status(400).send(msg);
     }
     if (!req.files.files) {
         msg = `No files were uploaded: "req.files.files" is empty`;
         console.log(msg);
-        db.insert_upload_event(username, ip_address, user_agent, start_time, end_time, msg);
+        db.insert_upload_event(dccn_username, ip_address, user_agent, start_time, end_time, msg);
         return res.status(400).send(msg);
     }
 
@@ -108,13 +110,13 @@ var _upload = function (req, res) {
     var [err, dirname] = get_dirname(projectNumber, subjectLabel, sessionLabel, dataType);
     if (err) {
         console.error(err);
-        db.insert_upload_event(username, ip_address, user_agent, start_time, end_time, filesize_bytes, msg).catch(console.log(msg));
+        db.insert_upload_event(dccn_username, ip_address, user_agent, start_time, end_time, filesize_bytes, msg).catch(console.log(msg));
         return res.status(500).send(err);
     }
     if (!dirname) {
         msg = 'Error creating directory';
         console.error(msg);
-        db.insert_upload_event(username, ip_address, user_agent, start_time, end_time, filesize_bytes, msg).catch(console.log(msg));
+        db.insert_upload_event(dccn_username, ip_address, user_agent, start_time, end_time, filesize_bytes, msg).catch(console.log(msg));
         return res.status(500).send(msg);
     }
     if (!fs.existsSync(dirname)) {
@@ -129,7 +131,7 @@ var _upload = function (req, res) {
     if (num_files === 0) {
         msg = `No files were uploaded: file list is empty in request`;
         console.error(msg);
-        db.insert_upload_event(username, ip_address, user_agent, start_time, end_time, filesize_bytes, msg).catch(console.log(msg));
+        db.insert_upload_event(dccn_username, ip_address, user_agent, start_time, end_time, filesize_bytes, msg).catch(console.log(msg));
         return res.status(400).send(msg);
     }
 
@@ -216,13 +218,13 @@ var _upload = function (req, res) {
         function (err, results) {
             if (err) {
                 console.error(err);
-                db.insert_upload_event(username, ip_address, user_agent, start_time, end_time, 0, err).catch(console.log(err));
+                db.insert_upload_event(dccn_username, ip_address, user_agent, start_time, end_time, 0, err).catch(console.log(err));
                 return res.status(500).json({ "error": err });
             } else {
                 msg = `File(s) were succesfully uploaded: ${results}`;
                 console.log(msg);
                 end_time = new Date();
-                db.insert_upload_event(username, ip_address, user_agent, start_time, end_time, filesize_bytes, '').catch(console.log(msg));
+                db.insert_upload_event(dccn_username, ip_address, user_agent, start_time, end_time, filesize_bytes, '').catch(console.log(msg));
                 return res.status(200).json({ "message": msg });
             }
         }
