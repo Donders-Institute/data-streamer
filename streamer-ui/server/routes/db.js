@@ -1,18 +1,18 @@
 const { Client } = require('pg');
 
-const STREAMER_UI_DATABASE_HOST = "ui-db"; //process.env.STREAMER_UI_DATABASE_HOST || "localhost";
-const STREAMER_UI_DATABASE_PORT = process.env.STREAMER_UI_DATABASE_PORT || 5432;
-const STREAMER_UI_DATABASE_USER = process.env.STREAMER_UI_DATABASE_USER || "postgres";
-const STREAMER_UI_DATABASE_PASSWORD = process.env.STREAMER_UI_DATABASE_PASSWORD || "postgres";
-const STREAMER_UI_DATABASE_NAME = process.env.STREAMER_UI_DATABASE_NAME || "postgres";
+const STREAMER_UI_STATS_DB_HOST = "ui-stats-db"; //process.env.STREAMER_UI_STATS_DB_HOST || "localhost";
+const STREAMER_UI_STATS_DB_PORT = process.env.STREAMER_UI_STATS_DB_PORT || 5432;
+const STREAMER_UI_STATS_DB_USER = process.env.STREAMER_UI_STATS_DB_USER || "postgres";
+const STREAMER_UI_STATS_DB_PASSWORD = process.env.STREAMER_UI_STATS_DB_PASSWORD || "postgres";
+const STREAMER_UI_STATS_DB_NAME = process.env.STREAMER_UI_STATS_DB_NAME || "postgres";
 
 function connect() {
     const client = new Client({
-        user: STREAMER_UI_DATABASE_USER,
-        host: STREAMER_UI_DATABASE_HOST,
-        database: STREAMER_UI_DATABASE_NAME,
-        password: STREAMER_UI_DATABASE_PASSWORD,
-        port: STREAMER_UI_DATABASE_PORT,
+        user: STREAMER_UI_STATS_DB_USER,
+        host: STREAMER_UI_STATS_DB_HOST,
+        database: STREAMER_UI_STATS_DB_NAME,
+        password: STREAMER_UI_STATS_DB_PASSWORD,
+        port: STREAMER_UI_STATS_DB_PORT,
     })
     client.connect()
     return client;
