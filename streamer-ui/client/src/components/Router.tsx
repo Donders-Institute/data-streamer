@@ -16,17 +16,18 @@ interface IProps {
 }
 
 const Router: React.FC<IProps> = () => {
-    const authenticate = (username: string, password: string) => {
-        setAuthContext(state => ({ ...state, username: username, password: password, isAuthenticated: true }));
+    const authenticate = async (username: string, password: string, ipAddress: string) => {
+        setAuthContext(state => ({ ...state, username: username, password: password, ipAddress: ipAddress, isAuthenticated: true }));
     };
 
     const signout = () => {
-        setAuthContext(state => ({ ...state, username: "", password: "", isAuthenticated: false }));
+        setAuthContext(state => ({ ...state, username: "", password: "", ipAddress: "", isAuthenticated: false }));
     };
 
     const [authContext, setAuthContext] = useState({
         username: "",
         password: "",
+        ipAddress: "",
         isAuthenticated: false,
         authenticate: authenticate,
         signout: signout

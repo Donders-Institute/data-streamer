@@ -1,4 +1,4 @@
-version: "3.7"
+version: '3.7'
 services:
   ui:
     build:
@@ -9,5 +9,40 @@ services:
       - STREAMER_UI_PORT=${STREAMER_UI_PORT:-9000}
       - STREAMER_UI_BUFFER_DIR=${STREAMER_UI_BUFFER_DIR}
       - STREAMER_URL_PREFIX=http://service:${STREAMER_SERVICE_PORT:-3001}
+      - STREAMER_UI_DATABASE_HOST=${STREAMER_UI_DATABASE_HOST:-0.0.0.0}
+      - STREAMER_UI_DATABASE_PORT=${STREAMER_UI_DATABASE_PORT:-5432}
+      - STREAMER_UI_DATABASE_USER=${STREAMER_UI_DATABASE_USER:-postgres}
+      - STREAMER_UI_DATABASE_PASSWORD=${STREAMER_UI_DATABASE_PASSWORD:-postgres}
+      - STREAMER_UI_DATABASE_NAME=${STREAMER_UI_DATABASE_NAME:-postgres}
     volumes:
       - ${PROJECT_VOL}:/project
+    networks:
+      - nw_streamer
+    depends_on:
+      - ui-db
+  ui-db:
+    image: postgres:12
+    environment:
+      - POSTGRES_HOST=${STREAMER_UI_DATABASE_HOST:-0.0.0.0}
+      - POSTGRES_PORT=${STREAMER_UI_DATABASE_PORT:-5432}
+      - POSTGRES_USER=${STREAMER_UI_DATABASE_USER:-postgres}
+      - POSTGRES_PASSWORD=${STREAMER_UI_DATABASE_PASSWORD:-postgres}
+      - POSTGRES_DATABASE=${STREAMER_UI_DATABASE_NAME:-postgres}
+      - PGDATA=/data/postgres
+      - GRAFANA_USER=${STREAMER_UI_GRAFANA_USER:-grafanareader}
+      - GRAFANA_PASSWORD=${STREAMER_UI_GRAFANA_PASSWORD:-password}
+    ports:
+      - ${STREAMER_UI_DATABASE_PORT:-5432}:${STREAMER_UI_DATABASE_PORT:-5432}
+    volumes:
+      - ./streamer-ui//ui-db/init/01-initialize-database.sh:/docker-entrypoint-initdb.d/01-initialize-database.sh:ro
+      - ./streamer-ui/ui-db/pgdata:/var/lib/postgresql/data
+    networks:
+      - nw_streamer
+    restart: always
+
+volumes:
+  postgres:
+
+networks:
+  nw_streamer:
+    driver: bridge

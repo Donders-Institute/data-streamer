@@ -34,20 +34,14 @@ const maxSizeLimitAsString = "1 GB";
 // 5 minutes = 5 * 60 * 1000 ms = 300000 ms
 const uploadTimeout = 300000;
 
-function modalError(msg: string) {
-    Modal.error({
-        title: "Error",
-        content: msg,
-        onOk() {
-            Modal.destroyAll();
-        }
-    });
-}
-
 const Uploader: React.FC = () => {
     const authContext = useContext(AuthContext);
     const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const [uploadingPercentage, setUploadingPercentage] = useState(0);
+    const [totalSizeBytes, setTotalSizeBytes] = useState(0);
+    const [remainingItems, setRemainingItems] = useState(0);
     const [isUploading, setIsUploading] = useState(true);
     const [failed, setFailed] = useState(false);
     const [isLoadingProjectList, setIsLoadingProjectList] = useState(true);
@@ -87,23 +81,24 @@ const Uploader: React.FC = () => {
     };
 
     const handleUploadError = (error: AxiosError) => {
-        var errorMessage = "";
+        var newErrorMessage = "";
         if (error.response) {
             console.log(error.response.data);
             console.log(error.response.status);
             console.log(error.response.headers);
-            errorMessage = JSON.stringify(error.response.data, null, 2);
+            newErrorMessage = JSON.stringify(error.response.data, null, 2);
         } else {
             console.log(error.message);
-            errorMessage = error.message;
+            newErrorMessage = error.message;
         }
-        console.log(errorMessage);
-        modalError(errorMessage);
+        console.log(newErrorMessage);
+        setErrorMessage(errorMessage => newErrorMessage);
+        setShowErrorModal(true);
         return error;
     };
 
-    const handleUploadRequest = (username: string, password: string, formData: any) => {
-        return new Promise((resolve) => {
+    const handleUploadRequest = (username: string, password: string, formData: any, fileSizeBytes: number) => {
+        let promise = new Promise((resolve, reject) => {
             const config: AxiosRequestConfig = {
                 url: "/upload",
                 method: "post",
@@ -118,16 +113,17 @@ const Uploader: React.FC = () => {
                 responseType: "json"
             };
 
-            resolve(
-                axios.request(config)
-                    .then(handleUploadResponse)
-                    .then(function (response: AxiosResponse) {
-                        let value = uploadingPercentage + Math.floor(100.0 / fileList.length);
-                        setUploadingPercentage(uploadingPercentage => uploadingPercentage + Math.floor(100.0 / fileList.length));
-                        return value;
-                    })
-                    .catch(handleUploadError));
+            resolve(axios.request(config)
+                .then(handleUploadResponse)
+                .then(function (response: AxiosResponse) {
+                    let value = uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes);
+                    setUploadingPercentage(uploadingPercentage => value);
+                    setRemainingItems(remainingItems => remainingItems - 1);
+                    return value;
+                })
+                .catch(handleUploadError));
         });
+        return promise;
     };
 
     function dummyAxiosRequest<T = any, R = AxiosResponse<T>>(config: AxiosRequestConfig): Promise<R> {
@@ -141,13 +137,13 @@ const Uploader: React.FC = () => {
                     config: config
                 } as unknown as (R | PromiseLike<R> | undefined);
                 resolve(response);
-            }, 10);
+            }, 2000);
         });
         return promise;
     }
 
-    const handleDummyUploadRequest = (username: string, password: string, formData: any) => {
-        return new Promise((resolve) => {
+    const handleDummyUploadRequest = (username: string, password: string, formData: any, fileSizeBytes: number) => {
+        let promise = new Promise((resolve, reject) => {
             const config: AxiosRequestConfig = {
                 url: "/upload",
                 method: "post",
@@ -162,23 +158,26 @@ const Uploader: React.FC = () => {
                 responseType: "json"
             };
 
-            resolve(
-                dummyAxiosRequest(config)
-                    .then(handleUploadResponse)
-                    .then(function (response: AxiosResponse) {
-                        let value = uploadingPercentage + Math.floor(100.0 / fileList.length);
-                        setUploadingPercentage(uploadingPercentage => uploadingPercentage + Math.floor(100.0 / fileList.length));
-                        return value;
-                    })
-                    .catch(handleUploadError));
+            resolve(dummyAxiosRequest(config)
+                .then(handleUploadResponse)
+                .then(function (response: AxiosResponse) {
+                    let value = uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes);
+                    setUploadingPercentage(uploadingPercentage => value);
+                    setRemainingItems(remainingItems => remainingItems - 1);
+                    return value;
+                })
+                .catch(handleUploadError));
         });
+        return promise;
     };
 
     const handleUpload = (event: any) => {
+        setRemainingItems(remainingItems => fileList.length);
         setUploadingPercentage(uploadingPercentage => 0);
         setIsUploading(true);
         setShowUploadModal(true);
 
+        let newTotalSizeBytes = 0;
         let work = [] as Promise<unknown>[];
         fileList.forEach((file: any) => {
             var formData = new FormData();
@@ -189,29 +188,36 @@ const Uploader: React.FC = () => {
             formData.append("sessionLabel", selectedSessionValue);
             formData.append("dataType", selectedDataTypeValue);
 
+            formData.append("ipAddress", authContext!.ipAddress);
             formData.append("filename", file.name);
             formData.append("filesize", file.size);
             formData.append("uid", file.uid);
 
+            newTotalSizeBytes += file.size;
+
             // Add one file
             formData.append("files", file);
 
-            const p = handleUploadRequest(authContext!.username, authContext!.password, formData);
-            // const p = handleDummyUploadRequest(authContext!.username, authContext!.password, formData);
+            const p = handleUploadRequest(authContext!.username, authContext!.password, formData, file.size);
+            // const p = handleDummyUploadRequest(authContext!.username, authContext!.password, formData, file.size);
             work.push(p.catch(error => {
                 setFailed(true);
                 setIsUploading(false);
                 console.log(error);
-                modalError(error.message);
             }));
         });
 
-        Promise.all(work).then(function (results) {
-            setUploadingPercentage(uploadingPercentage => 100);
-            setIsUploading(false);
-            setFailed(false);
-            console.log(results);
-        });
+        setTotalSizeBytes(totalSizeBytes => newTotalSizeBytes);
+
+        Promise.all(work)
+            .then(function (results) {
+                setRemainingItems(remainingItems => 0);
+                setUploadingPercentage(uploadingPercentage => 100);
+                setTotalSizeBytes(totalSizeBytes => 0);
+                setIsUploading(false);
+                setFailed(false);
+                console.log(results);
+            });
     };
 
     const handleDelete = (uid: string, filename: string, size: number) => {
@@ -279,7 +285,8 @@ const Uploader: React.FC = () => {
                     msg = `Maximum file size exceeded (file size must be less than ${maxSizeLimitAsString} for a single file): [${largeFiles.join(", ")}]`;
                 }
             }
-            modalError(msg);
+            setErrorMessage(msg);
+            setShowErrorModal(true);
         }
         return true; // bypass default behaviour
     };
@@ -528,15 +535,18 @@ const Uploader: React.FC = () => {
             >
                 {
                     !failed && (
-                        <Progress percent={uploadingPercentage} />)
+                        <Progress percent={uploadingPercentage} />
+                    )
                 }
                 {
                     failed && (
-                        <Progress status="exception" percent={uploadingPercentage} />)
+                        <Progress status="exception" percent={uploadingPercentage} />
+                    )
                 }
                 {
                     isUploading && (
                         <div>
+                            <div>Item(s) remaining: {remainingItems}</div>
                             <p>This may take a while ...</p>
                             <p style={{ fontWeight: "bold" }}>Do not close the browser</p>
                             <Spin indicator={antIcon} />
@@ -554,6 +564,20 @@ const Uploader: React.FC = () => {
                             <p>Failed</p>
                         </div>)
                 }
+            </Modal>
+            <Modal
+                title="Error"
+                visible={showErrorModal}
+                closable={false}
+                footer={[
+                    <Button type="primary" onClick={(e) => {
+                        setShowErrorModal(false);
+                        setErrorMessage("");
+                    }}>Ok
+                    </Button>
+                ]}
+            >
+                <div>{errorMessage}</div>
             </Modal>
         </Content >
     );
