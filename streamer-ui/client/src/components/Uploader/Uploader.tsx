@@ -121,7 +121,7 @@ const Uploader: React.FC = () => {
                     setRemainingItems(remainingItems => remainingItems - 1);
                     return value;
                 })
-                .catch(handleUploadError))
+                .catch(handleUploadError));
         });
         return promise;
     };

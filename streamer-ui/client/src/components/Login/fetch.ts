@@ -58,7 +58,7 @@ function isAxiosResponse(result: AxiosResponse|AxiosError): result is AxiosRespo
 }
 
 export const fetchIpAddress = async () => {
-    console.log(`Fetching IP address ...`);
+    console.log("Fetching IP address ...");
     const result = await handleGetIpAddressRequest();
     let ipAddress = "";
     if (isAxiosResponse(result)) {
