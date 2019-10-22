@@ -67,6 +67,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                 setIsAuthenticated(() => false);
                 setLoggingIn(() => false);
                 setHasSubmitted(() => false);
+                modalError(response.data.error);
                 return error;
             }
             setIsAuthenticated(() => true);
