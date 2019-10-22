@@ -25,7 +25,8 @@
     "mysql": "^2.17.1",
     "pg": "^7.12.1",
     "request": "~2.88.0",
-    "ssh2": "^0.8.5"
+    "ssh2": "^0.8.5",
+    "uglify-js": "^2.6.0"
   },
   "devDependencies": {
     "eslint": "^6.3.0"
