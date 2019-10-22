@@ -67,7 +67,6 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                 setIsAuthenticated(() => false);
                 setLoggingIn(() => false);
                 setHasSubmitted(() => false);
-                modalError(error.message);
                 return error;
             }
             setIsAuthenticated(() => true);
@@ -75,18 +74,20 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
             setHasSubmitted(() => false);
             setUsername(() => username);
             setPassword(() => password);
-            setIpAddress(() => ipAddress); // TODO: Obtain IP address
+            setIpAddress(() => ipAddress);
             authContext!.authenticate(username, password, ipAddress);
         }
     };
 
     const handleLoginError = (error: AxiosError) => {
-        var errorMessage = "";
+        var errorMessage = "could not connect to data streamer UI server";
         if (error.response) {
             console.log(error.response.data);
             console.log(error.response.status);
             console.log(error.response.headers);
-            errorMessage = JSON.stringify(error.response.data, null, 2);
+            if (error.response.data) {
+                errorMessage = JSON.stringify(error.response.data, null, 2);
+            }
         } else {
             console.log(error.message);
             errorMessage = error.message;
@@ -94,6 +95,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
         setIsAuthenticated(() => false);
         setLoggingIn(() => false);
         setHasSubmitted(() => false);
+        console.log(errorMessage);
         modalError(errorMessage);
         return error;
     };
@@ -185,22 +187,31 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                                 }}
                                 className="shadow"
                             >
-                                <div style={{ display: "flex", justifyContent: "center", marginBottom: 30 }}>
+                                <div style={{ display: "flex", justifyContent: "center", margin: "0px 0px 20px 0px" }}>
                                     <img alt="Donders Institute" src={logoDCCN} height={64} />
                                 </div>
-                                <Form className="login-form" onSubmit={handleSubmit}>
-                                    <Form.Item>
+                                <h2 style={{ display: "flex", justifyContent: "center", margin: "0px 0px 10px 0px" }}>
+                                    DCCN data streamer
+                                </h2>
+                                <h1 style={{ display: "flex", justifyContent: "center", margin: "0px 0px 20px 0px" }}>
+                                    Please login
+                                </h1>
+                                <div style={{ fontSize: "small", margin: "0px 0px 0px 0px" }}>
+                                    Enter your DCCN credentials
+                                </div>
+                                <Form className="login-form" onSubmit={handleSubmit} style={{ margin: "0px 0px 0px 0px" }}>
+                                    <Form.Item style={{ margin: "0px 0px 0px 0px" }}>
                                         {getFieldDecorator("username", {
                                             rules: [{ required: true, message: "Please input your DCCN username" }]
                                         })(
                                             <Input
                                                 prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
-                                                placeholder="DCCN Username"
+                                                placeholder="User name"
                                                 onChange={handleUsernameChange}
                                             />,
                                         )}
                                     </Form.Item>
-                                    <Form.Item>
+                                    <Form.Item style={{ margin: "0px 0px 10px 0px" }}>
                                         {getFieldDecorator("password", {
                                             rules: [{ required: true, message: "Please input your password" }]
                                         })(
@@ -212,13 +223,14 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                                             />,
                                         )}
                                     </Form.Item>
-                                    <Form.Item>
+                                    <Form.Item style={{ margin: "0px 0px 10px 0px" }}>
                                         <Button className="login-form-button" type="primary" htmlType="submit">
                                             Log in
                                         </Button>
                                     </Form.Item>
-                                    <div style={{ display: "flex", justifyContent: "center" }}>
-                                        <Tooltip title="This is the login page for the data streamer UI. Please login with your DCCN credentials.">
+                                    <div style={{ display: "flex", justifyContent: "center", margin: "0px 0px 0px 0px" }}>
+                                        <Tooltip title="This is the login page for the data streamer. Please login with your DCCN credentials. The purpose of the data streamer is to upload files to the DCCN project
+                        storage. The source files are files from your experiments on this computer. The destination is the correct folder on the DCCN project storage.">
                                             <Icon type="question-circle" />
                                         </Tooltip>
                                     </div>

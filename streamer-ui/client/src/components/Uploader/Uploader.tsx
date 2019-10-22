@@ -10,7 +10,8 @@ import {
     BackTop,
     Spin,
     Modal,
-    Progress
+    Progress,
+    Tooltip
 } from "antd";
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
@@ -81,12 +82,14 @@ const Uploader: React.FC = () => {
     };
 
     const handleUploadError = (error: AxiosError) => {
-        var newErrorMessage = "";
+        var newErrorMessage = "could not connect to data streamer UI server";
         if (error.response) {
             console.log(error.response.data);
             console.log(error.response.status);
             console.log(error.response.headers);
-            newErrorMessage = JSON.stringify(error.response.data, null, 2);
+            if (error.response.data) {
+                newErrorMessage = JSON.stringify(error.response.data, null, 2);
+            }
         } else {
             console.log(error.message);
             newErrorMessage = error.message;
@@ -94,6 +97,8 @@ const Uploader: React.FC = () => {
         console.log(newErrorMessage);
         setErrorMessage(errorMessage => newErrorMessage);
         setShowErrorModal(true);
+        setFailed(true);
+        setIsUploading(false);
         return error;
     };
 
@@ -397,17 +402,11 @@ const Uploader: React.FC = () => {
                             style={{
                                 borderRadius: 4,
                                 boxShadow: "1px 1px 1px #ddd",
-                                minHeight: "600px",
+                                minHeight: "700px",
                                 marginTop: 10
                             }}
                             className="shadow"
                         >
-                            <table style={{ width: "100%" }}>
-                                <tr>
-                                    <td><h2>Local PC</h2></td>
-                                </tr>
-                            </table>
-                            <Divider />
                             <FileSelector
                                 fileList={fileList}
                                 fileListSummary={fileListSummary}
@@ -434,7 +433,7 @@ const Uploader: React.FC = () => {
                                 marginLeft: 10,
                                 borderRadius: 4,
                                 boxShadow: "1px 1px 1px #ddd",
-                                minHeight: "600px",
+                                minHeight: "700px",
                                 marginTop: 10
                             }}
                             className="shadow"
@@ -442,7 +441,7 @@ const Uploader: React.FC = () => {
                             <table style={{ width: "100%" }}>
                                 <tr>
                                     <td>
-                                        <h2>Project storage</h2>
+                                        <Tooltip placement="bottomLeft" title="Set destination folder settings below. 1) Select project, 2) set subject label, 3) set session label, and 4) set data type"><h2>Project storage</h2></Tooltip>
                                     </td>
                                     <td style={{ float: "right" }}>
                                         <TargetPath
@@ -458,7 +457,6 @@ const Uploader: React.FC = () => {
                                     </td>
                                 </tr>
                             </table>
-                            <Divider />
                             {isLoadingProjectList &&
                                 <Content style={{ marginTop: "10px" }}>
                                     <div>Loading projects for {authContext!.username} ...</div>
@@ -484,28 +482,32 @@ const Uploader: React.FC = () => {
                                     handleChangeSelectedDataTypeOther={handleChangeSelectedDataTypeOther}
                                 />
                             }
-                            {isSelectedSession && hasFilesSelected && proceed && (
-                                <Button
-                                    size="large"
-                                    style={{
-                                        backgroundColor: "#52c41a",
-                                        color: "#fff",
-                                        width: "200px",
-                                        float: "right"
-                                    }}
-                                    onClick={handleUpload}
-                                >
-                                    Upload
-                                </Button>
-                            )}
                             {(!hasFilesSelected || !proceed) && (
-                                <Button
-                                    disabled={true}
-                                    size="large"
-                                    style={{ width: "200px", float: "right" }}
-                                >
-                                    Upload
-                                </Button>
+                                <Tooltip placement="bottomRight" title="Please select one or more files and set the destination folder settings above. When 1) all source files are selected, and 2) the destination settings above are filled in properly, the button becomes green and clickable.">
+                                    <Button
+                                        disabled={true}
+                                        size="large"
+                                        style={{ width: "200px", float: "right" }}
+                                    >
+                                        Upload
+                                    </Button>
+                                </Tooltip>
+                            )}
+                            {isSelectedSession && hasFilesSelected && proceed && (
+                                <Tooltip placement="bottomRight" title="Press the button to submit a streamer job.">
+                                    <Button
+                                        size="large"
+                                        style={{
+                                            backgroundColor: "#52c41a",
+                                            color: "#fff",
+                                            width: "200px",
+                                            float: "right"
+                                        }}
+                                        onClick={handleUpload}
+                                    >
+                                        Upload
+                                    </Button>
+                                </Tooltip>
                             )}
                         </Card>
                     </Col>
@@ -555,7 +557,7 @@ const Uploader: React.FC = () => {
                 {
                     !isUploading && !failed && (
                         <div>
-                            <p>Done</p>
+                            <p>Done. Streamer job submitted.</p>
                         </div>)
                 }
                 {

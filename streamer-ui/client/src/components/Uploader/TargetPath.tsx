@@ -1,4 +1,5 @@
 import React from "react";
+import { Tooltip } from "antd";
 
 interface IProps {
     isSelectedProject: boolean;
@@ -23,19 +24,19 @@ const TargetPath: React.FC<IProps> = (
         sessionLabel
     }) => {
     let forwardSlashPath = (
-        <span style={{ fontWeight: "bold", color: "#f45709" }}>/</span>
+        <span style={{ fontWeight: "bold", color: "#52c41a" }}>/</span>
     );
     let projectPath = (
-        <span style={{ fontWeight: "bold", color: "#f45709" }}>project</span>
+        <span style={{ fontWeight: "bold", color: "#52c41a" }}>project</span>
     );
     let rawPath = (
-        <span style={{ fontWeight: "bold", color: "#f45709" }}>raw</span>
+        <span style={{ fontWeight: "bold", color: "#52c41a" }}>raw</span>
     );
     let subjectPath = (
-        <span style={{ fontWeight: "bold", color: "#f45709" }}>sub-</span>
+        <span style={{ fontWeight: "bold", color: "#52c41a" }}>sub-</span>
     );
     let sessionPath = (
-        <span style={{ fontWeight: "bold", color: "#f45709" }}>ses-</span>
+        <span style={{ fontWeight: "bold", color: "#52c41a" }}>ses-</span>
     );
 
     let projectNumberPath = (
@@ -51,21 +52,21 @@ const TargetPath: React.FC<IProps> = (
 
     if (isSelectedProject) {
         projectNumberPath = (
-            <span style={{ fontWeight: "bold", color: "#f45709" }}>
+            <span style={{ fontWeight: "bold", color: "#52c41a" }}>
                 {projectNumber}
             </span>
         );
     }
     if (isSelectedSubject) {
         subjectLabelPath = (
-            <span style={{ fontWeight: "bold", color: "#f45709" }}>
+            <span style={{ fontWeight: "bold", color: "#52c41a" }}>
                 {subjectLabel}
             </span>
         );
     }
     if (isSelectedDataType && dataType !== "other") {
         dataTypePath = (
-            <span style={{ fontWeight: "bold", color: "#f45709" }}>{dataType}</span>
+            <span style={{ fontWeight: "bold", color: "#52c41a" }}>{dataType}</span>
         );
     }
     if (isSelectedDataType) {
@@ -73,7 +74,7 @@ const TargetPath: React.FC<IProps> = (
             dataTypePath = <span style={{ fontStyle: "italic" }}>(datatype)</span>;
         } else {
             dataTypePath = (
-                <span style={{ fontWeight: "bold", color: "#f45709" }}>
+                <span style={{ fontWeight: "bold", color: "#52c41a" }}>
                     {dataType}
                 </span>
             );
@@ -81,7 +82,7 @@ const TargetPath: React.FC<IProps> = (
     }
     if (isSelectedSession) {
         sessionLabelPath = (
-            <span style={{ fontWeight: "bold", color: "#f45709" }}>
+            <span style={{ fontWeight: "bold", color: "#52c41a" }}>
                 {sessionLabel}
             </span>
         );
@@ -89,21 +90,23 @@ const TargetPath: React.FC<IProps> = (
 
     return (
         <div>
-            {forwardSlashPath}
-            {projectPath}
-            {forwardSlashPath}
-            {projectNumberPath}
-            {forwardSlashPath}
-            {rawPath}
-            {forwardSlashPath}
-            {subjectPath}
-            {subjectLabelPath}
-            {forwardSlashPath}
-            {sessionPath}
-            {sessionLabelPath}
-            {forwardSlashPath}
-            {dataTypePath}
-            {forwardSlashPath}
+            <Tooltip placement="bottomLeft" title="Destination folder">
+                {forwardSlashPath}
+                {projectPath}
+                {forwardSlashPath}
+                {projectNumberPath}
+                {forwardSlashPath}
+                {rawPath}
+                {forwardSlashPath}
+                {subjectPath}
+                {subjectLabelPath}
+                {forwardSlashPath}
+                {sessionPath}
+                {sessionLabelPath}
+                {forwardSlashPath}
+                {dataTypePath}
+                {forwardSlashPath}
+            </Tooltip>
         </div>
     );
 };

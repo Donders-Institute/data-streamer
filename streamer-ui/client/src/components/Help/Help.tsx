@@ -15,16 +15,21 @@ const Help: React.FC = () => {
                     style={{ borderRadius: 4, boxShadow: "1px 1px 1px #ddd", marginTop: 10 }}
                     className="shadow"
                 >
-                    <h2>About the streamer UI</h2>
+                    <h2>About the data streamer</h2>
                     <div>
-                        The purpose of the streamer UI is to upload files to the project
-                        storage in an enforced folder structure.
+                        The purpose of the data streamer is to upload files to the DCCN project
+                        storage. The source files are files from your experiments on this computer.
+                        The destination is the correct folder on the DCCN project storage.
+                    </div>
+                    <div>
+                        Once the files have been uploaded to the streamer, the streamer will queue a streamer job.
+                        An e-mail will be send to you if the job has been successful or not.
                     </div>
 
                     <br />
-                    <h2>Instructions</h2>
+                    <h2>How to</h2>
                     <div>
-                        Please find instructions on the intranet:
+                        Please find more information on how to use the data streamer on the Intranet:
                     </div>
                     <div>
                         <a href="https://intranet.donders.ru.nl/index.php?id=streamer"><Icon type="link" style={{ marginRight: "4px" }} />https://intranet.donders.ru.nl/index.php?id=streamer</a>

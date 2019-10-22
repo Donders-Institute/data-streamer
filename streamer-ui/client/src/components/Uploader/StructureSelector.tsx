@@ -116,7 +116,11 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
         <Form layout="vertical" hideRequiredMark>
             <Row gutter={16}>
                 <Col span={12}>
-                    <Form.Item label="Project number">
+                    <Form.Item
+                        label="Select project"
+                        hasFeedback validateStatus=""
+                        help="Select project for which you are manager or contributor."
+                    >
                         <Select
                             labelInValue
                             defaultValue={defaultEmpty}
@@ -126,10 +130,6 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         >
                             {optionsProjects}
                         </Select>
-                        &nbsp;
-                        <Tooltip title="only the projects are shown for which you are manager or contributor">
-                            <Icon type="question-circle-o" />
-                        </Tooltip>
                     </Form.Item>
                 </Col>
                 <Col span={12}></Col>
@@ -138,7 +138,12 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
             {isSelectedProject && (
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item label="Set subject label">
+                        <Form.Item
+                            label="Set subject label"
+                            hasFeedback
+                            validateStatus=""
+                            help="Should be combination of numbers & alphabets with no special characters. Examples: '1', 'test042'"
+                        >
                             {getFieldDecorator("subjectlabel", {
                                 rules: [
                                     { required: true, message: "Please input your subject label" },
@@ -149,12 +154,9 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                                     placeholder="Set subject label"
                                     onChange={handleChangeSubjectLabel}
                                     style={{ width: "400px" }}
+                                    id="success"
                                 />,
                             )}
-                            &nbsp;
-                            <Tooltip title="subject label must be of form [a-zA-Z0-9]+">
-                                <Icon type="question-circle-o" />
-                            </Tooltip>
                         </Form.Item>
                     </Col>
                     <Col span={12}></Col>
@@ -164,7 +166,12 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
             {isSelectedSubject && (
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item label="Set session label">
+                        <Form.Item
+                            label="Set session label"
+                            hasFeedback
+                            validateStatus=""
+                            help="Should be combination of numbers & alphabets with no special characters. Examples: '1', 'mri02'"
+                        >
                             {getFieldDecorator("sessionlabel", {
                                 rules: [
                                     { required: true, message: "Please input your session label" },
@@ -177,10 +184,6 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                                     style={{ width: "400px" }}
                                 />,
                             )}
-                            &nbsp;
-                            <Tooltip title="session label must be of form [a-zA-Z0-9]+">
-                                <Icon type="question-circle-o" />
-                            </Tooltip>,
                         </Form.Item>
                     </Col>
                     <Col span={12}></Col>
@@ -190,7 +193,12 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
             {isSelectedSession && (
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item label="Select data type">
+                        <Form.Item
+                            label="Select data type"
+                            hasFeedback
+                            validateStatus=""
+                            help=""
+                        >
                             <Select
                                 labelInValue
                                 defaultValue={defaultEmpty}
@@ -209,7 +217,12 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
             {isSelectedDataTypeOther && (
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Form.Item>
+                        <Form.Item
+                            label="Select data type other"
+                            hasFeedback
+                            validateStatus=""
+                            help="Should be lower case string with no special characters. Examples: eyelink', 'test'"
+                        >
                             {getFieldDecorator("datatypeother", {
                                 rules: [
                                     { required: true, message: "Please input your other data type" },
@@ -222,10 +235,6 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                                     style={{ width: "400px" }}
                                 />,
                             )}
-                            &nbsp;
-                            <Tooltip title="other data type must be lower case string with no special characters">
-                                <Icon type="question-circle-o" />
-                            </Tooltip>
                         </Form.Item>
                     </Col>
                     <Col span={12}></Col>

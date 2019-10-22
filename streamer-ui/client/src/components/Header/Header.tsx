@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import { Layout, Row, Col, Icon, Menu, Button, Modal } from "antd";
+import { Layout, Row, Col, Icon, Menu, Button, Modal, Tooltip } from "antd";
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
 import { AuthContext } from "../Auth/AuthContext";
@@ -38,12 +38,14 @@ const Header: React.FC = () => {
     };
 
     const handleLogoutError = (error: AxiosError) => {
-        var errorMessage = "";
+        var errorMessage = "could not connect to data streamer UI server";
         if (error.response) {
             console.log(error.response.data);
             console.log(error.response.status);
             console.log(error.response.headers);
-            errorMessage = JSON.stringify(error.response.data, null, 2);
+            if (error.response.data) {
+                errorMessage = JSON.stringify(error.response.data, null, 2);
+            }
         } else {
             console.log(error.message);
             errorMessage = error.message;
@@ -112,7 +114,7 @@ const Header: React.FC = () => {
                                     selectedKeys={[]}
                                 >
                                     <Menu.Item key={LOCATION_HOME} style={{ float: "left", margin: "0px 0px 0px 20px" }}>
-                                        <Link to="/"><Icon type="home" /></Link>
+                                        <Tooltip placement="bottomRight" title="The purpose of the data streamer is to upload files to the DCCN project storage. The source files are files from your experiments on this computer. The destination is the correct folder on the DCCN project storage."><Link to="/"><Icon type="home" />DATA STREAMER</Link></Tooltip>
                                     </Menu.Item>
                                 </Menu>
                             </Col>
@@ -123,7 +125,9 @@ const Header: React.FC = () => {
                                     mode="horizontal"
                                     selectedKeys={[]}
                                 >
-                                    <Menu.Item key={LOCATION_HELP}><Link to="/help"><span style={{ fontWeight: "bold" }}>HELP</span></Link></Menu.Item>
+                                    <Menu.Item key={LOCATION_HELP}>
+                                        <Tooltip placement="bottomLeft" title="Click here for help for the data streamer"><Link to="/help"><span style={{ fontWeight: "bold" }}>HELP</span></Link></Tooltip>
+                                    </Menu.Item>
                                     <SubMenu
                                         key="profile"
                                         title={

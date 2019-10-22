@@ -2,7 +2,8 @@ import React from "react";
 import {
     Icon,
     Button,
-    Table
+    Table,
+    Tooltip
 } from "antd";
 
 import { formatBytes } from "./utils";
@@ -33,7 +34,7 @@ const FileList: React.FC<IProps> = ({ fileList, fileListSummary, hasFilesSelecte
             key: "name",
             width: "70%",
             render: (text: string) => (
-                <span style={{ color: "#f45709" }}>{text}</span>
+                <span style={{ color: "#52c41a" }}>{text}</span>
             )
         },
         {
@@ -101,24 +102,25 @@ const FileList: React.FC<IProps> = ({ fileList, fileListSummary, hasFilesSelecte
 
     return (
         <div>
-            <Table
-                rowKey={(record: any) => record.uid}
-                columns={columnsFileList}
-                dataSource={fileList}
-                pagination={false}
-                size={"small"}
-            />
-            {hasFilesSelected &&
+            <Tooltip placement="topLeft" title="Shows list of files to be uploaded">
                 <Table
-                    rowKey="total"
-                    columns={columnsSummary}
-                    dataSource={dataSourceFileListSummary}
+                    rowKey={(record: any) => record.uid}
+                    columns={columnsFileList}
+                    dataSource={fileList}
                     pagination={false}
                     size={"small"}
-                    showHeader={false}
                 />
-            }
-
+                {hasFilesSelected &&
+                    <Table
+                        rowKey="total"
+                        columns={columnsSummary}
+                        dataSource={dataSourceFileListSummary}
+                        pagination={false}
+                        size={"small"}
+                        showHeader={false}
+                    />
+                }
+            </Tooltip>
         </div>
     );
 };

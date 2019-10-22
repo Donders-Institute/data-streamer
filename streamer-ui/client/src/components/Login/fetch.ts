@@ -29,7 +29,6 @@ const handleGetIpAddressError = (error: AxiosError) => {
         errorMessage = error.message;
     }
     console.log(errorMessage);
-    alert(error);
     return error;
 };
 
