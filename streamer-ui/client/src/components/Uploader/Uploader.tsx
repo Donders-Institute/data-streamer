@@ -125,7 +125,7 @@ const Uploader: React.FC = () => {
             resolve(axios.request(config)
                 .then(handleUploadResponse)
                 .then(function (response: AxiosResponse) {
-                    let value = uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes);
+                    let value = totalSizeBytes > 0 ? uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes) : 100;
                     setUploadingPercentage(uploadingPercentage => value);
                     setRemainingItems(remainingItems => remainingItems - 1);
                     return value;
@@ -170,7 +170,7 @@ const Uploader: React.FC = () => {
             resolve(dummyAxiosRequest(config)
                 .then(handleUploadResponse)
                 .then(function (response: AxiosResponse) {
-                    let value = uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes);
+                    let value = totalSizeBytes > 0 ? uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes) : 100;
                     setUploadingPercentage(uploadingPercentage => value);
                     setRemainingItems(remainingItems => remainingItems - 1);
                     return value;
@@ -263,18 +263,31 @@ const Uploader: React.FC = () => {
         }
     };
 
+    // TODO: Find a way to detect directories
+    const isDirectory = (file: RcFile) => {
+        return false;
+    };
+
     const handleBeforeUpload = (file: RcFile, batch: RcFile[]) => {
         let isValidBatch = true;
         let maxFileSizeExceeded = false;
+        let directories = [] as string[];
         let largeFiles = [] as string[];
         let duplicates = [] as string[];
         // TODO: Find a way to do this check only once (i.e. per batch)
         for (let i = 0; i < batch.length; i++) {
+            // Make sure that the file is not a directory
+            if (isDirectory(file)) {
+                directories.push(batch[i].name);
+                isValidBatch = false;
+            }
+            // Check if file is not too big
             if (file.size >= maxSizeLimitBytes) {
                 largeFiles.push(batch[i].name);
                 maxFileSizeExceeded = true;
                 isValidBatch = false;
             }
+            // Check if a file with the same filename exists already
             if (fileNameExists(batch[i], fileList)) {
                 duplicates.push(batch[i].name);
                 isValidBatch = false;
@@ -289,20 +302,33 @@ const Uploader: React.FC = () => {
             setHasFilesSelected(fileList.length > 0);
             setFileListSummary(fileListSummary => fileListSummary);
             let msg = "";
-            if (duplicates.length === 1) {
-                msg = `Filename already exists, please rename: "${duplicates[0]}"`;
-            } else {
-                msg = `Filenames already exist, please rename: [${duplicates.join(", ")}]`;
+            if (directories.length > 0) {
+                if (directories.length === 1) {
+                    msg = `Selected item is a directory, please select files only: "${directories[0]}"`;
+                } else {
+                    msg = `Selected items are directories, please select files only: [${directories.join(", ")}]`;
+                }
+                setErrorMessage(msg);
+                setShowErrorModal(true);
             }
-            if (duplicates.length === 0 && maxFileSizeExceeded) {
+            if (directories.length === 0 && duplicates.length > 0) {
+                if (duplicates.length === 1) {
+                    msg = `Filename already exists, please rename: "${duplicates[0]}"`;
+                } else {
+                    msg = `Filenames already exist, please rename: [${duplicates.join(", ")}]`;
+                }
+                setErrorMessage(msg);
+                setShowErrorModal(true);
+            }
+            if (directories.length === 0 && duplicates.length === 0 && maxFileSizeExceeded) {
                 if (largeFiles.length === 1) {
                     msg = `Maximum file size exceeded (file size must be less than ${maxSizeLimitAsString} for a single file): "${largeFiles[0]}"`;
                 } else {
                     msg = `Maximum file size exceeded (file size must be less than ${maxSizeLimitAsString} for a single file): [${largeFiles.join(", ")}]`;
                 }
+                setErrorMessage(msg);
+                setShowErrorModal(true);
             }
-            setErrorMessage(msg);
-            setShowErrorModal(true);
         }
         return true; // bypass default behaviour
     };

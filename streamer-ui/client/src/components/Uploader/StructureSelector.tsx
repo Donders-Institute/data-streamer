@@ -115,7 +115,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
     const validateDataTypeOther = async (rule: any, value: string) => {
         let isValid = validateSelectedDataTypeOtherInput(value);
         if (!isValid) {
-            throw new Error("Should be lower case string with no special characters. Examples: eyelink', 'test'");
+            throw new Error("Should be lower case string without special characters. Examples: eyelink', 'test'");
         }
     };
 
@@ -149,7 +149,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         label={<span style={{ fontWeight: "bold" }}>Set subject label</span>}
                         hasFeedback
                         validateStatus={selectedSubjectStatus}
-                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets with no special characters. Examples: 1, test042</span>}
+                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets without special characters. Examples: 1, test042</span>}
                     >
                         {getFieldDecorator("subjectlabel", {
                             rules: [
