@@ -208,6 +208,12 @@ const Uploader: React.FC = () => {
             // Add one file
             formData.append("files", file);
 
+            // To be removed
+            console.log("fileName: " + file.name);
+            console.log("fileSize: " + file.size);
+            console.log("fileType: " + file.type);
+            console.log("file uid: " + file.uid);
+
             const p = handleUploadRequest(authContext!.username, authContext!.password, formData, file.size);
             // const p = handleDummyUploadRequest(authContext!.username, authContext!.password, formData, file.size);
             work.push(p.catch(error => {
