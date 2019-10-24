@@ -101,21 +101,21 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
     const validateSubjectLabel = async (rule: any, value: string) => {
         let isValid = validateSubjectLabelInput(value);
         if (!isValid) {
-            throw new Error(`Should be combination of numbers and alphabets with no special characters. Examples: '1', 'mri02'`);
+            throw new Error("Should be combination of numbers and alphabets with no special characters. Examples: '1', 'mri02'");
         }
     };
 
     const validateSessionLabel = async (rule: any, value: string) => {
         let isValid = validateSessionLabelInput(value);
         if (!isValid) {
-            throw new Error(`Should be combination of numbers and alphabets with no special characters. Examples: '1', 'mri02'`);
+            throw new Error("Should be combination of numbers and alphabets with no special characters. Examples: '1', 'mri02'");
         }
     };
 
     const validateDataTypeOther = async (rule: any, value: string) => {
         let isValid = validateSelectedDataTypeOtherInput(value);
         if (!isValid) {
-            throw new Error(`Should be lower case string with no special characters. Examples: eyelink', 'test'`);
+            throw new Error("Should be lower case string with no special characters. Examples: eyelink', 'test'");
         }
     };
 
