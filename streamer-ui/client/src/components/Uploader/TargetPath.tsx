@@ -56,20 +56,25 @@ const TargetPath: React.FC<IProps> = (
                 {projectNumber}
             </span>
         );
-    }
-    if (isSelectedSubject) {
+
         subjectLabelPath = (
             <span style={{ fontWeight: "bold", color: "#52c41a" }}>
                 {subjectLabel}
             </span>
         );
+
+        sessionLabelPath = (
+            <span style={{ fontWeight: "bold", color: "#52c41a" }}>
+                {sessionLabel}
+            </span>
+        );
     }
-    if (isSelectedDataType && dataType !== "other") {
+
+    if (isSelectedDataType) {
         dataTypePath = (
             <span style={{ fontWeight: "bold", color: "#52c41a" }}>{dataType}</span>
         );
-    }
-    if (isSelectedDataType) {
+
         if (dataType === "other" || dataType === "") {
             dataTypePath = <span style={{ fontStyle: "italic" }}>(datatype)</span>;
         } else {
@@ -79,13 +84,6 @@ const TargetPath: React.FC<IProps> = (
                 </span>
             );
         }
-    }
-    if (isSelectedSession) {
-        sessionLabelPath = (
-            <span style={{ fontWeight: "bold", color: "#52c41a" }}>
-                {sessionLabel}
-            </span>
-        );
     }
 
     return (

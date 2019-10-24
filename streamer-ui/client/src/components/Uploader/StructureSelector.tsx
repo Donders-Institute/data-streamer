@@ -7,14 +7,18 @@ import {
     Input
 } from "antd";
 import { FormComponentProps } from "antd/lib/form";
-import { Project, SelectOption } from "./types";
-
+import { Project, SelectOption, ValidateStatuses } from "./types";
 import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "./utils";
 
 const { Option } = Select;
 
 interface IProps {
     projectList: Project[];
+    selectedProjectStatus: (typeof ValidateStatuses)[number];
+    selectedSubjectStatus: (typeof ValidateStatuses)[number];
+    selectedSessionStatus: (typeof ValidateStatuses)[number];
+    selectedDataTypeStatus: (typeof ValidateStatuses)[number];
+    selectedDataTypeOtherStatus: (typeof ValidateStatuses)[number];
     isSelectedProject: boolean;
     projectNumber: string;
     isSelectedSubject: boolean;
@@ -62,6 +66,11 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
     {
         form,
         projectList,
+        selectedProjectStatus,
+        selectedSubjectStatus,
+        selectedSessionStatus,
+        selectedDataTypeStatus,
+        selectedDataTypeOtherStatus,
         isSelectedProject,
         projectNumber,
         isSelectedSubject,
@@ -92,21 +101,21 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
     const validateSubjectLabel = async (rule: any, value: string) => {
         let isValid = validateSubjectLabelInput(value);
         if (!isValid) {
-            throw new Error("Must be of form [a-zA-Z0-9]+");
+            throw new Error(`Should be combination of numbers and alphabets with no special characters. Examples: '1', 'mri02'`);
         }
     };
 
     const validateSessionLabel = async (rule: any, value: string) => {
         let isValid = validateSessionLabelInput(value);
         if (!isValid) {
-            throw new Error("Must be of form [a-zA-Z0-9]+");
+            throw new Error(`Should be combination of numbers and alphabets with no special characters. Examples: '1', 'mri02'`);
         }
     };
 
     const validateDataTypeOther = async (rule: any, value: string) => {
         let isValid = validateSelectedDataTypeOtherInput(value);
         if (!isValid) {
-            throw new Error("Must be of form [a-z]+");
+            throw new Error(`Should be lower case string with no special characters. Examples: eyelink', 'test'`);
         }
     };
 
@@ -115,9 +124,10 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
             <Row gutter={16}>
                 <Col span={12}>
                     <Form.Item
-                        label="Select project"
-                        hasFeedback validateStatus=""
-                        help="Select project for which you are manager or contributor."
+                        label={<span style={{ fontWeight: "bold" }}>Select project</span>}
+                        hasFeedback
+                        validateStatus={selectedProjectStatus}
+                        help={<span style={{ fontStyle: "italic" }}>Select project for which you are manager or contributor.</span>}
                     >
                         <Select
                             labelInValue
@@ -133,92 +143,88 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                 <Col span={12}></Col>
             </Row>
 
-            {isSelectedProject && (
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            label="Set subject label"
-                            hasFeedback
-                            validateStatus=""
-                            help="Should be combination of numbers & alphabets with no special characters. Examples: '1', 'test042'"
-                        >
-                            {getFieldDecorator("subjectlabel", {
-                                rules: [
-                                    { required: true, message: "Please input your subject label" },
-                                    { validator: validateSubjectLabel }
-                                ]
-                            })(
-                                <Input
-                                    placeholder="Set subject label"
-                                    onChange={handleChangeSubjectLabel}
-                                    style={{ width: "400px" }}
-                                    id="success"
-                                />,
-                            )}
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}></Col>
-                </Row>
-            )}
-
-            {isSelectedSubject && (
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            label="Set session label"
-                            hasFeedback
-                            validateStatus=""
-                            help="Should be combination of numbers & alphabets with no special characters. Examples: '1', 'mri02'"
-                        >
-                            {getFieldDecorator("sessionlabel", {
-                                rules: [
-                                    { required: true, message: "Please input your session label" },
-                                    { validator: validateSessionLabel }
-                                ]
-                            })(
-                                <Input
-                                    placeholder="Set session label"
-                                    onChange={handleChangeSessionLabel}
-                                    style={{ width: "400px" }}
-                                />,
-                            )}
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}></Col>
-                </Row>
-            )}
-
-            {isSelectedSession && (
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            label="Select data type"
-                            hasFeedback
-                            validateStatus=""
-                            help=""
-                        >
-                            <Select
-                                labelInValue
-                                defaultValue={defaultEmpty}
-                                placeholder="Select data type"
-                                onSelect={handleSelectDataTypeValue}
+            <Row gutter={16}>
+                <Col span={12}>
+                    <Form.Item
+                        label={<span style={{ fontWeight: "bold" }}>Set subject label</span>}
+                        hasFeedback
+                        validateStatus={selectedSubjectStatus}
+                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets with no special characters. Examples: 1, test042</span>}
+                    >
+                        {getFieldDecorator("subjectlabel", {
+                            rules: [
+                                { required: true, message: "Please input your subject label" },
+                                { validator: validateSubjectLabel }
+                            ]
+                        })(
+                            <Input
+                                placeholder="Set subject label"
+                                onChange={handleChangeSubjectLabel}
                                 style={{ width: "400px" }}
-                            >
-                                {optionsDataTypes}
-                            </Select>
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}></Col>
-                </Row>
-            )}
+                                disabled={!isSelectedProject}
+                            />,
+                        )}
+                    </Form.Item>
+                </Col>
+                <Col span={12}></Col>
+            </Row>
+
+            <Row gutter={16}>
+                <Col span={12}>
+                    <Form.Item
+                        label={<span style={{ fontWeight: "bold" }}>Set session label</span>}
+                        hasFeedback
+                        validateStatus={selectedSessionStatus}
+                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets with no special characters. Examples: 1, mri02</span>}
+                    >
+                        {getFieldDecorator("sessionlabel", {
+                            rules: [
+                                { required: true, message: "Please input your session label" },
+                                { validator: validateSessionLabel }
+                            ]
+                        })(
+                            <Input
+                                placeholder="Set session label"
+                                onChange={handleChangeSessionLabel}
+                                style={{ width: "400px" }}
+                                disabled={!isSelectedProject}
+                            />,
+                        )}
+                    </Form.Item>
+                </Col>
+                <Col span={12}></Col>
+            </Row>
+
+            <Row gutter={16}>
+                <Col span={12}>
+                    <Form.Item
+                        label={<span style={{ fontWeight: "bold" }}>Select data type</span>}
+                        hasFeedback
+                        validateStatus={selectedDataTypeStatus}
+                        help=""
+                    >
+                        <Select
+                            labelInValue
+                            defaultValue={defaultEmpty}
+                            placeholder="Select data type"
+                            onSelect={handleSelectDataTypeValue}
+                            style={{ width: "400px" }}
+                            disabled={!isSelectedProject}
+                        >
+                            {optionsDataTypes}
+                        </Select>
+                    </Form.Item>
+                </Col>
+                <Col span={12}></Col>
+            </Row>
 
             {isSelectedDataTypeOther && (
                 <Row gutter={16}>
                     <Col span={12}>
                         <Form.Item
-                            label="Select data type other"
+                            label="Set data type other"
                             hasFeedback
-                            validateStatus=""
+                            validateStatus={selectedDataTypeOtherStatus}
                             help="Should be lower case string with no special characters. Examples: eyelink', 'test'"
                         >
                             {getFieldDecorator("datatypeother", {
@@ -231,6 +237,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                                     placeholder="Insert other data type"
                                     onChange={handleChangeSelectedDataTypeOther}
                                     style={{ width: "400px" }}
+                                    disabled={!isSelectedProject}
                                 />,
                             )}
                         </Form.Item>

@@ -21,8 +21,8 @@ import FileSelector from "./FileSelector";
 import FileList from "./FileList";
 import TargetPath from "./TargetPath";
 import StructureSelector from "./StructureSelector";
-import { fetchProjectList } from "./fetch";
-import { RcFile, Project, SelectOption } from "./types";
+import { fetchDummyProjectList } from "./fetch";
+import { RcFile, Project, SelectOption, ValidateStatuses } from "./types";
 import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "./utils";
 
 const { Content } = Layout;
@@ -46,6 +46,11 @@ const Uploader: React.FC = () => {
     const [failed, setFailed] = useState(false);
     const [isLoadingProjectList, setIsLoadingProjectList] = useState(true);
     const [projectList, setProjectList] = useState([] as Project[]);
+    const [selectedProjectStatus, setSelectedProjectStatus] = useState("" as (typeof ValidateStatuses)[number]);
+    const [selectedSubjectStatus, setSelectedSubjectStatus] = useState("" as (typeof ValidateStatuses)[number]);
+    const [selectedSessionStatus, setSelectedSessionStatus] = useState("" as (typeof ValidateStatuses)[number]);
+    const [selectedDataTypeStatus, setSelectedDataTypeStatus] = useState("" as (typeof ValidateStatuses)[number]);
+    const [selectedDataTypeOtherStatus, setSelectedDataTypeOtherStatus] = useState("" as (typeof ValidateStatuses)[number]);
     const [selectedProjectValue, setSelectedProjectValue] = useState("");
     const [selectedSubjectValue, setSelectedSubjectValue] = useState("");
     const [selectedSessionValue, setSelectedSessionValue] = useState("");
@@ -64,7 +69,7 @@ const Uploader: React.FC = () => {
     useEffect(() => {
         const fetchData = async (username: string, password: string) => {
             setIsLoadingProjectList(true);
-            const data = await fetchProjectList(username, password);
+            const data = await fetchDummyProjectList(username, password);
             setProjectList(data);
             setIsLoadingProjectList(false);
         };
@@ -176,6 +181,7 @@ const Uploader: React.FC = () => {
     };
 
     const handleUpload = (event: any) => {
+        setFailed(false);
         setRemainingItems(remainingItems => fileList.length);
         setUploadingPercentage(uploadingPercentage => 0);
         setIsUploading(true);
@@ -296,6 +302,7 @@ const Uploader: React.FC = () => {
     };
 
     const handleSelectProjectValue = (value: SelectOption) => {
+        setSelectedProjectStatus("success");
         setSelectedProjectValue(value.key);
         setIsSelectedProject(true);
         setSelectedSubjectValue("");
@@ -309,8 +316,10 @@ const Uploader: React.FC = () => {
     };
 
     const handleChangeSubjectLabel = (event: any) => {
+        setSelectedSubjectStatus("validating");
         let isValid = validateSubjectLabelInput(event.target.value);
         if (isValid) {
+            setSelectedSubjectStatus("success");
             setSelectedSubjectValue(event.target.value);
             setIsSelectedSubject(true);
             setSelectedSessionValue("");
@@ -326,6 +335,7 @@ const Uploader: React.FC = () => {
             if (value !== "") {
                 value = selectedSubjectValue;
             }
+            setSelectedSubjectStatus("error");
             setSelectedSubjectValue(value);
             setIsSelectedSubject(false);
             setSelectedSessionValue("");
@@ -338,8 +348,10 @@ const Uploader: React.FC = () => {
     };
 
     const handleChangeSessionLabel = (event: any) => {
+        setSelectedSessionStatus("validating");
         let isValid = validateSessionLabelInput(event.target.value);
         if (isValid) {
+            setSelectedSessionStatus("success");
             setSelectedSessionValue(event.target.value);
             setIsSelectedSession(true);
             setSelectedDataTypeValue("");
@@ -353,6 +365,7 @@ const Uploader: React.FC = () => {
             if (value !== "") {
                 value = selectedSessionValue;
             }
+            setSelectedSessionStatus("error");
             setSelectedSessionValue(value);
             setIsSelectedSession(false);
             setSelectedDataTypeValue("");
@@ -363,8 +376,10 @@ const Uploader: React.FC = () => {
     };
 
     const handleSelectDataTypeValue = (value: SelectOption) => {
+        setSelectedDataTypeStatus("success");
         setSelectedDataTypeValue(value.key);
         setIsSelectedDataType(true);
+        setSelectedDataTypeOtherStatus("");
         setIsSelectedDataTypeOther(false);
         let proceed = true;
         if (value.key === "other") {
@@ -375,8 +390,10 @@ const Uploader: React.FC = () => {
     };
 
     const handleChangeSelectedDataTypeOther = (event: any) => {
+        setSelectedDataTypeOtherStatus("validating");
         let isValid = validateSelectedDataTypeOtherInput(event.target.value);
         if (isValid) {
+            setSelectedDataTypeOtherStatus("success");
             setSelectedDataTypeValue(event.target.value);
             setProceed(true);
         } else {
@@ -386,6 +403,7 @@ const Uploader: React.FC = () => {
             if (value !== "") {
                 value = selectedDataTypeValue;
             }
+            setSelectedDataTypeOtherStatus("error");
             setSelectedDataTypeValue(value);
             setProceed(false);
         }
@@ -402,6 +420,7 @@ const Uploader: React.FC = () => {
                                 borderRadius: 4,
                                 boxShadow: "1px 1px 1px #ddd",
                                 minHeight: "700px",
+                                height: "100%",
                                 marginTop: 10
                             }}
                             className="shadow"
@@ -465,6 +484,11 @@ const Uploader: React.FC = () => {
                             {!isLoadingProjectList &&
                                 <StructureSelector
                                     projectList={projectList}
+                                    selectedProjectStatus={selectedProjectStatus}
+                                    selectedSubjectStatus={selectedSubjectStatus}
+                                    selectedSessionStatus={selectedSessionStatus}
+                                    selectedDataTypeStatus={selectedDataTypeStatus}
+                                    selectedDataTypeOtherStatus={selectedDataTypeOtherStatus}
                                     isSelectedProject={isSelectedProject}
                                     projectNumber={selectedProjectValue}
                                     isSelectedSubject={isSelectedSubject}
@@ -520,7 +544,6 @@ const Uploader: React.FC = () => {
                 footer={[
                     <Button type="primary" disabled={isUploading} onClick={(e) => {
                         setShowUploadModal(false);
-                        setFailed(false);
 
                         // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
                         setFileList([] as RcFile[]);
@@ -572,6 +595,7 @@ const Uploader: React.FC = () => {
                 closable={false}
                 footer={[
                     <Button type="primary" onClick={(e) => {
+                        setFailed(true);
                         setShowErrorModal(false);
                         setErrorMessage("");
                     }}>Ok

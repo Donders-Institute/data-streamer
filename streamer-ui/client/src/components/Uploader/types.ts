@@ -12,3 +12,5 @@ export interface Project {
 export type SelectOption = {
     key: string;
 }
+
+export declare const ValidateStatuses: ["success", "warning", "error", "validating", ""];

@@ -126,7 +126,7 @@ const Header: React.FC = () => {
                                     selectedKeys={[]}
                                 >
                                     <Menu.Item key={LOCATION_HELP}>
-                                        <Tooltip placement="bottomLeft" title="Click here for help for the data streamer"><Link to="/help"><span style={{ fontWeight: "bold" }}>HELP</span></Link></Tooltip>
+                                        <Tooltip placement="bottomLeft" title="Click here for help how to use the data streamer"><Link to="/help"><span style={{ fontWeight: "bold" }}>HELP</span></Link></Tooltip>
                                     </Menu.Item>
                                     <SubMenu
                                         key="profile"
