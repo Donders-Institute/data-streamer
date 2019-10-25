@@ -192,7 +192,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                                     <img alt="Donders Institute" src={logoDCCN} height={64} />
                                 </div>
                                 <h2 style={{ display: "flex", justifyContent: "center", margin: "0px 0px 10px 0px" }}>
-                                    DCCN data streamer
+                                    DCCN Data Streamer (BETA)
                                 </h2>
                                 <h1 style={{ display: "flex", justifyContent: "center", margin: "0px 0px 20px 0px" }}>
                                     Please login

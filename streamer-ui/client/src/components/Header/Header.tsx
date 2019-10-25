@@ -114,7 +114,7 @@ const Header: React.FC = () => {
                                     selectedKeys={[]}
                                 >
                                     <Menu.Item key={LOCATION_HOME} style={{ float: "left", margin: "0px 0px 0px 20px" }}>
-                                        <Tooltip placement="bottomRight" title="The purpose of the data streamer is to upload files to the DCCN project storage. The source files are files from your experiments on this computer. The destination is the correct folder on the DCCN project storage."><Link to="/"><Icon type="home" />DATA STREAMER</Link></Tooltip>
+                                        <Tooltip placement="bottomRight" title="The purpose of the data streamer is to upload files to the DCCN project storage. The source files are files from your experiments on this computer. The destination is the correct folder on the DCCN project storage."><Link to="/"><Icon type="home" />DATA STREAMER (BETA)</Link></Tooltip>
                                     </Menu.Item>
                                 </Menu>
                             </Col>
