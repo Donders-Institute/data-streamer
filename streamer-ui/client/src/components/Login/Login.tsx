@@ -171,23 +171,15 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
             }
             {
                 !loggingIn && !hasSubmitted && !isAuthenticated &&
-                <Content style={{ background: "#f0f2f5", marginTop: "10px" }}>
-                    <Row justify="center" style={{ height: "100%" }}>
-                        <Col span={10}>
+                <Content className="Login">
+                    <Row type="flex" justify="center" align="middle" style={{ width: "100%" }}>
+                        <Col span={2}>
                             {isFetchingIpAddress &&
                                 <Spin indicator={antIcon} />
                             }
                         </Col>
-                        <Col span={4}>
-                            <Card
-                                style={{
-                                    borderRadius: 4,
-                                    boxShadow: "1px 1px 1px #ddd",
-                                    marginTop: 10,
-                                    width: "350px"
-                                }}
-                                className="shadow"
-                            >
+                        <Col span={20}>
+                            <Card className="LoginCard">
                                 <div style={{ display: "flex", justifyContent: "center", margin: "0px 0px 20px 0px" }}>
                                     <img alt="Donders Institute" src={logoDCCN} height={64} />
                                 </div>
@@ -230,15 +222,15 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                                         </Button>
                                     </Form.Item>
                                     <div style={{ display: "flex", justifyContent: "center", margin: "0px 0px 0px 0px" }}>
-                                        <Tooltip title="This is the login page for the data streamer. Please login with your DCCN credentials. The purpose of the data streamer is to upload files to the DCCN project
-                        storage. The source files are files from your experiments on this computer. The destination is the correct folder on the DCCN project storage.">
+                                        <Tooltip title={<div><p>This is the login page for the data streamer. Please login with your DCCN credentials.</p><p>The purpose of the data streamer is to upload files to the DCCN project
+                        storage. The source files are files from your experiments on this computer. The destination is the correct folder on the DCCN project storage.</p></div>}>
                                             <Icon type="question-circle" />
                                         </Tooltip>
                                     </div>
                                 </Form>
                             </Card>
                         </Col>
-                        <Col span={10}>
+                        <Col span={2}>
                         </Col>
                     </Row>
                 </Content>
