@@ -15,6 +15,8 @@ import {
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
 import { AuthContext } from "../Auth/AuthContext";
+import { UploaderContext } from "./UploaderContext";
+
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
 import FileSelector from "./FileSelector";
@@ -36,6 +38,7 @@ const uploadTimeout = 300000;
 
 const Uploader: React.FC = () => {
     const authContext = useContext(AuthContext);
+    const uploaderContext = useContext(UploaderContext);
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");

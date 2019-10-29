@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 
 export interface IAuthContext {
     isAuthenticated: boolean,
@@ -11,8 +11,8 @@ export interface IAuthContext {
 
 const AuthContext = React.createContext<IAuthContext | null>(null);
 
-const AuthContextProvider = AuthContext.Provider;
+const AuthProvider = AuthContext.Provider;
 
-const AuthContextConsumer = AuthContext.Consumer;
+const AuthConsumer = AuthContext.Consumer;
 
-export { AuthContext, AuthContextProvider, AuthContextConsumer };
+export { AuthContext, AuthProvider, AuthConsumer };
