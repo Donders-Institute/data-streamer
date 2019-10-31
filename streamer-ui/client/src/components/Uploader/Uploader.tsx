@@ -324,7 +324,7 @@ const Uploader: React.FC = () => {
         }
         if (isValidBatch) {
             uploaderContext!.setHasFilesSelected(true);
-            uploaderContext!.setFileList([...(uploaderContext!.fileList), file]);
+            uploaderContext!.setFileList([...(uploaderContext!.fileList), ...batch]);
         } else {
             uploaderContext!.setFileList([...(uploaderContext!.fileList)]);
             uploaderContext!.setHasFilesSelected(uploaderContext!.fileList.length > 0);
