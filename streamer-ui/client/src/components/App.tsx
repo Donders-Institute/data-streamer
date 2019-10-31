@@ -19,6 +19,6 @@ const App: React.FC = () => {
             <ProtectedRoute component={NotFound} />
         </Switch>
     );
-}
+};
 
 export default App;

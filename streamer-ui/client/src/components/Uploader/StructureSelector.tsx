@@ -7,13 +7,13 @@ import {
     Input
 } from "antd";
 import { FormComponentProps } from "antd/lib/form";
-import { Project, SelectOption, ValidateStatuses } from "./types";
+import { ProjectList, SelectOption, ValidateStatuses } from "./types";
 import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "./utils";
 
 const { Option } = Select;
 
 interface IProps {
-    projectList: Project[];
+    projectList: ProjectList;
     selectedProjectStatus: (typeof ValidateStatuses)[number];
     selectedSubjectStatus: (typeof ValidateStatuses)[number];
     selectedSessionStatus: (typeof ValidateStatuses)[number];
@@ -21,10 +21,7 @@ interface IProps {
     selectedDataTypeOtherStatus: (typeof ValidateStatuses)[number];
     isSelectedProject: boolean;
     projectNumber: string;
-    isSelectedSubject: boolean;
     subjectLabel: string;
-    isSelectedSession: boolean;
-    isSelectedDataType: boolean;
     isSelectedDataTypeOther: boolean;
     dataType: string;
     sessionLabel: string;
@@ -73,10 +70,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
         selectedDataTypeOtherStatus,
         isSelectedProject,
         projectNumber,
-        isSelectedSubject,
         subjectLabel,
-        isSelectedSession,
-        isSelectedDataType,
         isSelectedDataTypeOther,
         dataType,
         sessionLabel,
@@ -88,14 +82,15 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
     }) => {
     const { getFieldDecorator } = form;
 
-    const defaultEmpty: SelectOption = { key: "" };
+    const projectNumberOption: SelectOption = { key: (projectNumber ? projectNumber : "") };
+    const dataTypeOption: SelectOption = { key: (dataType ? dataType : "") };
 
-    const optionsProjects = projectList.map((project, key) => (
-        <Option value={project.number}>{project.number}</Option>
+    const optionsProjects = projectList!.map((project, key) => (
+        <Option value={project.number} key={key}>{project.number}</Option>
     ));
 
     const optionsDataTypes = dataTypesList.map((item, key) => (
-        <Option value={item.dataType}>{item.dataType}</Option>
+        <Option value={item.dataType} key={key}>{item.dataType}</Option>
     ));
 
     const validateSubjectLabel = async (rule: any, value: string) => {
@@ -131,7 +126,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                     >
                         <Select
                             labelInValue
-                            defaultValue={defaultEmpty}
+                            defaultValue={projectNumberOption}
                             placeholder="Select project"
                             onSelect={handleSelectProjectValue}
                             style={{ width: "400px" }}
@@ -152,13 +147,13 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets without special characters. Examples: 1, test042</span>}
                     >
                         {getFieldDecorator("subjectlabel", {
+                            initialValue: subjectLabel,
                             rules: [
                                 { required: true, message: "Please input your subject label" },
                                 { validator: validateSubjectLabel }
                             ]
                         })(
                             <Input
-                                placeholder="Set subject label"
                                 onChange={handleChangeSubjectLabel}
                                 style={{ width: "400px" }}
                                 disabled={!isSelectedProject}
@@ -178,13 +173,13 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets with no special characters. Examples: 1, mri02</span>}
                     >
                         {getFieldDecorator("sessionlabel", {
+                            initialValue: sessionLabel,
                             rules: [
                                 { required: true, message: "Please input your session label" },
                                 { validator: validateSessionLabel }
                             ]
                         })(
                             <Input
-                                placeholder="Set session label"
                                 onChange={handleChangeSessionLabel}
                                 style={{ width: "400px" }}
                                 disabled={!isSelectedProject}
@@ -205,7 +200,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                     >
                         <Select
                             labelInValue
-                            defaultValue={defaultEmpty}
+                            defaultValue={dataTypeOption}
                             placeholder="Select data type"
                             onSelect={handleSelectDataTypeValue}
                             style={{ width: "400px" }}
@@ -228,13 +223,13 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                             help="Should be lower case string with no special characters. Examples: eyelink', 'test'"
                         >
                             {getFieldDecorator("datatypeother", {
+                                initialValue: dataType,
                                 rules: [
                                     { required: true, message: "Please input your other data type" },
                                     { validator: validateDataTypeOther }
                                 ]
                             })(
                                 <Input
-                                    placeholder="Insert other data type"
                                     onChange={handleChangeSelectedDataTypeOther}
                                     style={{ width: "400px" }}
                                     disabled={!isSelectedProject}

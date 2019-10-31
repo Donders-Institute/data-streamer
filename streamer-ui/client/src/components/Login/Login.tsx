@@ -24,10 +24,6 @@ import logoDCCN from "../../assets/dccn-logo.png";
 
 const { Content } = Layout;
 
-interface IProps {
-    title?: string | undefined;
-}
-
 function modalError(msg: string) {
     Modal.error({
         title: "Error",
@@ -38,8 +34,9 @@ function modalError(msg: string) {
     });
 }
 
-const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
+const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
     const authContext = useContext(AuthContext);
+
     const [isFetchingIpAddress, setIsFetchingIpAddress] = useState(true);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -47,6 +44,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loggingIn, setLoggingIn] = useState(false);
     const [hasSubmitted, setHasSubmitted] = useState(false);
+
     const { getFieldDecorator } = form;
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
 
@@ -76,7 +74,7 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
             setUsername(() => username);
             setPassword(() => password);
             setIpAddress(() => ipAddress);
-            authContext!.authenticate(username, password, ipAddress);
+            authContext!.signIn(username, password, ipAddress);
         }
     };
 
@@ -148,19 +146,19 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
 
     return (
         <div>
+            {/* {
+                !authContext!.isAuthenticated &&
+                <Button
+                    onClick={() => authContext!.signIn("rutvdee", "testpassword", "1.2.3.4")}>
+                    Authenticate rutvdee
+                </Button>
+            } */}
             {
-                authContext!.isAuthenticated &&
+                isAuthenticated &&
                 <Redirect to="/" />
             }
             {
-                !authContext!.isAuthenticated &&
-                <Button
-                    onClick={() => authContext!.authenticate("rutvdee", "testpassword", "1.2.3.4")}>
-                    Authenticate rutvdee
-                </Button>
-            }
-            {
-                isAuthenticated &&
+                authContext!.isAuthenticated &&
                 <Redirect to="/" />
             }
             {
@@ -222,8 +220,12 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
                                         </Button>
                                     </Form.Item>
                                     <div style={{ display: "flex", justifyContent: "center", margin: "0px 0px 0px 0px" }}>
-                                        <Tooltip title={<div><p>This is the login page for the data streamer. Please login with your DCCN credentials.</p><p>The purpose of the data streamer is to upload files to the DCCN project
-                        storage. The source files are files from your experiments on this computer. The destination is the correct folder on the DCCN project storage.</p></div>}>
+                                        <Tooltip title={<div
+                                        ><p>This is the login page for the data streamer. Please login with your DCCN credentials.</p>
+                                            <p>The purpose of the data streamer is to upload files to the DCCN project storage.
+                                                The source files are files from your experiments on this computer.
+                                                The destination is the correct folder on the DCCN project storage.</p>
+                                        </div>}>
                                             <Icon type="question-circle" />
                                         </Tooltip>
                                     </div>
@@ -239,6 +241,6 @@ const LoginForm: React.FC<IProps & FormComponentProps> = ({ form }) => {
     );
 };
 
-const Login = Form.create<IProps & FormComponentProps>()(LoginForm);
+const Login = Form.create<FormComponentProps>()(LoginForm);
 
 export default Login;

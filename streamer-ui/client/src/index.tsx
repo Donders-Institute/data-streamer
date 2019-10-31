@@ -1,25 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { render } from "react-dom";
 import { BrowserRouter as Router } from "react-router-dom";
 import * as serviceWorker from "./serviceWorker";
 
 import App from "./components/App";
 import { AuthProvider } from "./components/Auth/AuthContext";
-import { Project, RcFile, ValidateStatuses } from "./components/Uploader/types";
+import { ProjectList, RcFile, ValidateStatuses } from "./components/Uploader/types";
 import { UploaderProvider } from "./components/Uploader/UploaderContext";
-import { fetchDummyProjectList } from "./components/Uploader/fetch";
 
 import "./index.less";
-import { booleanLiteral } from "@babel/types";
 
 const Root: React.FC = () => {
 
-    const [projectList, setProjectList] = useState([] as Project[]);
-    const [isLoadingProjectList, setIsLoadingProjectList] = useState(true);
-
     // Set auth context
 
-    const authenticate = (username: string, password: string, ipAddress: string) => {
+    const signIn = (username: string, password: string, ipAddress: string) => {
         setAuthContext(state => (
             {
                 ...state,
@@ -31,7 +26,7 @@ const Root: React.FC = () => {
         ));
     };
 
-    const signout = () => {
+    const signOut = () => {
         setAuthContext(state => (
             {
                 ...state,
@@ -48,70 +43,78 @@ const Root: React.FC = () => {
         password: "",
         ipAddress: "",
         isAuthenticated: false,
-        authenticate: authenticate,
-        signout: signout
+        signIn: signIn,
+        signOut: signOut
     });
 
     // Set uploader context
 
+    const setProjectList = (projectList: ProjectList) => {
+        setUploaderContext(state => ({ ...state, projectList: projectList }));
+    };
+
+    const setIsLoadingProjectList = (isLoadingProjectList: boolean) => {
+        setUploaderContext(state => ({ ...state, isLoadingProjectList: isLoadingProjectList }));
+    };
+
     const setSelectedProjectStatus = (selectedProjectStatus: (typeof ValidateStatuses)[number]) => {
         setUploaderContext(state => ({ ...state, selectedProjectStatus: selectedProjectStatus }));
-    }
+    };
 
     const setSelectedSubjectStatus = (selectedSubjectStatus: (typeof ValidateStatuses)[number]) => {
         setUploaderContext(state => ({ ...state, selectedSubjectStatus: selectedSubjectStatus }));
-    }
+    };
 
     const setSelectedSessionStatus = (selectedSessionStatus: (typeof ValidateStatuses)[number]) => {
         setUploaderContext(state => ({ ...state, selectedSessionStatus: selectedSessionStatus }));
-    }
+    };
 
     const setSelectedDataTypeStatus = (selectedDataTypeStatus: (typeof ValidateStatuses)[number]) => {
         setUploaderContext(state => ({ ...state, selectedDataTypeStatus: selectedDataTypeStatus }));
-    }
+    };
 
     const setSelectedDataTypeOtherStatus = (selectedDataTypeOtherStatus: (typeof ValidateStatuses)[number]) => {
         setUploaderContext(state => ({ ...state, selectedDataTypeOtherStatus: selectedDataTypeOtherStatus }));
-    }
+    };
 
     const setSelectedProjectValue = (selectedProjectValue: string) => {
         setUploaderContext(state => ({ ...state, selectedProjectValue: selectedProjectValue }));
-    }
+    };
 
     const setSelectedSubjectValue = (selectedSubjectValue: string) => {
         setUploaderContext(state => ({ ...state, selectedSubjectValue: selectedSubjectValue }));
-    }
+    };
 
     const setSelectedSessionValue = (selectedSessionValue: string) => {
         setUploaderContext(state => ({ ...state, selectedSessionValue: selectedSessionValue }));
-    }
+    };
 
     const setSelectedDataTypeValue = (selectedDataTypeValue: string) => {
         setUploaderContext(state => ({ ...state, selectedDataTypeValue: selectedDataTypeValue }));
-    }
+    };
 
     const setIsSelectedProject = (isSelectedProject: boolean) => {
         setUploaderContext(state => ({ ...state, isSelectedProject: isSelectedProject }));
-    }
+    };
 
     const setIsSelectedSubject = (isSelectedSubject: boolean) => {
         setUploaderContext(state => ({ ...state, isSelectedSubject: isSelectedSubject }));
-    }
+    };
 
     const setIsSelectedSession = (isSelectedSession: boolean) => {
         setUploaderContext(state => ({ ...state, isSelectedSession: isSelectedSession }));
-    }
+    };
 
     const setIsSelectedDataType = (isSelectedDataType: boolean) => {
         setUploaderContext(state => ({ ...state, isSelectedDataType: isSelectedDataType }));
-    }
+    };
 
     const setIsSelectedDataTypeOther = (isSelectedDataTypeOther: boolean) => {
         setUploaderContext(state => ({ ...state, isSelectedDataTypeOther: isSelectedDataTypeOther }));
-    }
+    };
 
     const setFileList = (fileList: RcFile[]) => {
-        setUploaderContext(state => ({ ...state, fileList: fileList }))
+        setUploaderContext(state => ({ ...state, fileList: fileList }));
     };
 
     const setHasFilesSelected = (hasFilesSelected: boolean) => {
@@ -122,24 +125,9 @@ const Root: React.FC = () => {
         setUploaderContext(state => ({ ...state, fileListSummary: fileListSummary }));
     };
 
-    const setProceed = (proceed: boolean) => {
-        setUploaderContext(state => ({ ...state, proceed: proceed }));
-    }
-
-    useEffect(() => {
-        const fetchData = async (username: string, password: string) => {
-            setIsLoadingProjectList(true);
-            const newProjectList = await fetchDummyProjectList(username, password);
-            setProjectList(projectList => newProjectList);
-            setIsLoadingProjectList(false);
-            setUploaderContext(state => ({ ...state, projectList: projectList, isLoadingProjectList: isLoadingProjectList }))
-        };
-        fetchData(authContext!.username, authContext!.password);
-    }, [authContext]);
-
     const [uploaderContext, setUploaderContext] = useState({
-        projectList: projectList,
-        isLoadingProjectList: isLoadingProjectList,
+        projectList: null as unknown as ProjectList,
+        isLoadingProjectList: true,
         selectedProjectStatus: "" as (typeof ValidateStatuses)[number],
         selectedSubjectStatus: "" as (typeof ValidateStatuses)[number],
         selectedSessionStatus: "" as (typeof ValidateStatuses)[number],
@@ -157,7 +145,8 @@ const Root: React.FC = () => {
         fileList: [] as RcFile[],
         fileListSummary: 0,
         hasFilesSelected: false,
-        proceed: false,
+        setProjectList: setProjectList,
+        setIsLoadingProjectList: setIsLoadingProjectList,
         setSelectedProjectStatus: setSelectedProjectStatus,
         setSelectedSubjectStatus: setSelectedSubjectStatus,
         setSelectedSessionStatus: setSelectedSessionStatus,
@@ -174,8 +163,7 @@ const Root: React.FC = () => {
         setIsSelectedDataTypeOther: setIsSelectedDataTypeOther,
         setFileList: setFileList,
         setHasFilesSelected: setHasFilesSelected,
-        setFileListSummary: setFileListSummary,
-        setProceed: setProceed
+        setFileListSummary: setFileListSummary
     });
 
     return (

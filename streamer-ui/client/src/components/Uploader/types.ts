@@ -13,4 +13,6 @@ export type SelectOption = {
     key: string;
 }
 
+export type ProjectList = Project[] | null;
+
 export declare const ValidateStatuses: ["success", "warning", "error", "validating", ""];

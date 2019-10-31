@@ -1,12 +1,12 @@
-import React, { useContext } from "react";
+import React from "react";
 
 export interface IAuthContext {
     isAuthenticated: boolean,
     username: string,
     password: string,
     ipAddress: string,
-    authenticate: (username: string, password: string, ipAddress: string) => void,
-    signout: () => void
+    signIn: (username: string, password: string, ipAddress: string) => void,
+    signOut: () => void
 }
 
 const AuthContext = React.createContext<IAuthContext | null>(null);

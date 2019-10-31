@@ -23,8 +23,9 @@ import FileSelector from "./FileSelector";
 import FileList from "./FileList";
 import TargetPath from "./TargetPath";
 import StructureSelector from "./StructureSelector";
-import { RcFile, Project, SelectOption, ValidateStatuses } from "./types";
+import { RcFile, SelectOption } from "./types";
 import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "./utils";
+import { fetchProjectList } from "./fetch";
 
 const { Content } = Layout;
 
@@ -47,8 +48,62 @@ const Uploader: React.FC = () => {
     const [remainingItems, setRemainingItems] = useState(0);
     const [isUploading, setIsUploading] = useState(true);
     const [failed, setFailed] = useState(false);
+    const [proceed, setProceed] = useState(false);
 
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
+
+    useEffect(() => {
+        const fetchData = async (username: string, password: string) => {
+            if (!(uploaderContext!.projectList)) {
+                // Only fetch the data when the project list does not yet exist
+                uploaderContext!.setIsLoadingProjectList(true);
+                const newProjectList = await fetchProjectList(username, password);
+                uploaderContext!.setProjectList(newProjectList);
+                uploaderContext!.setIsLoadingProjectList(false);
+            }
+        };
+        fetchData(authContext!.username, authContext!.password);
+    }, [authContext]);
+
+    useEffect(() => {
+        const checkProceed = async () => {
+            if (!(uploaderContext!.hasFilesSelected)) {
+                setProceed(false);
+                return;
+            }
+            if (uploaderContext!.selectedProjectStatus !== "success") {
+                setProceed(false);
+                return;
+            }
+            if (uploaderContext!.selectedSubjectStatus !== "success") {
+                setProceed(false);
+                return;
+            }
+            if (uploaderContext!.selectedSessionStatus !== "success") {
+                setProceed(false);
+                return;
+            }
+            if (uploaderContext!.selectedDataTypeStatus !== "success") {
+                setProceed(false);
+                return;
+            }
+            let dataTypeOk = false;
+            if (uploaderContext!.isSelectedDataTypeOther) {
+                dataTypeOk = (uploaderContext!.selectedDataTypeStatus === "success" &&
+                    uploaderContext!.selectedDataTypeOtherStatus === "success" &&
+                    uploaderContext!.selectedDataTypeValue !== "") ? true : false;
+            }
+            else {
+                dataTypeOk = uploaderContext!.selectedDataTypeStatus === "success" ? true : false;
+            }
+            if (!dataTypeOk) {
+                setProceed(false);
+                return;
+            }
+            setProceed(true);
+        };
+        checkProceed();
+    }, [uploaderContext]);
 
     const handleUploadResponse = (response: AxiosResponse) => {
         // console.log(response.data);
@@ -109,50 +164,50 @@ const Uploader: React.FC = () => {
         return promise;
     };
 
-    function dummyAxiosRequest<T = any, R = AxiosResponse<T>>(config: AxiosRequestConfig): Promise<R> {
-        const promise = new Promise<R>(function (resolve, reject) {
-            setTimeout(function () {
-                let response = {
-                    data: { test: "test" },
-                    status: 200,
-                    statusText: "OK",
-                    headers: {},
-                    config: config
-                } as unknown as (R | PromiseLike<R> | undefined);
-                resolve(response);
-            }, 2000);
-        });
-        return promise;
-    }
+    // function dummyAxiosRequest<T = any, R = AxiosResponse<T>>(config: AxiosRequestConfig): Promise<R> {
+    //     const promise = new Promise<R>(function (resolve, reject) {
+    //         setTimeout(function () {
+    //             let response = {
+    //                 data: { test: "test" },
+    //                 status: 200,
+    //                 statusText: "OK",
+    //                 headers: {},
+    //                 config: config
+    //             } as unknown as (R | PromiseLike<R> | undefined);
+    //             resolve(response);
+    //         }, 2000);
+    //     });
+    //     return promise;
+    // }
 
-    const handleDummyUploadRequest = (username: string, password: string, formData: any, fileSizeBytes: number) => {
-        let promise = new Promise((resolve, reject) => {
-            const config: AxiosRequestConfig = {
-                url: "/upload",
-                method: "post",
-                headers: { "Content-Type": "multipart/form-data" },
-                data: formData,
-                timeout: uploadTimeout,
-                withCredentials: true,
-                auth: {
-                    username: username,
-                    password: password
-                },
-                responseType: "json"
-            };
+    // const handleDummyUploadRequest = (username: string, password: string, formData: any, fileSizeBytes: number) => {
+    //     let promise = new Promise((resolve, reject) => {
+    //         const config: AxiosRequestConfig = {
+    //             url: "/upload",
+    //             method: "post",
+    //             headers: { "Content-Type": "multipart/form-data" },
+    //             data: formData,
+    //             timeout: uploadTimeout,
+    //             withCredentials: true,
+    //             auth: {
+    //                 username: username,
+    //                 password: password
+    //             },
+    //             responseType: "json"
+    //         };
 
-            resolve(dummyAxiosRequest(config)
-                .then(handleUploadResponse)
-                .then(function (response: AxiosResponse) {
-                    let value = totalSizeBytes > 0 ? uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes) : 100;
-                    setUploadingPercentage(uploadingPercentage => value);
-                    setRemainingItems(remainingItems => remainingItems - 1);
-                    return value;
-                })
-                .catch(handleUploadError));
-        });
-        return promise;
-    };
+    //         resolve(dummyAxiosRequest(config)
+    //             .then(handleUploadResponse)
+    //             .then(function (response: AxiosResponse) {
+    //                 let value = totalSizeBytes > 0 ? uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes) : 100;
+    //                 setUploadingPercentage(uploadingPercentage => value);
+    //                 setRemainingItems(remainingItems => remainingItems - 1);
+    //                 return value;
+    //             })
+    //             .catch(handleUploadError));
+    //     });
+    //     return promise;
+    // };
 
     const handleUpload = (event: any) => {
         setFailed(false);
@@ -270,7 +325,6 @@ const Uploader: React.FC = () => {
         if (isValidBatch) {
             uploaderContext!.setHasFilesSelected(true);
             uploaderContext!.setFileList([...(uploaderContext!.fileList), file]);
-            uploaderContext!.setFileListSummary(uploaderContext!.fileListSummary + file.size);
         } else {
             uploaderContext!.setFileList([...(uploaderContext!.fileList)]);
             uploaderContext!.setHasFilesSelected(uploaderContext!.fileList.length > 0);
@@ -311,6 +365,7 @@ const Uploader: React.FC = () => {
         uploaderContext!.setSelectedProjectStatus("success");
         uploaderContext!.setSelectedProjectValue(value.key);
         uploaderContext!.setIsSelectedProject(true);
+        // Reset the other fields
         uploaderContext!.setSelectedSubjectValue("");
         uploaderContext!.setIsSelectedSubject(false);
         uploaderContext!.setSelectedSessionValue("");
@@ -318,25 +373,18 @@ const Uploader: React.FC = () => {
         uploaderContext!.setSelectedDataTypeValue("");
         uploaderContext!.setIsSelectedDataType(false);
         uploaderContext!.setIsSelectedDataTypeOther(false);
-        uploaderContext!.setProceed(false);
+        setProceed(false);
     };
 
-    const handleChangeSubjectLabel = (event: any) => {
+    const handleChangeSubjectLabel = async (event: any) => {
         uploaderContext!.setSelectedSubjectStatus("validating");
         let isValid = validateSubjectLabelInput(event.target.value);
         if (isValid) {
             uploaderContext!.setSelectedSubjectStatus("success");
             uploaderContext!.setSelectedSubjectValue(event.target.value);
             uploaderContext!.setIsSelectedSubject(true);
-            uploaderContext!.setSelectedSessionValue("");
-            uploaderContext!.setIsSelectedSession(false);
-            uploaderContext!.setSelectedDataTypeValue("");
-            uploaderContext!.setIsSelectedDataType(false);
-            uploaderContext!.setIsSelectedDataTypeOther(false);
-            uploaderContext!.setProceed(false);
         } else {
             let value = event.target.value;
-            // Do not store invalid strings.
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = uploaderContext!.selectedSubjectValue;
@@ -344,29 +392,19 @@ const Uploader: React.FC = () => {
             uploaderContext!.setSelectedSubjectStatus("error");
             uploaderContext!.setSelectedSubjectValue(value);
             uploaderContext!.setIsSelectedSubject(false);
-            uploaderContext!.setSelectedSessionValue("");
-            uploaderContext!.setIsSelectedSession(false);
-            uploaderContext!.setSelectedDataTypeValue("");
-            uploaderContext!.setIsSelectedDataType(false);
-            uploaderContext!.setIsSelectedDataTypeOther(false);
-            uploaderContext!.setProceed(false);
         }
     };
 
-    const handleChangeSessionLabel = (event: any) => {
+    const handleChangeSessionLabel = async (event: any) => {
+
         uploaderContext!.setSelectedSessionStatus("validating");
         let isValid = validateSessionLabelInput(event.target.value);
         if (isValid) {
             uploaderContext!.setSelectedSessionStatus("success");
             uploaderContext!.setSelectedSessionValue(event.target.value);
             uploaderContext!.setIsSelectedSession(true);
-            uploaderContext!.setSelectedDataTypeValue("");
-            uploaderContext!.setIsSelectedDataType(false);
-            uploaderContext!.setIsSelectedDataTypeOther(false);
-            uploaderContext!.setProceed(false);
         } else {
             let value = event.target.value;
-            // Do not store invalid strings.
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = uploaderContext!.selectedSessionValue;
@@ -374,44 +412,36 @@ const Uploader: React.FC = () => {
             uploaderContext!.setSelectedSessionStatus("error");
             uploaderContext!.setSelectedSessionValue(value);
             uploaderContext!.setIsSelectedSession(false);
-            uploaderContext!.setSelectedDataTypeValue("");
-            uploaderContext!.setIsSelectedDataType(false);
-            uploaderContext!.setIsSelectedDataTypeOther(false);
-            uploaderContext!.setProceed(false);
         }
     };
 
-    const handleSelectDataTypeValue = (value: SelectOption) => {
+    const handleSelectDataTypeValue = async (value: SelectOption) => {
         uploaderContext!.setSelectedDataTypeStatus("success");
         uploaderContext!.setSelectedDataTypeValue(value.key);
         uploaderContext!.setIsSelectedDataType(true);
         uploaderContext!.setSelectedDataTypeOtherStatus("");
-        uploaderContext!.setIsSelectedDataTypeOther(false);
-        let proceed = true;
         if (value.key === "other") {
             uploaderContext!.setIsSelectedDataTypeOther(true);
-            proceed = false;
+            uploaderContext!.setSelectedDataTypeValue("");
+        } else {
+            uploaderContext!.setIsSelectedDataTypeOther(false);
         }
-        uploaderContext!.setProceed(proceed);
     };
 
-    const handleChangeSelectedDataTypeOther = (event: any) => {
+    const handleChangeSelectedDataTypeOther = async (event: any) => {
         uploaderContext!.setSelectedDataTypeOtherStatus("validating");
         let isValid = validateSelectedDataTypeOtherInput(event.target.value);
         if (isValid) {
             uploaderContext!.setSelectedDataTypeOtherStatus("success");
             uploaderContext!.setSelectedDataTypeValue(event.target.value);
-            uploaderContext!.setProceed(true);
         } else {
             let value = event.target.value;
-            // Do not store invalid strings.
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = uploaderContext!.selectedDataTypeValue;
             }
             uploaderContext!.setSelectedDataTypeOtherStatus("error");
             uploaderContext!.setSelectedDataTypeValue(value);
-            uploaderContext!.setProceed(false);
         }
     };
 
@@ -471,9 +501,7 @@ const Uploader: React.FC = () => {
                                         <TargetPath
                                             isSelectedProject={uploaderContext!.isSelectedProject}
                                             projectNumber={uploaderContext!.selectedProjectValue}
-                                            isSelectedSubject={uploaderContext!.isSelectedSubject}
                                             subjectLabel={uploaderContext!.selectedSubjectValue}
-                                            isSelectedSession={uploaderContext!.isSelectedSession}
                                             sessionLabel={uploaderContext!.selectedSessionValue}
                                             isSelectedDataType={uploaderContext!.isSelectedDataType}
                                             dataType={uploaderContext!.selectedDataTypeValue}
@@ -497,11 +525,8 @@ const Uploader: React.FC = () => {
                                     selectedDataTypeOtherStatus={uploaderContext!.selectedDataTypeOtherStatus}
                                     isSelectedProject={uploaderContext!.isSelectedProject}
                                     projectNumber={uploaderContext!.selectedProjectValue}
-                                    isSelectedSubject={uploaderContext!.isSelectedSubject}
                                     subjectLabel={uploaderContext!.selectedSubjectValue}
-                                    isSelectedSession={uploaderContext!.isSelectedSession}
                                     sessionLabel={uploaderContext!.selectedSessionValue}
-                                    isSelectedDataType={uploaderContext!.isSelectedDataType}
                                     isSelectedDataTypeOther={uploaderContext!.isSelectedDataTypeOther}
                                     dataType={uploaderContext!.selectedDataTypeValue}
                                     handleSelectProjectValue={handleSelectProjectValue}
@@ -511,7 +536,7 @@ const Uploader: React.FC = () => {
                                     handleChangeSelectedDataTypeOther={handleChangeSelectedDataTypeOther}
                                 />
                             }
-                            {(!(uploaderContext!.hasFilesSelected) || !(uploaderContext!.proceed)) && (
+                            {(!(uploaderContext!.hasFilesSelected) || !proceed) && (
                                 <Tooltip placement="bottomRight" title="Please select one or more files and set the destination folder settings above. When 1) all source files are selected, and 2) the destination settings above are filled in properly, the button becomes green and clickable.">
                                     <Button
                                         disabled={true}
@@ -522,7 +547,7 @@ const Uploader: React.FC = () => {
                                     </Button>
                                 </Tooltip>
                             )}
-                            {uploaderContext!.isSelectedSession && uploaderContext!.hasFilesSelected && uploaderContext!.proceed && (
+                            {uploaderContext!.isSelectedSession && uploaderContext!.hasFilesSelected && proceed && (
                                 <Tooltip placement="bottomRight" title="Press the button to submit a streamer job.">
                                     <Button
                                         size="large"
@@ -558,7 +583,7 @@ const Uploader: React.FC = () => {
                     }}>
                         Upload another batch
                     </Button>,
-                    <Button disabled={isUploading} onClick={(e) => authContext!.signout()}>
+                    <Button disabled={isUploading} onClick={(e) => authContext!.signOut()}>
                         Log out
                     </Button>
                 ]}

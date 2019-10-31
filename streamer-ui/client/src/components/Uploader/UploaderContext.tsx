@@ -1,9 +1,9 @@
 import React from "react";
 
-import { RcFile, Project, ValidateStatuses } from "./types";
+import { RcFile, ProjectList, ValidateStatuses } from "./types";
 
 export interface IUploaderContext {
-    projectList: Project[];
+    projectList: ProjectList;
     isLoadingProjectList: boolean;
     selectedProjectStatus: (typeof ValidateStatuses)[number];
     selectedSubjectStatus: (typeof ValidateStatuses)[number];
@@ -22,7 +22,8 @@ export interface IUploaderContext {
     fileList: RcFile[];
     fileListSummary: number;
     hasFilesSelected: boolean;
-    proceed: boolean;
+    setProjectList: (projectList: ProjectList) => void;
+    setIsLoadingProjectList: (isLoadingProjectList: boolean) => void;
     setSelectedProjectStatus: (selectedProjectStatus: (typeof ValidateStatuses)[number]) => void;
     setSelectedSubjectStatus: (selectedSubjectStatus: (typeof ValidateStatuses)[number]) => void;
     setSelectedSessionStatus: (selectedSessionStatus: (typeof ValidateStatuses)[number]) => void;
@@ -40,7 +41,6 @@ export interface IUploaderContext {
     setFileList: (fileList: RcFile[]) => void;
     setHasFilesSelected: (hasFilesSelected: boolean) => void;
     setFileListSummary: (fileListSummary: number) => void;
-    setProceed: (proceed: boolean) => void;
 }
 
 const UploaderContext = React.createContext<IUploaderContext | null>(null);
