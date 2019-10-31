@@ -5,14 +5,14 @@ export interface IAuthContext {
     username: string,
     password: string,
     ipAddress: string,
-    authenticate: (username: string, password: string, ipAddress: string) => void,
-    signout: () => void
+    signIn: (username: string, password: string, ipAddress: string) => void,
+    signOut: () => void
 }
 
 const AuthContext = React.createContext<IAuthContext | null>(null);
 
-const AuthContextProvider = AuthContext.Provider;
+const AuthProvider = AuthContext.Provider;
 
-const AuthContextConsumer = AuthContext.Consumer;
+const AuthConsumer = AuthContext.Consumer;
 
-export { AuthContext, AuthContextProvider, AuthContextConsumer };
+export { AuthContext, AuthProvider, AuthConsumer };

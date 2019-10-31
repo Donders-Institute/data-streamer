@@ -1,24 +1,20 @@
 import React from "react";
 import { Tooltip } from "antd";
 
-interface IProps {
+interface TargetPathProps {
     isSelectedProject: boolean;
     projectNumber: string;
-    isSelectedSubject: boolean;
     subjectLabel: string;
-    isSelectedSession: boolean;
     isSelectedDataType: boolean;
     dataType: string;
     sessionLabel: string;
 }
 
-const TargetPath: React.FC<IProps> = (
+const TargetPath: React.FC<TargetPathProps> = (
     {
         isSelectedProject,
         projectNumber,
-        isSelectedSubject,
         subjectLabel,
-        isSelectedSession,
         isSelectedDataType,
         dataType,
         sessionLabel

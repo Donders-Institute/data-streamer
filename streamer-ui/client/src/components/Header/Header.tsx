@@ -34,7 +34,7 @@ const Header: React.FC = () => {
         // console.log(response.statusText);
         // console.log(response.headers);
         // console.log(response.config);
-        authContext!.signout();
+        authContext!.signOut();
     };
 
     const handleLogoutError = (error: AxiosError) => {
@@ -113,7 +113,7 @@ const Header: React.FC = () => {
                                     mode="horizontal"
                                     selectedKeys={[]}
                                 >
-                                    <Menu.Item key={LOCATION_HOME} style={{ float: "left", margin: "0px 0px 0px 20px" }}>
+                                    <Menu.Item key={LOCATION_HOME} style={{ float: "left", margin: "0px 0px 0px 0px" }}>
                                         <Tooltip placement="bottomRight" title="The purpose of the data streamer is to upload files to the DCCN project storage. The source files are files from your experiments on this computer. The destination is the correct folder on the DCCN project storage."><Link to="/"><Icon type="home" />DATA STREAMER (BETA)</Link></Tooltip>
                                     </Menu.Item>
                                 </Menu>

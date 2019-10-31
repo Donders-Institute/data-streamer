@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
-import { Project } from "./types";
+import { Project, ProjectList } from "./types";
 import { timeout } from "./utils";
 
 // Fake fetcher for testing purposes
@@ -12,7 +12,7 @@ export const fetchDummyProjectList = async (username: string, password: string) 
             id: 1,
             number: "3010000.01"
         }
-    ] as Project[];
+    ] as unknown as ProjectList;
     return projectList;
 };
 
@@ -76,7 +76,7 @@ interface SQLQueryProjectElement {
 export const fetchProjectList = async (username: string, password: string) => {
     console.log(`Fetching projects for ${username} ...`);
     const result = await handleGetProjectsRequest(username, password);
-    let projectList = [] as Project[];
+    let projectList = [] as unknown as ProjectList;
     if (isAxiosResponse(result)) {
         if (result.data) {
             if (result.data.data) {
@@ -86,7 +86,7 @@ export const fetchProjectList = async (username: string, password: string) => {
                     let projectNumber = projectElement.project;
                     let project = {id: i, number: projectNumber} as Project;
                     console.log(projectNumber);
-                    projectList.push(project);
+                    projectList!.push(project);
                 }
             }
         }
