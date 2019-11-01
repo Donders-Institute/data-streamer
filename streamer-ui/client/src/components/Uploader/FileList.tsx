@@ -109,6 +109,7 @@ const FileList: React.FC<IProps> = ({ fileList, fileListSummary, hasFilesSelecte
                     dataSource={fileList}
                     pagination={false}
                     size={"small"}
+                    scroll={{ y: 300 }}
                 />
                 {hasFilesSelected &&
                     <Table

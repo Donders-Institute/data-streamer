@@ -88,7 +88,7 @@ const Header: React.FC = () => {
                     >
                         <Row type="flex" justify="space-between">
                             <Col>
-                                <img alt="Donders Institute" src={logoDCCN} height={64} />
+                                <Link to="/"><img alt="Donders Institute" src={logoDCCN} height={64} /></Link>
                             </Col>
                             <Col></Col>
                         </Row>
