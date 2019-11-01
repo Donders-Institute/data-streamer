@@ -144,7 +144,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         label={<span style={{ fontWeight: "bold" }}>Set subject label</span>}
                         hasFeedback
                         validateStatus={selectedSubjectStatus}
-                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets without special characters. Example: 1</span>}
+                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets without special characters. Example: 009</span>}
                     >
                         {getFieldDecorator("subjectlabel", {
                             initialValue: subjectLabel,
@@ -170,7 +170,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         label={<span style={{ fontWeight: "bold" }}>Set session label</span>}
                         hasFeedback
                         validateStatus={selectedSessionStatus}
-                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets with no special characters. Example: 1</span>}
+                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets with no special characters. Example: mri02</span>}
                     >
                         {getFieldDecorator("sessionlabel", {
                             initialValue: sessionLabel,
