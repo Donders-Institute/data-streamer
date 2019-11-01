@@ -298,6 +298,7 @@ const Uploader: React.FC = () => {
     };
 
     const handleBeforeUpload = (file: RcFile, batch: RcFile[]) => {
+        let batchSizeBytes = 0;
         let isValidBatch = true;
         let maxFileSizeExceeded = false;
         let directories = [] as string[];
@@ -305,6 +306,8 @@ const Uploader: React.FC = () => {
         let duplicates = [] as string[];
         // TODO: Find a way to do this check only once (i.e. per batch)
         for (let i = 0; i < batch.length; i++) {
+            batchSizeBytes += file.size;
+
             // Make sure that the file is not a directory
             if (isDirectory(file)) {
                 directories.push(batch[i].name);
@@ -325,6 +328,7 @@ const Uploader: React.FC = () => {
         if (isValidBatch) {
             uploaderContext!.setHasFilesSelected(true);
             uploaderContext!.setFileList([...(uploaderContext!.fileList), ...batch]);
+            uploaderContext!.setFileListSummary(uploaderContext!.fileListSummary + batchSizeBytes);
         } else {
             uploaderContext!.setFileList([...(uploaderContext!.fileList)]);
             uploaderContext!.setHasFilesSelected(uploaderContext!.fileList.length > 0);
