@@ -17,7 +17,7 @@ const FileSelector: React.FC<IProps> = ({ handleBeforeUpload }) => {
     return (
         <div>
             <Tooltip placement="topLeft" title="Select source files to be uploaded">
-                <h2>Select file(s) to be uploaded</h2>
+                <h2>Select files to be uploaded</h2>
                 <Dragger
                     className="file-uploader"
                     name="file"

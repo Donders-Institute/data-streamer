@@ -22,14 +22,14 @@ const FileList: React.FC<IProps> = ({ fileList, fileListSummary, hasFilesSelecte
     const dataSourceFileListSummary = [
         {
             id: 1,
-            name: "total size",
+            name: "Total size",
             total: fileListSummary
         }
     ];
 
     const columnsFileList = [
         {
-            title: "filename",
+            title: "Filename",
             dataIndex: "name",
             key: "name",
             width: "70%",
@@ -38,7 +38,7 @@ const FileList: React.FC<IProps> = ({ fileList, fileListSummary, hasFilesSelecte
             )
         },
         {
-            title: "size",
+            title: "Size",
             dataIndex: "size",
             key: "size",
             width: "20%",

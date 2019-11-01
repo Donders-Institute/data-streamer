@@ -450,195 +450,181 @@ const Uploader: React.FC = () => {
     };
 
     return (
-        <Content style={{ background: "#f0f2f5" }}>
-            <Header />
-            <div style={{ padding: 10 }}>
-                <Row>
-                    <Col span={12}>
-                        <Card
-                            style={{
-                                borderRadius: 4,
-                                boxShadow: "1px 1px 1px #ddd",
-                                minHeight: "730px",
-                                height: "100%",
-                                marginTop: 10
-                            }}
-                            className="shadow"
-                        >
-                            <FileSelector
-                                fileList={uploaderContext!.fileList}
-                                fileListSummary={uploaderContext!.fileListSummary}
-                                hasFilesSelected={uploaderContext!.hasFilesSelected}
-                                handleBeforeUpload={handleBeforeUpload}
-                            />
-                            <br />
-                            <br />
-                            <FileList
-                                fileList={uploaderContext!.fileList}
-                                fileListSummary={uploaderContext!.fileListSummary}
-                                hasFilesSelected={uploaderContext!.hasFilesSelected}
-                                handleDelete={handleDelete}
-                                handleDeleteList={handleDeleteList}
-                            />
-                            <div>
-                                <BackTop />
-                            </div>
-                        </Card>
-                    </Col>
-                    <Col span={12}>
-                        <Card
-                            style={{
-                                marginLeft: 10,
-                                borderRadius: 4,
-                                boxShadow: "1px 1px 1px #ddd",
-                                minHeight: "730px",
-                                marginTop: 10
-                            }}
-                            className="shadow"
-                        >
-                            <h2>Destination</h2>
-                            <Content style={{ marginTop: "10px" }}>
-                                <p style={{ fontWeight: "bold" }}>Destination folder</p>
-                                <TargetPath
-                                    isSelectedProject={uploaderContext!.isSelectedProject}
-                                    isSelectedSubject={uploaderContext!.isSelectedSubject}
-                                    isSelectedSession={uploaderContext!.isSelectedSession}
-                                    isSelectedDataType={uploaderContext!.isSelectedDataType}
-                                    projectNumber={uploaderContext!.selectedProjectValue}
-                                    subjectLabel={uploaderContext!.selectedSubjectValue}
-                                    sessionLabel={uploaderContext!.selectedSessionValue}
-                                    dataType={uploaderContext!.selectedDataTypeValue}
+        <Layout>
+            <Content style={{ background: "#f0f2f5" }}>
+                <Header />
+                <div style={{ padding: "10px" }}>
+                    <Row>
+                        <Col span={12}>
+                            <Card className="MainCard">
+                                <FileSelector
+                                    fileList={uploaderContext!.fileList}
+                                    fileListSummary={uploaderContext!.fileListSummary}
+                                    hasFilesSelected={uploaderContext!.hasFilesSelected}
+                                    handleBeforeUpload={handleBeforeUpload}
                                 />
-                            </Content>
-                            {uploaderContext!.isLoadingProjectList &&
-                                <Content style={{ marginTop: "20px" }}>
-                                    <div>Loading projects for {authContext!.username} ...</div>
-                                    <Spin indicator={antIcon} />
-                                </Content>
-                            }
-                            {!(uploaderContext!.isLoadingProjectList) &&
-                                <Content style={{ marginTop: "20px" }}>
-                                    <StructureSelector
-                                        projectList={uploaderContext!.projectList}
-                                        selectedProjectStatus={uploaderContext!.selectedProjectStatus}
-                                        selectedSubjectStatus={uploaderContext!.selectedSubjectStatus}
-                                        selectedSessionStatus={uploaderContext!.selectedSessionStatus}
-                                        selectedDataTypeStatus={uploaderContext!.selectedDataTypeStatus}
-                                        selectedDataTypeOtherStatus={uploaderContext!.selectedDataTypeOtherStatus}
+                                <br />
+                                <br />
+                                <FileList
+                                    fileList={uploaderContext!.fileList}
+                                    fileListSummary={uploaderContext!.fileListSummary}
+                                    hasFilesSelected={uploaderContext!.hasFilesSelected}
+                                    handleDelete={handleDelete}
+                                    handleDeleteList={handleDeleteList}
+                                />
+                                <div>
+                                    <BackTop />
+                                </div>
+                            </Card>
+                        </Col>
+                        <Col span={12}>
+                            <Card className="MainCard">
+                                <h2>Set destination properties</h2>
+                                <Content style={{ marginTop: "10px" }}>
+                                    <p style={{ fontWeight: "bold" }}>Destination folder</p>
+                                    <TargetPath
                                         isSelectedProject={uploaderContext!.isSelectedProject}
+                                        isSelectedSubject={uploaderContext!.isSelectedSubject}
+                                        isSelectedSession={uploaderContext!.isSelectedSession}
+                                        isSelectedDataType={uploaderContext!.isSelectedDataType}
                                         projectNumber={uploaderContext!.selectedProjectValue}
                                         subjectLabel={uploaderContext!.selectedSubjectValue}
                                         sessionLabel={uploaderContext!.selectedSessionValue}
-                                        isSelectedDataTypeOther={uploaderContext!.isSelectedDataTypeOther}
                                         dataType={uploaderContext!.selectedDataTypeValue}
-                                        handleSelectProjectValue={handleSelectProjectValue}
-                                        handleChangeSubjectLabel={handleChangeSubjectLabel}
-                                        handleChangeSessionLabel={handleChangeSessionLabel}
-                                        handleSelectDataTypeValue={handleSelectDataTypeValue}
-                                        handleChangeSelectedDataTypeOther={handleChangeSelectedDataTypeOther}
                                     />
                                 </Content>
-                            }
-                            {(!(uploaderContext!.hasFilesSelected) || !proceed) && (
-                                <Tooltip placement="bottomRight" title="Please select one or more files and set the destination folder settings above. When 1) all source files are selected, and 2) the destination settings above are filled in properly, the button becomes green and clickable.">
-                                    <Button
-                                        disabled={true}
-                                        size="large"
-                                        style={{ width: "200px", float: "right" }}
-                                    >
-                                        Upload
+                                {uploaderContext!.isLoadingProjectList &&
+                                    <Content style={{ marginTop: "20px" }}>
+                                        <div>Loading projects for {authContext!.username} ...</div>
+                                        <Spin indicator={antIcon} />
+                                    </Content>
+                                }
+                                {!(uploaderContext!.isLoadingProjectList) &&
+                                    <Content style={{ marginTop: "20px" }}>
+                                        <StructureSelector
+                                            projectList={uploaderContext!.projectList}
+                                            selectedProjectStatus={uploaderContext!.selectedProjectStatus}
+                                            selectedSubjectStatus={uploaderContext!.selectedSubjectStatus}
+                                            selectedSessionStatus={uploaderContext!.selectedSessionStatus}
+                                            selectedDataTypeStatus={uploaderContext!.selectedDataTypeStatus}
+                                            selectedDataTypeOtherStatus={uploaderContext!.selectedDataTypeOtherStatus}
+                                            isSelectedProject={uploaderContext!.isSelectedProject}
+                                            projectNumber={uploaderContext!.selectedProjectValue}
+                                            subjectLabel={uploaderContext!.selectedSubjectValue}
+                                            sessionLabel={uploaderContext!.selectedSessionValue}
+                                            isSelectedDataTypeOther={uploaderContext!.isSelectedDataTypeOther}
+                                            dataType={uploaderContext!.selectedDataTypeValue}
+                                            handleSelectProjectValue={handleSelectProjectValue}
+                                            handleChangeSubjectLabel={handleChangeSubjectLabel}
+                                            handleChangeSessionLabel={handleChangeSessionLabel}
+                                            handleSelectDataTypeValue={handleSelectDataTypeValue}
+                                            handleChangeSelectedDataTypeOther={handleChangeSelectedDataTypeOther}
+                                        />
+                                    </Content>
+                                }
+                                {(!(uploaderContext!.hasFilesSelected) || !proceed) && (
+                                    <Content style={{ marginTop: "20px" }}>
+                                        <Tooltip placement="bottomRight" title="Please select one or more files and set the destination folder settings above. When 1) all source files are selected, and 2) the destination settings above are filled in properly, the button becomes green and clickable.">
+                                            <Button
+                                                disabled={true}
+                                                size="large"
+                                                style={{ width: "200px", float: "right" }}
+                                            >
+                                                Upload
+                                            </Button>
+                                        </Tooltip>
+                                    </Content>
+                                )}
+                                {uploaderContext!.isSelectedSession && uploaderContext!.hasFilesSelected && proceed && (
+                                    <Tooltip placement="bottomRight" title="Press the button to submit a streamer job.">
+                                        <Button
+                                            size="large"
+                                            style={{
+                                                backgroundColor: "#52c41a",
+                                                color: "#fff",
+                                                width: "200px",
+                                                float: "right"
+                                            }}
+                                            onClick={handleUpload}
+                                        >
+                                            Upload
                                     </Button>
-                                </Tooltip>
-                            )}
-                            {uploaderContext!.isSelectedSession && uploaderContext!.hasFilesSelected && proceed && (
-                                <Tooltip placement="bottomRight" title="Press the button to submit a streamer job.">
-                                    <Button
-                                        size="large"
-                                        style={{
-                                            backgroundColor: "#52c41a",
-                                            color: "#fff",
-                                            width: "200px",
-                                            float: "right"
-                                        }}
-                                        onClick={handleUpload}
-                                    >
-                                        Upload
-                                    </Button>
-                                </Tooltip>
-                            )}
-                        </Card>
-                    </Col>
-                </Row>
-            </div>
-            <Footer />
-            <Modal
-                title="Uploading"
-                visible={showUploadModal}
-                closable={false}
-                footer={[
-                    <Button type="primary" disabled={isUploading} onClick={(e) => {
-                        setShowUploadModal(false);
+                                    </Tooltip>
+                                )}
+                            </Card>
+                        </Col>
+                    </Row>
+                </div>
+                <Footer />
+                <Modal
+                    title="Uploading"
+                    visible={showUploadModal}
+                    closable={false}
+                    footer={[
+                        <Button type="primary" disabled={isUploading} onClick={(e) => {
+                            setShowUploadModal(false);
 
-                        // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
-                        uploaderContext!.setFileList([] as RcFile[]);
-                        uploaderContext!.setFileListSummary(0);
-                        uploaderContext!.setHasFilesSelected(false);
-                    }}>
-                        Upload another batch
+                            // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
+                            uploaderContext!.setFileList([] as RcFile[]);
+                            uploaderContext!.setFileListSummary(0);
+                            uploaderContext!.setHasFilesSelected(false);
+                        }}>
+                            Upload another batch
                     </Button>,
-                    <Button disabled={isUploading} onClick={(e) => authContext!.signOut()}>
-                        Log out
+                        <Button disabled={isUploading} onClick={(e) => authContext!.signOut()}>
+                            Log out
                     </Button>
-                ]}
-            >
-                {
-                    !failed && (
-                        <Progress percent={uploadingPercentage} />
-                    )
-                }
-                {
-                    failed && (
-                        <Progress status="exception" percent={uploadingPercentage} />
-                    )
-                }
-                {
-                    isUploading && (
-                        <div>
-                            <div>Item(s) remaining: {remainingItems}</div>
-                            <p>This may take a while ...</p>
-                            <p style={{ fontWeight: "bold" }}>Do not close the browser</p>
-                            <Spin indicator={antIcon} />
-                        </div>)
-                }
-                {
-                    !isUploading && !failed && (
-                        <div>
-                            <p>Done. Streamer job submitted.</p>
-                        </div>)
-                }
-                {
-                    !isUploading && failed && (
-                        <div>
-                            <p>Failed</p>
-                        </div>)
-                }
-            </Modal>
-            <Modal
-                title="Error"
-                visible={showErrorModal}
-                closable={false}
-                footer={[
-                    <Button type="primary" onClick={(e) => {
-                        setFailed(true);
-                        setShowErrorModal(false);
-                        setErrorMessage("");
-                    }}>Ok
+                    ]}
+                >
+                    {
+                        !failed && (
+                            <Progress percent={uploadingPercentage} />
+                        )
+                    }
+                    {
+                        failed && (
+                            <Progress status="exception" percent={uploadingPercentage} />
+                        )
+                    }
+                    {
+                        isUploading && (
+                            <div>
+                                <div>Item(s) remaining: {remainingItems}</div>
+                                <p>This may take a while ...</p>
+                                <p style={{ fontWeight: "bold" }}>Do not close the browser</p>
+                                <Spin indicator={antIcon} />
+                            </div>)
+                    }
+                    {
+                        !isUploading && !failed && (
+                            <div>
+                                <p>Done. Streamer job submitted.</p>
+                            </div>)
+                    }
+                    {
+                        !isUploading && failed && (
+                            <div>
+                                <p>Failed</p>
+                            </div>)
+                    }
+                </Modal>
+                <Modal
+                    title="Error"
+                    visible={showErrorModal}
+                    closable={false}
+                    footer={[
+                        <Button type="primary" onClick={(e) => {
+                            setFailed(true);
+                            setShowErrorModal(false);
+                            setErrorMessage("");
+                        }}>Ok
                     </Button>
-                ]}
-            >
-                <div>{errorMessage}</div>
-            </Modal>
-        </Content >
+                    ]}
+                >
+                    <div>{errorMessage}</div>
+                </Modal>
+            </Content >
+        </Layout>
     );
 };
 

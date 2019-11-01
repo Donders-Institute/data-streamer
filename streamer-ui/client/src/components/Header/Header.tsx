@@ -7,7 +7,7 @@ import { AuthContext } from "../Auth/AuthContext";
 
 import "../../App.less";
 
-import logoDCCN from "../../assets/dccn-logo.png";
+import logoDCCN from "../../assets/donders-logo.svg";
 
 const { SubMenu } = Menu;
 
@@ -78,7 +78,7 @@ const Header: React.FC = () => {
     return (
         <Layout>
             <div>
-                <Layout>
+                {/* <Layout>
                     <Layout.Header
                         style={{
                             backgroundColor: "#fff",
@@ -93,7 +93,7 @@ const Header: React.FC = () => {
                             <Col></Col>
                         </Row>
                     </Layout.Header>
-                </Layout>
+                </Layout> */}
                 <Layout>
                     <Layout.Header
                         className="App-header-top"
@@ -103,7 +103,7 @@ const Header: React.FC = () => {
                 <Layout>
                     <Layout.Header
                         className="App-header"
-                        style={{ padding: "0px 0px 0px 0px", height: "30px" }}
+                        style={{ padding: "0px 0px 0px 0px", height: "32px" }}
                     >
                         <Row type="flex" justify="space-between">
                             <Col>
@@ -114,7 +114,8 @@ const Header: React.FC = () => {
                                     selectedKeys={[]}
                                 >
                                     <Menu.Item key={LOCATION_HOME} style={{ float: "left", margin: "0px 0px 0px 0px" }}>
-                                        <Tooltip placement="bottomRight" title="The purpose of the data streamer is to upload files to the DCCN project storage. The source files are files from your experiments on this computer. The destination is the correct folder on the DCCN project storage."><Link to="/"><Icon type="home" />DATA STREAMER (BETA)</Link></Tooltip>
+                                        <Tooltip placement="bottomRight" title="The purpose of the data streamer is to upload files to the DCCN project storage. The source files are files from your experiments on this computer. The destination is the correct folder on the DCCN project storage."><Link to="/">
+                                            <img alt="Donders Institute" src={logoDCCN} style={{ height: "20px", marginRight: "10px" }} />DATA STREAMER (BETA)</Link></Tooltip>
                                     </Menu.Item>
                                 </Menu>
                             </Col>

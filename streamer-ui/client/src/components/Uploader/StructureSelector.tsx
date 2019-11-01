@@ -144,7 +144,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         label={<span style={{ fontWeight: "bold" }}>Set subject label</span>}
                         hasFeedback
                         validateStatus={selectedSubjectStatus}
-                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets without special characters. Example: 009</span>}
+                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets without special characters. Example: '009' or 'p02'</span>}
                     >
                         {getFieldDecorator("subjectlabel", {
                             initialValue: subjectLabel,
@@ -154,6 +154,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                             ]
                         })(
                             <Input
+                                placeholder="subjectlabel"
                                 onChange={handleChangeSubjectLabel}
                                 style={{ width: "400px" }}
                                 disabled={!isSelectedProject}
@@ -170,7 +171,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         label={<span style={{ fontWeight: "bold" }}>Set session label</span>}
                         hasFeedback
                         validateStatus={selectedSessionStatus}
-                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets with no special characters. Example: mri02</span>}
+                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets with no special characters. Example: 'mri02' or 'tms01'</span>}
                     >
                         {getFieldDecorator("sessionlabel", {
                             initialValue: sessionLabel,
@@ -180,6 +181,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                             ]
                         })(
                             <Input
+                                placeholder="sessionlabel"
                                 onChange={handleChangeSessionLabel}
                                 style={{ width: "400px" }}
                                 disabled={!isSelectedProject}
@@ -196,7 +198,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         label={<span style={{ fontWeight: "bold" }}>Select data type</span>}
                         hasFeedback
                         validateStatus={selectedDataTypeStatus}
-                        help={<span style={{ fontStyle: "italic" }}>Modality folder</span>}
+                        help={<span style={{ fontStyle: "italic" }}>Modality subfolder in which the data will be stored</span>}
                     >
                         <Select
                             labelInValue
@@ -230,6 +232,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                                 ]
                             })(
                                 <Input
+                                    placeholder="datatype"
                                     onChange={handleChangeSelectedDataTypeOther}
                                     style={{ width: "400px" }}
                                     disabled={!isSelectedProject}
