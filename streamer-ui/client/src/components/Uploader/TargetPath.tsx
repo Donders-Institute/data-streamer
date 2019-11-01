@@ -3,9 +3,11 @@ import { Tooltip } from "antd";
 
 interface TargetPathProps {
     isSelectedProject: boolean;
+    isSelectedSubject: boolean;
+    isSelectedSession: boolean;
+    isSelectedDataType: boolean;
     projectNumber: string;
     subjectLabel: string;
-    isSelectedDataType: boolean;
     dataType: string;
     sessionLabel: string;
 }
@@ -13,17 +15,19 @@ interface TargetPathProps {
 const TargetPath: React.FC<TargetPathProps> = (
     {
         isSelectedProject,
+        isSelectedSubject,
+        isSelectedSession,
+        isSelectedDataType,
         projectNumber,
         subjectLabel,
-        isSelectedDataType,
         dataType,
         sessionLabel
     }) => {
-    let forwardSlashPath = (
-        <span style={{ fontWeight: "bold", color: "#52c41a" }}>/</span>
+    let drivePath = (
+        <span style={{ fontWeight: "bold", color: "#52c41a" }}>P:</span>
     );
-    let projectPath = (
-        <span style={{ fontWeight: "bold", color: "#52c41a" }}>project</span>
+    let backwardSlashPath = (
+        <span style={{ fontWeight: "bold", color: "#52c41a" }}>\</span>
     );
     let rawPath = (
         <span style={{ fontWeight: "bold", color: "#52c41a" }}>raw</span>
@@ -36,14 +40,14 @@ const TargetPath: React.FC<TargetPathProps> = (
     );
 
     let projectNumberPath = (
-        <span style={{ fontStyle: "italic" }}>(projectnumber)</span>
+        <span>(projectnumber)</span>
     );
     let subjectLabelPath = (
-        <span style={{ fontStyle: "italic" }}>(subjectlabel)</span>
+        <span>(subjectlabel)</span>
     );
-    let dataTypePath = <span style={{ fontStyle: "italic" }}>(datatype)</span>;
+    let dataTypePath = <span >(datatype)</span>;
     let sessionLabelPath = (
-        <span style={{ fontStyle: "italic" }}>(sessionlabel)</span>
+        <span>(sessionlabel)</span>
     );
 
     if (isSelectedProject) {
@@ -52,13 +56,17 @@ const TargetPath: React.FC<TargetPathProps> = (
                 {projectNumber}
             </span>
         );
+    }
 
+    if (isSelectedSubject) {
         subjectLabelPath = (
             <span style={{ fontWeight: "bold", color: "#52c41a" }}>
                 {subjectLabel}
             </span>
         );
+    }
 
+    if (isSelectedSession) {
         sessionLabelPath = (
             <span style={{ fontWeight: "bold", color: "#52c41a" }}>
                 {sessionLabel}
@@ -72,7 +80,7 @@ const TargetPath: React.FC<TargetPathProps> = (
         );
 
         if (dataType === "other" || dataType === "") {
-            dataTypePath = <span style={{ fontStyle: "italic" }}>(datatype)</span>;
+            dataTypePath = <span>(datatype)</span>;
         } else {
             dataTypePath = (
                 <span style={{ fontWeight: "bold", color: "#52c41a" }}>
@@ -84,22 +92,21 @@ const TargetPath: React.FC<TargetPathProps> = (
 
     return (
         <div>
-            <Tooltip placement="bottomLeft" title="Destination folder">
-                {forwardSlashPath}
-                {projectPath}
-                {forwardSlashPath}
+            <Tooltip placement="bottomLeft" title="Destination folder where files are uploaded to">
+                {drivePath}
+                {backwardSlashPath}
                 {projectNumberPath}
-                {forwardSlashPath}
+                {backwardSlashPath}
                 {rawPath}
-                {forwardSlashPath}
+                {backwardSlashPath}
                 {subjectPath}
                 {subjectLabelPath}
-                {forwardSlashPath}
+                {backwardSlashPath}
                 {sessionPath}
                 {sessionLabelPath}
-                {forwardSlashPath}
+                {backwardSlashPath}
                 {dataTypePath}
-                {forwardSlashPath}
+                {backwardSlashPath}
             </Tooltip>
         </div>
     );

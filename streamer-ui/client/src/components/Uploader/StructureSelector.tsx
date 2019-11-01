@@ -122,7 +122,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         label={<span style={{ fontWeight: "bold" }}>Select project</span>}
                         hasFeedback
                         validateStatus={selectedProjectStatus}
-                        help={<span style={{ fontStyle: "italic" }}>Select project for which you are manager or contributor.</span>}
+                        help={<span style={{ fontStyle: "italic" }}>Projects for which you are entitled to upload data to</span>}
                     >
                         <Select
                             labelInValue
@@ -144,7 +144,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         label={<span style={{ fontWeight: "bold" }}>Set subject label</span>}
                         hasFeedback
                         validateStatus={selectedSubjectStatus}
-                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets without special characters. Examples: 1, test042</span>}
+                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets without special characters. Example: 1</span>}
                     >
                         {getFieldDecorator("subjectlabel", {
                             initialValue: subjectLabel,
@@ -170,7 +170,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         label={<span style={{ fontWeight: "bold" }}>Set session label</span>}
                         hasFeedback
                         validateStatus={selectedSessionStatus}
-                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets with no special characters. Examples: 1, mri02</span>}
+                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets with no special characters. Example: 1</span>}
                     >
                         {getFieldDecorator("sessionlabel", {
                             initialValue: sessionLabel,
@@ -196,7 +196,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         label={<span style={{ fontWeight: "bold" }}>Select data type</span>}
                         hasFeedback
                         validateStatus={selectedDataTypeStatus}
-                        help=""
+                        help={<span style={{ fontStyle: "italic" }}>Modality folder</span>}
                     >
                         <Select
                             labelInValue
@@ -220,7 +220,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                             label="Set data type other"
                             hasFeedback
                             validateStatus={selectedDataTypeOtherStatus}
-                            help="Should be lower case string with no special characters. Examples: eyelink', 'test'"
+                            help="Should be lower case string with no special characters. Example: eyetracker"
                         >
                             {getFieldDecorator("datatypeother", {
                                 initialValue: dataType,

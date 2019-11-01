@@ -345,9 +345,9 @@ const Uploader: React.FC = () => {
             }
             if (directories.length === 0 && duplicates.length > 0) {
                 if (duplicates.length === 1) {
-                    msg = `Filename already exists, please rename: "${duplicates[0]}"`;
+                    msg = `Filename already exists: "${duplicates[0]}"`;
                 } else {
-                    msg = `Filenames already exist, please rename: [${duplicates.join(", ")}]`;
+                    msg = `Filenames already exist: [${duplicates.join(", ")}]`;
                 }
                 setErrorMessage(msg);
                 setShowErrorModal(true);
@@ -459,7 +459,7 @@ const Uploader: React.FC = () => {
                             style={{
                                 borderRadius: 4,
                                 boxShadow: "1px 1px 1px #ddd",
-                                minHeight: "700px",
+                                minHeight: "730px",
                                 height: "100%",
                                 marginTop: 10
                             }}
@@ -491,54 +491,53 @@ const Uploader: React.FC = () => {
                                 marginLeft: 10,
                                 borderRadius: 4,
                                 boxShadow: "1px 1px 1px #ddd",
-                                minHeight: "700px",
+                                minHeight: "730px",
                                 marginTop: 10
                             }}
                             className="shadow"
                         >
-                            <table style={{ width: "100%" }}>
-                                <tr>
-                                    <td>
-                                        <Tooltip placement="bottomLeft" title="Set destination folder settings below. 1) Select project, 2) set subject label, 3) set session label, and 4) set data type"><h2>Project storage</h2></Tooltip>
-                                    </td>
-                                    <td style={{ float: "right" }}>
-                                        <TargetPath
-                                            isSelectedProject={uploaderContext!.isSelectedProject}
-                                            projectNumber={uploaderContext!.selectedProjectValue}
-                                            subjectLabel={uploaderContext!.selectedSubjectValue}
-                                            sessionLabel={uploaderContext!.selectedSessionValue}
-                                            isSelectedDataType={uploaderContext!.isSelectedDataType}
-                                            dataType={uploaderContext!.selectedDataTypeValue}
-                                        />
-                                    </td>
-                                </tr>
-                            </table>
+                            <h2>Destination</h2>
+                            <Content style={{ marginTop: "10px" }}>
+                                <p style={{ fontWeight: "bold" }}>Destination folder</p>
+                                <TargetPath
+                                    isSelectedProject={uploaderContext!.isSelectedProject}
+                                    isSelectedSubject={uploaderContext!.isSelectedSubject}
+                                    isSelectedSession={uploaderContext!.isSelectedSession}
+                                    isSelectedDataType={uploaderContext!.isSelectedDataType}
+                                    projectNumber={uploaderContext!.selectedProjectValue}
+                                    subjectLabel={uploaderContext!.selectedSubjectValue}
+                                    sessionLabel={uploaderContext!.selectedSessionValue}
+                                    dataType={uploaderContext!.selectedDataTypeValue}
+                                />
+                            </Content>
                             {uploaderContext!.isLoadingProjectList &&
-                                <Content style={{ marginTop: "10px" }}>
+                                <Content style={{ marginTop: "20px" }}>
                                     <div>Loading projects for {authContext!.username} ...</div>
                                     <Spin indicator={antIcon} />
                                 </Content>
                             }
                             {!(uploaderContext!.isLoadingProjectList) &&
-                                <StructureSelector
-                                    projectList={uploaderContext!.projectList}
-                                    selectedProjectStatus={uploaderContext!.selectedProjectStatus}
-                                    selectedSubjectStatus={uploaderContext!.selectedSubjectStatus}
-                                    selectedSessionStatus={uploaderContext!.selectedSessionStatus}
-                                    selectedDataTypeStatus={uploaderContext!.selectedDataTypeStatus}
-                                    selectedDataTypeOtherStatus={uploaderContext!.selectedDataTypeOtherStatus}
-                                    isSelectedProject={uploaderContext!.isSelectedProject}
-                                    projectNumber={uploaderContext!.selectedProjectValue}
-                                    subjectLabel={uploaderContext!.selectedSubjectValue}
-                                    sessionLabel={uploaderContext!.selectedSessionValue}
-                                    isSelectedDataTypeOther={uploaderContext!.isSelectedDataTypeOther}
-                                    dataType={uploaderContext!.selectedDataTypeValue}
-                                    handleSelectProjectValue={handleSelectProjectValue}
-                                    handleChangeSubjectLabel={handleChangeSubjectLabel}
-                                    handleChangeSessionLabel={handleChangeSessionLabel}
-                                    handleSelectDataTypeValue={handleSelectDataTypeValue}
-                                    handleChangeSelectedDataTypeOther={handleChangeSelectedDataTypeOther}
-                                />
+                                <Content style={{ marginTop: "20px" }}>
+                                    <StructureSelector
+                                        projectList={uploaderContext!.projectList}
+                                        selectedProjectStatus={uploaderContext!.selectedProjectStatus}
+                                        selectedSubjectStatus={uploaderContext!.selectedSubjectStatus}
+                                        selectedSessionStatus={uploaderContext!.selectedSessionStatus}
+                                        selectedDataTypeStatus={uploaderContext!.selectedDataTypeStatus}
+                                        selectedDataTypeOtherStatus={uploaderContext!.selectedDataTypeOtherStatus}
+                                        isSelectedProject={uploaderContext!.isSelectedProject}
+                                        projectNumber={uploaderContext!.selectedProjectValue}
+                                        subjectLabel={uploaderContext!.selectedSubjectValue}
+                                        sessionLabel={uploaderContext!.selectedSessionValue}
+                                        isSelectedDataTypeOther={uploaderContext!.isSelectedDataTypeOther}
+                                        dataType={uploaderContext!.selectedDataTypeValue}
+                                        handleSelectProjectValue={handleSelectProjectValue}
+                                        handleChangeSubjectLabel={handleChangeSubjectLabel}
+                                        handleChangeSessionLabel={handleChangeSessionLabel}
+                                        handleSelectDataTypeValue={handleSelectDataTypeValue}
+                                        handleChangeSelectedDataTypeOther={handleChangeSelectedDataTypeOther}
+                                    />
+                                </Content>
                             }
                             {(!(uploaderContext!.hasFilesSelected) || !proceed) && (
                                 <Tooltip placement="bottomRight" title="Please select one or more files and set the destination folder settings above. When 1) all source files are selected, and 2) the destination settings above are filled in properly, the button becomes green and clickable.">
