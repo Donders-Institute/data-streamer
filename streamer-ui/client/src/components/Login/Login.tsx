@@ -19,6 +19,8 @@ import { fetchIpAddress } from "./fetch";
 
 import { AuthContext } from "../Auth/AuthContext";
 
+import HeaderLogin from "../Header/HeaderLogin";
+
 import "../../App.less";
 import logoDCCN from "../../assets/dccn-logo.png";
 
@@ -169,72 +171,75 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
             }
             {
                 !loggingIn && !hasSubmitted && !isAuthenticated &&
-                <Content className="Login">
-                    <Row type="flex" justify="center" align="middle" style={{ width: "100%" }}>
-                        <Col span={2}>
-                            {isFetchingIpAddress &&
-                                <Spin indicator={antIcon} />
-                            }
-                        </Col>
-                        <Col span={20}>
-                            <Card className="LoginCard">
-                                <div style={{ display: "flex", justifyContent: "center", margin: "0px 0px 20px 0px" }}>
-                                    <img alt="Donders Institute" src={logoDCCN} height={64} />
-                                </div>
-                                <h2 style={{ display: "flex", justifyContent: "center", margin: "0px 0px 10px 0px" }}>
-                                    DCCN Data Streamer (BETA)
-                                </h2>
-                                <h1 style={{ display: "flex", justifyContent: "center", margin: "0px 0px 20px 0px" }}>
-                                    Please login
-                                </h1>
-                                <div style={{ fontSize: "small", margin: "0px 0px 0px 0px" }}>
-                                    Enter your DCCN credentials
-                                </div>
-                                <Form className="login-form" onSubmit={handleSubmit} style={{ margin: "0px 0px 0px 0px" }}>
-                                    <Form.Item style={{ margin: "0px 0px 0px 0px" }}>
-                                        {getFieldDecorator("username", {
-                                            rules: [{ required: true, message: "Please input your DCCN username" }]
-                                        })(
-                                            <Input
-                                                prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
-                                                placeholder="User name"
-                                                onChange={handleUsernameChange}
-                                            />,
-                                        )}
-                                    </Form.Item>
-                                    <Form.Item style={{ margin: "0px 0px 10px 0px" }}>
-                                        {getFieldDecorator("password", {
-                                            rules: [{ required: true, message: "Please input your password" }]
-                                        })(
-                                            <Input
-                                                prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
-                                                type="password"
-                                                placeholder="Password"
-                                                onChange={handlePasswordChange}
-                                            />,
-                                        )}
-                                    </Form.Item>
-                                    <Form.Item style={{ margin: "0px 0px 10px 0px" }}>
-                                        <Button className="login-form-button" type="primary" htmlType="submit">
-                                            Log in
-                                        </Button>
-                                    </Form.Item>
-                                    <div style={{ display: "flex", justifyContent: "center", margin: "0px 0px 0px 0px" }}>
-                                        <Tooltip title={<div
-                                        ><p>This is the login page for the data streamer. Please login with your DCCN credentials.</p>
-                                            <p>The purpose of the data streamer is to upload files to the DCCN project storage.
-                                                The source files are files from your experiments on this computer.
-                                                The destination is the correct folder on the DCCN project storage.</p>
-                                        </div>}>
-                                            <Icon type="question-circle" />
-                                        </Tooltip>
+                <Content>
+                    <HeaderLogin />
+                    <Content className="Login">
+                        <Row type="flex" justify="center" align="middle" style={{ width: "100%" }}>
+                            <Col span={2}>
+                                {isFetchingIpAddress &&
+                                    <Spin indicator={antIcon} />
+                                }
+                            </Col>
+                            <Col span={20}>
+                                <Card className="LoginCard">
+                                    <div style={{ display: "flex", justifyContent: "center", margin: "0px 0px 20px 0px" }}>
+                                        <img alt="Donders Institute" src={logoDCCN} height={64} />
                                     </div>
-                                </Form>
-                            </Card>
-                        </Col>
-                        <Col span={2}>
-                        </Col>
-                    </Row>
+                                    <h2 style={{ display: "flex", justifyContent: "center", margin: "0px 0px 10px 0px" }}>
+                                        DCCN Data Streamer (BETA)
+                                </h2>
+                                    <h1 style={{ display: "flex", justifyContent: "center", margin: "0px 0px 20px 0px" }}>
+                                        Please login
+                                </h1>
+                                    <div style={{ fontSize: "small", margin: "0px 0px 0px 0px" }}>
+                                        Enter your DCCN credentials
+                                </div>
+                                    <Form className="login-form" onSubmit={handleSubmit} style={{ margin: "0px 0px 0px 0px" }}>
+                                        <Form.Item style={{ margin: "0px 0px 0px 0px" }}>
+                                            {getFieldDecorator("username", {
+                                                rules: [{ required: true, message: "Please input your DCCN username" }]
+                                            })(
+                                                <Input
+                                                    prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
+                                                    placeholder="User name"
+                                                    onChange={handleUsernameChange}
+                                                />,
+                                            )}
+                                        </Form.Item>
+                                        <Form.Item style={{ margin: "0px 0px 10px 0px" }}>
+                                            {getFieldDecorator("password", {
+                                                rules: [{ required: true, message: "Please input your password" }]
+                                            })(
+                                                <Input
+                                                    prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+                                                    type="password"
+                                                    placeholder="Password"
+                                                    onChange={handlePasswordChange}
+                                                />,
+                                            )}
+                                        </Form.Item>
+                                        <Form.Item style={{ margin: "0px 0px 10px 0px" }}>
+                                            <Button className="login-form-button" type="primary" htmlType="submit">
+                                                Log in
+                                        </Button>
+                                        </Form.Item>
+                                        <div style={{ display: "flex", justifyContent: "center", margin: "0px 0px 0px 0px" }}>
+                                            <Tooltip title={<div
+                                            ><p>This is the login page for the data streamer. Please login with your DCCN credentials.</p>
+                                                <p>The purpose of the data streamer is to upload files to the DCCN project storage.
+                                                    The source files are files from your experiments on this computer.
+                                                The destination is the correct folder on the DCCN project storage.</p>
+                                            </div>}>
+                                                <Icon type="question-circle" />
+                                            </Tooltip>
+                                        </div>
+                                    </Form>
+                                </Card>
+                            </Col>
+                            <Col span={2}>
+                            </Col>
+                        </Row>
+                    </Content>
                 </Content>
             }
         </div>

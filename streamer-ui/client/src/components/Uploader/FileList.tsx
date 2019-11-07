@@ -29,7 +29,7 @@ const FileList: React.FC<IProps> = ({ fileList, fileListSummary, hasFilesSelecte
 
     const columnsFileList = [
         {
-            title: "Filename",
+            title: "Selected Files",
             dataIndex: "name",
             key: "name",
             width: "70%",

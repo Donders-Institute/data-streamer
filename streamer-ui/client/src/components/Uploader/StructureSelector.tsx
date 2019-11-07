@@ -82,8 +82,8 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
     }) => {
     const { getFieldDecorator } = form;
 
-    const projectNumberOption: SelectOption = { key: (projectNumber ? projectNumber : "") };
-    const dataTypeOption: SelectOption = { key: (dataType ? dataType : "") };
+    const projectNumberOption: SelectOption = { key: (projectNumber ? projectNumber : "projectnumber") };
+    const dataTypeOption: SelectOption = { key: (dataType ? dataType : "datatype") };
 
     const optionsProjects = projectList!.map((project, key) => (
         <Option value={project.number} key={key}>{project.number}</Option>
@@ -127,7 +127,6 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         <Select
                             labelInValue
                             defaultValue={projectNumberOption}
-                            placeholder="Select project"
                             onSelect={handleSelectProjectValue}
                             style={{ width: "400px" }}
                         >
@@ -203,7 +202,6 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         <Select
                             labelInValue
                             defaultValue={dataTypeOption}
-                            placeholder="Select data type"
                             onSelect={handleSelectDataTypeValue}
                             style={{ width: "400px" }}
                             disabled={!isSelectedProject}

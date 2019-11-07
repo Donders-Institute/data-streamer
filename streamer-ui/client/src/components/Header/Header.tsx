@@ -78,33 +78,11 @@ const Header: React.FC = () => {
     return (
         <Layout>
             <div>
-                {/* <Layout>
-                    <Layout.Header
-                        style={{
-                            backgroundColor: "#fff",
-                            padding: "10px 20px 10px 20px",
-                            height: "94px"
-                        }}
-                    >
-                        <Row type="flex" justify="space-between">
-                            <Col>
-                                <Link to="/"><img alt="Donders Institute" src={logoDCCN} height={64} /></Link>
-                            </Col>
-                            <Col></Col>
-                        </Row>
-                    </Layout.Header>
-                </Layout> */}
                 <Layout>
-                    <Layout.Header
-                        className="App-header-top"
-                        style={{ padding: "0 0px", height: "12px" }}
-                    ></Layout.Header>
+                    <Layout.Header className="App-header-top"></Layout.Header>
                 </Layout>
                 <Layout>
-                    <Layout.Header
-                        className="App-header"
-                        style={{ padding: "0px 0px 0px 0px", height: "32px" }}
-                    >
+                    <Layout.Header className="App-header">
                         <Row type="flex" justify="space-between">
                             <Col>
                                 <Menu

@@ -456,7 +456,7 @@ const Uploader: React.FC = () => {
                 <div style={{ padding: "10px" }}>
                     <Row>
                         <Col span={12}>
-                            <Card className="MainCard">
+                            <Card className="MainCard" style={{ marginRight: "5px" }}>
                                 <FileSelector
                                     fileList={uploaderContext!.fileList}
                                     fileListSummary={uploaderContext!.fileListSummary}
@@ -478,7 +478,7 @@ const Uploader: React.FC = () => {
                             </Card>
                         </Col>
                         <Col span={12}>
-                            <Card className="MainCard">
+                            <Card className="MainCard" style={{ marginLeft: "5px" }}>
                                 <h2>Set destination properties</h2>
                                 <Content style={{ marginTop: "10px" }}>
                                     <p style={{ fontWeight: "bold" }}>Destination folder</p>
