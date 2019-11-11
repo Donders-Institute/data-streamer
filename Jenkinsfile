@@ -98,11 +98,7 @@ pipeline {
                 steps {
                     sh 'echo production: ${env.PRODUCTION}'
                     sh 'echo production_tag: ${env.PRODUCTION_GITHUB_TAG}'
-                }
-                post {
-                    success {
                     sh 'echo production_docker_registry: ${env.PRODUCTION_DOCKER_REGISTRY}'
-                    }
                 }
             }
         }
