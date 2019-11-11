@@ -95,12 +95,14 @@ pipeline {
 
         stage('Tag for Github and push to production Docker registry') {
             when {
-                environment name: 'PRODUCTION', value: true
+                expression {
+                    return params.PRODUCTION
+                }
             }
             steps {
-                sh 'echo production: ${env.PRODUCTION}'
-                sh 'echo production_tag: ${env.PRODUCTION_GITHUB_TAG}'
-                sh 'echo production_docker_registry: ${env.PRODUCTION_DOCKER_REGISTRY}'
+                sh 'echo production: ${params.PRODUCTION}'
+                sh 'echo production_tag: ${params.PRODUCTION_GITHUB_TAG}'
+                sh 'echo production_docker_registry: ${params..PRODUCTION_DOCKER_REGISTRY}'
             }
         }
     }
