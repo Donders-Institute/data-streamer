@@ -102,7 +102,7 @@ pipeline {
             steps {
                 sh 'echo production: ${params.PRODUCTION}'
                 sh 'echo production_tag: ${params.PRODUCTION_GITHUB_TAG}'
-                sh 'echo production_docker_registry: ${params..PRODUCTION_DOCKER_REGISTRY}'
+                sh 'echo production_docker_registry: ${params.PRODUCTION_DOCKER_REGISTRY}'
             }
         }
     }
