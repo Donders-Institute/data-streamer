@@ -93,13 +93,14 @@ pipeline {
             }
         }
 
-        if (env.PRODUCTION) {
-            stage('Tag for Github and push to production Docker registry') {
-                steps {
-                    sh 'echo production: ${env.PRODUCTION}'
-                    sh 'echo production_tag: ${env.PRODUCTION_GITHUB_TAG}'
-                    sh 'echo production_docker_registry: ${env.PRODUCTION_DOCKER_REGISTRY}'
-                }
+        stage('Tag for Github and push to production Docker registry') {
+            when {
+                environment name: 'PRODUCTION', value: true
+            }
+            steps {
+                sh 'echo production: ${env.PRODUCTION}'
+                sh 'echo production_tag: ${env.PRODUCTION_GITHUB_TAG}'
+                sh 'echo production_docker_registry: ${env.PRODUCTION_DOCKER_REGISTRY}'
             }
         }
     }
