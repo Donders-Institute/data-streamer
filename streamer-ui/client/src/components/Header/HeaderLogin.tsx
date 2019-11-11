@@ -1,6 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { Layout, Row, Col, Icon, Menu, Button, Modal, Tooltip } from "antd";
+import { Layout, Row, Col, Menu } from "antd";
 
 
 import "../../App.less";
