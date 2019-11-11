@@ -68,6 +68,7 @@ pipeline {
                 sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml --prune --with-registry-auth --resolve-image always streamer4user'
             }
         }
+
         stage('Health check') {
             agent {
                 docker {
@@ -85,9 +86,24 @@ pipeline {
                 )
             }
         }
+
         stage('Integration test') {
             steps {
                 sh 'echo hi'
+            }
+        }
+
+        if (env.PRODUCTION) {
+            stage('Tag for Github and push to production Docker registry') {
+                steps {
+                    sh 'echo production: ${env.PRODUCTION}'
+                    sh 'echo production_tag: ${env.PRODUCTION_GITHUB_TAG}'
+                }
+                post {
+                    success {
+                    sh 'echo production_docker_registry: ${env.PRODUCTION_DOCKER_REGISTRY}'
+                    }
+                }
             }
         }
     }
