@@ -36,6 +36,21 @@ const maxSizeLimitAsString = "1 GB";
 // 5 minutes = 5 * 60 * 1000 ms = 300000 ms
 const uploadTimeout = 300000;
 
+const detectFile = (file: RcFile) => {
+    return new Promise((resolve, reject) => {
+        let reader = new FileReader();
+        reader.onload = () => {
+            // is file
+            resolve(true);
+        };
+        reader.onerror = (e) => {
+            // is directory
+            resolve(false);
+        };
+        reader.readAsArrayBuffer(file);
+    });
+};
+
 const Uploader: React.FC = () => {
     const authContext = useContext(AuthContext);
     const uploaderContext = useContext(UploaderContext);
@@ -292,39 +307,39 @@ const Uploader: React.FC = () => {
         }
     };
 
-    // TODO: Find a way to detect directories
-    const isDirectory = (file: RcFile) => {
-        return false;
-    };
-
-    const handleBeforeUpload = (file: RcFile, batch: RcFile[]) => {
+    const handleBeforeUpload = async (file: RcFile, batch: RcFile[]) => {
         let batchSizeBytes = 0;
         let isValidBatch = true;
         let maxFileSizeExceeded = false;
         let directories = [] as string[];
         let largeFiles = [] as string[];
         let duplicates = [] as string[];
+
         // TODO: Find a way to do this check only once (i.e. per batch)
         for (let i = 0; i < batch.length; i++) {
             batchSizeBytes += file.size;
 
             // Make sure that the file is not a directory
-            if (isDirectory(file)) {
+            const isFile = await detectFile(file);
+            if (!isFile) {
                 directories.push(batch[i].name);
                 isValidBatch = false;
             }
+
             // Check if file is not too big
             if (file.size >= maxSizeLimitBytes) {
                 largeFiles.push(batch[i].name);
                 maxFileSizeExceeded = true;
                 isValidBatch = false;
             }
+
             // Check if a file with the same filename exists already
             if (fileNameExists(batch[i], uploaderContext!.fileList)) {
                 duplicates.push(batch[i].name);
                 isValidBatch = false;
             }
         }
+
         if (isValidBatch) {
             uploaderContext!.setHasFilesSelected(true);
             uploaderContext!.setFileList([...(uploaderContext!.fileList), ...batch]);
@@ -362,7 +377,6 @@ const Uploader: React.FC = () => {
                 setShowErrorModal(true);
             }
         }
-        return true; // bypass default behaviour
     };
 
     const handleSelectProjectValue = (value: SelectOption) => {
