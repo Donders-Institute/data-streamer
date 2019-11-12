@@ -144,7 +144,7 @@ pipeline {
                         def statusCode = sh(script: "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}", returnStatus: true)
                         if(statusCode == 0) {
                             sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
-                            echo "Removed local tag ${params.PRODUCTION_GITHUB_TAG}"
+                            echo "Removed existing local tag ${params.PRODUCTION_GITHUB_TAG}"
                         }
                     }
                     
@@ -157,7 +157,7 @@ pipeline {
                         def result = sh(script: "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git refs/tags/${params.PRODUCTION_GITHUB_TAG}", returnStdout: true).trim()
                         if (result != "") {
                             sh "git push --delete https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git ${params.PRODUCTION_GITHUB_TAG}"
-                            echo "Removed remote tag ${params.PRODUCTION_GITHUB_TAG}"
+                            echo "Removed existing remote tag ${params.PRODUCTION_GITHUB_TAG}"
                         }
                     }
 
@@ -166,12 +166,13 @@ pipeline {
                     echo "Created remote tag ${params.PRODUCTION_GITHUB_TAG}"
                 }
 
-                // Push Docker images to production Docker registry
+                // Override the env variables and 
+                // push the Docker images to the production Docker registry
                 withEnv([
                     "DOCKER_REGISTRY=${params.PRODUCTION_DOCKER_REGISTRY}",
                     "DOCKER_IMAGE_TAG=${params.PRODUCTION_GITHUB_TAG}"
                 ]) {
-                    // sh 'docker-compose push'
+                    sh 'docker-compose push'
                     echo "Pushed images to ${DOCKER_REGISTRY}"
                 } 
             }
