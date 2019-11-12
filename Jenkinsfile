@@ -11,11 +11,32 @@ pipeline {
 
     stages {
         stage('Build') {
+            when {
+                expression {
+                    return !params.PRODUCTION
+                }
+            }
             agent {
                 label 'swarm-manager'
             }
             steps {
                 sh 'docker-compose build --parallel'
+            }
+        }
+
+        stage('Build (PRODUCTION)') {
+            when {
+                expression {
+                    return params.PRODUCTION
+                }
+            }
+            agent {
+                label 'swarm-manager'
+            }
+            steps {}
+                withEnv(['DOCKER_REGISTRY=' + params.PRODUCTION_DOCKER_REGISTRY]) {
+                    sh 'docker-compose build --parallel'
+                } 
             }
         }
 
@@ -26,6 +47,11 @@ pipeline {
         // }
 
         stage('Staging') {
+             when {
+                expression {
+                    return !params.PRODUCTION
+                }
+            }
             agent {
                 label 'swarm-manager'
             }
@@ -64,6 +90,11 @@ pipeline {
         }
 
         stage('Health check') {
+             when {
+                expression {
+                    return !params.PRODUCTION
+                }
+            }
             agent {
                 docker {
                     image 'jwilder/dockerize'
