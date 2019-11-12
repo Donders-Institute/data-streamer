@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         DOCKER_IMAGE_TAG = "jenkins-${env.BUILD_NUMBER}"
-        DOCKER_REGISTRY = params.PRODUCTION_DOCKER_REGISTRY
         SERVICE_URL = 'tcp://service:3001'
         UI_URL = 'http://ui:9000'
     }
