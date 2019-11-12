@@ -105,7 +105,7 @@ pipeline {
                     echo "Hello from bash"
                     echo "Who I'm $SHELL"
                 ''', returnStatus: true)
-                echo "${rc}""
+                echo "${rc}"
             }
         }
             //     when {
