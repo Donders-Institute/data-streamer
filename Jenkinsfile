@@ -125,6 +125,16 @@ pipeline {
                             sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
                             echo 'Removed local tag ${params.PRODUCTION_GITHUB_TAG}'
                         }
+
+                        // Create local tag
+                        sh "git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'"
+
+                        // Remove remote tag (if any)
+                        def result = ""
+                        script {
+                            result = sh(script: "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git refs/tags/${params.PRODUCTION_GITHUB_TAG}", returnStdout: true)
+                        }
+                        echo "${result}"
                     }
                 }
             }
