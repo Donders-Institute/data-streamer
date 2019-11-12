@@ -3,7 +3,7 @@ services:
   ui:
     build:
       context: ./streamer-ui
-    image: ${DOCKER_REGISTRY:-dccn}/streamer-ui
+    image: ${DOCKER_REGISTRY:-dccn}/streamer-ui:${DOCKER_IMAGE_TAG:-latest}
     environment:
       - STREAMER_UI_HOST=${STREAMER_UI_HOST:-0.0.0.0}
       - STREAMER_UI_PORT=${STREAMER_UI_PORT:-9000}
