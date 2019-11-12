@@ -99,43 +99,52 @@ pipeline {
             }
         }
 
-        stage('Remove old local tag (if any)') {
+        stage('Tag') {
             when {
                 expression {
                     return params.PRODUCTION
                 }
             }
             steps {
-                withEnv(['DOCKER_REGISTRY=' + params.PRODUCTION_DOCKER_REGISTRY]) {
-                    echo "production: true"
-                    echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
-                    withCredentials([
-                        usernamePassword (
-                            credentialsId: params.GITHUB_CREDENTIALS,
-                            usernameVariable: 'GITHUB_USERNAME',
-                            passwordVariable: 'GITHUB_PASSWORD'
-                        )
-                    ]) {
-                        // Remove local tag (if any)
-                        script {
-                            def statusCode = sh(script: "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}", returnStatus: true)
-                            if(statusCode == 0) {
-                                sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
-                                echo 'Removed local tag ${params.PRODUCTION_GITHUB_TAG}'
-                            }
-                        }
-                        
-                        // Create local tag
-                        sh "git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'"
+                echo "production: true"
+                echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
 
-                        // Remove remote tag (if any)
-                        script {
-                            def result = sh(script: "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git refs/tags/${params.PRODUCTION_GITHUB_TAG}", returnStdout: true).trim()
-                            if (result != "") {
-                                echo 'Removed remote tag ${params.PRODUCTION_GITHUB_TAG}'
-                            }
+                withCredentials([
+                    usernamePassword (
+                        credentialsId: params.GITHUB_CREDENTIALS,
+                        usernameVariable: 'GITHUB_USERNAME',
+                        passwordVariable: 'GITHUB_PASSWORD'
+                    )
+                ]) {
+                    // Remove local tag (if any)
+                    script {
+                        def statusCode = sh(script: "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}", returnStatus: true)
+                        if(statusCode == 0) {
+                            sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
+                            echo "Removed local tag ${params.PRODUCTION_GITHUB_TAG}"
                         }
                     }
+                    
+                    // Create local tag
+                    sh "git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'"
+
+                    // Remove remote tag (if any)
+                    script {
+                        def result = sh(script: "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git refs/tags/${params.PRODUCTION_GITHUB_TAG}", returnStdout: true).trim()
+                        if (result != "") {
+                            sh "git push --delete https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git ${params.PRODUCTION_GITHUB_TAG}"
+                            echo "Removed remote tag ${params.PRODUCTION_GITHUB_TAG}"
+                        }
+                    }
+
+                    // Create remote tag
+                    sh "git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git ${params.PRODUCTION_GITHUB_TAG}"
+                }
+
+
+
+                withEnv(['DOCKER_REGISTRY=' + params.PRODUCTION_DOCKER_REGISTRY]) {
+                    echo "${DOCKER_REGISTRY}"
                 }
             }
         }
