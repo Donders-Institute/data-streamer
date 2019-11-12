@@ -116,8 +116,11 @@ pipeline {
                             passwordVariable: 'GITHUB_PASSWORD'
                         )
                     ]) {
-                        def status = sh script: "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}", returnStatus: true
-                        echo "${status}"
+                        script {
+                            def status = sh(script: "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}", returnStatus: true)
+                            echo "${status}"
+                        }
+                        
                         // sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
                         // echo 'Local tag removed'
                     }
