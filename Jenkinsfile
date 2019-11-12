@@ -117,8 +117,9 @@ pipeline {
                                 passwordVariable: 'GITHUB_PASSWORD'
                             )
                         ]) {
-                            sh("git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'")
-                            sh('git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@data-streamer --tags')
+                            sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
+                            sh "git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'")
+                            sh "git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@data-streamer --tags"
                         }
 
                         echo "production Docker registry: ${env.DOCKER_REGISTRY}"
