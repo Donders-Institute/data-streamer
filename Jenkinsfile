@@ -1,5 +1,12 @@
 pipeline {
     agent any
+
+    environment {
+        DOCKER_IMAGE_TAG = "jenkins-${env.BUILD_NUMBER}"
+        DOCKER_REGISTRY = params.PRODUCTION_DOCKER_REGISTRY
+        SERVICE_URL = 'tcp://service:3001'
+        UI_URL = 'http://ui:9000'
+    }
     
     options {
         disableConcurrentBuilds()
@@ -27,7 +34,7 @@ pipeline {
 
         // stage('Unit test') {
         //     steps {
-        //         sh 'echo hi'
+        //         echo 'hi'
         //     }
         // }
 
@@ -89,7 +96,7 @@ pipeline {
 
         stage('Integration test') {
             steps {
-                sh 'echo hi'
+                echo 'hi'
             }
         }
 
@@ -100,9 +107,15 @@ pipeline {
                 }
             }
             steps {
-                echo "production: true"
-                echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
-                echo "production Docker registry: ${params.PRODUCTION_DOCKER_REGISTRY}"
+                    withEnv(['DOCKER_REGISTRY=' + params.PRODUCTION_DOCKER_REGISTRY]) {
+                        echo "production: true"
+
+                        echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
+                        
+
+                        echo "production Docker registry: ${env.DOCKER_REGISTRY}"
+                        // sh 'docker-compose push'
+                    }
             }
         }
     }
