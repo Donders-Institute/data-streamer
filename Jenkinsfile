@@ -119,8 +119,7 @@ pipeline {
                         ]) {
                             sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
                             sh "git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'"
-                            sh "git remote -v"
-                            // sh "git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@data-streamer --tags"
+                            sh "git push origin ${params.PRODUCTION_GITHUB_TAG}"
                         }
 
                         echo "production Docker registry: ${env.DOCKER_REGISTRY}"
