@@ -110,7 +110,8 @@ pipeline {
                         echo "production: true"
 
                         echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
-                        
+                        sh 'git tag ' + params.PRODUCTION_GITHUB_TAG
+                        sh 'git push origin ' + params.PRODUCTION_GITHUB_TAG
 
                         echo "production Docker registry: ${env.DOCKER_REGISTRY}"
                         // sh 'docker-compose push'
