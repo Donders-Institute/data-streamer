@@ -174,7 +174,7 @@ pipeline {
         //                 // sh 'docker-compose push'
         //             }
         //     }
-        }
+        // }
     }
 
     post {
