@@ -101,30 +101,34 @@ pipeline {
 
         try {
             stage('Remove old local tag (if any)') {
-                when {
-                    expression {
-                        return params.PRODUCTION
-                    }
-                }
                 steps {
-                    withEnv(['DOCKER_REGISTRY=' + params.PRODUCTION_DOCKER_REGISTRY]) {
-                        echo "production: true"
-
-                        echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
-                        withCredentials([
-                            usernamePassword (
-                                credentialsId: params.GITHUB_CREDENTIALS,
-                                usernameVariable: 'GITHUB_USERNAME',
-                                passwordVariable: 'GITHUB_PASSWORD'
-                            )
-                        ]) {
-                            sh "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}"
-                            sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
-                            echo 'Local tag removed'
-                        }
-                    }
+                    echo 'hi'
                 }
             }
+            //     when {
+            //         expression {
+            //             return params.PRODUCTION
+            //         }
+            //     }
+            //     steps {
+            //         withEnv(['DOCKER_REGISTRY=' + params.PRODUCTION_DOCKER_REGISTRY]) {
+            //             echo "production: true"
+
+            //             echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
+            //             withCredentials([
+            //                 usernamePassword (
+            //                     credentialsId: params.GITHUB_CREDENTIALS,
+            //                     usernameVariable: 'GITHUB_USERNAME',
+            //                     passwordVariable: 'GITHUB_PASSWORD'
+            //                 )
+            //             ]) {
+            //                 sh "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}"
+            //                 sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
+            //                 echo 'Local tag removed'
+            //             }
+            //         }
+            //     }
+            // }
         }
         catch (exc) {
             echo 'Local tag does not exist'
