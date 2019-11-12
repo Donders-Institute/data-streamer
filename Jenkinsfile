@@ -6,30 +6,30 @@ pipeline {
     }
 
     stages {
-        stage('Build') {
-            agent {
-                label 'swarm-manager'
-            }
-            steps {
-                sh 'docker-compose build --parallel'
-            }
-            post {
-                success {
-                    script {
-                        if (env.DOCKER_REGISTRY) {
-                            sh 'docker-compose push'
-                        }
-                        sh 'docker system prune -f'
-                    }
-                }
-            }
-        }
+        // stage('Build') {
+        //     agent {
+        //         label 'swarm-manager'
+        //     }
+        //     steps {
+        //         sh 'docker-compose build --parallel'
+        //     }
+        //     post {
+        //         success {
+        //             script {
+        //                 if (env.DOCKER_REGISTRY) {
+        //                     sh 'docker-compose push'
+        //                 }
+        //                 sh 'docker system prune -f'
+        //             }
+        //         }
+        //     }
+        // }
 
-        stage('Unit test') {
-            steps {
-                sh 'echo hi'
-            }
-        }
+        // stage('Unit test') {
+        //     steps {
+        //         sh 'echo hi'
+        //     }
+        // }
 
         // stage('Staging') {
         //     agent {
@@ -101,8 +101,8 @@ pipeline {
             }
             steps {
                 sh 'echo production: true'
-                sh 'echo production_tag: ${params.PRODUCTION_GITHUB_TAG}'
-                sh 'echo production_docker_registry: ${params.PRODUCTION_DOCKER_REGISTRY}'
+                sh params.PRODUCTION_GITHUB_TAG
+                sh params.PRODUCTION_DOCKER_REGISTRY
             }
         }
     }
