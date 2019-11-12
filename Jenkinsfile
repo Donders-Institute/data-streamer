@@ -103,6 +103,7 @@ pipeline {
             stage('Remove old local tag (if any)') {
                 steps {
                     echo 'hi'
+                }
             }
             //     when {
             //         expression {
