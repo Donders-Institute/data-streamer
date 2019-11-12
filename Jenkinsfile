@@ -1,11 +1,8 @@
 pipeline {
     agent any
 
-    parameters {
-        booleanParam (
-            defaultValue: false,
-            description: '',
-            name : 'PRODUCTION')
+    environment {
+        DOCKER_IMAGE_TAG = "jenkins-${env.BUILD_NUMBER}"
     }
     
     options {
@@ -14,31 +11,50 @@ pipeline {
 
     stages {
         stage('Build') {
+            when {
+                expression {
+                    return !params.PRODUCTION
+                }
+            }
             agent {
                 label 'swarm-manager'
             }
             steps {
                 sh 'docker-compose build --parallel'
             }
-            post {
-                success {
-                    script {
-                        if (env.DOCKER_REGISTRY) {
-                            sh 'docker-compose push'
-                        }
-                        sh 'docker system prune -f'
-                    }
+        }
+
+        stage('Build (PRODUCTION)') {
+            when {
+                expression {
+                    return params.PRODUCTION
                 }
             }
-        }
-
-        stage('Unit test') {
+            agent {
+                label 'swarm-manager'
+            }
             steps {
-                sh 'echo hi'
+                withEnv([
+                    "DOCKER_REGISTRY=${params.PRODUCTION_DOCKER_REGISTRY}",
+                    "DOCKER_IMAGE_TAG=${params.PRODUCTION_GITHUB_TAG}"
+                ]) {
+                    sh 'docker-compose build --parallel'
+                } 
             }
         }
 
+        // stage('Unit test') {
+        //     steps {
+        //         echo 'hi'
+        //     }
+        // }
+
         stage('Staging') {
+             when {
+                expression {
+                    return !params.PRODUCTION
+                }
+            }
             agent {
                 label 'swarm-manager'
             }
@@ -77,6 +93,11 @@ pipeline {
         }
 
         stage('Health check') {
+             when {
+                expression {
+                    return !params.PRODUCTION
+                }
+            }
             agent {
                 docker {
                     image 'jwilder/dockerize'
@@ -94,29 +115,83 @@ pipeline {
             }
         }
 
-        stage('Integration test') {
-            steps {
-                sh 'echo hi'
-            }
-        }
+        // stage('Integration test') {
+        //     steps {
+        //         echo 'hi'
+        //     }
+        // }
 
-        stage('Tag for Github and push to production Docker registry') {
+        stage('Tag and push (PRODUCTION)') {
             when {
                 expression {
                     return params.PRODUCTION
                 }
             }
             steps {
-                sh 'echo production: ${params.PRODUCTION}'
-                // sh 'echo production_tag: ${params.PRODUCTION_GITHUB_TAG}'
-                // sh 'echo production_docker_registry: ${params.PRODUCTION_DOCKER_REGISTRY}'
+                echo "production: true"
+                echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
+
+                // Handle Github tags
+                withCredentials([
+                    usernamePassword (
+                        credentialsId: params.GITHUB_CREDENTIALS,
+                        usernameVariable: 'GITHUB_USERNAME',
+                        passwordVariable: 'GITHUB_PASSWORD'
+                    )
+                ]) {
+                    // Remove local tag (if any)
+                    script {
+                        def statusCode = sh(script: "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}", returnStatus: true)
+                        if(statusCode == 0) {
+                            sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
+                            echo "Removed existing local tag ${params.PRODUCTION_GITHUB_TAG}"
+                        }
+                    }
+                    
+                    // Create local tag
+                    sh "git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'"
+                    echo "Created local tag ${params.PRODUCTION_GITHUB_TAG}"
+
+                    // Remove remote tag (if any)
+                    script {
+                        def result = sh(script: "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git refs/tags/${params.PRODUCTION_GITHUB_TAG}", returnStdout: true).trim()
+                        if (result != "") {
+                            sh "git push --delete https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git ${params.PRODUCTION_GITHUB_TAG}"
+                            echo "Removed existing remote tag ${params.PRODUCTION_GITHUB_TAG}"
+                        }
+                    }
+
+                    // Create remote tag
+                    sh "git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git ${params.PRODUCTION_GITHUB_TAG}"
+                    echo "Created remote tag ${params.PRODUCTION_GITHUB_TAG}"
+                }
+
+                // Override the env variables and 
+                // push the Docker images to the production Docker registry
+                withEnv([
+                    "DOCKER_REGISTRY=${params.PRODUCTION_DOCKER_REGISTRY}",
+                    "DOCKER_IMAGE_TAG=${params.PRODUCTION_GITHUB_TAG}"
+                ]) {
+                    withCredentials([
+                        usernamePassword (
+                            credentialsId: params.PRODUCTION_DOCKER_REGISTRY_CREDENTIALS,
+                            usernameVariable: 'DOCKER_USERNAME',
+                            passwordVariable: 'DOCKER_PASSWORD'
+                        )
+                    ]) {
+                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${params.PRODUCTION_DOCKER_REGISTRY}"
+                        sh 'docker-compose push'
+                        echo "Pushed images to ${DOCKER_REGISTRY}"
+                    }
+                } 
             }
         }
     }
 
     post {
         always {
-            sh 'echo cleaning'
+            echo 'cleaning'
+            sh 'docker system prune -f'
         }
     }
 }
