@@ -34,7 +34,10 @@ pipeline {
                 label 'swarm-manager'
             }
             steps {}
-                withEnv(['DOCKER_REGISTRY=' + params.PRODUCTION_DOCKER_REGISTRY]) {
+                withEnv([
+                    "DOCKER_REGISTRY=${params.PRODUCTION_DOCKER_REGISTRY}",
+                    "DOCKER_IMAGE_TAG=${params.PRODUCTION_GITHUB_TAG}"
+                ]) {
                     sh 'docker-compose build --parallel'
                 } 
             }
@@ -164,10 +167,13 @@ pipeline {
                 }
 
                 // Push Docker images to production Docker registry
-                withEnv(['DOCKER_REGISTRY=' + params.PRODUCTION_DOCKER_REGISTRY]) {
+                withEnv([
+                    "DOCKER_REGISTRY=${params.PRODUCTION_DOCKER_REGISTRY}",
+                    "DOCKER_IMAGE_TAG=${params.PRODUCTION_GITHUB_TAG}"
+                ]) {
                     // sh 'docker-compose push'
                     echo "Pushed images to ${DOCKER_REGISTRY}"
-                }
+                } 
             }
         }
     }
