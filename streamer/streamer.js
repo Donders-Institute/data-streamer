@@ -34,7 +34,6 @@ const streamer_bindir = __dirname + path.sep + 'bin';
 
 queue.on( 'error', function(err) {
     if ( cluster.isMaster) {
-        delete active_pids[id];
         utility.printErr(null, err);
     }
 }).on( 'job enqueue', function(id, type) {
