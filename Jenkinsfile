@@ -130,8 +130,10 @@ pipeline {
 
                         // Remove remote tag (if any)
                         script {
-                            def result = sh(script: "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git refs/tags/${params.PRODUCTION_GITHUB_TAG}", returnStdout: true)
-                            echo "${result}"
+                            def result = sh(script: "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git refs/tags/${params.PRODUCTION_GITHUB_TAG}", returnStdout: true).trim()
+                            if (result != "") {
+                                echo 'Removed remote tag ${params.PRODUCTION_GITHUB_TAG}'
+                            }
                         }
                     }
                 }
