@@ -117,24 +117,22 @@ pipeline {
                         )
                     ]) {
                         // Remove local tag (if any)
-                        def statusCode = 0
                         script {
-                            statusCode = sh(script: "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}", returnStatus: true)
+                            def statusCode = sh(script: "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}", returnStatus: true)
+                            if(statusCode == 0) {
+                                sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
+                                echo 'Removed local tag ${params.PRODUCTION_GITHUB_TAG}'
+                            }
                         }
-                        if(statusCode == 0) {
-                            sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
-                            echo 'Removed local tag ${params.PRODUCTION_GITHUB_TAG}'
-                        }
-
+                        
                         // Create local tag
                         sh "git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'"
 
                         // Remove remote tag (if any)
-                        def result = ""
                         script {
-                            result = sh(script: "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git refs/tags/${params.PRODUCTION_GITHUB_TAG}", returnStdout: true)
+                            def result = sh(script: "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git refs/tags/${params.PRODUCTION_GITHUB_TAG}", returnStdout: true)
+                            echo "${result}"
                         }
-                        echo "${result}"
                     }
                 }
             }
