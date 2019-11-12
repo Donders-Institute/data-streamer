@@ -172,8 +172,16 @@ pipeline {
                     "DOCKER_REGISTRY=${params.PRODUCTION_DOCKER_REGISTRY}",
                     "DOCKER_IMAGE_TAG=${params.PRODUCTION_GITHUB_TAG}"
                 ]) {
-                    sh 'docker-compose push'
-                    echo "Pushed images to ${DOCKER_REGISTRY}"
+                    withCredentials([
+                        usernamePassword (
+                            credentialsId: params.PRODUCTION_DOCKER_REGISTRY_CREDENTIALS,
+                            usernameVariable: 'DOCKER_USERNAME',
+                            passwordVariable: 'DOCKER_PASSWORD'
+                        )
+                    ]) {
+                        sh 'docker-compose push'
+                        echo "Pushed images to ${DOCKER_REGISTRY}"
+                    }
                 } 
             }
         }
