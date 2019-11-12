@@ -179,6 +179,7 @@ pipeline {
                             passwordVariable: 'DOCKER_PASSWORD'
                         )
                     ]) {
+                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${params.PRODUCTION_DOCKER_REGISTRY}"
                         sh 'docker-compose push'
                         echo "Pushed images to ${DOCKER_REGISTRY}"
                     }
