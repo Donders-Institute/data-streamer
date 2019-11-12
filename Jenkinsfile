@@ -117,11 +117,25 @@ pipeline {
                                 passwordVariable: 'GITHUB_PASSWORD'
                             )
                         ]) {
-                            sh "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}"
-                            sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
+                            // Remove old local tag if it exists
+                            try {
+                                sh "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}"
+                                sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
+                                echo 'Local tag removed'
+                            }
+                            catch (exc) {
+                                echo 'Local tag does not exist'
+                            }
                             sh "git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'"
-                            sh "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git refs/tags/${params.PRODUCTION_GITHUB_TAG}"
-                            sh "git push --delete https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git ${params.PRODUCTION_GITHUB_TAG}"
+
+                            // Remove old remote tag if it exists
+                            try {
+                                sh "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git refs/tags/${params.PRODUCTION_GITHUB_TAG}"
+                                sh "git push --delete https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git ${params.PRODUCTION_GITHUB_TAG}"
+                            }
+                            catch (exc) {
+                                echo 'Remote tag does not exist'
+                            }
                             sh "git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git ${params.PRODUCTION_GITHUB_TAG}"
                         }
 
