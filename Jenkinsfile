@@ -100,38 +100,30 @@ pipeline {
         }
 
         stage('Remove old local tag (if any)') {
+            when {
+                expression {
+                    return params.PRODUCTION
+                }
+            }
             steps {
-                rc = sh(script: '''#!/bin/bash
-                    echo "Hello from bash"
-                    echo "Who I'm $SHELL"
-                ''', returnStatus: true)
-                echo "${rc}"
+                withEnv(['DOCKER_REGISTRY=' + params.PRODUCTION_DOCKER_REGISTRY]) {
+                    echo "production: true"
+                    echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
+                    withCredentials([
+                        usernamePassword (
+                            credentialsId: params.GITHUB_CREDENTIALS,
+                            usernameVariable: 'GITHUB_USERNAME',
+                            passwordVariable: 'GITHUB_PASSWORD'
+                        )
+                    ]) {
+                        status = sh(script: "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}", returnStatus: true)
+                        echo "${status}"
+                        // sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
+                        // echo 'Local tag removed'
+                    }
+                }
             }
         }
-            //     when {
-            //         expression {
-            //             return params.PRODUCTION
-            //         }
-            //     }
-            //     steps {
-            //         withEnv(['DOCKER_REGISTRY=' + params.PRODUCTION_DOCKER_REGISTRY]) {
-            //             echo "production: true"
-
-            //             echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
-            //             withCredentials([
-            //                 usernamePassword (
-            //                     credentialsId: params.GITHUB_CREDENTIALS,
-            //                     usernameVariable: 'GITHUB_USERNAME',
-            //                     passwordVariable: 'GITHUB_PASSWORD'
-            //                 )
-            //             ]) {
-            //                 sh "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}"
-            //                 sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
-            //                 echo 'Local tag removed'
-            //             }
-            //         }
-            //     }
-            // }
 
         // stage('Tag for Github and push to production Docker registry') {
         //     when {
