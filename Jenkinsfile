@@ -118,7 +118,7 @@ pipeline {
                             )
                         ]) {
                             sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
-                            sh "git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'")
+                            sh "git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'"
                             sh "git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@data-streamer --tags"
                         }
 
