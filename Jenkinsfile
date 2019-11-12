@@ -119,6 +119,7 @@ pipeline {
                         ]) {
                             sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
                             sh "git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'"
+                            sh "git remote add origin https://github.com/${GITHUB_USERNAME}/data-streamer.git"
                             sh "git push origin ${params.PRODUCTION_GITHUB_TAG}"
                         }
 
