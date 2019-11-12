@@ -100,16 +100,16 @@ pipeline {
                 }
             }
             steps {
-                sh 'echo production: true'
-                sh params.PRODUCTION_GITHUB_TAG
-                sh params.PRODUCTION_DOCKER_REGISTRY
+                echo "production: true"
+                echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
+                echo "production Docker registry: ${params.PRODUCTION_DOCKER_REGISTRY}"
             }
         }
     }
 
     post {
         always {
-            sh 'echo cleaning'
+            echo 'cleaning'
             sh 'docker system prune -f'
         }
     }
