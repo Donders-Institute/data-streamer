@@ -99,7 +99,7 @@ pipeline {
             }
         }
 
-        stage('Tag') {
+        stage('Tag and push (PRODUCTION)') {
             when {
                 expression {
                     return params.PRODUCTION
@@ -109,6 +109,7 @@ pipeline {
                 echo "production: true"
                 echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
 
+                // Handle Github tags
                 withCredentials([
                     usernamePassword (
                         credentialsId: params.GITHUB_CREDENTIALS,
@@ -141,59 +142,13 @@ pipeline {
                     sh "git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git ${params.PRODUCTION_GITHUB_TAG}"
                 }
 
-
-
+                // Handle Docker images
                 withEnv(['DOCKER_REGISTRY=' + params.PRODUCTION_DOCKER_REGISTRY]) {
                     echo "${DOCKER_REGISTRY}"
+                    // sh 'docker-compose push'
                 }
             }
         }
-
-        // stage('Tag for Github and push to production Docker registry') {
-        //     when {
-        //         expression {
-        //             return params.PRODUCTION
-        //         }
-        //     }
-        //     steps {
-        //             withEnv(['DOCKER_REGISTRY=' + params.PRODUCTION_DOCKER_REGISTRY]) {
-        //                 echo "production: true"
-
-        //                 echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
-        //                 withCredentials([
-        //                     usernamePassword (
-        //                         credentialsId: params.GITHUB_CREDENTIALS,
-        //                         usernameVariable: 'GITHUB_USERNAME',
-        //                         passwordVariable: 'GITHUB_PASSWORD'
-        //                     )
-        //                 ]) {
-        //                     // Remove old local tag if it exists
-        //                     try {
-        //                         sh "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}"
-        //                         sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
-        //                         echo 'Local tag removed'
-        //                     }
-        //                     catch (exc) {
-        //                         echo 'Local tag does not exist'
-        //                     }
-        //                     sh "git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'"
-
-        //                     // Remove old remote tag if it exists
-        //                     try {
-        //                         sh "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git refs/tags/${params.PRODUCTION_GITHUB_TAG}"
-        //                         sh "git push --delete https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git ${params.PRODUCTION_GITHUB_TAG}"
-        //                     }
-        //                     catch (exc) {
-        //                         echo 'Remote tag does not exist'
-        //                     }
-        //                     sh "git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git ${params.PRODUCTION_GITHUB_TAG}"
-        //                 }
-
-        //                 echo "production Docker registry: ${env.DOCKER_REGISTRY}"
-        //                 // sh 'docker-compose push'
-        //             }
-        //     }
-        // }
     }
 
     post {
