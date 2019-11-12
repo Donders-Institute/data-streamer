@@ -99,12 +99,15 @@ pipeline {
             }
         }
 
-        try {
-            stage('Remove old local tag (if any)') {
-                steps {
-                    echo 'hi'
-                }
+        stage('Remove old local tag (if any)') {
+            steps {
+                rc = sh(script: '''#!/bin/bash
+                    echo "Hello from bash"
+                    echo "Who I'm $SHELL"
+                ''', returnStatus: true)
+                echo "${rc}""
             }
+        }
             //     when {
             //         expression {
             //             return params.PRODUCTION
@@ -129,9 +132,6 @@ pipeline {
             //         }
             //     }
             // }
-        } catch (Exception exc) {
-            echo 'Local tag does not exist'
-        }
 
         // stage('Tag for Github and push to production Docker registry') {
         //     when {
