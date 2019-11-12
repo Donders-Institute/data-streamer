@@ -110,8 +110,16 @@ pipeline {
                         echo "production: true"
 
                         echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
-                        sh 'git tag ' + params.PRODUCTION_GITHUB_TAG
-                        sh 'git push origin ' + params.PRODUCTION_GITHUB_TAG
+                        withCredentials([
+                            usernamePassword (
+                                credentialsId: params.GITHUB_CREDENTIALS,
+                                usernameVariable: 'GITHUB_USERNAME',
+                                passwordVariable: 'GITHUB_PASSWORD'
+                            )
+                        ]) {
+                            sh("git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'")
+                            sh('git push https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@data-streamer --tags')
+                        }
 
                         echo "production Docker registry: ${env.DOCKER_REGISTRY}"
                         // sh 'docker-compose push'
