@@ -33,7 +33,7 @@ pipeline {
             agent {
                 label 'swarm-manager'
             }
-            steps {}
+            steps {
                 withEnv([
                     "DOCKER_REGISTRY=${params.PRODUCTION_DOCKER_REGISTRY}",
                     "DOCKER_IMAGE_TAG=${params.PRODUCTION_GITHUB_TAG}"
