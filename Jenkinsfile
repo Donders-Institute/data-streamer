@@ -126,7 +126,7 @@ pipeline {
                 }
             }
         }
-        catch {
+        catch (exc) {
             echo 'Local tag does not exist'
         }
 
