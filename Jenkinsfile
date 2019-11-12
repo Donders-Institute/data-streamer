@@ -117,6 +117,7 @@ pipeline {
                                 passwordVariable: 'GITHUB_PASSWORD'
                             )
                         ]) {
+                            sh "git tag --list | grep ${params.PRODUCTION_GITHUB_TAG}"
                             sh "git tag -d ${params.PRODUCTION_GITHUB_TAG}"
                             sh "git tag -a ${params.PRODUCTION_GITHUB_TAG} -m 'jenkins'"
                             sh "git ls-remote https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/Donders-Institute/data-streamer.git refs/tags/${params.PRODUCTION_GITHUB_TAG}"
