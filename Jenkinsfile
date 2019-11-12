@@ -103,7 +103,7 @@ pipeline {
             stage('Remove old local tag (if any)') {
                 steps {
                     echo 'hi'
-            }
+        }
             //     when {
             //         expression {
             //             return params.PRODUCTION
@@ -128,7 +128,6 @@ pipeline {
             //         }
             //     }
             // }
-        }
         catch (Exception exc) {
             echo 'Local tag does not exist'
         }
