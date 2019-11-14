@@ -88,7 +88,15 @@ pipeline {
                     sh 'docker secret create streamer-ui-ldapscert.crt $UI_LDAPSCERT'
                 }
 
-                sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml --prune --with-registry-auth --resolve-image always streamer4user'
+                withCredentials([
+                    usernamePassword (
+                        credentialsId: params.STREAMER_UI_STATS_DB_CREDENTIALS,
+                        usernameVariable: 'STREAMER_UI_STATS_DB_USER',
+                        passwordVariable: 'STREAMER_UI_STATS_DB_PASSWORD'
+                    )
+                ]) {
+                    sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml --prune --with-registry-auth --resolve-image always streamer4user'
+                }
             }
         }
 
