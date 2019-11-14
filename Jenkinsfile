@@ -197,6 +197,9 @@ pipeline {
     }
 
     post {
+        success {
+            archiveArtifacts 'docker-compose.yml, docker-compose.swarm.yml'
+        }
         always {
             echo 'cleaning'
             sh 'docker system prune -f'
