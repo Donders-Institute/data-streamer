@@ -99,7 +99,7 @@ pipeline {
 
                     // Overwrite the env.sh file to be stored as artifact
                     script {
-                        def statusCode = sh(script: "print_env.sh", returnStatus: true)
+                        def statusCode = sh(script: "bash ./print_env.sh ", returnStatus: true)
                         echo "statusCode: ${statusCode}"
                     }
                 }
