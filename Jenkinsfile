@@ -98,7 +98,7 @@ pipeline {
                     sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml --prune --with-registry-auth --resolve-image always streamer4user'
 
                     // Overwrite the env.sh file to be stored as artifact
-                    sh './print_env.sh > env.sh'
+                    sh './print_env.sh'
                 }
             }
         }
