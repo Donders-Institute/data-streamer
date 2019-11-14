@@ -1,8 +1,5 @@
 version: "3.7"
 services:
-  db:
-    networks:
-      - nw_streamer
   service:
     environment:
       - STREAMER_SERVICE_CONFIG=${STREAMER_SERVICE_CONFIG:-/opt/streamer/config/default.json.template}
@@ -12,8 +9,6 @@ services:
       # are provided by the host. If not provided from the host, they are copied from the templates in
       # the container.
       - ${STREAMER_SERVICE_CONFIG_VOL}:/opt/streamer/config
-    networks:
-      - nw_streamer
     ports:
       - ${STREAMER_SERVICE_PORT:-3001}:${STREAMER_SERVICE_PORT:-3001}
   ui:
@@ -21,10 +16,5 @@ services:
       - STREAMER_UI_CONFIG=${STREAMER_UI_CONFIG:-/opt/streamer-ui-server/config/streamer-ui-config.json.template}
       - STREAMER_UI_ADCONFIG=${STREAMER_UI_ADCONFIG:-/opt/streamer-ui-server/config/streamer-ui-adconfig.json.template}
       - STREAMER_UI_LDAPSCERT=${STREAMER_UI_LDAPSCERT:-/opt/streamer-ui-server/config/streamer-ui-ldapscert.crt.template}
-    networks:
-      - nw_streamer
     ports:
       - ${STREAMER_UI_PORT:-9000}:${STREAMER_UI_PORT:-9000}
-networks:
-    nw_streamer:
-        driver: bridge

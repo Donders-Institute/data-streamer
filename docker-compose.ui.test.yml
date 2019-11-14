@@ -10,8 +10,6 @@ services:
       - STREAMER_UI_STATS_DB_USER=${STREAMER_UI_STATS_DB_USER:-postgres}
       - STREAMER_UI_STATS_DB_PASSWORD=${STREAMER_UI_STATS_DB_PASSWORD:-postgres}
       - STREAMER_UI_STATS_DB_NAME=${STREAMER_UI_STATS_DB_NAME:-postgres}
-    networks:
-      - nw_streamer
     ports:
       - ${STREAMER_UI_PORT:-9000}:${STREAMER_UI_PORT:-9000}
     depends_on:
@@ -32,9 +30,4 @@ services:
     volumes:
       - ${STREAMER_UI_STATS_DB_INIT_VOL}/01-initialize-database.sh:/docker-entrypoint-initdb.d/01-initialize-database.sh:ro
       - ${STREAMER_UI_STATS_DB_DATA_VOL}:/var/lib/postgresql/data
-    networks:
-      - nw_streamer
     restart: always
-networks:
-  nw_streamer:
-    driver: bridge

@@ -42,8 +42,6 @@ services:
     depends_on:
       - service
       - ui-stats-db
-    networks:
-      - ui_net
   ui-stats-db:
     image: postgres:12
     environment:
@@ -60,9 +58,4 @@ services:
     volumes:
       - ${STREAMER_UI_STATS_DB_INIT_VOL}/01-initialize-database.sh:/docker-entrypoint-initdb.d/01-initialize-database.sh:ro
       - ${STREAMER_UI_STATS_DB_DATA_VOL}:/var/lib/postgresql/data
-    networks:
-      - ui_net
     restart: always
-
-networks:
-  ui_net:

@@ -16,8 +16,6 @@ services:
       - STREAMER_UI_STATS_DB_NAME=${STREAMER_UI_STATS_DB_NAME:-postgres}
     volumes:
       - ${PROJECT_VOL}:/project
-    networks:
-      - nw_streamer
     depends_on:
       - ui-stats-db
   ui-stats-db:
@@ -36,13 +34,4 @@ services:
     volumes:
       - ${STREAMER_UI_STATS_DB_INIT_VOL}/01-initialize-database.sh:/docker-entrypoint-initdb.d/01-initialize-database.sh:ro
       - ${STREAMER_UI_STATS_DB_DATA_VOL}:/var/lib/postgresql/data
-    networks:
-      - nw_streamer
     restart: always
-
-volumes:
-  postgres:
-
-networks:
-  nw_streamer:
-    driver: bridge
