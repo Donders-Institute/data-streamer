@@ -20,7 +20,12 @@ STREAMER_SERVICE_CONFIG_VOL=./testdata/streamer/config
 STREAMER_UI_STATS_DB_INIT_VOL=./streamer-ui/ui-stats-db/init
 
 # volume for streamer ui statistics database
-STREAMER_UI_STATS_DB_DATA_VOL=./testdata/stats_db/data
+STREAMER_UI_STATS_DB_DATA_VOL=./testdata/ui-stats-db/data
+
+# redis database for streamer jobs
+REDIS_HOST=db
+REDIS_PORT=6379
+STREAMER_SERVICE_PORT=3001
 
 # configuration for streamer ui
 STREAMER_UI_HOST=0.0.0.0
