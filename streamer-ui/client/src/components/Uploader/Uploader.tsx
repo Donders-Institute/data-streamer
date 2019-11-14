@@ -39,7 +39,7 @@ const uploadTimeout = 300000;
 const detectFile = (file: RcFile) => {
     return new Promise((resolve, reject) => {
         let reader = new FileReader();
-        reader.onload = () => {
+        reader.onloadstart = () => {
             // is file
             resolve(true);
         };
