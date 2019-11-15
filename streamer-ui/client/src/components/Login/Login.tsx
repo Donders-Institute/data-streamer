@@ -186,7 +186,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                                         <img alt="Donders Institute" src={logoDCCN} height={64} />
                                     </div>
                                     <h2 style={{ display: "flex", justifyContent: "center", margin: "0px 0px 10px 0px" }}>
-                                        DCCN Research Data Uploader
+                                        Research Data Uploader
                                 </h2>
                                     <p>This is the login page for the research data uploader.</p>
                                     <p>Its purpose is to upload files to the DCCN project storage.
