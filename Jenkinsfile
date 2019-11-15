@@ -105,13 +105,14 @@ pipeline {
                         passwordVariable: 'POSTGRES_PASSWORD'
                     )
                 ]) {
-                    sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml --prune --with-registry-auth --resolve-image always streamer4user'
-
-                    // TODO: Overwrite the env.sh file to be stored as artifact
+                    // TODO: Overwrite the env.sh file to be stored as an artifact
                     script {
                         def statusCode = sh(script: "bash ./print_env.sh", returnStatus: true)
+                        echo "workspace folder: ${WORKSPACE}"
                         echo "statusCode: ${statusCode}"
                     }
+
+                    sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml --prune --with-registry-auth --resolve-image always streamer4user'
                 }
             }
         }
