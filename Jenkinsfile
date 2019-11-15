@@ -107,8 +107,8 @@ pipeline {
                 ]) {
                     // TODO: Overwrite the env.sh file to be stored as an artifact
                     script {
-                        def statusCode = sh(script: "bash ./print_env.sh", returnStatus: true)
                         echo "workspace folder: ${WORKSPACE}"
+                        def statusCode = sh(script: "bash ./print_env.sh ${WORKSPACE}/test.sh", returnStatus: true)
                         echo "statusCode: ${statusCode}"
                     }
 
