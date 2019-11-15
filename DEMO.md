@@ -2,4 +2,5 @@
 
 ## Data streamer UI
 
-<https://streamer-acc.dccn.nl>
+<https://uploader-acc.dccn.nl>
+<https://uploader.dccn.nl>

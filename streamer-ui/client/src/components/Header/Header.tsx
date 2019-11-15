@@ -92,8 +92,8 @@ const Header: React.FC = () => {
                                     selectedKeys={[]}
                                 >
                                     <Menu.Item key={LOCATION_HOME} style={{ float: "left", margin: "0px 0px 0px 0px" }}>
-                                        <Tooltip placement="bottomRight" title="The purpose of the data streamer is to upload files to the DCCN project storage. The source files are files from your experiments on this computer. The destination is the correct folder on the DCCN project storage."><Link to="/">
-                                            <img alt="Donders Institute" src={logoDCCN} style={{ height: "20px", marginRight: "10px" }} />DATA STREAMER (BETA)</Link></Tooltip>
+                                        <Tooltip placement="bottomRight" title="The purpose of the research data uploader is to upload files to the DCCN project storage. The source files are files from your experiments on this computer. The destination is the correct folder on the DCCN project storage."><Link to="/">
+                                            <img alt="Donders Institute" src={logoDCCN} style={{ height: "20px", marginRight: "10px" }} />RESEARCH DATA UPLOADER</Link></Tooltip>
                                     </Menu.Item>
                                 </Menu>
                             </Col>
@@ -105,7 +105,7 @@ const Header: React.FC = () => {
                                     selectedKeys={[]}
                                 >
                                     <Menu.Item key={LOCATION_HELP}>
-                                        <Tooltip placement="bottomLeft" title="Click here for help how to use the data streamer"><Link to="/help"><span style={{ fontWeight: "bold" }}>HELP</span></Link></Tooltip>
+                                        <Tooltip placement="bottomLeft" title="Click here for help how to use the research data uploader"><Link to="/help"><span style={{ fontWeight: "bold" }}>HELP</span></Link></Tooltip>
                                     </Menu.Item>
                                     <SubMenu
                                         key="profile"

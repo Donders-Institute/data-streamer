@@ -24,7 +24,7 @@ const HeaderLogin: React.FC = () => {
                                     selectedKeys={[]}
                                 >
                                     <Menu.Item key="NAV_HOME" style={{ float: "left", margin: "0px 0px 0px 0px" }}>
-                                        <img alt="Donders Institute" src={logoDCCN} style={{ height: "20px", marginRight: "10px" }} />DATA STREAMER (BETA)
+                                        <img alt="Donders Institute" src={logoDCCN} style={{ height: "20px", marginRight: "10px" }} />RESEARCH DATA UPLOADER
                                     </Menu.Item>
                                 </Menu>
                             </Col>

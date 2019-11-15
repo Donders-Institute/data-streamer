@@ -148,13 +148,13 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
 
     return (
         <div>
-            {/* {
+            {
                 !authContext!.isAuthenticated &&
                 <Button
                     onClick={() => authContext!.signIn("rutvdee", "testpassword", "1.2.3.4")}>
                     Authenticate rutvdee
                 </Button>
-            } */}
+            }
             {
                 isAuthenticated &&
                 <Redirect to="/" />
@@ -186,8 +186,12 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                                         <img alt="Donders Institute" src={logoDCCN} height={64} />
                                     </div>
                                     <h2 style={{ display: "flex", justifyContent: "center", margin: "0px 0px 10px 0px" }}>
-                                        DCCN Data Streamer (BETA)
+                                        DCCN Research Data Uploader
                                 </h2>
+                                    <p>This is the login page for the research data uploader.</p>
+                                    <p>Its purpose is to upload files to the DCCN project storage.
+                                    The source files are files from your computer.
+                                    The destination is the correct folder on the DCCN project storage.</p>
                                     <h1 style={{ display: "flex", justifyContent: "center", margin: "0px 0px 20px 0px" }}>
                                         Please login
                                 </h1>
@@ -223,16 +227,6 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                                                 Log in
                                         </Button>
                                         </Form.Item>
-                                        <div style={{ display: "flex", justifyContent: "center", margin: "0px 0px 0px 0px" }}>
-                                            <Tooltip title={<div
-                                            ><p>This is the login page for the data streamer. Please login with your DCCN credentials.</p>
-                                                <p>The purpose of the data streamer is to upload files to the DCCN project storage.
-                                                    The source files are files from your experiments on this computer.
-                                                The destination is the correct folder on the DCCN project storage.</p>
-                                            </div>}>
-                                                <Icon type="question-circle" />
-                                            </Tooltip>
-                                        </div>
                                     </Form>
                                 </Card>
                             </Col>
