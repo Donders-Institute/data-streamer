@@ -107,7 +107,6 @@ pipeline {
                 ]) {
                     // Overwrite the env.sh file to be stored later as an artifact
                     script {
-                        echo "workspace folder: ${WORKSPACE}"
                         def statusCode = sh(script: "bash ./print_env.sh > ${WORKSPACE}/env.sh", returnStatus: true)
                         echo "statusCode: ${statusCode}"
                     }
@@ -117,8 +116,6 @@ pipeline {
                         def statusCode = sh(script: "bash ./docker-deploy-development.sh", returnStatus: true)
                         echo "statusCode: ${statusCode}"
                     }
-
-                    // sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml --prune --with-registry-auth --resolve-image always streamer4user'
                 }
             }
         }
