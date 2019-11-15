@@ -148,13 +148,13 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
 
     return (
         <div>
-            {
+            {/* {
                 !authContext!.isAuthenticated &&
                 <Button
                     onClick={() => authContext!.signIn("rutvdee", "testpassword", "1.2.3.4")}>
                     Authenticate rutvdee
                 </Button>
-            }
+            } */}
             {
                 isAuthenticated &&
                 <Redirect to="/" />
