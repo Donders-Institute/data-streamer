@@ -93,7 +93,12 @@ pipeline {
                         credentialsId: params.STREAMER_UI_STATS_DB_CREDENTIALS,
                         usernameVariable: 'STREAMER_UI_STATS_DB_USER',
                         passwordVariable: 'STREAMER_UI_STATS_DB_PASSWORD'
-                    )
+                    ),
+                    usernamePassword (
+                        credentialsId: params.STREAMER_UI_STATS_DB_READ_ONLY_CREDENTIALS,
+                        usernameVariable: 'GRAFANA_USER',
+                        passwordVariable: 'GRAFANA_PASSWORD'
+                    ),
                 ]) {
                     sh 'docker stack up -c docker-compose.yml -c docker-compose.swarm.yml --prune --with-registry-auth --resolve-image always streamer4user'
 
