@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "# version"
+echo "DOCKER_IMAGE_TAG=$DOCKER_IMAGE_TAG"
+echo 
 echo "# volume for home directory"
 echo "HOME_VOL=$HOME_VOL"
 echo
