@@ -3,6 +3,9 @@
 echo "# version"
 echo "DOCKER_IMAGE_TAG=$DOCKER_IMAGE_TAG"
 echo 
+echo "# docker registry endpoint"
+echo "DOCKER_REGISTRY=$DOCKER_REGISTRY"
+echo 
 echo "# volume for home directory"
 echo "HOME_VOL=$HOME_VOL"
 echo
@@ -17,9 +20,6 @@ echo "STREAMER_SERVICE_LOG_VOL=$STREAMER_SERVICE_LOG_VOL"
 echo 
 echo "# volume in which the streamer crontab is presented"
 echo "STREAMER_SERVICE_CRON_VOL=$STREAMER_SERVICE_CRON_VOL"
-echo 
-echo "# volume in which the streamer configuration files can be found"
-echo "STREAMER_SERVICE_CONFIG_VOL=$STREAMER_SERVICE_CONFIG_VOL"
 echo 
 echo "# volume in which the streamer ui statistics database initialisation script is presented"
 echo "STREAMER_UI_STATS_DB_INIT_VOL=$STREAMER_UI_STATS_DB_INIT_VOL"

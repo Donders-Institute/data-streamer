@@ -1,6 +1,9 @@
 # version
 DOCKER_IMAGE_TAG=latest
 
+# docker registry endpoint
+DOCKER_REGISTRY=dccn
+
 # volume for home directory
 HOME_VOL=./testdata/home
 
@@ -15,9 +18,6 @@ STREAMER_SERVICE_LOG_VOL=./testdata/streamer/log
 
 # volume in which the streamer crontab is presented
 STREAMER_SERVICE_CRON_VOL=./testdata/streamer/cron
-
-# volume in which the streamer configuration files can be found
-STREAMER_SERVICE_CONFIG_VOL=./testdata/streamer/config
 
 # volume in which the streamer ui statistics database initialisation script is presented
 STREAMER_UI_STATS_DB_INIT_VOL=./streamer-ui/ui-stats-db/init
