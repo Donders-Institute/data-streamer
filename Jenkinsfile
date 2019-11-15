@@ -108,7 +108,7 @@ pipeline {
                     // Overwrite the env.sh file to be stored later as an artifact
                     script {
                         echo "workspace folder: ${WORKSPACE}"
-                        def statusCode = sh(script: "bash ./print_env.sh > ${WORKSPACE}/env-development.sh", returnStatus: true)
+                        def statusCode = sh(script: "bash ./print_env.sh > ${WORKSPACE}/env.sh", returnStatus: true)
                         echo "statusCode: ${statusCode}"
                     }
 
@@ -221,7 +221,7 @@ pipeline {
 
     post {
         success {
-            archiveArtifacts 'docker-compose.yml, docker-compose.swarm.yml, env-development.sh'
+            archiveArtifacts "docker-compose.yml, docker-compose.swarm.yml, env.sh"
         }
         always {
             echo 'cleaning'
