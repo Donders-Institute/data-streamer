@@ -2,7 +2,6 @@
 set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DATABASE" <<-EOSQL
-    CREATE TYPE session_event AS ENUM ('login', 'logout');
     CREATE TABLE IF NOT EXISTS uploadsession(
         id                      SERIAL PRIMARY KEY,
         username                TEXT NOT NULL,
