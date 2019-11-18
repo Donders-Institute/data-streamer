@@ -1,6 +1,0 @@
-{
-  "url": "ldap://dccn-w001.dccn.nl",
-  "baseDN": "dc=dccn,dc=nl",
-  "username": "someuser",
-  "password": "xxxxxxxx"
-}
