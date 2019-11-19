@@ -253,11 +253,6 @@ const Uploader: React.FC = () => {
                 responseType: "json"
             };
 
-            console.log(JSON.stringify({
-                ...uploadSession,
-                "uploadSessionId": uploadSessionId
-            }));
-
             resolve(axios.request(config)
                 .then(handleUploadSessionResponse)
                 .then(function (response: AxiosResponse) {
