@@ -19,10 +19,10 @@ STREAMER_SERVICE_LOG_VOL=./testdata/streamer/log
 # volume in which the streamer crontab is presented
 STREAMER_SERVICE_CRON_VOL=./testdata/streamer/cron
 
-# volume in which the streamer ui statistics database initialisation script is presented
+# volume in which the streamer ui database initialisation script is presented
 STREAMER_UI_DB_INIT_VOL=./streamer-ui/ui-db/init
 
-# volume for streamer ui statistics database
+# volume for streamer ui database
 STREAMER_UI_DB_DATA_VOL=./testdata/ui-db/data
 
 # redis database for streamer jobs
@@ -41,7 +41,7 @@ STREAMER_UI_DB_USER=postgres
 STREAMER_UI_DB_PASSWORD=postgres
 STREAMER_UI_DB_NAME=postgres
 
-# configuration for streamer ui statistics database
+# configuration for streamer ui database
 STREAMER_UI_DB_EXTERNAL_PORT=9001
 POSTGRES_HOST=0.0.0.0
 POSTGRES_PORT=5432
