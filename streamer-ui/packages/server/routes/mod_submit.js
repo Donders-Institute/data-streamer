@@ -88,7 +88,7 @@ var _submit = async function (req, res) {
 
     // Get the list of files to be uploaded
     try {
-        submitResult = await db.getFiles(uploadSessionId);
+        submitResult = await db.getUploadFileList(uploadSessionId);
     } catch (error) {
         console.error(error);
         return res.status(500).json({ "error": error });

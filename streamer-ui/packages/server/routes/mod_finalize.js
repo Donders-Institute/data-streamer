@@ -40,6 +40,7 @@ var _finalize = async function (req, res) {
     }
 
     // Return the result
+    console.log(dccnUsername);
     console.log(JSON.stringify(updateUploadSessionResult));
     return res.status(200).json({ "data": updateUploadSessionResult });
 }

@@ -160,4 +160,4 @@ async function _getUploadFileList(uploadSessionId) {
 module.exports.insertUploadSession = _insertUploadSession;
 module.exports.insertUploadFile = _insertUploadFile;
 module.exports.updateUploadSession = _updateUploadSession;
-module.exports.updateUploadSession = _getUploadFileList;
+module.exports.getUploadFileList = _getUploadFileList;
