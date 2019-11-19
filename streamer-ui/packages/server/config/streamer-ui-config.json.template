@@ -1,0 +1,33 @@
+{
+    "serviceAdmin": {
+        "username": "",
+        "password": ""    
+    },
+    "projectDatabase": {
+        "host": "db.example.com",
+        "port": "3306",
+        "username": "user",
+        "password": "password",
+        "databaseName": "database"
+    },
+    "projectStorage": {
+        "displayName": "DCCN project storage",
+        "rootDir": "/project/",
+        "hintLogin": "use the DCCN account",
+        "pathLogin": "/login",
+        "pathLogout": "/logout",
+        "exampleLogin": "pethag",
+        "host": "mentat999.dccn.nl",
+        "port": "22"
+    },
+    "rdm": {
+        "displayName": "Donders Repository",
+        "rootDir": "/",
+        "prefixTurl": "irods:/rdm/di",
+        "hintLogin": "Sign in with the data-access account",
+        "pathLogin": "/rdm/login",
+        "pathLogout": "/rdm/logout",
+        "exampleLogin": "U123456-ru.nl",
+        "irodsWebDavEndpoint": "https://webdav.data.donders.ru.nl"
+    }
+}

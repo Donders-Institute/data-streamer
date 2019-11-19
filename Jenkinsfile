@@ -90,17 +90,17 @@ pipeline {
 
                 withCredentials([
                     usernamePassword (
-                        credentialsId: params.STREAMER_UI_STATS_DB_CREDENTIALS,
-                        usernameVariable: 'STREAMER_UI_STATS_DB_USER',
-                        passwordVariable: 'STREAMER_UI_STATS_DB_PASSWORD'
+                        credentialsId: params.STREAMER_UI_DB_CREDENTIALS,
+                        usernameVariable: 'STREAMER_UI_DB_USER',
+                        passwordVariable: 'STREAMER_UI_DB_PASSWORD'
                     ),
                     usernamePassword (
-                        credentialsId: params.STREAMER_UI_STATS_DB_READ_ONLY_CREDENTIALS,
+                        credentialsId: params.STREAMER_UI_DB_READ_ONLY_CREDENTIALS,
                         usernameVariable: 'GRAFANA_USER',
                         passwordVariable: 'GRAFANA_PASSWORD'
                     ),
                     usernamePassword (
-                        credentialsId: params.STREAMER_UI_STATS_DB_CREDENTIALS,
+                        credentialsId: params.STREAMER_UI_DB_CREDENTIALS,
                         usernameVariable: 'POSTGRES_USER',
                         passwordVariable: 'POSTGRES_PASSWORD'
                     )
