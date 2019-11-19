@@ -60,20 +60,16 @@ app.post('/login', modAuthentication.authenticateUser);
 app.post('/logout', modAuthentication.logoutUser);
 
 // // POST Begin upload session
-// app.post('/begin', modAuthentication.isAuthenticated, modBegin.begin);
-app.post('/begin', modBegin.begin);
+app.post('/begin', modAuthentication.isAuthenticated, modBegin.begin);
 
 // // POST Add file to upload session
-// app.post('/addFile', modAuthentication.isAuthenticated, modAddFile.addFile);
-app.post('/addfile', modAddFile.addFile);
+app.post('/addFile', modAuthentication.isAuthenticated, modAddFile.addFile);
 
 // // POST Finalize upload session
-// app.post('/finalize', modAuthentication.isAuthenticated, modFinalize.finalize);
-app.post('/finalize', modFinalize.finalize);
+app.post('/finalize', modAuthentication.isAuthenticated, modFinalize.finalize);
 
 // // POST Submit a streamer job
-// // app.post('/submit', modAuthentication.isAuthenticated, modSubmit.submit);
-app.post('/submit', modSubmit.submit);
+app.post('/submit', modAuthentication.isAuthenticated, modSubmit.submit);
 
 // GET Obtain list of projects for user
 app.get('/projects', modAuthentication.isAuthenticated, modListProjects.getListProjects);
