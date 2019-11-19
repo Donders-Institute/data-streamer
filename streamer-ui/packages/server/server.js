@@ -59,16 +59,16 @@ app.use('/', routes);
 app.post('/login', modAuthentication.authenticateUser);
 app.post('/logout', modAuthentication.logoutUser);
 
-// // POST Begin upload session
+// POST Begin upload session
 app.post('/begin', modAuthentication.isAuthenticated, modBegin.begin);
 
-// // POST Add file to upload session
+// POST Add file to upload session
 app.post('/addFile', modAuthentication.isAuthenticated, modAddFile.addFile);
 
-// // POST Finalize upload session
+// POST Finalize upload session
 app.post('/finalize', modAuthentication.isAuthenticated, modFinalize.finalize);
 
-// // POST Submit a streamer job
+// POST Submit a streamer job
 app.post('/submit', modAuthentication.isAuthenticated, modSubmit.submit);
 
 // GET Obtain list of projects for user
