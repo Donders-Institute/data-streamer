@@ -111,7 +111,9 @@ var _submit = async function (req, res) {
         (err, res, body) => {
             console.log(streamerUrl);
             if (err) {
-                return res.status(500).json({ "error": err });
+                msg = "could not connect to streamer service";
+                console.log(msg);
+                return res.status(500).json({ "error": msg });
             } else {
                 // Check status code from response 
                 // and return error if the status code is not 200

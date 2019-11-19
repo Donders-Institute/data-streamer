@@ -37,4 +37,4 @@ function _getStreamerUrl(projectNumber, subjectLabel, sessionLabel, dataType) {
 
 module.exports.getDirName = _getDirName;
 module.exports.storeFile = _storeFile;
-module.exports.storeFile = _getStreamerUrl;
+module.exports.getStreamerUrl = _getStreamerUrl;
