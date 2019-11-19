@@ -237,7 +237,7 @@ const Uploader: React.FC = () => {
     const handleUploadSessionSubmitRequest = (username: string, password: string, uploadSessionId: number, uploadSession: UploadSession) => {
         let promise = new Promise((resolve, reject) => {
             const config: AxiosRequestConfig = {
-                url: "/finalize",
+                url: "/submit",
                 method: "post",
                 headers: { "Content-Type": "application/json" },
                 data: {
