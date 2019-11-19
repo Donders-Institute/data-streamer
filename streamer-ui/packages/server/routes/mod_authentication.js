@@ -26,13 +26,13 @@ var _authenticateUser = async function (req, res) {
     var msg = "";
     var username = "";
     var password = "";
-    var ip_address = "";
-    var user_agent = "";
+    var ipAddress = "";
+    var userAgent = "";
 
     // Check for basic auth header
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
         msg = "Missing Authorization Header"
-        console.log(username, ip_address, user_agent, msg);
+        console.log(username, ipAddress, userAgent, msg);
         return res.status(401).json({ success: false, error: msg });
     }
 
@@ -42,7 +42,7 @@ var _authenticateUser = async function (req, res) {
     [username, password] = credentials.split(':');
 
     // Obtain the user agent
-    user_agent = req.headers['user-agent'];
+    userAgent = req.headers['user-agent'];
 
     if (typeof req.body.username !== 'undefined') {
 
@@ -52,14 +52,14 @@ var _authenticateUser = async function (req, res) {
         ad.findUser(username, function (err, user) {
             if (err) {
                 msg = 'ERROR: ' + JSON.stringify(err);
-                console.log(username, ip_address, user_agent, msg);
+                console.log(username, ipAddress, userAgent, msg);
                 console.log(msg);
                 res.status(200).json({ success: false, error: "Something went wrong. Try again later." });
                 return;
             }
             if (!user) {
                 msg = "Username not found.";
-                console.log(username, ip_address, user_agent, msg);
+                console.log(username, ipAddress, userAgent, msg);
                 res.status(200).json({ success: false, error: msg });
             } else {
                 ad.authenticate(user.userPrincipalName, password, function (err, auth) {
@@ -68,13 +68,13 @@ var _authenticateUser = async function (req, res) {
                         req.session.user = username;
                         req.session.authenticated = true;
                         msg = "You will soon be redirected to the index";
-                        console.log(username, ip_address, user_agent, '');
+                        console.log(username, ipAddress, userAgent, '');
                         res.status(200).json({ success: true, data: msg });
                         return;
                     } else {
                         // Authentication failed
                         msg = "Wrong username or password";
-                        console.log(username, ip_address, user_agent, msg);
+                        console.log(username, ipAddress, userAgent, msg);
                         res.status(200).json({ success: false, error: msg });
                         return;
                     }
@@ -83,7 +83,7 @@ var _authenticateUser = async function (req, res) {
         });
     } else {
         msg = "No username provided";
-        console.log(username, ip_address, user_agent, msg);
+        console.log(username, ipAddress, userAgent, msg);
         res.status(200).json({ success: false, error: msg });
     }
 }
@@ -93,13 +93,13 @@ var _logoutUser = async function (req, res) {
     var sess = req.session;
     var msg;
     var username = "";
-    var ip_address = "";
-    var user_agent = "";
+    var ipAddress = "";
+    var userAgent = "";
 
     // Check for basic auth header
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
         msg = "Missing Authorization Header"
-        console.log(username, ip_address, user_agent, msg);
+        console.log(username, ipAddress, userAgent, msg);
         return res.status(401).json({ success: false, error: msg });
     }
 
@@ -109,14 +109,13 @@ var _logoutUser = async function (req, res) {
     username = credentials.split(':')[0];
 
     // Obtain the user agent
-    user_agent = req.headers['user-agent'];
+    userAgent = req.headers['user-agent'];
 
     delete sess.user;
     delete sess.password;
     req.session.destroy();
 
-    console.log(username, ip_address, user_agent, '');
-
+    console.log(username, ipAddress, userAgent, '');
     res.redirect('/login');
 }
 

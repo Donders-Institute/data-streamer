@@ -71,7 +71,7 @@ app.post('/addfile', modAddFile.addFile);
 // app.post('/finalize', modAuthentication.isAuthenticated, modFinalize.finalize);
 app.post('/finalize', modFinalize.finalize);
 
-// // POST Handle uploading of all files gathered in the upload session: submit a streamer job
+// // POST Submit a streamer job
 // // app.post('/submit', modAuthentication.isAuthenticated, modSubmit.submit);
 app.post('/submit', modSubmit.submit);
 

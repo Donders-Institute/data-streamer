@@ -3,7 +3,7 @@
 cd /opt/streamer-ui-server
 
 env
-# ls -l /run/secrets
+ls -l /run/secrets
 
 # Check and copy configuration files from secrets
 if [ -f $STREAMER_UI_CONFIG ]; then
@@ -20,4 +20,4 @@ fi
 
 ls -l config
 
-node streamer_ui_server.js
+node server.js

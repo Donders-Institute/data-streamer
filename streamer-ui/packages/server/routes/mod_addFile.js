@@ -1,3 +1,4 @@
+const db = require('./db');
 const utils = require('./utils');
 
 // Given the req.files.files, derive the number of uploaded files
@@ -9,7 +10,7 @@ function getNumFiles(files) {
     }
 }
 
-var _addFile = function (req, res) {
+var _addFile = async function (req, res) {
 
     var msg = "";
     var dccnUsername = "";
@@ -18,6 +19,7 @@ var _addFile = function (req, res) {
     var dirname;
     var file;
     var filename;
+    var insertUploadFileResult;
 
     // Check for basic auth header
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
@@ -36,17 +38,38 @@ var _addFile = function (req, res) {
         msg = `No attributes were uploaded: "req.body" is empty`
         return res.status(400).json({ "error": msg });
     }
+    var uploadSessionId = req.body.uploadSessionId;
     var projectNumber = req.body.projectNumber;
     var subjectLabel = req.body.subjectLabel;
     var sessionLabel = req.body.sessionLabel;
     var dataType = req.body.dataType;
+
+    if (!uploadSessionId) {
+        msg = 'uploadSessionId empty';
+        return res.status(500).json({ "error": msg });
+    }
+    if (!projectNumber) {
+        msg = 'projectNumber empty';
+        return res.status(500).json({ "error": msg });
+    }
+    if (!subjectLabel) {
+        msg = 'subjectLabel empty';
+        return res.status(500).json({ "error": msg });
+    }
+    if (!sessionLabel) {
+        msg = 'sessionLabel empty';
+        return res.status(500).json({ "error": msg });
+    }
+    if (!dataType) {
+        msg = 'dataType empty';
+        return res.status(500).json({ "error": msg });
+    }
 
     // Obtain the target directory
     dirname = utils.getDirName(projectNumber, subjectLabel, sessionLabel, dataType);
     if (!dirname) {
         msg = 'Error obtaining directory name';
         console.error(msg);
-        console.log(dccnUsername, projectNumber, subjectLabel, sessionLabel, dataType, msg);
         return res.status(500).json({ "error": msg });
     }
 
@@ -79,11 +102,10 @@ var _addFile = function (req, res) {
 
     // Allow single file upload only
     if (num_files > 1) {
-        msg = `Single file upload supported only`;
+        msg = `Only single file upload is supported`;
         console.error(msg);
         return res.status(400).json({ "error": msg });
     }
-
     file = files[0];
     filename = file.name;
     filesizeBytes = file.size;
@@ -95,8 +117,16 @@ var _addFile = function (req, res) {
         return res.status(500).json({ "error": err });
     }
 
-    console.log(dirname, filename);
-    return res.status(200).json({ "data": "" });
+    // Add a row to the ui database
+    try {
+        insertUploadFileResult = await db.insertUploadFile(uploadSessionId, filename, filesizeBytes);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ "error": error });
+    }
+
+    console.log(JSON.stringify(insertUploadFileResult));
+    return res.status(200).json({ "data": insertUploadFileResult });
 }
 
 module.exports.addFile = _addFile;

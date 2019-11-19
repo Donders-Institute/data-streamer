@@ -43,13 +43,11 @@ var _begin = async function (req, res) {
     if (!dirname) {
         msg = 'Error obtaining directory name';
         console.error(msg);
-        console.log(dccnUsername, ipAddress, userAgent, startTime, msg);
         return res.status(500).json({ "error": msg });
     }
     if (!fs.existsSync(dirname)) {
         mkdirp.sync(dirname);
         msg = (`Successfully created directory "${dirname}"`);
-        console.log(dccnUsername, ipAddress, userAgent, startTime, msg);
         console.log(msg);
     }
 
@@ -62,6 +60,8 @@ var _begin = async function (req, res) {
     }
 
     // Return the result
+    console.log(dccnUsername, ipAddress, userAgent, startTime);
+    console.log(JSON.stringify(insertUploadSessionResult));
     return res.status(200).json({ "data": insertUploadSessionResult });
 }
 

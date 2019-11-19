@@ -60,17 +60,20 @@ async function _insertUploadSession(username, ipAddress, userAgent, projectNumbe
 async function _insertUploadFile(uploadSessionId, filename, filesizeBytes) {
     var client;
     var uploadFileId;
+
     try {
         client = await connect()
     } catch (error) {
         throw "Could not connect to database";
     }
+
     try {
         const result = await client.query(`INSERT INTO uploadfile(filename, filesize_bytes, upload_session_id) VALUES($1, $2, $3) RETURNING id;`, [filename, filesizeBytes, uploadSessionId]);
         uploadFileId = result.rows[0].id;
     } catch (error) {
         throw "Could not insert row to database table uploadfile";
     }
+
     try {
         await client.end();
     } catch (error) {
@@ -86,11 +89,13 @@ async function _insertUploadFile(uploadSessionId, filename, filesizeBytes) {
 // End the upload session: set end_time
 async function _updateUploadSession(uploadSessionId, endTime) {
     var client;
+
     try {
         client = await connect()
     } catch (error) {
         throw "Could not connect to database";
     }
+
     try {
         const result = await client.query(`UPDATE uploadsession SET end_time=($1) WHERE id=($2);`, [endTime, uploadSessionId]);
         if (result.rowCount === 0) {
@@ -99,6 +104,7 @@ async function _updateUploadSession(uploadSessionId, endTime) {
     } catch (error) {
         throw `Could not update row in database table uploadsession: ${error}`;
     }
+
     try {
         await client.end();
     } catch (error) {
@@ -112,6 +118,46 @@ async function _updateUploadSession(uploadSessionId, endTime) {
     return updateUploadSessionResult;
 }
 
+// Obtain the list of upload files
+async function _getUploadFileList(uploadSessionId) {
+    var client;
+    var files = [];
+    var result;
+
+    try {
+        client = await connect()
+    } catch (error) {
+        throw "Could not connect to database";
+    }
+
+    try {
+        result = await client.query(`SELECT filename FROM uploadfile WHERE upload_session_id=($1);`, [uploadSessionId]);
+    } catch (error) {
+        throw "Could not get rows of database table uploadfile";
+    }
+    if (result) {
+        const data = result.rows;
+        if (data) {
+            data.forEach(row => {
+                files.push(row.filename);
+            });
+        }
+    }
+
+    try {
+        await client.end();
+    } catch (error) {
+        throw "Could not disconnect database";
+    }
+
+    const getUploadFileListResult = {
+        "uploadSessionId": uploadSessionId,
+        "files": files
+    }
+    return getUploadFileListResult;
+}
+
 module.exports.insertUploadSession = _insertUploadSession;
 module.exports.insertUploadFile = _insertUploadFile;
 module.exports.updateUploadSession = _updateUploadSession;
+module.exports.updateUploadSession = _getUploadFileList;

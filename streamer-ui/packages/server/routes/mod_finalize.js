@@ -28,7 +28,6 @@ var _finalize = async function (req, res) {
     if (!uploadSessionId) {
         msg = `uploadSessionId is empty`;
         console.log(msg);
-        console.log(dccnUsername, endTime, msg);
         return res.status(400).json({ "error": msg });
     }
 
@@ -37,11 +36,11 @@ var _finalize = async function (req, res) {
         updateUploadSessionResult = await db.updateUploadSession(uploadSessionId, endTime);
     } catch (error) {
         console.error(error);
-        console.log(dccnUsername, uploadSessionId, endTime, error);
         return res.status(500).json({ "error": error });
     }
 
     // Return the result
+    console.log(JSON.stringify(updateUploadSessionResult));
     return res.status(200).json({ "data": updateUploadSessionResult });
 }
 

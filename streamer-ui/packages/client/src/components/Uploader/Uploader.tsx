@@ -256,7 +256,8 @@ const Uploader: React.FC = () => {
             resolve(axios.request(config)
                 .then(handleUploadSessionResponse)
                 .then(function (response: AxiosResponse) {
-                    return true;
+                    const uploadFiles = response!.data!.data!.files;
+                    return uploadFiles;
                 })
                 .catch(handleUploadSessionError));
         });
@@ -324,12 +325,21 @@ const Uploader: React.FC = () => {
             dataType: uploaderContext!.selectedDataTypeValue
         } as UploadSession;
 
+        // Start the upload session
+        console.log("Preparing upload");
+        const result = await handleUploadSessionBeginRequest(authContext!.username, authContext!.password, uploadSession);
+        const uploadSessionId = result as number;
+
+        // Upload the files
+        console.log("Uploading files");
+
         let newTotalSizeBytes = 0;
         let work = [] as Promise<unknown>[];
         uploaderContext!.fileList.forEach((file: any) => {
             var formData = new FormData();
 
             // Add the attributes
+            formData.append("uploadSessionId", uploadSessionId.toLocaleString());
             formData.append("projectNumber", uploaderContext!.selectedProjectValue);
             formData.append("subjectLabel", uploaderContext!.selectedSubjectValue);
             formData.append("sessionLabel", uploaderContext!.selectedSessionValue);
@@ -356,19 +366,11 @@ const Uploader: React.FC = () => {
 
         setTotalSizeBytes(totalSizeBytes => newTotalSizeBytes);
 
-        // Start the upload session
-        console.log("Preparing upload");
-        const result = await handleUploadSessionBeginRequest(authContext!.username, authContext!.password, uploadSession);
-        const uploadSessionId = result as number;
-
-        // Upload the files
-        console.log("Uploading files");
         await Promise.all(work)
             .then(function (results) {
                 setRemainingItems(remainingItems => 0);
                 setUploadingPercentage(uploadingPercentage => 100);
                 setTotalSizeBytes(totalSizeBytes => 0);
-                console.log(results);
             });
 
         // Finalize the upload session
@@ -377,7 +379,10 @@ const Uploader: React.FC = () => {
 
         // Submit the streamer job
         console.log("Submitting streamer job");
-        await handleUploadSessionSubmitRequest(authContext!.username, authContext!.password, uploadSessionId, uploadSession);
+        const submitResult = await handleUploadSessionSubmitRequest(authContext!.username, authContext!.password, uploadSessionId, uploadSession);
+        const uploadedFiles = submitResult as string[];
+        console.log("Successfully submitted streamer job for files: " + JSON.stringify(uploadedFiles));
+
         setIsUploading(false);
         setFailed(false);
     };
