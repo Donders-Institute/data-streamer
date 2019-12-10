@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 # export variables defined in env-development.sh
