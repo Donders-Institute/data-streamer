@@ -18,7 +18,7 @@ const Help: React.FC = () => {
                     <h2>About the research data uploader</h2>
                     <div>
                         The purpose of the Research Data Uploader is to upload files from
-                        a (lab) PC to 1) your project folder on central storage and
+                        a PC to 1) your project folder on central storage and
                         2) to the Donders Repository.
                         The destination follows a standardized folder structure.
                     </div>

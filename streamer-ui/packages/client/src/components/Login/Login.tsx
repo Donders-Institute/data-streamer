@@ -187,9 +187,10 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                                     <h2 style={{ display: "flex", justifyContent: "center", margin: "0px 0px 10px 0px" }}>
                                         Research Data Uploader
                                     </h2>
-                                    <p>Its purpose is to upload files to the DCCN project storage.
-                                    The source files are files from your computer.
-                                    The destination is the correct folder on the DCCN project storage.</p>
+                                    <p>Its purpose is to upload files from
+                                    a PC to 1) your project folder on central storage and
+                                    2) to the Donders Repository.
+                                    The destination follows a standardized folder structure.</p>
                                     <h1 style={{ display: "flex", justifyContent: "center", margin: "0px 0px 20px 0px" }}>
                                         Please login
                                     </h1>
