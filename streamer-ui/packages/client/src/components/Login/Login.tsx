@@ -14,7 +14,7 @@ import {
 import { FormComponentProps } from "antd/lib/form";
 import { Redirect } from "react-router-dom";
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
-import { fetchIpAddress } from "./fetch";
+import { fetchDummyIpAddress } from "./fetch";
 
 import { AuthContext } from "../Auth/AuthContext";
 
@@ -52,7 +52,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
     useEffect(() => {
         const fetch = async () => {
             setIsFetchingIpAddress(true);
-            const newIpAddress = await fetchIpAddress();
+            const newIpAddress = await fetchDummyIpAddress();
             setIpAddress(ipAddress => newIpAddress);
             setIsFetchingIpAddress(false);
         };
@@ -150,7 +150,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
             {/* {
                 !authContext!.isAuthenticated &&
                 <Button
-                    onClick={() => authContext!.signIn("rutvdee", "testpassword", "1.2.3.4")}>
+                    onClick={() => authContext!.signIn("rutvdee", "testpassword", "0.0.0.0")}>
                     Authenticate rutvdee
                 </Button>
             } */}

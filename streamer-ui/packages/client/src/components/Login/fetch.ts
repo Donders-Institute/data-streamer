@@ -3,8 +3,8 @@ import { timeout } from "./utils";
 
 // Fake fetcher for testing purposes
 export const fetchDummyIpAddress = async () => {
-    await timeout(2000);
-    const ipAddress = "1.2.3.4";
+    await timeout(1);
+    const ipAddress = "0.0.0.0";
     return ipAddress;
 };
 
@@ -33,7 +33,7 @@ const handleGetIpAddressError = (error: AxiosError) => {
 };
 
 const handleGetIpAddressRequest = () => {
-    return new Promise<AxiosResponse|AxiosError>((resolve) => {
+    return new Promise<AxiosResponse | AxiosError>((resolve) => {
         const config: AxiosRequestConfig = {
             url: "https://api.ipify.org?format=json",
             method: "get",
@@ -52,7 +52,7 @@ const handleGetIpAddressRequest = () => {
     });
 };
 
-function isAxiosResponse(result: AxiosResponse|AxiosError): result is AxiosResponse {
+function isAxiosResponse(result: AxiosResponse | AxiosError): result is AxiosResponse {
     return (result as AxiosResponse).data !== undefined;
 }
 
