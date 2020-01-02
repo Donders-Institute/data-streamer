@@ -7,6 +7,7 @@ var _validateFile = async function (req, res) {
     var err;
     var projectStorageDirname;
     var file;
+    var filename;
 
     // Check for basic auth header
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
@@ -95,15 +96,11 @@ var _validateFile = async function (req, res) {
         return res.status(400).json({ "error": msg });
     }
     file = files[0];
+    filename = file.name;
 
     // Validate file
-    err = utils.validateFile(file, projectStorageDirname);
-    if (err) {
-        console.error(err);
-        return res.status(500).json({ "error": err });
-    }
-
-    return res.status(200).json({ "data": "" });
+    const fileExists = utils.fileExists(filename, projectStorageDirname);
+    return res.status(200).json({ "data": { "filename": filename, "fileExists": fileExists } });
 }
 
 module.exports.validateFile = _validateFile;

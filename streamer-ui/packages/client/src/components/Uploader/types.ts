@@ -4,6 +4,11 @@ export interface RcFile extends File {
     readonly webkitRelativePath: string;
 }
 
+export interface ValidatedFile {
+    filename: string;
+    fileExists: boolean;
+}
+
 export interface Project {
     id: number;
     number: string;

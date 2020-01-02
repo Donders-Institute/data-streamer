@@ -36,16 +36,16 @@ function _getNumFiles(files) {
     }
 }
 
-// Check if the target file already exists
-function _validateFile(file, projectStorageDirname) {
-    var targetPath = path.join(projectStorageDirname, file.name);
+// Check if the file already exists
+function _fileExists(filename, dirname) {
+    var targetPath = path.join(dirname, filename);
     fs.access(targetPath, fs.F_OK, (err) => {
         if (err) {
             // File does not exist
-            return null;
+            return false;
         }
         // File exists
-        return Error('File exists: ' + targetPath);
+        return true;
     });
 }
 
@@ -72,7 +72,7 @@ function _getStreamerUrl(projectNumber, subjectLabel, sessionLabel, dataType) {
 
 module.exports.getProjectStorageDirName = _getProjectStorageDirName;
 module.exports.getDirName = _getDirName;
-module.export.getNumFiles = _getNumFiles;
-module.exports.validateFile = _validateFile;
+module.exports.getNumFiles = _getNumFiles;
+module.exports.fileExists = _fileExists;
 module.exports.storeFile = _storeFile;
 module.exports.getStreamerUrl = _getStreamerUrl;

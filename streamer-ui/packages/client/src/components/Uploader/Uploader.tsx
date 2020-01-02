@@ -23,7 +23,7 @@ import FileSelector from "./FileSelector";
 import FileList from "./FileList";
 import TargetPath from "./TargetPath";
 import StructureSelector from "./StructureSelector";
-import { RcFile, SelectOption, UploadSession } from "./types";
+import { RcFile, ValidatedFile, SelectOption, UploadSession } from "./types";
 import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "./utils";
 import { fetchProjectList } from "./fetch";
 
@@ -56,8 +56,9 @@ const Uploader: React.FC = () => {
     const uploaderContext = useContext(UploaderContext);
 
     const [showUploadModal, setShowUploadModal] = useState(false);
-    const [showFileExistsModal, setShowFileExistsModal] = useState(false);
+    const [showFilesExistModal, setShowFilesExistModal] = useState(false);
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const [filesExistMessage, setFilesExistMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [uploadingPercentage, setUploadingPercentage] = useState(0);
     const [totalSizeBytes, setTotalSizeBytes] = useState(0);
@@ -140,7 +141,7 @@ const Uploader: React.FC = () => {
                 newErrorMessage = JSON.stringify(error.response.data, null, 2);
             }
         } else {
-            console.log(error.message);
+            console.log(error!.message);
             newErrorMessage = error.message;
         }
         console.log(newErrorMessage);
@@ -197,8 +198,8 @@ const Uploader: React.FC = () => {
             resolve(axios.request(config)
                 .then(handleUploadSessionResponse)
                 .then(function (response: AxiosResponse) {
-                    let value = 0
-                    return value;
+                    const validatedFile = response!.data!.data!;
+                    return validatedFile as ValidatedFile;
                 })
                 .catch(handleUploadSessionError));
         });
@@ -327,7 +328,8 @@ const Uploader: React.FC = () => {
             resolve(dummyAxiosRequest(config)
                 .then(handleUploadSessionResponse)
                 .then(function (response: AxiosResponse) {
-                    return 0;
+                    const validatedFile = response!.data!.data!;
+                    return validatedFile as ValidatedFile;
                 })
                 .catch(handleUploadSessionError));
         });
@@ -381,12 +383,14 @@ const Uploader: React.FC = () => {
             // Add one file
             formData.append("files", file);
 
-            // const pv = handleValidationRequest(authContext!.username, authContext!.password, formData);
-            const pv = handleDummyValidationRequest(authContext!.username, authContext!.password, formData);
+            // Prepare validation for this file
+            const pv = handleValidationRequest(authContext!.username, authContext!.password, formData);
+            //  const pv = handleDummyValidationRequest(authContext!.username, authContext!.password, formData);
             validationWork.push(pv.catch(error => {
                 console.log(error);
             }));
 
+            // Prepare upload for this file
             const p = handleUploadRequest(authContext!.username, authContext!.password, formData, file.size);
             work.push(p.catch(error => {
                 setFailed(true);
@@ -396,8 +400,16 @@ const Uploader: React.FC = () => {
         });
 
         // Validate each file sequentially if the file in the destination folder already exist
+        let existingFiles = [] as String[];
         for (let i = 0; i < validationWork.length; i++) {
-            await validationWork[i];
+            let validatedFile = await validationWork[i] as ValidatedFile;
+            if (validatedFile!.fileExists) {
+                existingFiles.push(validatedFile!.filename);
+            }
+        }
+        if (existingFiles.length > 0) {
+            setFilesExistMessage("Overwrite the following file(s)? " + JSON.stringify(existingFiles));
+            setShowFilesExistModal(true);
         }
 
         // Proceed with uploading each file in parallel
@@ -728,10 +740,10 @@ const Uploader: React.FC = () => {
                             uploaderContext!.setHasFilesSelected(false);
                         }}>
                             Upload another batch
-                    </Button>,
+                        </Button>,
                         <Button disabled={isUploading} onClick={(e) => authContext!.signOut()}>
                             Log out
-                    </Button>
+                        </Button>
                     ]}
                 >
                     {
@@ -765,6 +777,30 @@ const Uploader: React.FC = () => {
                                 <p>Failed</p>
                             </div>)
                     }
+                </Modal>
+                <Modal
+                    title="Warning"
+                    visible={showFilesExistModal}
+                    closable={false}
+                    footer={[
+                        <Button onClick={(e) => {
+                            setShowFilesExistModal(false);
+                            setFilesExistMessage("");
+
+                            // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
+                            uploaderContext!.setFileList([] as RcFile[]);
+                            uploaderContext!.setFileListSummary(0);
+                            uploaderContext!.setHasFilesSelected(false);
+                        }}>Cancel
+                        </Button>,
+                        <Button type="primary" onClick={(e) => {
+                            setShowFilesExistModal(false);
+                            setFilesExistMessage("");
+                        }}>Ok
+                </Button>
+                    ]}
+                >
+                    <div>{filesExistMessage}</div>
                 </Modal>
                 <Modal
                     title="Error"
