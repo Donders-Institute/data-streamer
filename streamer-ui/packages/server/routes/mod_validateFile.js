@@ -1,16 +1,13 @@
-const db = require('./db');
 const utils = require('./utils');
 
-var _addFile = async function (req, res) {
+var _validateFile = async function (req, res) {
 
     var msg = "";
     var dccnUsername = "";
-    var filesizeBytes = 0;
     var err;
-    var dirname;
+    var projectStorageDirname;
     var file;
     var filename;
-    var insertUploadFileResult;
 
     // Check for basic auth header
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
@@ -56,10 +53,10 @@ var _addFile = async function (req, res) {
         return res.status(500).json({ "error": msg });
     }
 
-    // Obtain the target directory
-    dirname = utils.getDirName(projectNumber, subjectLabel, sessionLabel, dataType);
-    if (!dirname) {
-        msg = 'Error obtaining directory name';
+    // Obtain the target project storage directory
+    projectStorageDirname = utils.getDirName(projectNumber, subjectLabel, sessionLabel, dataType);
+    if (!projectStorageDirname) {
+        msg = 'Error obtaining project storage directory name';
         console.error(msg);
         return res.status(500).json({ "error": msg });
     }
@@ -100,25 +97,10 @@ var _addFile = async function (req, res) {
     }
     file = files[0];
     filename = file.name;
-    filesizeBytes = file.size;
 
-    // Store the file in the buffer
-    err = utils.storeFile(file, dirname);
-    if (err) {
-        console.error(err);
-        return res.status(500).json({ "error": err });
-    }
-
-    // Add a row to the ui database
-    try {
-        insertUploadFileResult = await db.insertUploadFile(uploadSessionId, filename, filesizeBytes);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ "error": error });
-    }
-
-    console.log(JSON.stringify(insertUploadFileResult));
-    return res.status(200).json({ "data": insertUploadFileResult });
+    // Validate file
+    const fileExists = utils.fileExists(filename, projectStorageDirname);
+    return res.status(200).json({ "data": { "filename": filename, "fileExists": fileExists } });
 }
 
-module.exports.addFile = _addFile;
+module.exports.validateFile = _validateFile;

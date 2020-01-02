@@ -23,7 +23,7 @@ import FileSelector from "./FileSelector";
 import FileList from "./FileList";
 import TargetPath from "./TargetPath";
 import StructureSelector from "./StructureSelector";
-import { RcFile, SelectOption, UploadSession } from "./types";
+import { RcFile, ValidatedFile, SelectOption, UploadSession } from "./types";
 import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "./utils";
 import { fetchProjectList } from "./fetch";
 
@@ -56,7 +56,9 @@ const Uploader: React.FC = () => {
     const uploaderContext = useContext(UploaderContext);
 
     const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showFilesExistModal, setShowFilesExistModal] = useState(false);
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const [filesExistMessage, setFilesExistMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [uploadingPercentage, setUploadingPercentage] = useState(0);
     const [totalSizeBytes, setTotalSizeBytes] = useState(0);
@@ -139,7 +141,7 @@ const Uploader: React.FC = () => {
                 newErrorMessage = JSON.stringify(error.response.data, null, 2);
             }
         } else {
-            console.log(error.message);
+            console.log(error!.message);
             newErrorMessage = error.message;
         }
         console.log(newErrorMessage);
@@ -171,6 +173,33 @@ const Uploader: React.FC = () => {
                 .then(function (response: AxiosResponse) {
                     const uploadSessionId = response!.data!.data!.uploadSessionId;
                     return uploadSessionId;
+                })
+                .catch(handleUploadSessionError));
+        });
+        return promise;
+    };
+
+    const handleValidationRequest = (username: string, password: string, formData: any) => {
+        let promise = new Promise((resolve, reject) => {
+            const config: AxiosRequestConfig = {
+                url: "/validatefile",
+                method: "post",
+                headers: { "Content-Type": "multipart/form-data" },
+                data: formData,
+                timeout: uploadTimeout,
+                withCredentials: true,
+                auth: {
+                    username: username,
+                    password: password
+                },
+                responseType: "json"
+            };
+
+            resolve(axios.request(config)
+                .then(handleUploadSessionResponse)
+                .then(function (response: AxiosResponse) {
+                    const validatedFile = response!.data!.data!;
+                    return validatedFile as ValidatedFile;
                 })
                 .catch(handleUploadSessionError));
         });
@@ -264,50 +293,48 @@ const Uploader: React.FC = () => {
         return promise;
     };
 
-    // function dummyAxiosRequest<T = any, R = AxiosResponse<T>>(config: AxiosRequestConfig): Promise<R> {
-    //     const promise = new Promise<R>(function (resolve, reject) {
-    //         setTimeout(function () {
-    //             let response = {
-    //                 data: { test: "test" },
-    //                 status: 200,
-    //                 statusText: "OK",
-    //                 headers: {},
-    //                 config: config
-    //             } as unknown as (R | PromiseLike<R> | undefined);
-    //             resolve(response);
-    //         }, 2000);
-    //     });
-    //     return promise;
-    // }
+    function dummyAxiosRequest<T = any, R = AxiosResponse<T>>(config: AxiosRequestConfig): Promise<R> {
+        const promise = new Promise<R>(function (resolve, reject) {
+            setTimeout(function () {
+                let response = {
+                    data: { test: "test" },
+                    status: 200,
+                    statusText: "OK",
+                    headers: {},
+                    config: config
+                } as unknown as (R | PromiseLike<R> | undefined);
+                resolve(response);
+            }, 2000);
+        });
+        return promise;
+    }
 
-    // const handleDummyUploadSessionRequest = (username: string, password: string, formData: any, fileSizeBytes: number) => {
-    //     let promise = new Promise((resolve, reject) => {
-    //         const config: AxiosRequestConfig = {
-    //             url: "/upload",
-    //             method: "post",
-    //             headers: { "Content-Type": "multipart/form-data" },
-    //             data: formData,
-    //             timeout: uploadTimeout,
-    //             withCredentials: true,
-    //             auth: {
-    //                 username: username,
-    //                 password: password
-    //             },
-    //             responseType: "json"
-    //         };
+    const handleDummyValidationRequest = (username: string, password: string, formData: any) => {
+        let promise = new Promise((resolve, reject) => {
+            const config: AxiosRequestConfig = {
+                url: "/validateFile",
+                method: "post",
+                headers: { "Content-Type": "multipart/form-data" },
+                data: formData,
+                timeout: uploadTimeout,
+                withCredentials: true,
+                auth: {
+                    username: username,
+                    password: password
+                },
+                responseType: "json"
+            };
 
-    //         resolve(dummyAxiosRequest(config)
-    //             .then(handleUploadSessionResponse)
-    //             .then(function (response: AxiosResponse) {
-    //                 let value = totalSizeBytes > 0 ? uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes) : 100;
-    //                 setUploadingPercentage(uploadingPercentage => value);
-    //                 setRemainingItems(remainingItems => remainingItems - 1);
-    //                 return value;
-    //             })
-    //             .catch(handleUploadSessionError));
-    //     });
-    //     return promise;
-    // };
+            resolve(dummyAxiosRequest(config)
+                .then(handleUploadSessionResponse)
+                .then(function (response: AxiosResponse) {
+                    const validatedFile = response!.data!.data!;
+                    return validatedFile as ValidatedFile;
+                })
+                .catch(handleUploadSessionError));
+        });
+        return promise;
+    };
 
     const handleUpload = async (event: any) => {
         setFailed(false);
@@ -330,10 +357,11 @@ const Uploader: React.FC = () => {
         const result = await handleUploadSessionBeginRequest(authContext!.username, authContext!.password, uploadSession);
         const uploadSessionId = result as number;
 
-        // Upload the files
+        // Prepare the uploading of each file
         console.log("Uploading files");
 
         let newTotalSizeBytes = 0;
+        let validationWork = [] as Promise<unknown>[];
         let work = [] as Promise<unknown>[];
         uploaderContext!.fileList.forEach((file: any) => {
             var formData = new FormData();
@@ -355,8 +383,15 @@ const Uploader: React.FC = () => {
             // Add one file
             formData.append("files", file);
 
+            // Prepare validation for this file
+            const pv = handleValidationRequest(authContext!.username, authContext!.password, formData);
+            //  const pv = handleDummyValidationRequest(authContext!.username, authContext!.password, formData);
+            validationWork.push(pv.catch(error => {
+                console.log(error);
+            }));
+
+            // Prepare upload for this file
             const p = handleUploadRequest(authContext!.username, authContext!.password, formData, file.size);
-            // const p = handleDummyUploadRequest(authContext!.username, authContext!.password, formData, file.size);
             work.push(p.catch(error => {
                 setFailed(true);
                 setIsUploading(false);
@@ -364,6 +399,20 @@ const Uploader: React.FC = () => {
             }));
         });
 
+        // Validate each file sequentially if the file in the destination folder already exist
+        let existingFiles = [] as String[];
+        for (let i = 0; i < validationWork.length; i++) {
+            let validatedFile = await validationWork[i] as ValidatedFile;
+            if (validatedFile!.fileExists) {
+                existingFiles.push(validatedFile!.filename);
+            }
+        }
+        if (existingFiles.length > 0) {
+            setFilesExistMessage("Overwrite the following file(s)? " + JSON.stringify(existingFiles));
+            setShowFilesExistModal(true);
+        }
+
+        // Proceed with uploading each file in parallel
         setTotalSizeBytes(totalSizeBytes => newTotalSizeBytes);
 
         await Promise.all(work)
@@ -691,10 +740,10 @@ const Uploader: React.FC = () => {
                             uploaderContext!.setHasFilesSelected(false);
                         }}>
                             Upload another batch
-                    </Button>,
+                        </Button>,
                         <Button disabled={isUploading} onClick={(e) => authContext!.signOut()}>
                             Log out
-                    </Button>
+                        </Button>
                     ]}
                 >
                     {
@@ -728,6 +777,30 @@ const Uploader: React.FC = () => {
                                 <p>Failed</p>
                             </div>)
                     }
+                </Modal>
+                <Modal
+                    title="Warning"
+                    visible={showFilesExistModal}
+                    closable={false}
+                    footer={[
+                        <Button onClick={(e) => {
+                            setShowFilesExistModal(false);
+                            setFilesExistMessage("");
+
+                            // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
+                            uploaderContext!.setFileList([] as RcFile[]);
+                            uploaderContext!.setFileListSummary(0);
+                            uploaderContext!.setHasFilesSelected(false);
+                        }}>Cancel
+                        </Button>,
+                        <Button type="primary" onClick={(e) => {
+                            setShowFilesExistModal(false);
+                            setFilesExistMessage("");
+                        }}>Ok
+                </Button>
+                    ]}
+                >
+                    <div>{filesExistMessage}</div>
                 </Modal>
                 <Modal
                     title="Error"
