@@ -100,7 +100,8 @@ var _validateFile = async function (req, res) {
 
     // Validate file
     const fileExists = utils.fileExists(filename, projectStorageDirname);
-    const validationResult = { "filename": filename, "fileExists": fileExists }
+    console.log(fileExists);
+    const validationResult = { "filename": filename, "fileExists": fileExists };
 
     console.log(JSON.stringify(validationResult));
     return res.status(200).json({ "data": validationResult });
