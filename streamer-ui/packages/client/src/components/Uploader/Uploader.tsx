@@ -56,6 +56,7 @@ const Uploader: React.FC = () => {
     const uploaderContext = useContext(UploaderContext);
 
     const [showUploadModal, setShowUploadModal] = useState(false);
+    const [showFileExistsModal, setShowFileExistsModal] = useState(false);
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [uploadingPercentage, setUploadingPercentage] = useState(0);
@@ -177,6 +178,33 @@ const Uploader: React.FC = () => {
         return promise;
     };
 
+    const handleValidationRequest = (username: string, password: string, formData: any) => {
+        let promise = new Promise((resolve, reject) => {
+            const config: AxiosRequestConfig = {
+                url: "/validatefile",
+                method: "post",
+                headers: { "Content-Type": "multipart/form-data" },
+                data: formData,
+                timeout: uploadTimeout,
+                withCredentials: true,
+                auth: {
+                    username: username,
+                    password: password
+                },
+                responseType: "json"
+            };
+
+            resolve(axios.request(config)
+                .then(handleUploadSessionResponse)
+                .then(function (response: AxiosResponse) {
+                    let value = 0
+                    return value;
+                })
+                .catch(handleUploadSessionError));
+        });
+        return promise;
+    };
+
     const handleUploadRequest = (username: string, password: string, formData: any, fileSizeBytes: number) => {
         let promise = new Promise((resolve, reject) => {
             const config: AxiosRequestConfig = {
@@ -264,50 +292,47 @@ const Uploader: React.FC = () => {
         return promise;
     };
 
-    // function dummyAxiosRequest<T = any, R = AxiosResponse<T>>(config: AxiosRequestConfig): Promise<R> {
-    //     const promise = new Promise<R>(function (resolve, reject) {
-    //         setTimeout(function () {
-    //             let response = {
-    //                 data: { test: "test" },
-    //                 status: 200,
-    //                 statusText: "OK",
-    //                 headers: {},
-    //                 config: config
-    //             } as unknown as (R | PromiseLike<R> | undefined);
-    //             resolve(response);
-    //         }, 2000);
-    //     });
-    //     return promise;
-    // }
+    function dummyAxiosRequest<T = any, R = AxiosResponse<T>>(config: AxiosRequestConfig): Promise<R> {
+        const promise = new Promise<R>(function (resolve, reject) {
+            setTimeout(function () {
+                let response = {
+                    data: { test: "test" },
+                    status: 200,
+                    statusText: "OK",
+                    headers: {},
+                    config: config
+                } as unknown as (R | PromiseLike<R> | undefined);
+                resolve(response);
+            }, 2000);
+        });
+        return promise;
+    }
 
-    // const handleDummyUploadSessionRequest = (username: string, password: string, formData: any, fileSizeBytes: number) => {
-    //     let promise = new Promise((resolve, reject) => {
-    //         const config: AxiosRequestConfig = {
-    //             url: "/upload",
-    //             method: "post",
-    //             headers: { "Content-Type": "multipart/form-data" },
-    //             data: formData,
-    //             timeout: uploadTimeout,
-    //             withCredentials: true,
-    //             auth: {
-    //                 username: username,
-    //                 password: password
-    //             },
-    //             responseType: "json"
-    //         };
+    const handleDummyValidationRequest = (username: string, password: string, formData: any) => {
+        let promise = new Promise((resolve, reject) => {
+            const config: AxiosRequestConfig = {
+                url: "/validateFile",
+                method: "post",
+                headers: { "Content-Type": "multipart/form-data" },
+                data: formData,
+                timeout: uploadTimeout,
+                withCredentials: true,
+                auth: {
+                    username: username,
+                    password: password
+                },
+                responseType: "json"
+            };
 
-    //         resolve(dummyAxiosRequest(config)
-    //             .then(handleUploadSessionResponse)
-    //             .then(function (response: AxiosResponse) {
-    //                 let value = totalSizeBytes > 0 ? uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes) : 100;
-    //                 setUploadingPercentage(uploadingPercentage => value);
-    //                 setRemainingItems(remainingItems => remainingItems - 1);
-    //                 return value;
-    //             })
-    //             .catch(handleUploadSessionError));
-    //     });
-    //     return promise;
-    // };
+            resolve(dummyAxiosRequest(config)
+                .then(handleUploadSessionResponse)
+                .then(function (response: AxiosResponse) {
+                    return 0;
+                })
+                .catch(handleUploadSessionError));
+        });
+        return promise;
+    };
 
     const handleUpload = async (event: any) => {
         setFailed(false);
@@ -330,10 +355,11 @@ const Uploader: React.FC = () => {
         const result = await handleUploadSessionBeginRequest(authContext!.username, authContext!.password, uploadSession);
         const uploadSessionId = result as number;
 
-        // Upload the files
+        // Prepare the uploading of each file
         console.log("Uploading files");
 
         let newTotalSizeBytes = 0;
+        let validationWork = [] as Promise<unknown>[];
         let work = [] as Promise<unknown>[];
         uploaderContext!.fileList.forEach((file: any) => {
             var formData = new FormData();
@@ -355,8 +381,13 @@ const Uploader: React.FC = () => {
             // Add one file
             formData.append("files", file);
 
+            // const pv = handleValidationRequest(authContext!.username, authContext!.password, formData);
+            const pv = handleDummyValidationRequest(authContext!.username, authContext!.password, formData);
+            validationWork.push(pv.catch(error => {
+                console.log(error);
+            }));
+
             const p = handleUploadRequest(authContext!.username, authContext!.password, formData, file.size);
-            // const p = handleDummyUploadRequest(authContext!.username, authContext!.password, formData, file.size);
             work.push(p.catch(error => {
                 setFailed(true);
                 setIsUploading(false);
@@ -364,6 +395,12 @@ const Uploader: React.FC = () => {
             }));
         });
 
+        // Validate each file sequentially if the file in the destination folder already exist
+        for (let i = 0; i < validationWork.length; i++) {
+            await validationWork[i];
+        }
+
+        // Proceed with uploading each file in parallel
         setTotalSizeBytes(totalSizeBytes => newTotalSizeBytes);
 
         await Promise.all(work)

@@ -10,6 +10,7 @@ const fileUpload = require("express-fileupload");
 const routes = require('./routes/index');
 const modAuthentication = require('./routes/mod_authentication');
 const modBegin = require('./routes/mod_begin');
+const modValidateFile = require('./routes/mod_validateFile');
 const modAddFile = require('./routes/mod_addFile');
 const modFinalize = require('./routes/mod_finalize');
 const modSubmit = require('./routes/mod_submit');
@@ -61,6 +62,9 @@ app.post('/logout', modAuthentication.logoutUser);
 
 // POST Begin upload session
 app.post('/begin', modAuthentication.isAuthenticated, modBegin.begin);
+
+// POST Validate file for upload session
+app.post('/validateFile', modAuthentication.isAuthenticated, modValidateFile.validateFile);
 
 // POST Add file to upload session
 app.post('/addFile', modAuthentication.isAuthenticated, modAddFile.addFile);
