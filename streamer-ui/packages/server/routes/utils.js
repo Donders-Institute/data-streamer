@@ -39,14 +39,13 @@ function _getNumFiles(files) {
 // Check if the file already exists
 function _fileExists(filename, dirname) {
     var targetPath = path.join(dirname, filename);
-    fs.accessSync(targetPath, fs.F_OK, (err) => {
-        if (err) {
-            // File does not exist
-            return false;
-        }
-        // File exists
-        return true;
-    });
+    var fileExists = true;
+    try {
+        fs.accessSync(targetPath, fs.F_OK);
+    } catch (err) {
+        fileExists = false;
+    }
+    return fileExists;
 }
 
 // Move the uploaded file from the temporary directory to the UI buffer
