@@ -363,7 +363,7 @@ const Uploader: React.FC = () => {
         const uploadSessionId = result as number;
 
         // Prepare the uploading of each file
-        console.log("Uploading files");
+        console.log("Preparing uploading of files");
 
         let newTotalSizeBytes = 0;
         let validationWork = [] as Promise<unknown>[];
@@ -405,6 +405,7 @@ const Uploader: React.FC = () => {
         });
 
         // Validate each file sequentially if the file in the destination folder already exist
+        console.log("Validating files");
         let existingFiles = [] as String[];
         for (let i = 0; i < validationWork.length; i++) {
             let validatedFile = await validationWork[i] as ValidatedFile;
@@ -415,7 +416,12 @@ const Uploader: React.FC = () => {
         if (existingFiles.length > 0) {
             setFilesExistMessage("Overwrite the following file(s)? " + JSON.stringify(existingFiles));
             setShowFilesExistModal(true);
-            await filesExistModalClosed;
+            const result = await filesExistModalClosed;
+            console.log(result);
+            // Only proceed when OK has been pressed, otherwise return
+            if (result !== "filesExistModalOK") {
+                return;
+            }
         }
 
         // Proceed with uploading each file in parallel
@@ -799,14 +805,14 @@ const Uploader: React.FC = () => {
                             uploaderContext!.setFileListSummary(0);
                             uploaderContext!.setHasFilesSelected(false);
 
-                            savedResolve.resolve("filesExistModalClosed");
+                            savedResolve.resolve("filesExistModalCancel");
                         }}>Cancel
                         </Button>,
                         <Button type="primary" onClick={(e) => {
                             setShowFilesExistModal(false);
                             setFilesExistMessage("");
 
-                            savedResolve.resolve("filesExistModalClosed");
+                            savedResolve.resolve("filesExistModalOK");
                         }}>Ok
                 </Button>
                     ]}
