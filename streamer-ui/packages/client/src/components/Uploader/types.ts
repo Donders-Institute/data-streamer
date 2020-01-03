@@ -29,4 +29,11 @@ export type SelectOption = {
 
 export type ProjectList = Project[] | null;
 
+export interface UploadWork {
+    newTotalSizeBytes: number;
+    work: Promise<unknown>[];
+    uploadSessionId: number;
+    uploadSession: UploadSession;
+}
+
 export declare const ValidateStatuses: ["success", "warning", "error", "validating", ""];

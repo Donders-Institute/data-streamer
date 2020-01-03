@@ -23,10 +23,9 @@ import FileSelector from "./FileSelector";
 import FileList from "./FileList";
 import TargetPath from "./TargetPath";
 import StructureSelector from "./StructureSelector";
-import { RcFile, ValidatedFile, SelectOption, UploadSession } from "./types";
+import { RcFile, ValidatedFile, SelectOption, UploadSession, UploadWork } from "./types";
 import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "./utils";
 import { fetchProjectList } from "./fetch";
-import { timeout } from "./utils";
 
 const { Content } = Layout;
 
@@ -67,8 +66,19 @@ const Uploader: React.FC = () => {
     const [isUploading, setIsUploading] = useState(true);
     const [failed, setFailed] = useState(false);
     const [proceed, setProceed] = useState(false);
-    const [buttonPressed, setButtonPressed] = useState(false);
-    const [ok, setOk] = useState(false);
+    const [uploadWork, setUploadWork] = useState({
+        newTotalSizeBytes: 0,
+        work: [] as Promise<unknown>[],
+        uploadSessionId: 0,
+        uploadSession: {
+            username: "",
+            ipAddress: "",
+            projectNumber: "",
+            subjectLabel: "",
+            sessionLabel: "",
+            dataType: ""
+        } as UploadSession
+    });
 
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
 
@@ -339,20 +349,11 @@ const Uploader: React.FC = () => {
         return promise;
     };
 
-    const handleUserInput = async () => {
-        let promise = new Promise<string>((resolve, reject) => {
-            if (buttonPressed) {
-                resolve("buttonPressed");
-            }
-        });
-        return promise;
-    };
-
     // Upload files in parallel
-    const handleRealUpload = async (newTotalSizeBytes: number, work: Promise<unknown>[], uploadSessionId: number, uploadSession: UploadSession) => {
-        setTotalSizeBytes(totalSizeBytes => newTotalSizeBytes);
+    const handleRealUpload = async () => {
+        setTotalSizeBytes(totalSizeBytes => uploadWork.newTotalSizeBytes);
 
-        await Promise.all(work)
+        await Promise.all(uploadWork.work)
             .then(function (results) {
                 setRemainingItems(remainingItems => 0);
                 setUploadingPercentage(uploadingPercentage => 100);
@@ -361,11 +362,11 @@ const Uploader: React.FC = () => {
 
         // Finalize the upload session
         console.log("Finalize upload");
-        await handleUploadSessionFinalizeRequest(authContext!.username, authContext!.password, uploadSessionId);
+        await handleUploadSessionFinalizeRequest(authContext!.username, authContext!.password, uploadWork.uploadSessionId);
 
         // Submit the streamer job
         console.log("Submitting streamer job");
-        const submitResult = await handleUploadSessionSubmitRequest(authContext!.username, authContext!.password, uploadSessionId, uploadSession);
+        const submitResult = await handleUploadSessionSubmitRequest(authContext!.username, authContext!.password, uploadWork.uploadSessionId, uploadWork.uploadSession);
         const uploadedFiles = submitResult as string[];
         console.log("Successfully submitted streamer job for files: " + JSON.stringify(uploadedFiles));
 
@@ -375,8 +376,6 @@ const Uploader: React.FC = () => {
 
     const handleUpload = async (event: any) => {
         setShowFilesExistModal(false);
-        setButtonPressed(false);
-        setOk(false);
         setFailed(false);
         setRemainingItems(remainingItems => uploaderContext!.fileList.length);
         setUploadingPercentage(uploadingPercentage => 0);
@@ -439,6 +438,14 @@ const Uploader: React.FC = () => {
             }));
         });
 
+        const newUploadWork = {
+            newTotalSizeBytes: newTotalSizeBytes,
+            work: work,
+            uploadSessionId: uploadSessionId,
+            uploadSession: uploadSession
+        } as UploadWork;
+        setUploadWork(uploadWork => newUploadWork);
+
         // Validate each file sequentially if the file in the destination folder already exist
         console.log("Validating files");
         let existingFiles = [] as String[];
@@ -449,16 +456,12 @@ const Uploader: React.FC = () => {
             }
         }
         if (existingFiles.length > 0) {
+            // Handle user input first
             setFilesExistMessage("Overwrite the following file(s)? " + JSON.stringify(existingFiles));
             setShowFilesExistModal(true);
-            await handleUserInput();
         } else {
-            setOk(true);
-        }
-
-        if (ok) {
-            // Proceed with uploading files in parallel
-            handleRealUpload(newTotalSizeBytes, work, uploadSessionId, uploadSession);
+            // No user input required, proceed
+            handleRealUpload();
         }
     };
 
@@ -818,17 +821,12 @@ const Uploader: React.FC = () => {
                             uploaderContext!.setFileList([] as RcFile[]);
                             uploaderContext!.setFileListSummary(0);
                             uploaderContext!.setHasFilesSelected(false);
-
-                            setOk(false);
-                            setButtonPressed(true);
                         }}>Cancel
                         </Button>,
                         <Button type="primary" onClick={(e) => {
                             setShowFilesExistModal(false);
                             setFilesExistMessage("");
-
-                            setOk(true);
-                            setButtonPressed(true);
+                            handleRealUpload();
                         }}>Ok
                 </Button>
                     ]}
