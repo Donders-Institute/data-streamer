@@ -54,7 +54,6 @@ const detectFile = (file: RcFile) => {
 const Uploader: React.FC = () => {
     const authContext = useContext(AuthContext);
     const uploaderContext = useContext(UploaderContext);
-    let savedResolve: any;
 
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showFilesExistModal, setShowFilesExistModal] = useState(false);
@@ -67,6 +66,8 @@ const Uploader: React.FC = () => {
     const [isUploading, setIsUploading] = useState(true);
     const [failed, setFailed] = useState(false);
     const [proceed, setProceed] = useState(false);
+    const [buttonPressed, setButtonPressed] = useState(false);
+    const [ok, setOk] = useState(false);
 
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
 
@@ -122,10 +123,6 @@ const Uploader: React.FC = () => {
         };
         checkProceed();
     }, [uploaderContext]);
-
-    const filesExistModalClosed = new Promise(function (resolve, reject) {
-        savedResolve = resolve;
-    });
 
     const handleUploadSessionResponse = (response: AxiosResponse) => {
         // console.log(response.data);
@@ -341,7 +338,18 @@ const Uploader: React.FC = () => {
         return promise;
     };
 
+    const handleFilesExistModal = () => {
+        let promise = new Promise((resolve, reject) => {
+            if (buttonPressed) {
+                resolve("buttonPressed");
+            }
+        });
+        return promise;
+    };
+
     const handleUpload = async (event: any) => {
+        setButtonPressed(false);
+        setOk(false);
         setFailed(false);
         setRemainingItems(remainingItems => uploaderContext!.fileList.length);
         setUploadingPercentage(uploadingPercentage => 0);
@@ -416,10 +424,9 @@ const Uploader: React.FC = () => {
         if (existingFiles.length > 0) {
             setFilesExistMessage("Overwrite the following file(s)? " + JSON.stringify(existingFiles));
             setShowFilesExistModal(true);
-            const result = await filesExistModalClosed;
-            console.log(result);
             // Only proceed when OK has been pressed, otherwise return
-            if (result !== "filesExistModalOK") {
+            await handleFilesExistModal();
+            if (!ok) {
                 return;
             }
         }
@@ -805,14 +812,16 @@ const Uploader: React.FC = () => {
                             uploaderContext!.setFileListSummary(0);
                             uploaderContext!.setHasFilesSelected(false);
 
-                            savedResolve.resolve("filesExistModalCancel");
+                            setOk(false);
+                            setButtonPressed(true);
                         }}>Cancel
                         </Button>,
                         <Button type="primary" onClick={(e) => {
                             setShowFilesExistModal(false);
                             setFilesExistMessage("");
 
-                            savedResolve.resolve("filesExistModalOK");
+                            setOk(true);
+                            setButtonPressed(true);
                         }}>Ok
                 </Button>
                     ]}
