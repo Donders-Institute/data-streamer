@@ -26,6 +26,7 @@ import StructureSelector from "./StructureSelector";
 import { RcFile, ValidatedFile, SelectOption, UploadSession } from "./types";
 import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "./utils";
 import { fetchProjectList } from "./fetch";
+import { timeout } from "./utils";
 
 const { Content } = Layout;
 
@@ -338,8 +339,8 @@ const Uploader: React.FC = () => {
         return promise;
     };
 
-    const handleFilesExistModal = () => {
-        let promise = new Promise((resolve, reject) => {
+    const handleUserInput = async () => {
+        let promise = new Promise<string>((resolve, reject) => {
             if (buttonPressed) {
                 resolve("buttonPressed");
             }
@@ -347,7 +348,33 @@ const Uploader: React.FC = () => {
         return promise;
     };
 
+    // Upload files in parallel
+    const handleRealUpload = async (newTotalSizeBytes: number, work: Promise<unknown>[], uploadSessionId: number, uploadSession: UploadSession) => {
+        setTotalSizeBytes(totalSizeBytes => newTotalSizeBytes);
+
+        await Promise.all(work)
+            .then(function (results) {
+                setRemainingItems(remainingItems => 0);
+                setUploadingPercentage(uploadingPercentage => 100);
+                setTotalSizeBytes(totalSizeBytes => 0);
+            });
+
+        // Finalize the upload session
+        console.log("Finalize upload");
+        await handleUploadSessionFinalizeRequest(authContext!.username, authContext!.password, uploadSessionId);
+
+        // Submit the streamer job
+        console.log("Submitting streamer job");
+        const submitResult = await handleUploadSessionSubmitRequest(authContext!.username, authContext!.password, uploadSessionId, uploadSession);
+        const uploadedFiles = submitResult as string[];
+        console.log("Successfully submitted streamer job for files: " + JSON.stringify(uploadedFiles));
+
+        setIsUploading(false);
+        setFailed(false);
+    }
+
     const handleUpload = async (event: any) => {
+        setShowFilesExistModal(false);
         setButtonPressed(false);
         setOk(false);
         setFailed(false);
@@ -424,35 +451,15 @@ const Uploader: React.FC = () => {
         if (existingFiles.length > 0) {
             setFilesExistMessage("Overwrite the following file(s)? " + JSON.stringify(existingFiles));
             setShowFilesExistModal(true);
-            // Only proceed when OK has been pressed, otherwise return
-            await handleFilesExistModal();
-            if (!ok) {
-                return;
-            }
+            await handleUserInput();
+        } else {
+            setOk(true);
         }
 
-        // Proceed with uploading each file in parallel
-        setTotalSizeBytes(totalSizeBytes => newTotalSizeBytes);
-
-        await Promise.all(work)
-            .then(function (results) {
-                setRemainingItems(remainingItems => 0);
-                setUploadingPercentage(uploadingPercentage => 100);
-                setTotalSizeBytes(totalSizeBytes => 0);
-            });
-
-        // Finalize the upload session
-        console.log("Finalize upload");
-        await handleUploadSessionFinalizeRequest(authContext!.username, authContext!.password, uploadSessionId);
-
-        // Submit the streamer job
-        console.log("Submitting streamer job");
-        const submitResult = await handleUploadSessionSubmitRequest(authContext!.username, authContext!.password, uploadSessionId, uploadSession);
-        const uploadedFiles = submitResult as string[];
-        console.log("Successfully submitted streamer job for files: " + JSON.stringify(uploadedFiles));
-
-        setIsUploading(false);
-        setFailed(false);
+        if (ok) {
+            // Proceed with uploading files in parallel
+            handleRealUpload(newTotalSizeBytes, work, uploadSessionId, uploadSession);
+        }
     };
 
     const handleDelete = (uid: string, filename: string, size: number) => {
