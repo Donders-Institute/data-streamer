@@ -786,6 +786,7 @@ const Uploader: React.FC = () => {
                         <Button onClick={(e) => {
                             setShowFilesExistModal(false);
                             setFilesExistMessage("");
+                            setShowUploadModal(false);
 
                             // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
                             uploaderContext!.setFileList([] as RcFile[]);
