@@ -1,5 +1,5 @@
 const path = require("path");
-const fs = require('fs')
+const fs = require('fs');
 
 const PROJECT_VOL = process.env.PROJECT_VOL || __dirname + '/uploads';
 const STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname + '/uploads';
@@ -39,7 +39,7 @@ function _getNumFiles(files) {
 // Check if the file already exists
 function _fileExists(filename, dirname) {
     var targetPath = path.join(dirname, filename);
-    fs.access(targetPath, fs.F_OK, (err) => {
+    fs.accessSync(targetPath, fs.F_OK, (err) => {
         if (err) {
             // File does not exist
             return false;

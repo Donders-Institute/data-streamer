@@ -15,6 +15,7 @@ const modAddFile = require('./routes/mod_addFile');
 const modFinalize = require('./routes/mod_finalize');
 const modSubmit = require('./routes/mod_submit');
 const modListProjects = require('./routes/mod_listProjects');
+const modClean = require('./routes/mod_clean');
 
 var app = express();
 
@@ -77,6 +78,9 @@ app.post('/submit', modAuthentication.isAuthenticated, modSubmit.submit);
 
 // GET Obtain list of projects for user
 app.get('/projects', modAuthentication.isAuthenticated, modListProjects.getListProjects);
+
+// POST Clean database tables
+app.get('/clean', modClean.clean);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -157,7 +157,34 @@ async function _getUploadFileList(uploadSessionId) {
     return getUploadFileListResult;
 }
 
+
+// Delete all rows in uploadsession table and 
+async function _cleanTables() {
+    var client;
+    try {
+        client = await connect()
+    } catch (error) {
+        throw "Could not connect to database";
+    }
+    try {
+        await client.query(`TRUNCATE TABLE uploadsession, uploadfile`);
+    } catch (error) {
+        throw "Could not truncate tables uploadsession and/or uploadfile";
+    }
+    try {
+        await client.end();
+    } catch (error) {
+        throw "Could not disconnect database";
+    }
+
+    const cleanTablesResult = {
+        "status": "cleaned"
+    }
+    return cleanTablesResult;
+}
+
 module.exports.insertUploadSession = _insertUploadSession;
 module.exports.insertUploadFile = _insertUploadFile;
 module.exports.updateUploadSession = _updateUploadSession;
 module.exports.getUploadFileList = _getUploadFileList;
+module.exports.cleanTables = _cleanTables;
