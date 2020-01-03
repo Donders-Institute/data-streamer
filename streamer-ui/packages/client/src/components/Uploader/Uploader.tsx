@@ -54,6 +54,7 @@ const detectFile = (file: RcFile) => {
 const Uploader: React.FC = () => {
     const authContext = useContext(AuthContext);
     const uploaderContext = useContext(UploaderContext);
+    let savedResolve: any;
 
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showFilesExistModal, setShowFilesExistModal] = useState(false);
@@ -121,6 +122,10 @@ const Uploader: React.FC = () => {
         };
         checkProceed();
     }, [uploaderContext]);
+
+    const filesExistModalClosed = new Promise(function (resolve, reject) {
+        savedResolve = resolve;
+    });
 
     const handleUploadSessionResponse = (response: AxiosResponse) => {
         // console.log(response.data);
@@ -410,6 +415,7 @@ const Uploader: React.FC = () => {
         if (existingFiles.length > 0) {
             setFilesExistMessage("Overwrite the following file(s)? " + JSON.stringify(existingFiles));
             setShowFilesExistModal(true);
+            await filesExistModalClosed;
         }
 
         // Proceed with uploading each file in parallel
@@ -792,11 +798,15 @@ const Uploader: React.FC = () => {
                             uploaderContext!.setFileList([] as RcFile[]);
                             uploaderContext!.setFileListSummary(0);
                             uploaderContext!.setHasFilesSelected(false);
+
+                            savedResolve.resolve("filesExistModalClosed");
                         }}>Cancel
                         </Button>,
                         <Button type="primary" onClick={(e) => {
                             setShowFilesExistModal(false);
                             setFilesExistMessage("");
+
+                            savedResolve.resolve("filesExistModalClosed");
                         }}>Ok
                 </Button>
                     ]}
