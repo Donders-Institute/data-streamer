@@ -26,7 +26,6 @@ services:
       - POSTGRES_USER=${STREAMER_UI_DB_USER:-postgres}
       - POSTGRES_PASSWORD=${STREAMER_UI_DB_PASSWORD:-postgres}
       - POSTGRES_DATABASE=${STREAMER_UI_DB_NAME:-postgres}
-      - PGDATA=/data/postgres
       - GRAFANA_USER=${STREAMER_UI_GRAFANA_USER:-grafanareader}
       - GRAFANA_PASSWORD=${STREAMER_UI_GRAFANA_PASSWORD:-password}
     ports:
