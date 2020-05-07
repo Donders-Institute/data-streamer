@@ -405,6 +405,16 @@ const Uploader: React.FC = () => {
         // Start the upload session
         console.log("Preparing upload");
         const result = await handleUploadSessionBeginRequest(authContext!.username, authContext!.password, uploadSession);
+
+        // Check result before continuing
+        const checkResult = result as any;
+        const error = checkResult!.error;
+        if (error) {
+            console.error(error);
+            setIsUploading(false);
+            setFailed(true);
+        }
+
         const uploadSessionId = result as number;
 
         // Prepare the uploading of each file
