@@ -471,6 +471,7 @@ const Uploader: React.FC = () => {
         console.log("Validating files");
         let existingFiles = [] as string[];
         for (let i = 0; i < validationWork.length; i++) {
+            console.log("Validating file: " + uploaderContext!.fileList[i].name);
             let validatedFile = await validationWork[i] as ValidatedFile;
             if (validatedFile!.fileExists) {
                 existingFiles.push(validatedFile!.filename);
@@ -499,13 +500,13 @@ const Uploader: React.FC = () => {
         );
         const hasFilesSelectedUpdated = fileListUpdated.length > 0;
         uploaderContext!.setHasFilesSelected(hasFilesSelectedUpdated);
-        uploaderContext!.setFileList(fileListUpdated);
+        uploaderContext!.setFileList(fileList => fileListUpdated);
         uploaderContext!.setFileListSummary(uploaderContext!.fileListSummary - size);
     };
 
     const handleDeleteList = () => {
         uploaderContext!.setHasFilesSelected(false);
-        uploaderContext!.setFileList([] as RcFile[]);
+        uploaderContext!.setFileList(fileList => [] as RcFile[]);
         uploaderContext!.setFileListSummary(0);
     };
 
@@ -800,7 +801,7 @@ const Uploader: React.FC = () => {
                                             setShowUploadModal(false);
 
                                             // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
-                                            uploaderContext!.setFileList([] as RcFile[]);
+                                            uploaderContext!.setFileList(fileList => [] as RcFile[]);
                                             uploaderContext!.setFileListSummary(0);
                                             uploaderContext!.setHasFilesSelected(false);
                                         }}
