@@ -759,7 +759,7 @@ const Uploader: React.FC = () => {
                                                     style={{ width: "200px", float: "right" }}
                                                 >
                                                     Upload
-                                            </Button>
+                                                </Button>
                                             </Tooltip>
                                         </Content>
                                     )}
@@ -777,7 +777,7 @@ const Uploader: React.FC = () => {
                                                 onClick={handleUpload}
                                             >
                                                 Upload
-                                    </Button>
+                                            </Button>
                                         </Tooltip>
                                     )}
                             </Card>
@@ -793,17 +793,24 @@ const Uploader: React.FC = () => {
                         <div key="buttons" style={{ height: "auto" }}>
                             <Row>
                                 <Col span={24} style={{ textAlign: "right" }}>
-                                    <Button type="primary" disabled={isUploading} onClick={(e) => {
-                                        setShowUploadModal(false);
+                                    <Button
+                                        type="primary"
+                                        disabled={isUploading}
+                                        onClick={(e) => {
+                                            setShowUploadModal(false);
 
-                                        // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
-                                        uploaderContext!.setFileList([] as RcFile[]);
-                                        uploaderContext!.setFileListSummary(0);
-                                        uploaderContext!.setHasFilesSelected(false);
-                                    }}>
+                                            // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
+                                            uploaderContext!.setFileList([] as RcFile[]);
+                                            uploaderContext!.setFileListSummary(0);
+                                            uploaderContext!.setHasFilesSelected(false);
+                                        }}
+                                    >
                                         Upload another batch
                                     </Button>
-                                    <Button disabled={isUploading} onClick={(e) => authContext!.signOut()}>
+                                    <Button
+                                        disabled={isUploading}
+                                        onClick={(e) => authContext!.signOut()}
+                                    >
                                         Log out
                                     </Button>
                                 </Col>
@@ -863,24 +870,31 @@ const Uploader: React.FC = () => {
                         <div key="buttons" style={{ height: "auto" }}>
                             <Row>
                                 <Col span={12} style={{ textAlign: "left" }}>
-                                    <Button onClick={(e) => {
-                                        setShowFilesExistModal(false);
-                                        setFilesExistMessage(<div></div>);
-                                        setShowUploadModal(false);
+                                    <Button
+                                        onClick={(e) => {
+                                            setShowFilesExistModal(false);
+                                            setFilesExistMessage(<div></div>);
+                                            setShowUploadModal(false);
 
-                                        // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
-                                        uploaderContext!.setFileList([] as RcFile[]);
-                                        uploaderContext!.setFileListSummary(0);
-                                        uploaderContext!.setHasFilesSelected(false);
-                                    }}>Cancel
+                                            // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
+                                            uploaderContext!.setFileList([] as RcFile[]);
+                                            uploaderContext!.setFileListSummary(0);
+                                            uploaderContext!.setHasFilesSelected(false);
+                                        }}
+                                    >
+                                        Cancel
                                     </Button>
                                 </Col>
                                 <Col span={12} style={{ textAlign: "right" }}>
-                                    <Button type="primary" onClick={(e) => {
-                                        setShowFilesExistModal(false);
-                                        setFilesExistMessage(<div></div>);
-                                        handleRealUpload();
-                                    }}>Ok
+                                    <Button
+                                        type="primary"
+                                        onClick={(e) => {
+                                            setShowFilesExistModal(false);
+                                            setFilesExistMessage(<div></div>);
+                                            handleRealUpload();
+                                        }}
+                                    >
+                                        Ok
                                 </Button>
                                 </Col>
                             </Row>
@@ -910,11 +924,15 @@ const Uploader: React.FC = () => {
                         <div key="buttons" style={{ height: "auto" }}>
                             <Row>
                                 <Col span={24} style={{ textAlign: "right" }}>
-                                    <Button type="primary" onClick={(e) => {
-                                        setFailed(true);
-                                        setShowErrorModal(false);
-                                        setErrorMessage("");
-                                    }}>Ok
+                                    <Button
+                                        type="primary"
+                                        onClick={(e) => {
+                                            setFailed(true);
+                                            setShowErrorModal(false);
+                                            setErrorMessage("");
+                                        }}
+                                    >
+                                        Ok
                                     </Button>
                                 </Col>
                             </Row>
