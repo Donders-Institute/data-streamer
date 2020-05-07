@@ -368,11 +368,21 @@ const Uploader: React.FC = () => {
         // Submit the streamer job
         console.log("Submitting streamer job");
         const submitResult = await handleUploadSessionSubmitRequest(authContext!.username, authContext!.password, uploadWork.uploadSessionId, uploadWork.uploadSession);
-        const uploadedFiles = submitResult as string[];
-        console.log("Successfully submitted streamer job for files: " + JSON.stringify(uploadedFiles));
 
-        setIsUploading(false);
-        setFailed(false);
+        let result = submitResult as any;
+        let error = result!.message;
+        if (error) {
+            console.error(error);
+
+            setIsUploading(false);
+            setFailed(true);
+        } else {
+            const uploadedFiles = submitResult as string[];
+            console.log("Successfully submitted streamer job for files: " + JSON.stringify(uploadedFiles));
+
+            setIsUploading(false);
+            setFailed(false);
+        }
     }
 
     const handleUpload = async (event: any) => {
