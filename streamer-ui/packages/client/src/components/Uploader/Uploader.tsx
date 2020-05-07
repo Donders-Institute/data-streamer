@@ -843,7 +843,7 @@ const Uploader: React.FC = () => {
                                 <Col span={12} style={{ textAlign: "left" }}>
                                     <Button onClick={(e) => {
                                         setShowFilesExistModal(false);
-                                        setFilesExistMessage("");
+                                        setFilesExistMessage(<div></div>);
                                         setShowUploadModal(false);
 
                                         // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
@@ -856,7 +856,7 @@ const Uploader: React.FC = () => {
                                 <Col span={12} style={{ textAlign: "right" }}>
                                     <Button type="primary" onClick={(e) => {
                                         setShowFilesExistModal(false);
-                                        setFilesExistMessage("");
+                                        setFilesExistMessage(<div></div>);
                                         handleRealUpload();
                                     }}>Ok
                                 </Button>
@@ -898,18 +898,6 @@ const Uploader: React.FC = () => {
                             </Row>
                         </div>
                     ]}
-                    width={"80%"}
-                    style={{
-                        left: "0px",
-                        top: "50px",
-                        height: "100%",
-                        overflowY: "initial"
-                    }}
-                    bodyStyle={{
-                        height: "80vh",
-                        overflowY: "auto",
-                        backgroundColor: "#fff"
-                    }}
                 >
                     <div>{errorMessage}</div>
                 </Modal>
