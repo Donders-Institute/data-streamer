@@ -458,13 +458,13 @@ const Uploader: React.FC = () => {
         }
         if (existingFiles.length > 0) {
             // Handle user confirmation first
-            let newExistingFilesAsDiv = <div>
+            let newExistingFilesAsDiv = <div style={{ marginTop: "20px" }}>
                 <List
                     size="small"
                     dataSource={existingFiles}
                     renderItem={(existingFile: string) => <List.Item>{existingFile}</List.Item>}
                 />
-            </div>;
+            </div >;
             setFilesExistMessage(existingFilesAsDiv => newExistingFilesAsDiv);
             setShowFilesExistModal(true);
         } else {
