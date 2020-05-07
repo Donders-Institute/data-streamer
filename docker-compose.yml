@@ -3,7 +3,7 @@ services:
   db:
     build:
       context: ./redis
-    image: ${DOCKER_REGISTRY:-dccn}/redis:${DOCKER_IMAGE_TAG:-latest}
+    image: ${DOCKER_REGISTRY:-dccn}/redis
     user: root
     volumes:
       - ${STREAMER_DB_DATA_VOL}:/data
