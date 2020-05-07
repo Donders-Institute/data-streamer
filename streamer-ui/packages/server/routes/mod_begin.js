@@ -27,6 +27,10 @@ var _begin = async function (req, res) {
     // Obtain the user agent
     userAgent = req.headers['user-agent'];
 
+    // Obtain the IP address"
+    ipAddress = req.ip | "";
+    console.log(ipAddress);
+
     // Check for structure
     if (!req.body) {
         msg = `No attributes were uploaded: "req.body" is empty`
@@ -36,7 +40,7 @@ var _begin = async function (req, res) {
     var subjectLabel = req.body.subjectLabel;
     var sessionLabel = req.body.sessionLabel;
     var dataType = req.body.dataType;
-    ipAddress = req.body.ipAddress;
+    // ipAddress = req.body.ipAddress;
 
     // Create the target directory if it does not exist
     var dirname = utils.getDirName(projectNumber, subjectLabel, sessionLabel, dataType);

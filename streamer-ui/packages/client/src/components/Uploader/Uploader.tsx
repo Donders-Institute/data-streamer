@@ -780,6 +780,18 @@ const Uploader: React.FC = () => {
                             </Row>
                         </div>
                     ]}
+                    width={"80%"}
+                    style={{
+                        left: "0px",
+                        top: "50px",
+                        height: "100%",
+                        overflowY: "initial"
+                    }}
+                    bodyStyle={{
+                        height: "80vh",
+                        overflowY: "auto",
+                        backgroundColor: "#fff"
+                    }}
                 >
                     {
                         !failed && (
