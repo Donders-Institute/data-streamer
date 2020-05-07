@@ -28,9 +28,9 @@ const handleGetProjectsResponse = (response: AxiosResponse) => {
 const handleGetProjectsError = (error: AxiosError) => {
     var errorMessage = "";
     if (error.response) {
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
+        // console.log(error.response.data);
+        // console.log(error.response.status);
+        // console.log(error.response.headers);
         errorMessage = JSON.stringify(error.response.data, null, 2);
     } else {
         console.log(error.message);
@@ -42,7 +42,7 @@ const handleGetProjectsError = (error: AxiosError) => {
 };
 
 const handleGetProjectsRequest = (username: string, password: string) => {
-    return new Promise<AxiosResponse|AxiosError>((resolve) => {
+    return new Promise<AxiosResponse | AxiosError>((resolve) => {
         const config: AxiosRequestConfig = {
             url: "/projects",
             method: "get",
@@ -65,7 +65,7 @@ const handleGetProjectsRequest = (username: string, password: string) => {
     });
 };
 
-function isAxiosResponse(result: AxiosResponse|AxiosError): result is AxiosResponse {
+function isAxiosResponse(result: AxiosResponse | AxiosError): result is AxiosResponse {
     return (result as AxiosResponse).data !== undefined;
 }
 
@@ -81,10 +81,10 @@ export const fetchProjectList = async (username: string, password: string) => {
         if (result.data) {
             if (result.data.data) {
                 const data = result.data.data;
-                for (let i = 0; i < data.length; i++){
+                for (let i = 0; i < data.length; i++) {
                     let projectElement: SQLQueryProjectElement = data[i];
                     let projectNumber = projectElement.project;
-                    let project = {id: i, number: projectNumber} as Project;
+                    let project = { id: i, number: projectNumber } as Project;
                     console.log(projectNumber);
                     projectList!.push(project);
                 }

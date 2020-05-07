@@ -147,9 +147,9 @@ const Uploader: React.FC = () => {
     const handleUploadSessionError = (error: AxiosError) => {
         var newErrorMessage = "could not connect to data streamer UI server";
         if (error.response) {
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
+            // console.log(error.response.data);
+            // console.log(error.response.status);
+            // console.log(error.response.headers);
             if (error.response.data) {
                 newErrorMessage = JSON.stringify(error.response.data, null, 2);
             }

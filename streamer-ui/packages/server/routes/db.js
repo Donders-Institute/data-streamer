@@ -71,6 +71,8 @@ async function _insertUploadFile(uploadSessionId, filename, filesizeBytes) {
         const result = await client.query(`INSERT INTO uploadfile(filename, filesize_bytes, upload_session_id) VALUES($1, $2, $3) RETURNING id;`, [filename, filesizeBytes, uploadSessionId]);
         uploadFileId = result.rows[0].id;
     } catch (error) {
+        console.error("Could not insert row to database table uploadfile");
+        console.error(filename, filesizeBytes, uploadSessionId);
         throw "Could not insert row to database table uploadfile";
     }
 
