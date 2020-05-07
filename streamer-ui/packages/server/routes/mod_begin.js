@@ -29,6 +29,7 @@ var _begin = async function (req, res) {
 
     // Obtain the IP address"
     ipAddress = req.ip | "";
+    console.log("ipAddres:");
     console.log(ipAddress);
 
     // Check for structure
@@ -41,6 +42,23 @@ var _begin = async function (req, res) {
     var sessionLabel = req.body.sessionLabel;
     var dataType = req.body.dataType;
     // ipAddress = req.body.ipAddress;
+
+    if (!projectNumber) {
+        msg = 'projectNumber empty';
+        return res.status(500).json({ "error": msg });
+    }
+    if (!subjectLabel) {
+        msg = 'subjectLabel empty';
+        return res.status(500).json({ "error": msg });
+    }
+    if (!sessionLabel) {
+        msg = 'sessionLabel empty';
+        return res.status(500).json({ "error": msg });
+    }
+    if (!dataType) {
+        msg = 'dataType empty';
+        return res.status(500).json({ "error": msg });
+    }
 
     // Create the target directory if it does not exist
     var dirname = utils.getDirName(projectNumber, subjectLabel, sessionLabel, dataType);
