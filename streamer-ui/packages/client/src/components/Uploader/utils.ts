@@ -25,7 +25,7 @@ export const validateSessionLabelInput = (text: string) => {
     return regexpSessionLabel.test(text);
 };
 
-const regexpSelectedDataTypeOtherInput = new RegExp("^[a-z0-9][-a-z0-9_\&]+$");
+const regexpSelectedDataTypeOtherInput = new RegExp("^[a-z][-a-z0-9_\&]+$");
 export const validateSelectedDataTypeOtherInput = (text: string) => {
     return regexpSelectedDataTypeOtherInput.test(text);
 };
