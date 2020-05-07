@@ -220,7 +220,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                             label="Set data type other"
                             hasFeedback
                             validateStatus={selectedDataTypeOtherStatus}
-                            help="Should be lower case string with no special characters. Example: eyetracker"
+                            help={<span style={{ fontStyle: "italic" }}>Should be lower case string, optionally with numbers, dashes ('-'), underscores ('_'), and '&amp;'. Example: 'eyetracker' or 'audio-left'</span>}
                         >
                             {getFieldDecorator("datatypeother", {
                                 initialValue: dataType,
