@@ -27,8 +27,8 @@ export const validateSessionLabelInput = (text: string) => {
     return regexpSessionLabel.test(text);
 };
 
-// Start with lowercase characters. Next, allow as many lowercase characters, numbers dashes, underscores, and ampersands as needed.
-const regexpSelectedDataTypeOtherInput = new RegExp("^[a-z][-a-z0-9_\&]+$");
+// Start with lowercase characters. Next, allow as many lowercase characters, numbers dashes, and underscores as needed.
+const regexpSelectedDataTypeOtherInput = new RegExp("^[a-z][-a-z0-9_]+$");
 export const validateSelectedDataTypeOtherInput = (text: string) => {
     return regexpSelectedDataTypeOtherInput.test(text);
 };
