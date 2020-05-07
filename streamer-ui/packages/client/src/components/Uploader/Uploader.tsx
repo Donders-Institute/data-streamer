@@ -10,7 +10,8 @@ import {
     Spin,
     Modal,
     Progress,
-    Tooltip
+    Tooltip,
+    List
 } from "antd";
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
@@ -58,7 +59,7 @@ const Uploader: React.FC = () => {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showFilesExistModal, setShowFilesExistModal] = useState(false);
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const [filesExistMessage, setFilesExistMessage] = useState("");
+    const [filesExistMessage, setFilesExistMessage] = useState(<div></div>);
     const [errorMessage, setErrorMessage] = useState("");
     const [uploadingPercentage, setUploadingPercentage] = useState(0);
     const [totalSizeBytes, setTotalSizeBytes] = useState(0);
@@ -448,7 +449,7 @@ const Uploader: React.FC = () => {
 
         // Validate each file sequentially if the file in the destination folder already exist
         console.log("Validating files");
-        let existingFiles = [] as String[];
+        let existingFiles = [] as string[];
         for (let i = 0; i < validationWork.length; i++) {
             let validatedFile = await validationWork[i] as ValidatedFile;
             if (validatedFile!.fileExists) {
@@ -456,11 +457,18 @@ const Uploader: React.FC = () => {
             }
         }
         if (existingFiles.length > 0) {
-            // Handle user input first
-            setFilesExistMessage("Overwrite the following file(s)? " + JSON.stringify(existingFiles));
+            // Handle user confirmation first
+            let newExistingFilesAsDiv = <div>
+                <List
+                    size="small"
+                    dataSource={existingFiles}
+                    renderItem={(existingFile: string) => <List.Item>{existingFile}</List.Item>}
+                />
+            </div>;
+            setFilesExistMessage(existingFilesAsDiv => newExistingFilesAsDiv);
             setShowFilesExistModal(true);
         } else {
-            // No user input required, proceed
+            // No user confirmation required, proceed
             handleRealUpload();
         }
     };
@@ -869,7 +877,8 @@ const Uploader: React.FC = () => {
                         backgroundColor: "#fff"
                     }}
                 >
-                    <div>{filesExistMessage}</div>
+                    <div>Overwrite the following file(s)?</div>
+                    {filesExistMessage}
                 </Modal>
                 <Modal
                     title="Error"
