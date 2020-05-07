@@ -500,13 +500,13 @@ const Uploader: React.FC = () => {
         );
         const hasFilesSelectedUpdated = fileListUpdated.length > 0;
         uploaderContext!.setHasFilesSelected(hasFilesSelectedUpdated);
-        uploaderContext!.setFileList(fileList => fileListUpdated);
+        uploaderContext!.setFileList(fileListUpdated);
         uploaderContext!.setFileListSummary(uploaderContext!.fileListSummary - size);
     };
 
     const handleDeleteList = () => {
         uploaderContext!.setHasFilesSelected(false);
-        uploaderContext!.setFileList(fileList => [] as RcFile[]);
+        uploaderContext!.setFileList([] as RcFile[]);
         uploaderContext!.setFileListSummary(0);
     };
 
@@ -801,7 +801,7 @@ const Uploader: React.FC = () => {
                                             setShowUploadModal(false);
 
                                             // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
-                                            uploaderContext!.setFileList(fileList => [] as RcFile[]);
+                                            uploaderContext!.setFileList([] as RcFile[]);
                                             uploaderContext!.setFileListSummary(0);
                                             uploaderContext!.setHasFilesSelected(false);
                                         }}
