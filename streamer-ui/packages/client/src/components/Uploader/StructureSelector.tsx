@@ -239,7 +239,6 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         </Form.Item>
                     </Col>
                     <Col span={12}></Col>
-
                 </Row>
             )}
         </Form>

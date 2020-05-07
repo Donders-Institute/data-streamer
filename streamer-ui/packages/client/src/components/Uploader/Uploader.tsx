@@ -749,35 +749,37 @@ const Uploader: React.FC = () => {
                                         />
                                     </Content>
                                 }
-                                {(!(uploaderContext!.hasFilesSelected) || !proceed) && (
-                                    <Content style={{ marginTop: "20px" }}>
-                                        <Tooltip placement="bottomRight" title="Please select one or more files and set the destination folder settings above. When 1) all source files are selected, and 2) the destination settings above are filled in properly, the button becomes green and clickable.">
+                                {
+                                    (!(uploaderContext!.hasFilesSelected) || !proceed) && (
+                                        <Content style={{ marginTop: "20px" }}>
+                                            <Tooltip placement="bottomRight" title="Please select one or more files and set the destination folder settings above. When 1) all source files are selected, and 2) the destination settings above are filled in properly, the button becomes green and clickable.">
+                                                <Button
+                                                    disabled={true}
+                                                    size="large"
+                                                    style={{ width: "200px", float: "right" }}
+                                                >
+                                                    Upload
+                                            </Button>
+                                            </Tooltip>
+                                        </Content>
+                                    )}
+                                {
+                                    (uploaderContext!.hasFilesSelected && proceed) && (
+                                        <Tooltip placement="bottomRight" title="Press the button to submit a streamer job.">
                                             <Button
-                                                disabled={true}
                                                 size="large"
-                                                style={{ width: "200px", float: "right" }}
+                                                style={{
+                                                    backgroundColor: "#52c41a",
+                                                    color: "#fff",
+                                                    width: "200px",
+                                                    float: "right"
+                                                }}
+                                                onClick={handleUpload}
                                             >
                                                 Upload
-                                            </Button>
-                                        </Tooltip>
-                                    </Content>
-                                )}
-                                {uploaderContext!.isSelectedSession && uploaderContext!.hasFilesSelected && proceed && (
-                                    <Tooltip placement="bottomRight" title="Press the button to submit a streamer job.">
-                                        <Button
-                                            size="large"
-                                            style={{
-                                                backgroundColor: "#52c41a",
-                                                color: "#fff",
-                                                width: "200px",
-                                                float: "right"
-                                            }}
-                                            onClick={handleUpload}
-                                        >
-                                            Upload
                                     </Button>
-                                    </Tooltip>
-                                )}
+                                        </Tooltip>
+                                    )}
                             </Card>
                         </Col>
                     </Row>
