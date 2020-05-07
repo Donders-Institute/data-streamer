@@ -472,11 +472,23 @@ const Uploader: React.FC = () => {
         let existingFiles = [] as string[];
         for (let i = 0; i < validationWork.length; i++) {
             console.log("Validating file: " + uploaderContext!.fileList[i].name);
-            let validatedFile = await validationWork[i] as ValidatedFile;
+            const validatedResult = await validationWork[i];
+
+            // Check validated result before continuing
+            const checkValidatedResult = validatedResult as any;
+            const validationError = checkValidatedResult!.error;
+            if (validationError) {
+                console.error(validationError);
+                setIsUploading(false);
+                setFailed(true);
+            }
+
+            const validatedFile = validatedResult as ValidatedFile;
             if (validatedFile!.fileExists) {
                 existingFiles.push(validatedFile!.filename);
             }
         }
+
         if (existingFiles.length > 0) {
             // Handle user confirmation first
             let newExistingFilesAsDiv = <div style={{ marginTop: "20px" }}>
