@@ -40,9 +40,9 @@ const Header: React.FC = () => {
     const handleLogoutError = (error: AxiosError) => {
         var errorMessage = "could not connect to data streamer UI server";
         if (error.response) {
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
+            // console.log(error.response.data);
+            // console.log(error.response.status);
+            // console.log(error.response.headers);
             if (error.response.data) {
                 errorMessage = JSON.stringify(error.response.data, null, 2);
             }
@@ -76,59 +76,78 @@ const Header: React.FC = () => {
     };
 
     return (
-        <Layout>
-            <div>
-                <Layout>
-                    <Layout.Header className="App-header-top"></Layout.Header>
-                </Layout>
-                <Layout>
-                    <Layout.Header className="App-header">
-                        <Row type="flex" justify="space-between">
-                            <Col>
-                                <Menu
-                                    className="App-header-menu"
-                                    theme="dark"
-                                    mode="horizontal"
-                                    selectedKeys={[]}
+        <div>
+            <Layout>
+                <Layout.Header className="App-header-top"></Layout.Header>
+            </Layout>
+            <Layout>
+                <Layout.Header className="App-header">
+                    <Row type="flex" justify="space-between">
+                        <Col>
+                            <Menu
+                                className="App-header-menu"
+                                theme="dark"
+                                mode="horizontal"
+                                selectedKeys={[]}
+                            >
+                                <Menu.Item
+                                    key={LOCATION_HOME}
+                                    style={{ float: "left", margin: "0px 0px 0px 0px" }}
                                 >
-                                    <Menu.Item key={LOCATION_HOME} style={{ float: "left", margin: "0px 0px 0px 0px" }}>
-                                        <Tooltip placement="bottomRight" title="The purpose of the research data uploader is to upload files to the DCCN project storage. The source files are files from your experiments on this computer. The destination is the correct folder on the DCCN project storage."><Link to="/">
-                                            <img alt="Donders Institute" src={logoDCCN} style={{ height: "20px", marginRight: "10px" }} />RESEARCH DATA UPLOADER</Link></Tooltip>
-                                    </Menu.Item>
-                                </Menu>
-                            </Col>
-                            <Col>
-                                <Menu
-                                    className="App-header-menu"
-                                    theme="dark"
-                                    mode="horizontal"
-                                    selectedKeys={[]}
+                                    <Tooltip
+                                        placement="bottomRight"
+                                        title="The purpose of the research data uploader is to upload files to the DCCN project storage. The source files are files from your experiments on this computer. The destination is the correct folder on the DCCN project storage.">
+                                        <Link to="/">
+                                            <img alt="Donders Institute" src={logoDCCN} style={{ height: "20px", marginRight: "10px" }} />
+                                                RESEARCH DATA UPLOADER
+                                            </Link>
+                                    </Tooltip>
+                                </Menu.Item>
+                            </Menu>
+                        </Col>
+                        <Col>
+                            <Menu
+                                className="App-header-menu"
+                                theme="dark"
+                                mode="horizontal"
+                                selectedKeys={[]}
+                            >
+                                <Menu.Item
+                                    key={LOCATION_HELP}
                                 >
-                                    <Menu.Item key={LOCATION_HELP}>
-                                        <Tooltip placement="bottomLeft" title="Click here for help how to use the research data uploader"><Link to="/help"><span style={{ fontWeight: "bold" }}>HELP</span></Link></Tooltip>
-                                    </Menu.Item>
-                                    <SubMenu
-                                        key="profile"
-                                        title={
-                                            <span>
-                                                <Icon type="user" style={{ marginRight: "4px" }} /><span>{authContext!.username}</span><Icon type="caret-down" style={{ margin: "0px" }} />
-                                            </span>
-                                        }
-                                        style={{ float: "right", margin: "0px 0px 0px 0px" }}
+                                    <Tooltip
+                                        placement="bottomLeft"
+                                        title="Click here for help how to use the research data uploader">
+                                        <Link to="/help">
+                                            <span style={{ fontWeight: "bold" }}>
+                                                HELP
+                                                </span>
+                                        </Link>
+                                    </Tooltip>
+                                </Menu.Item>
+                                <SubMenu
+                                    key="profile"
+                                    title={
+                                        <span>
+                                            <Icon type="user" style={{ marginRight: "4px" }} /><span>{authContext!.username}</span><Icon type="caret-down" style={{ margin: "0px" }} />
+                                        </span>
+                                    }
+                                    style={{ float: "right", margin: "0px 0px 0px 0px" }}
+                                >
+                                    <Menu.Item
+                                        key={LOCATION_AUTH}
                                     >
-                                        <Menu.Item key={LOCATION_AUTH}>
-                                            <Button size="small" ghost onClick={handleLogout}>
-                                                Log out
-                                            </Button>
-                                        </Menu.Item>
-                                    </SubMenu>
-                                </Menu>
-                            </Col>
-                        </Row>
-                    </Layout.Header>
-                </Layout>
-            </div>
-        </Layout >
+                                        <a onClick={() => { handleLogout(); }}>
+                                            <Icon type="logout" /> <span><strong>Sign out</strong></span>
+                                        </a>
+                                    </Menu.Item>
+                                </SubMenu>
+                            </Menu>
+                        </Col>
+                    </Row>
+                </Layout.Header>
+            </Layout>
+        </div>
     );
 };
 
