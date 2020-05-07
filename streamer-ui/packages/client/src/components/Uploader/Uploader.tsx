@@ -760,19 +760,25 @@ const Uploader: React.FC = () => {
                     visible={showUploadModal}
                     closable={false}
                     footer={[
-                        <Button type="primary" disabled={isUploading} onClick={(e) => {
-                            setShowUploadModal(false);
+                        <div key="buttons" style={{ height: "auto" }}>
+                            <Row>
+                                <Col span={24} style={{ textAlign: "right" }}>
+                                    <Button type="primary" disabled={isUploading} onClick={(e) => {
+                                        setShowUploadModal(false);
 
-                            // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
-                            uploaderContext!.setFileList([] as RcFile[]);
-                            uploaderContext!.setFileListSummary(0);
-                            uploaderContext!.setHasFilesSelected(false);
-                        }}>
-                            Upload another batch
-                        </Button>,
-                        <Button disabled={isUploading} onClick={(e) => authContext!.signOut()}>
-                            Log out
-                        </Button>
+                                        // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
+                                        uploaderContext!.setFileList([] as RcFile[]);
+                                        uploaderContext!.setFileListSummary(0);
+                                        uploaderContext!.setHasFilesSelected(false);
+                                    }}>
+                                        Upload another batch
+                                    </Button>
+                                    <Button disabled={isUploading} onClick={(e) => authContext!.signOut()}>
+                                        Log out
+                                    </Button>
+                                </Col>
+                            </Row>
+                        </div>
                     ]}
                 >
                     {
@@ -812,24 +818,44 @@ const Uploader: React.FC = () => {
                     visible={showFilesExistModal}
                     closable={false}
                     footer={[
-                        <Button onClick={(e) => {
-                            setShowFilesExistModal(false);
-                            setFilesExistMessage("");
-                            setShowUploadModal(false);
+                        <div key="buttons" style={{ height: "auto" }}>
+                            <Row>
+                                <Col span={12} style={{ textAlign: "left" }}>
+                                    <Button onClick={(e) => {
+                                        setShowFilesExistModal(false);
+                                        setFilesExistMessage("");
+                                        setShowUploadModal(false);
 
-                            // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
-                            uploaderContext!.setFileList([] as RcFile[]);
-                            uploaderContext!.setFileListSummary(0);
-                            uploaderContext!.setHasFilesSelected(false);
-                        }}>Cancel
-                        </Button>,
-                        <Button type="primary" onClick={(e) => {
-                            setShowFilesExistModal(false);
-                            setFilesExistMessage("");
-                            handleRealUpload();
-                        }}>Ok
-                </Button>
+                                        // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
+                                        uploaderContext!.setFileList([] as RcFile[]);
+                                        uploaderContext!.setFileListSummary(0);
+                                        uploaderContext!.setHasFilesSelected(false);
+                                    }}>Cancel
+                                    </Button>
+                                </Col>
+                                <Col span={12} style={{ textAlign: "right" }}>
+                                    <Button type="primary" onClick={(e) => {
+                                        setShowFilesExistModal(false);
+                                        setFilesExistMessage("");
+                                        handleRealUpload();
+                                    }}>Ok
+                                </Button>
+                                </Col>
+                            </Row>
+                        </div>
                     ]}
+                    width={"80%"}
+                    style={{
+                        left: "0px",
+                        top: "50px",
+                        height: "100%",
+                        overflowY: "initial"
+                    }}
+                    bodyStyle={{
+                        height: "80vh",
+                        overflowY: "auto",
+                        backgroundColor: "#fff"
+                    }}
                 >
                     <div>{filesExistMessage}</div>
                 </Modal>
@@ -838,17 +864,35 @@ const Uploader: React.FC = () => {
                     visible={showErrorModal}
                     closable={false}
                     footer={[
-                        <Button type="primary" onClick={(e) => {
-                            setFailed(true);
-                            setShowErrorModal(false);
-                            setErrorMessage("");
-                        }}>Ok
-                    </Button>
+                        <div key="buttons" style={{ height: "auto" }}>
+                            <Row>
+                                <Col span={24} style={{ textAlign: "right" }}>
+                                    <Button type="primary" onClick={(e) => {
+                                        setFailed(true);
+                                        setShowErrorModal(false);
+                                        setErrorMessage("");
+                                    }}>Ok
+                                    </Button>
+                                </Col>
+                            </Row>
+                        </div>
                     ]}
+                    width={"80%"}
+                    style={{
+                        left: "0px",
+                        top: "50px",
+                        height: "100%",
+                        overflowY: "initial"
+                    }}
+                    bodyStyle={{
+                        height: "80vh",
+                        overflowY: "auto",
+                        backgroundColor: "#fff"
+                    }}
                 >
                     <div>{errorMessage}</div>
                 </Modal>
-            </Content >
+            </Content>
         </Layout>
     );
 };
