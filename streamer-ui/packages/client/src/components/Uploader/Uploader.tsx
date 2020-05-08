@@ -835,7 +835,7 @@ const Uploader: React.FC = () => {
                                         disabled={isUploading}
                                         onClick={(e) => authContext!.signOut()}
                                     >
-                                        Log out
+                                        Sign out
                                     </Button>
                                 </Col>
                             </Row>
