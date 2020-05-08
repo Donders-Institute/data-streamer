@@ -155,7 +155,6 @@ const Uploader: React.FC = () => {
                 newErrorMessage = JSON.stringify(error.response.data, null, 2);
             }
         } else {
-            console.log(error!.message);
             newErrorMessage = error.message;
         }
         console.log(newErrorMessage);
@@ -927,6 +926,16 @@ const Uploader: React.FC = () => {
                     }}
                 >
                     <div>Overwrite the following file(s)?</div>
+                    <TargetPath
+                        isSelectedProject={uploaderContext!.isSelectedProject}
+                        isSelectedSubject={uploaderContext!.isSelectedSubject}
+                        isSelectedSession={uploaderContext!.isSelectedSession}
+                        isSelectedDataType={uploaderContext!.isSelectedDataType}
+                        projectNumber={uploaderContext!.selectedProjectValue}
+                        subjectLabel={uploaderContext!.selectedSubjectValue}
+                        sessionLabel={uploaderContext!.selectedSessionValue}
+                        dataType={uploaderContext!.selectedDataTypeValue}
+                    />
                     {filesExistMessage}
                 </Modal>
                 <Modal
