@@ -371,10 +371,11 @@ const Uploader: React.FC = () => {
         let result = submitResult as any;
         let error = result!.message;
         if (error) {
-            console.error(error);
-
             setIsUploading(false);
             setFailed(true);
+            console.error(error);
+            setErrorMessage(error);
+            setShowErrorModal(true);
         } else {
             const uploadedFiles = submitResult as string[];
             console.log("Successfully submitted streamer job for files: " + JSON.stringify(uploadedFiles));
@@ -409,9 +410,11 @@ const Uploader: React.FC = () => {
         const checkResult = result as any;
         const error = checkResult!.error;
         if (error) {
-            console.error(error);
             setIsUploading(false);
             setFailed(true);
+            console.error(error);
+            setErrorMessage(error);
+            setShowErrorModal(true);
         }
 
         const uploadSessionId = result as number;
@@ -446,7 +449,11 @@ const Uploader: React.FC = () => {
             const pv = handleValidationRequest(authContext!.username, authContext!.password, formData);
             //  const pv = handleDummyValidationRequest(authContext!.username, authContext!.password, formData);
             validationWork.push(pv.catch(error => {
-                console.log(error);
+                setFailed(true);
+                setIsUploading(false);
+                console.error(error);
+                setErrorMessage(error);
+                setShowErrorModal(true);
             }));
 
             // Prepare upload for this file
@@ -454,7 +461,9 @@ const Uploader: React.FC = () => {
             work.push(p.catch(error => {
                 setFailed(true);
                 setIsUploading(false);
-                console.log(error);
+                console.error(error);
+                setErrorMessage(error);
+                setShowErrorModal(true);
             }));
         });
 
@@ -477,9 +486,11 @@ const Uploader: React.FC = () => {
             const checkValidatedResult = validatedResult as any;
             const validationError = checkValidatedResult!.error;
             if (validationError) {
-                console.error(validationError);
                 setIsUploading(false);
                 setFailed(true);
+                console.error(validationError);
+                setErrorMessage(validationError);
+                setShowErrorModal(true);
             }
 
             const validatedFile = validatedResult as ValidatedFile;
@@ -926,7 +937,7 @@ const Uploader: React.FC = () => {
                         backgroundColor: "#fff"
                     }}
                 >
-                    <div>Overwrite the following file(s) in existing destination folder?</div>
+                    <div>Overwrite the following file(s) in existing destination?</div>
                     <TargetPath
                         isSelectedProject={uploaderContext!.isSelectedProject}
                         isSelectedSubject={uploaderContext!.isSelectedSubject}
