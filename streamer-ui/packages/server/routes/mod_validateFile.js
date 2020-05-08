@@ -23,7 +23,7 @@ var _validateFile = async function (req, res) {
 
     // Check for structure
     if (!req.body) {
-        msg = `No attributes were uploaded: "req.body" is empty`
+        msg = `No attributes were validated: "req.body" is empty`
         return res.status(400).json({ "error": msg });
     }
     var uploadSessionId = req.body.uploadSessionId;
@@ -63,12 +63,12 @@ var _validateFile = async function (req, res) {
 
     // Check for uploaded files
     if (!req.files) {
-        msg = `No files were uploaded: "req.files" is empty`;
+        msg = `No files were validated: "req.files" is empty`;
         console.log(msg);
         return res.status(400).json({ "error": msg });
     }
     if (!req.files.files) {
-        msg = `No files were uploaded: "req.files.files" is empty`;
+        msg = `No files were validated: "req.files.files" is empty`;
         console.log(msg);
         return res.status(400).json({ "error": msg });
     }
@@ -76,7 +76,7 @@ var _validateFile = async function (req, res) {
     // Given the req.files.files, derive the number of uploaded files
     var num_files = utils.getNumFiles(req.files.files);
     if (num_files === 0) {
-        msg = `No files were uploaded: file list is empty in request`;
+        msg = `No files were validated: file list is empty in request`;
         console.error(msg);
         return res.status(400).json({ "error": msg });
     }
@@ -89,9 +89,9 @@ var _validateFile = async function (req, res) {
         files = req.files.files;
     }
 
-    // Allow single file upload only
+    // Allow single file validation only
     if (num_files > 1) {
-        msg = `Only single file upload is supported`;
+        msg = `Only single file validation is supported`;
         console.error(msg);
         return res.status(400).json({ "error": msg });
     }
