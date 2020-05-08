@@ -410,11 +410,12 @@ const Uploader: React.FC = () => {
         const checkResult = result as any;
         const error = checkResult!.error;
         if (error) {
-            setIsUploading(false);
-            setFailed(true);
             console.error(error);
             setErrorMessage(error);
             setShowErrorModal(true);
+            setIsUploading(false);
+            setFailed(true);
+            return;
         }
 
         const uploadSessionId = result as number;
@@ -448,13 +449,7 @@ const Uploader: React.FC = () => {
             // Prepare validation for this file
             const pv = handleValidationRequest(authContext!.username, authContext!.password, formData);
             //  const pv = handleDummyValidationRequest(authContext!.username, authContext!.password, formData);
-            validationWork.push(pv.catch(error => {
-                setFailed(true);
-                setIsUploading(false);
-                console.error(error);
-                setErrorMessage(error);
-                setShowErrorModal(true);
-            }));
+            validationWork.push(pv.catch(error => { throw error; }));
 
             // Prepare upload for this file
             const p = handleUploadRequest(authContext!.username, authContext!.password, formData, file.size);
@@ -479,19 +474,18 @@ const Uploader: React.FC = () => {
         console.log("Validating files");
         let existingFiles = [] as string[];
         for (let i = 0; i < validationWork.length; i++) {
-            console.log("Validating file: " + uploaderContext!.fileList[i].name);
-            const validatedResult = await validationWork[i];
-
-            // Check validated result before continuing
-            const checkValidatedResult = validatedResult as any;
-            const validationError = checkValidatedResult!.error;
-            if (validationError) {
-                setIsUploading(false);
-                setFailed(true);
+            console.log(`Validating file: ${uploaderContext!.fileList[i].name}`);
+            let validatedResult: any;
+            try {
+                validatedResult = await validationWork[i];
+            } catch {
+                const validationError = validatedResult!.error;
                 console.error(validationError);
                 setErrorMessage(validationError);
                 setShowErrorModal(true);
-                console.log("Validation failed");
+                setFailed(true);
+                setIsUploading(false);
+                console.error("Validation failed");
                 return; // Abort
             }
 
