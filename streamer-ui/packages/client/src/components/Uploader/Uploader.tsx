@@ -417,7 +417,7 @@ const Uploader: React.FC = () => {
         const uploadSessionId = result as number;
 
         // Prepare the uploading of each file
-        console.log("Preparing uploading of files");
+        console.log("Preparing validation and uploading of files");
 
         let newTotalSizeBytes = 0;
         let validationWork = [] as Promise<unknown>[];
@@ -487,6 +487,7 @@ const Uploader: React.FC = () => {
                 existingFiles.push(validatedFile!.filename);
             }
         }
+        console.log("Validation complete");
 
         if (existingFiles.length > 0) {
             // Handle user confirmation first
@@ -925,7 +926,7 @@ const Uploader: React.FC = () => {
                         backgroundColor: "#fff"
                     }}
                 >
-                    <div>Overwrite the following file(s)?</div>
+                    <div>Overwrite the following file(s) in existing destination folder?</div>
                     <TargetPath
                         isSelectedProject={uploaderContext!.isSelectedProject}
                         isSelectedSubject={uploaderContext!.isSelectedSubject}
