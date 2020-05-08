@@ -491,6 +491,8 @@ const Uploader: React.FC = () => {
                 console.error(validationError);
                 setErrorMessage(validationError);
                 setShowErrorModal(true);
+                console.log("Validation failed");
+                return; // Abort
             }
 
             const validatedFile = validatedResult as ValidatedFile;
