@@ -385,6 +385,30 @@ const Uploader: React.FC = () => {
         }
     }
 
+    // Validate each file sequentially if the file in the destination folder already exist
+    const handleValidation = async (validationWork: Promise<unknown>[]) => {
+        console.log("Validating files");
+        let existingFiles = [] as string[];
+        for (let i = 0; i < validationWork.length; i++) {
+            console.log(`Validating file: ${uploaderContext!.fileList[i].name}`);
+            let validatedResult: any;
+            try {
+                validatedResult = await validationWork[i];
+            } catch (error) {
+                console.error(error);
+                throw new Error(error);
+            }
+
+            const validatedFile = validatedResult as ValidatedFile;
+            if (validatedFile!.fileExists) {
+                existingFiles.push(validatedFile!.filename);
+            }
+        }
+
+        console.log("Validation complete");
+        return existingFiles;
+    };
+
     const handleUpload = async (event: any) => {
         setShowFilesExistModal(false);
         setFailed(false);
@@ -415,7 +439,7 @@ const Uploader: React.FC = () => {
             setShowErrorModal(true);
             setIsUploading(false);
             setFailed(true);
-            return;
+            return; // Abort
         }
 
         const uploadSessionId = result as number;
@@ -470,29 +494,14 @@ const Uploader: React.FC = () => {
         } as UploadWork;
         setUploadWork(uploadWork => newUploadWork);
 
-        // Validate each file sequentially if the file in the destination folder already exist
-        console.log("Validating files");
         let existingFiles = [] as string[];
-        for (let i = 0; i < validationWork.length; i++) {
-            console.log(`Validating file: ${uploaderContext!.fileList[i].name}`);
-            let validatedResult: any;
-            try {
-                validatedResult = await validationWork[i];
-            } catch {
-                const validationError = validatedResult!.error;
-                console.error(validationError);
-                setErrorMessage(validationError);
-                setShowErrorModal(true);
-                setFailed(true);
-                setIsUploading(false);
-                console.error("Validation failed");
-                return; // Abort
-            }
-
-            const validatedFile = validatedResult as ValidatedFile;
-            if (validatedFile!.fileExists) {
-                existingFiles.push(validatedFile!.filename);
-            }
+        try {
+            existingFiles = await handleValidation(validationWork);
+        } catch {
+            setFailed(true);
+            setIsUploading(false);
+            console.error("Validation failed");
+            return; // Abort
         }
         console.log("Validation complete");
 
