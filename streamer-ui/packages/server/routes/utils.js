@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require('fs');
+const fetch = require('node-fetch');
 
 const PROJECT_VOL = process.env.PROJECT_VOL || __dirname + '/uploads';
 const STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname + '/uploads';
@@ -69,9 +70,53 @@ function _getStreamerUrl(projectNumber, subjectLabel, sessionLabel, dataType) {
     return url;
 }
 
+// Fetch once with timeout in milliseconds
+async function _fetchOnce({
+    url,
+    options,
+    timeout
+}) {
+    return Promise.race([
+        fetch(url, options).then(response => {
+            if (!response.ok) {
+                throw new Error(response.statusText);
+            }
+            return response.json();
+        }),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('timeout')), timeout)
+        )
+    ]);
+}
+
+// Retry fetch with number of retries and timeout in milliseconds
+async function _fetchRetry({
+    url,
+    options,
+    numRetries,
+    timeout
+}) {
+    try {
+        return await _fetchOnce({ url, options, timeout });
+    } catch (error) {
+        if (numRetries === 1) throw error;
+        return await _fetchRetry({ url, options, numRetries: numRetries - 1, timeout });
+    }
+}
+
+// Get basic auth string for "Authorization" key in headers
+function _basicAuthString({ username, password }) {
+    const b64encoded = btoa(`${username}:${password}`);
+    return `Basic ${b64encoded}`;
+}
+
 module.exports.getProjectStorageDirName = _getProjectStorageDirName;
 module.exports.getDirName = _getDirName;
 module.exports.getNumFiles = _getNumFiles;
 module.exports.fileExists = _fileExists;
 module.exports.storeFile = _storeFile;
 module.exports.getStreamerUrl = _getStreamerUrl;
+
+module.exports.fetchOnce = _fetchOnce;
+module.exports.fetchRetry = _fetchRetry;
+module.exports.basicAuthString = _basicAuthString;
