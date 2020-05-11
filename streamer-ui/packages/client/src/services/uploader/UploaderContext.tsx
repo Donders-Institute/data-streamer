@@ -1,6 +1,6 @@
 import React from "react";
 
-import { RcFile, ProjectList, ValidateStatuses } from "./types";
+import { RcFile, ProjectList, ValidateStatuses } from "../../types/types";
 
 export interface IUploaderContext {
     projectList: ProjectList;

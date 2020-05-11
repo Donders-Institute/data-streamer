@@ -1,7 +1,10 @@
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
-import { Project, ProjectList } from "./types";
-import { timeout } from "./utils";
+import { Project, ProjectList } from "../../../../types/types";
+
+const timeout = (ms: number) => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+};
 
 // Fake fetcher for testing purposes
 export const fetchDummyProjectList = async (username: string, password: string) => {

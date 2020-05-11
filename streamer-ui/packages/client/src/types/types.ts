@@ -1,3 +1,8 @@
+export interface LoginResponse {
+    success: boolean;
+    error: string;
+};
+
 export interface RcFile extends File {
     uid: string;
     readonly lastModifiedDate: Date;

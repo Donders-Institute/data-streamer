@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Layout, Row, Col, Icon, Menu, Button, Modal, Tooltip } from "antd";
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
-import { AuthContext } from "../Auth/AuthContext";
+import { AuthContext, IAuthContext } from "../../services/auth/AuthContext";
 
 import "../../App.less";
 
@@ -26,7 +26,7 @@ const Header: React.FC = () => {
     const LOCATION_HELP = "help";
     const LOCATION_AUTH = "auth";
 
-    const authContext = useContext(AuthContext);
+    const authContext: IAuthContext | null = useContext(AuthContext);
 
     const handleLogoutResponse = (response: AxiosResponse) => {
         // console.log(response.data);

@@ -1,8 +1,7 @@
 import React from "react";
 import { Layout, Card, Icon } from "antd";
 
-import Header from "../Header/Header";
-import Footer from "../Footer/Footer";
+import Header from "../../components/Header/Header";
 
 const { Content } = Layout;
 
@@ -48,7 +47,6 @@ const Help: React.FC = () => {
                     </div>
                 </Card>
             </div>
-            <Footer />
         </Content>
     );
 };

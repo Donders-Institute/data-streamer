@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import {
     Card,
     Form,
@@ -13,15 +13,15 @@ import {
 } from "antd";
 import { FormComponentProps } from "antd/lib/form";
 import { Redirect } from "react-router-dom";
-import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
-import { fetchDummyIpAddress } from "./fetch";
 
-import { AuthContext } from "../Auth/AuthContext";
+import { AuthContext, IAuthContext } from "../../services/auth/AuthContext";
+import { fetchOnce, basicAuthString } from "../../services/fetch/fetch";
 
-import HeaderLogin from "../Header/HeaderLogin";
+import HeaderLogin from "../../components/HeaderLogin/HeaderLogin";
 
 import "../../App.less";
 import logoDCCN from "../../assets/dccn-logo.png";
+import { LoginResponse } from "../../types/types";
 
 const { Content } = Layout;
 
@@ -36,12 +36,11 @@ function modalError(msg: string) {
 }
 
 const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
-    const authContext = useContext(AuthContext);
+    const authContext: IAuthContext | null = useContext(AuthContext);
 
-    const [isFetchingIpAddress, setIsFetchingIpAddress] = useState(true);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [ipAddress, setIpAddress] = useState("");
+    const [ipAddress, setIpAddress] = useState("0.0.0.0");
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loggingIn, setLoggingIn] = useState(false);
     const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -49,80 +48,55 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
     const { getFieldDecorator } = form;
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
 
-    useEffect(() => {
-        const fetch = async () => {
-            setIsFetchingIpAddress(true);
-            const newIpAddress = await fetchDummyIpAddress();
-            setIpAddress(ipAddress => newIpAddress);
-            setIsFetchingIpAddress(false);
-        };
-        fetch();
-    }, []);
-
-    const handleLoginResponse = (response: AxiosResponse) => {
-        if (response.data) {
-            if (response.data.error) {
-                const error = new Error(response.data.error);
-                setIsAuthenticated(() => false);
-                setLoggingIn(() => false);
-                setHasSubmitted(() => false);
-                modalError(response.data.error);
-                return error;
+    const handleLogin = async (username: string, password: string) => {
+        let headers = new Headers(
+            {
+                'Content-Type': 'application/json',
+                'Authorization': basicAuthString({ username, password })
             }
-            setIsAuthenticated(() => true);
+        );
+        let body = JSON.stringify({ username, password })
+
+        let result: LoginResponse;
+        try {
+            result = await fetchOnce<LoginResponse>({
+                url: "/login",
+                options: {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers,
+                    body
+                } as RequestInit,
+                timeout: 2000
+            });
+        }
+        catch (error) {
+            console.error(error);
+            setIsAuthenticated(() => false);
             setLoggingIn(() => false);
             setHasSubmitted(() => false);
-            setUsername(() => username);
-            setPassword(() => password);
-            setIpAddress(() => ipAddress);
-            authContext!.signIn(username, password, ipAddress);
+            modalError(error);
+            return;
         }
-    };
 
-    const handleLoginError = (error: AxiosError) => {
-        var errorMessage = "could not connect to data streamer UI server";
-        if (error.response) {
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-            if (error.response.data) {
-                errorMessage = JSON.stringify(error.response.data, null, 2);
-            }
-        } else {
-            console.log(error.message);
-            errorMessage = error.message;
+        // Check result for errors
+        if (!result.success || result.error !== "") {
+            console.error(result.error);
+            setIsAuthenticated(() => false);
+            setLoggingIn(() => false);
+            setHasSubmitted(() => false);
+            modalError(result.error);
+            return;
         }
-        setIsAuthenticated(() => false);
+
+        console.log('Success');
+        setIsAuthenticated(() => true);
         setLoggingIn(() => false);
         setHasSubmitted(() => false);
-        console.log(errorMessage);
-        modalError(errorMessage);
-        return error;
-    };
-
-    const handleLogin = (username: string, password: string) => {
-        return new Promise((resolve) => {
-            const config: AxiosRequestConfig = {
-                url: "/login",
-                method: "post",
-                timeout: 2000,
-                withCredentials: true,
-                auth: {
-                    username: username,
-                    password: password
-                },
-                data: {
-                    username: username,
-                    password: password
-                },
-                responseType: "json"
-            };
-
-            resolve(
-                axios(config)
-                    .then(handleLoginResponse)
-                    .catch(handleLoginError));
-        });
+        setUsername(() => username);
+        setPassword(() => password);
+        setIpAddress(() => ipAddress);
+        authContext!.signIn(username, password, ipAddress);
     };
 
     const handleSubmit = (event: any) => {
@@ -136,24 +110,24 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
     };
 
     const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const username = e.target.value;
-        setUsername(() => username);
+        const newUsername = e.target.value;
+        setUsername(newUsername);
     };
 
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const password = e.target.value;
-        setPassword(() => password);
+        const newPassword = e.target.value;
+        setPassword(newPassword);
     };
 
     return (
         <div>
-            {/* {
+            {
                 !authContext!.isAuthenticated &&
                 <Button
                     onClick={() => authContext!.signIn("rutvdee", "testpassword", "0.0.0.0")}>
                     Authenticate rutvdee
                 </Button>
-            } */}
+            }
             {
                 isAuthenticated &&
                 <Redirect to="/" />
@@ -174,11 +148,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                     <HeaderLogin />
                     <Content className="Login">
                         <Row type="flex" justify="center" align="middle" style={{ width: "100%" }}>
-                            <Col span={2}>
-                                {isFetchingIpAddress &&
-                                    <Spin indicator={antIcon} />
-                                }
-                            </Col>
+                            <Col span={2}></Col>
                             <Col span={20}>
                                 <Card className="LoginCard">
                                     <div style={{ display: "flex", justifyContent: "center", margin: "0px 0px 20px 0px" }}>
@@ -229,8 +199,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                                     </Form>
                                 </Card>
                             </Col>
-                            <Col span={2}>
-                            </Col>
+                            <Col span={2}></Col>
                         </Row>
                     </Content>
                 </Content>
