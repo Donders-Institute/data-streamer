@@ -1,7 +1,6 @@
 import React from "react";
 import { Layout, Row, Col, Menu } from "antd";
 
-
 import "../../App.less";
 
 import logoDCCN from "../../assets/donders-logo.svg";

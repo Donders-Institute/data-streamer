@@ -15,18 +15,17 @@ import {
 } from "antd";
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
-import { AuthContext } from "../Auth/AuthContext";
-import { UploaderContext } from "./UploaderContext";
+import { AuthContext, IAuthContext } from "../../../../services/auth/AuthContext";
+import { UploaderContext, IUploaderContext } from "../../../../services/uploader/UploaderContext";
 
-import Header from "../Header/Header";
-import Footer from "../Footer/Footer";
-import FileSelector from "./FileSelector";
-import FileList from "./FileList";
-import TargetPath from "./TargetPath";
-import StructureSelector from "./StructureSelector";
-import { RcFile, ValidatedFile, SelectOption, UploadSession, UploadWork } from "./types";
-import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "./utils";
-import { fetchProjectList, fetchDummyProjectList } from "./fetch";
+import Header from "../../../../components/Header/Header";
+import FileSelector from "../../components/FileSelector/FileSelector";
+import FileList from "../../components/FileList/FileList";
+import TargetPath from "../../components/TargetPath/TargetPath";
+import StructureSelector from "../../components/StructureSelector/StructureSelector";
+import { RcFile, ValidatedFile, SelectOption, UploadSession, UploadWork } from "../../../../types/types";
+import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "../../services/validation/validation";
+import { fetchProjectList } from "../../services/fetch/fetch";
 
 const { Content } = Layout;
 
@@ -53,8 +52,8 @@ const detectFile = (file: RcFile) => {
 };
 
 const Uploader: React.FC = () => {
-    const authContext = useContext(AuthContext);
-    const uploaderContext = useContext(UploaderContext);
+    const authContext: IAuthContext | null = useContext(AuthContext);
+    const uploaderContext: IUploaderContext | null = useContext(UploaderContext);
 
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showFilesExistModal, setShowFilesExistModal] = useState(false);
@@ -88,8 +87,8 @@ const Uploader: React.FC = () => {
             if (!(uploaderContext!.projectList)) {
                 // Only fetch the data when the project list does not yet exist
                 uploaderContext!.setIsLoadingProjectList(true);
-                // const newProjectList = await fetchProjectList(username, password);
-                const newProjectList = await fetchDummyProjectList(username, password); // TODO: Remove this line
+                const newProjectList = await fetchProjectList(username, password);
+                // const newProjectList = await fetchDummyProjectList(username, password); // TODO: Remove this line
                 uploaderContext!.setProjectList(newProjectList);
                 uploaderContext!.setIsLoadingProjectList(false);
             }
@@ -819,7 +818,6 @@ const Uploader: React.FC = () => {
                         </Col>
                     </Row>
                 </div>
-                <Footer />
                 <Modal
                     title="Uploading"
                     visible={showUploadModal}

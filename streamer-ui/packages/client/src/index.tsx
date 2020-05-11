@@ -3,10 +3,10 @@ import { render } from "react-dom";
 import { BrowserRouter as Router } from "react-router-dom";
 import * as serviceWorker from "./serviceWorker";
 
-import App from "./components/App";
-import { AuthProvider } from "./components/Auth/AuthContext";
-import { ProjectList, RcFile, ValidateStatuses } from "./components/Uploader/types";
-import { UploaderProvider } from "./components/Uploader/UploaderContext";
+import App from "./app/App";
+import { AuthProvider, IAuthContext } from "./services/auth/AuthContext";
+import { ProjectList, RcFile, ValidateStatuses } from "./types/types";
+import { UploaderProvider, IUploaderContext } from "./services/uploader/UploaderContext";
 
 import "./index.less";
 
@@ -45,7 +45,7 @@ const Root: React.FC = () => {
         isAuthenticated: false,
         signIn: signIn,
         signOut: signOut
-    });
+    } as IAuthContext);
 
     // Set uploader context
 
@@ -164,7 +164,7 @@ const Root: React.FC = () => {
         setFileList: setFileList,
         setHasFilesSelected: setHasFilesSelected,
         setFileListSummary: setFileListSummary
-    });
+    } as IUploaderContext);
 
     return (
         <AuthProvider value={authContext}>

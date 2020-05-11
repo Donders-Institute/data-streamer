@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon, Upload, Tooltip } from "antd";
 
-import { RcFile } from "./types";
+import { RcFile } from "../../../../types/types";
 
 const { Dragger } = Upload;
 

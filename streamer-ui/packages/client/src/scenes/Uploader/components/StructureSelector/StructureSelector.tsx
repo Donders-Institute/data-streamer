@@ -7,8 +7,8 @@ import {
     Input
 } from "antd";
 import { FormComponentProps } from "antd/lib/form";
-import { ProjectList, SelectOption, ValidateStatuses } from "./types";
-import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "./utils";
+import { ProjectList, SelectOption, ValidateStatuses } from "../../../../types/types";
+import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "../../services/validation/validation";
 
 const { Option } = Select;
 

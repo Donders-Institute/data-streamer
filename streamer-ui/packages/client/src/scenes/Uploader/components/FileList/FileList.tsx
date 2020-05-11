@@ -6,8 +6,8 @@ import {
     Tooltip
 } from "antd";
 
-import { formatBytes } from "./utils";
-import { RcFile } from "./types";
+import { formatBytes } from "../../services/format/format";
+import { RcFile } from "../../../../types/types";
 
 interface IProps {
     fileList: RcFile[];
