@@ -21,7 +21,7 @@ import HeaderLogin from "../../components/HeaderLogin/HeaderLogin";
 
 import "../../App.less";
 import logoDCCN from "../../assets/dccn-logo.png";
-import { LoginResponse } from "../../types/types";
+import { ServerResponse } from "../../types/types";
 
 const { Content } = Layout;
 
@@ -55,11 +55,11 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                 'Authorization': basicAuthString({ username, password })
             }
         );
-        let body = JSON.stringify({ username, password })
+        let body = JSON.stringify({});
 
-        let result: LoginResponse;
+        let result: ServerResponse;
         try {
-            result = await fetchOnce<LoginResponse>({
+            result = await fetchOnce<ServerResponse>({
                 url: "/login",
                 options: {
                     method: 'POST',
@@ -69,21 +69,19 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                 } as RequestInit,
                 timeout: 2000
             });
-        }
-        catch (error) {
-            console.error(error);
+        } catch (err) {
+            console.error(err);
             setIsAuthenticated(() => false);
             setLoggingIn(() => false);
             setHasSubmitted(() => false);
-            modalError(error);
+            modalError(err);
             return;
         }
 
-        console.dir(result);
-
-        // Check result for errors
-        if (!result.success || result.error) {
+        // Double check result for errors
+        if (result.error) {
             const errorMessage = result.error as string;
+            console.error('Login failure');
             console.error(errorMessage);
             setIsAuthenticated(() => false);
             setLoggingIn(() => false);
@@ -124,13 +122,13 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
 
     return (
         <div>
-            {
+            {/* {
                 !authContext!.isAuthenticated &&
                 <Button
                     onClick={() => authContext!.signIn("rutvdee", "testpassword", "0.0.0.0")}>
                     Authenticate rutvdee
                 </Button>
-            }
+            } */}
             {
                 isAuthenticated &&
                 <Redirect to="/" />

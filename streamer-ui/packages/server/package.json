@@ -1,13 +1,13 @@
 {
   "name": "streamer-ui",
   "version": "0.1.0",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
   },
   "dependencies": {
     "activedirectory": "^0.7.2",
-    "async": "~2.1.2",
     "body-parser": "^1.19.0",
     "clean-css": "^4.1.11",
     "config": "^3.2.2",
@@ -23,8 +23,8 @@
     "mkdirp": "^0.5.1",
     "morgan": "~1.9.1",
     "mysql": "^2.17.1",
+    "node-fetch": "^2.6.0",
     "pg": "^7.12.1",
-    "request": "~2.88.0",
     "ssh2": "^0.8.5",
     "uglify-js": "^2.6.0"
   },

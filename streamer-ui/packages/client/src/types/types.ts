@@ -1,5 +1,4 @@
-export interface LoginResponse {
-    success: boolean;
+export interface ServerResponse {
     error: string | null;
     data: string | null;
 };

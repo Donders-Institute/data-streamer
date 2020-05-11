@@ -9,13 +9,9 @@ const fileUpload = require("express-fileupload");
 
 const routes = require('./routes/index');
 const modAuthentication = require('./routes/mod_authentication');
-const modBegin = require('./routes/mod_begin');
-const modValidateFile = require('./routes/mod_validateFile');
-const modAddFile = require('./routes/mod_addFile');
-const modFinalize = require('./routes/mod_finalize');
-const modSubmit = require('./routes/mod_submit');
 const modListProjects = require('./routes/mod_listProjects');
-const modClean = require('./routes/mod_clean');
+const modUpload = require('./routes/mod_upload');
+const modPurge = require('./routes/mod_purge');
 
 var app = express();
 
@@ -57,30 +53,74 @@ app.use(session({
 // Serve static frontend files
 app.use('/', routes);
 
-// POST Authentication
-app.post('/login', modAuthentication.authenticateUser);
-app.post('/logout', modAuthentication.logoutUser);
+// POST Login for regular user
+app.post('/login',
+    modAuthentication.hasBasicAuthHeader,
+    modAuthentication.loginUser);
 
-// POST Begin upload session
-app.post('/begin', modAuthentication.isAuthenticated, modBegin.begin);
+// POST Logout for regular user
+app.post('/logout',
+    modAuthentication.hasBasicAuthHeader,
+    modAuthentication.verifyUser,
+    modAuthentication.logoutUser);
 
-// POST Validate file for upload session
-app.post('/validateFile', modAuthentication.isAuthenticated, modValidateFile.validateFile);
+// GET Obtain list of projects for regular user
+app.get('/projects',
+    modAuthentication.isAuthenticated,
+    modAuthentication.hasBasicAuthHeader,
+    modAuthentication.verifyUser,
+    modListProjects.getListProjects);
 
-// POST Add file to upload session
-app.post('/addFile', modAuthentication.isAuthenticated, modAddFile.addFile);
+// POST Begin upload session for regular user, obtain an upload session id
+app.post('/upload/begin',
+    modAuthentication.isAuthenticated,
+    modAuthentication.hasBasicAuthHeader,
+    modAuthentication.verifyUser,
+    modUpload.verifyStructure,
+    modUpload.begin);
 
-// POST Finalize upload session
-app.post('/finalize', modAuthentication.isAuthenticated, modFinalize.finalize);
+// POST Validate file for upload session for regular user
+app.post('/upload/validatefile',
+    modAuthentication.isAuthenticated,
+    modAuthentication.hasBasicAuthHeader,
+    modAuthentication.verifyUser,
+    modUpload.verifyUploadSessionId,
+    modUpload.verifyStructure,
+    modUpload.verifyFileContents,
+    modUpload.validateFile);
 
-// POST Submit a streamer job
-app.post('/submit', modAuthentication.isAuthenticated, modSubmit.submit);
+// POST Add file to upload session for regular user
+app.post('/upload/addfile',
+    modAuthentication.isAuthenticated,
+    modAuthentication.hasBasicAuthHeader,
+    modAuthentication.verifyUser,
+    modUpload.verifyUploadSessionId,
+    modUpload.verifyStructure,
+    modUpload.verifyFileContents,
+    modUpload.addFile);
 
-// GET Obtain list of projects for user
-app.get('/projects', modAuthentication.isAuthenticated, modListProjects.getListProjects);
+// POST Finalize upload session for regular user
+app.post('/upload/finalize',
+    modAuthentication.isAuthenticated,
+    modAuthentication.hasBasicAuthHeader,
+    modAuthentication.verifyUser,
+    modUpload.verifyUploadSessionId,
+    modUpload.finalize);
 
-// POST Clean database tables
-app.get('/clean', modClean.clean);
+// POST Submit a streamer job for regular user
+app.post('/upload/submit',
+    modAuthentication.isAuthenticated,
+    modAuthentication.hasBasicAuthHeader,
+    modAuthentication.verifyUser,
+    modUpload.verifyUploadSessionId,
+    modUpload.verifyStructure,
+    modUpload.submit);
+
+// POST Purge database tables for admin user
+app.get('/clean',
+    modAuthentication.hasBasicAuthHeader,
+    modAuthentication.verifyAdminCredentials,
+    modPurge.purge);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {

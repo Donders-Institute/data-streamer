@@ -168,7 +168,7 @@ const Uploader: React.FC = () => {
     const handleUploadSessionBeginRequest = (username: string, password: string, uploadSession: UploadSession) => {
         let promise = new Promise((resolve, reject) => {
             const config: AxiosRequestConfig = {
-                url: "/begin",
+                url: "/upload/begin",
                 method: "post",
                 headers: { "Content-Type": "application/json" },
                 data: uploadSession,
@@ -195,7 +195,7 @@ const Uploader: React.FC = () => {
     const handleValidationRequest = (username: string, password: string, formData: any) => {
         let promise = new Promise((resolve, reject) => {
             const config: AxiosRequestConfig = {
-                url: "/validatefile",
+                url: "/upload/validatefile",
                 method: "post",
                 headers: { "Content-Type": "multipart/form-data" },
                 data: formData,
@@ -222,7 +222,7 @@ const Uploader: React.FC = () => {
     const handleUploadRequest = (username: string, password: string, formData: any, fileSizeBytes: number) => {
         let promise = new Promise((resolve, reject) => {
             const config: AxiosRequestConfig = {
-                url: "/addfile",
+                url: "/upload/addfile",
                 method: "post",
                 headers: { "Content-Type": "multipart/form-data" },
                 data: formData,
@@ -251,7 +251,7 @@ const Uploader: React.FC = () => {
     const handleUploadSessionFinalizeRequest = (username: string, password: string, uploadSessionId: number) => {
         let promise = new Promise((resolve, reject) => {
             const config: AxiosRequestConfig = {
-                url: "/finalize",
+                url: "/upload/finalize",
                 method: "post",
                 headers: { "Content-Type": "application/json" },
                 data: {
@@ -279,7 +279,7 @@ const Uploader: React.FC = () => {
     const handleUploadSessionSubmitRequest = (username: string, password: string, uploadSessionId: number, uploadSession: UploadSession) => {
         let promise = new Promise((resolve, reject) => {
             const config: AxiosRequestConfig = {
-                url: "/submit",
+                url: "/upload/submit",
                 method: "post",
                 headers: { "Content-Type": "application/json" },
                 data: {
@@ -325,7 +325,7 @@ const Uploader: React.FC = () => {
     const handleDummyValidationRequest = (username: string, password: string, formData: any) => {
         let promise = new Promise((resolve, reject) => {
             const config: AxiosRequestConfig = {
-                url: "/validateFile",
+                url: "/upload/validatefile",
                 method: "post",
                 headers: { "Content-Type": "multipart/form-data" },
                 data: formData,
