@@ -79,15 +79,17 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
             return;
         }
 
-        // Check result for errors
-        if (!result.success || result.error !== "") {
-            console.error(result.error);
-            setIsAuthenticated(() => false);
-            setLoggingIn(() => false);
-            setHasSubmitted(() => false);
-            modalError(result.error);
-            return;
-        }
+        console.dir(result);
+
+        // // Check result for errors
+        // if (!result.success || (result.error && result.error !== "")) {
+        //     console.error(result.error);
+        //     setIsAuthenticated(() => false);
+        //     setLoggingIn(() => false);
+        //     setHasSubmitted(() => false);
+        //     modalError(result.error);
+        //     return;
+        // }
 
         console.log('Success');
         setIsAuthenticated(() => true);
