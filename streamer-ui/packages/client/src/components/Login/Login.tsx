@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext } from "react";
 import {
     Card,
     Form,
@@ -14,7 +14,6 @@ import {
 import { FormComponentProps } from "antd/lib/form";
 import { Redirect } from "react-router-dom";
 import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
-import { fetchDummyIpAddress } from "./fetch";
 
 import { AuthContext } from "../Auth/AuthContext";
 
@@ -38,26 +37,15 @@ function modalError(msg: string) {
 const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
     const authContext = useContext(AuthContext);
 
-    const [isFetchingIpAddress, setIsFetchingIpAddress] = useState(true);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [ipAddress, setIpAddress] = useState("");
+    const [ipAddress, setIpAddress] = useState("0.0.0.0");
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loggingIn, setLoggingIn] = useState(false);
     const [hasSubmitted, setHasSubmitted] = useState(false);
 
     const { getFieldDecorator } = form;
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
-
-    useEffect(() => {
-        const fetch = async () => {
-            setIsFetchingIpAddress(true);
-            const newIpAddress = await fetchDummyIpAddress();
-            setIpAddress(ipAddress => newIpAddress);
-            setIsFetchingIpAddress(false);
-        };
-        fetch();
-    }, []);
 
     const handleLoginResponse = (response: AxiosResponse) => {
         if (response.data) {
@@ -147,13 +135,13 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
 
     return (
         <div>
-            {/* {
+            {
                 !authContext!.isAuthenticated &&
                 <Button
                     onClick={() => authContext!.signIn("rutvdee", "testpassword", "0.0.0.0")}>
                     Authenticate rutvdee
                 </Button>
-            } */}
+            }
             {
                 isAuthenticated &&
                 <Redirect to="/" />
@@ -174,11 +162,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                     <HeaderLogin />
                     <Content className="Login">
                         <Row type="flex" justify="center" align="middle" style={{ width: "100%" }}>
-                            <Col span={2}>
-                                {isFetchingIpAddress &&
-                                    <Spin indicator={antIcon} />
-                                }
-                            </Col>
+                            <Col span={2}></Col>
                             <Col span={20}>
                                 <Card className="LoginCard">
                                     <div style={{ display: "flex", justifyContent: "center", margin: "0px 0px 20px 0px" }}>
@@ -229,8 +213,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                                     </Form>
                                 </Card>
                             </Col>
-                            <Col span={2}>
-                            </Col>
+                            <Col span={2}></Col>
                         </Row>
                     </Content>
                 </Content>

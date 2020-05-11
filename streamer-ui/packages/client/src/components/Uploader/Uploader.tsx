@@ -26,7 +26,7 @@ import TargetPath from "./TargetPath";
 import StructureSelector from "./StructureSelector";
 import { RcFile, ValidatedFile, SelectOption, UploadSession, UploadWork } from "./types";
 import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "./utils";
-import { fetchProjectList } from "./fetch";
+import { fetchProjectList, fetchDummyProjectList } from "./fetch";
 
 const { Content } = Layout;
 
@@ -88,7 +88,8 @@ const Uploader: React.FC = () => {
             if (!(uploaderContext!.projectList)) {
                 // Only fetch the data when the project list does not yet exist
                 uploaderContext!.setIsLoadingProjectList(true);
-                const newProjectList = await fetchProjectList(username, password);
+                // const newProjectList = await fetchProjectList(username, password);
+                const newProjectList = await fetchDummyProjectList(username, password); // TODO: Remove this line
                 uploaderContext!.setProjectList(newProjectList);
                 uploaderContext!.setIsLoadingProjectList(false);
             }
@@ -473,7 +474,10 @@ const Uploader: React.FC = () => {
             // Prepare validation for this file
             const pv = handleValidationRequest(authContext!.username, authContext!.password, formData);
             //  const pv = handleDummyValidationRequest(authContext!.username, authContext!.password, formData);
-            validationWork.push(pv.catch(error => { throw error; }));
+            validationWork.push(pv.catch(error => {
+                console.error(error);
+                throw error;
+            }));
 
             // Prepare upload for this file
             const p = handleUploadRequest(authContext!.username, authContext!.password, formData, file.size);
@@ -485,6 +489,8 @@ const Uploader: React.FC = () => {
                 setShowErrorModal(true);
             }));
         });
+
+        alert("test");
 
         const newUploadWork = {
             newTotalSizeBytes: newTotalSizeBytes,
