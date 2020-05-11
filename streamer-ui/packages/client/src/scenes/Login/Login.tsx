@@ -79,11 +79,10 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
             return;
         }
 
-        console.dir(result);
-
         // Check result for errors
         if (!result.success || result.error) {
             const errorMessage = result.error as string;
+            console.error('Login failure');
             console.error(errorMessage);
             setIsAuthenticated(() => false);
             setLoggingIn(() => false);
@@ -124,13 +123,13 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
 
     return (
         <div>
-            {
+            {/* {
                 !authContext!.isAuthenticated &&
                 <Button
                     onClick={() => authContext!.signIn("rutvdee", "testpassword", "0.0.0.0")}>
                     Authenticate rutvdee
                 </Button>
-            }
+            } */}
             {
                 isAuthenticated &&
                 <Redirect to="/" />

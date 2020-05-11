@@ -52,7 +52,7 @@ var _authenticateUser = async function (req, res) {
 
         var ad = new ActiveDirectory(adconfig);
 
-        // Check wether user exists. And if it exists get the username and use that to authenticate
+        // Check whether the user exists. If so, obtain the username and use that to authenticate.
         ad.findUser(username, function (err, user) {
             if (err) {
                 msg = 'ERROR: ' + JSON.stringify(err);
