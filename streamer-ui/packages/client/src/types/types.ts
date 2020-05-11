@@ -1,6 +1,7 @@
 export interface LoginResponse {
     success: boolean;
-    error: string;
+    error: string | null;
+    data: string | null;
 };
 
 export interface RcFile extends File {

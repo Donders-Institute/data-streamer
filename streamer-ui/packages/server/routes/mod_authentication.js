@@ -23,17 +23,21 @@ var _isAuthenticated = function (req, res, next) {
 // Authenticate user with Active Directory
 var _authenticateUser = async function (req, res) {
 
-    var msg = "";
-    var username = "";
-    var password = "";
-    var ipAddress = "";
-    var userAgent = "";
+    let msg = "";
+    let username = "";
+    let password = "";
+    let ipAddress = "";
+    let userAgent = "";
 
     // Check for basic auth header
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
         msg = "Missing Authorization Header"
         console.error(username, ipAddress, userAgent, msg);
-        return res.status(401).json({ success: false, error: msg });
+        return res.status(401).json({
+            success: false,
+            data: null,
+            error: msg
+        });
     }
 
     // Verify auth credentials
@@ -53,13 +57,21 @@ var _authenticateUser = async function (req, res) {
             if (err) {
                 msg = 'ERROR: ' + JSON.stringify(err);
                 console.error(username, ipAddress, userAgent, msg);
-                res.status(200).json({ success: false, error: "Something went wrong. Try again later." });
+                res.status(200).json({
+                    success: false,
+                    data: null,
+                    error: "Something went wrong. Try again later."
+                });
                 return;
             }
             if (!user) {
                 msg = "Username not found.";
                 console.error(username, ipAddress, userAgent, msg);
-                res.status(200).json({ success: false, error: msg });
+                res.status(200).json({
+                    success: false,
+                    data: null,
+                    error: msg
+                });
                 return;
             } else {
                 ad.authenticate(user.userPrincipalName, password, function (err, auth) {
@@ -67,15 +79,22 @@ var _authenticateUser = async function (req, res) {
                         // Authentication success
                         req.session.user = username;
                         req.session.authenticated = true;
-                        msg = "You will soon be redirected to the index";
                         console.log(username, ipAddress, userAgent, '');
-                        res.status(200).json({ success: true, data: msg });
+                        res.status(200).json({
+                            success: true,
+                            data: "You will soon be redirected to the index",
+                            error: null
+                        });
                         return;
                     } else {
                         // Authentication failed
                         msg = "Wrong username or password";
                         console.error(username, ipAddress, userAgent, msg);
-                        res.status(200).json({ success: false, error: msg });
+                        res.status(200).json({
+                            success: false,
+                            data: null,
+                            error: msg
+                        });
                         return;
                     }
                 });
@@ -84,17 +103,22 @@ var _authenticateUser = async function (req, res) {
     } else {
         msg = "No username provided";
         console.error(username, ipAddress, userAgent, msg);
-        res.status(200).json({ success: false, error: msg });
+        res.status(200).json({
+            success: false,
+            data: null,
+            error: msg
+        });
+        return;
     }
 }
 
 // Logout user by removing corresponding session data
 var _logoutUser = async function (req, res) {
-    var sess = req.session;
-    var msg;
-    var username = "";
-    var ipAddress = "";
-    var userAgent = "";
+    let sess = req.session;
+    let msg = "";
+    let username = "";
+    let ipAddress = "";
+    let userAgent = "";
 
     // Check for basic auth header
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
