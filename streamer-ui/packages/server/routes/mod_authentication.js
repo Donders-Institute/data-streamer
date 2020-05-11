@@ -32,7 +32,7 @@ var _authenticateUser = async function (req, res) {
     // Check for basic auth header
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
         msg = "Missing Authorization Header"
-        console.log(username, ipAddress, userAgent, msg);
+        console.error(username, ipAddress, userAgent, msg);
         return res.status(401).json({ success: false, error: msg });
     }
 
@@ -48,19 +48,19 @@ var _authenticateUser = async function (req, res) {
 
         var ad = new ActiveDirectory(adconfig);
 
-        // Check wether user exists. And if it exists get the userPrincipalName and use that to authenticate
+        // Check wether user exists. And if it exists get the username and use that to authenticate
         ad.findUser(username, function (err, user) {
             if (err) {
                 msg = 'ERROR: ' + JSON.stringify(err);
-                console.log(username, ipAddress, userAgent, msg);
-                console.log(msg);
+                console.error(username, ipAddress, userAgent, msg);
                 res.status(200).json({ success: false, error: "Something went wrong. Try again later." });
                 return;
             }
             if (!user) {
                 msg = "Username not found.";
-                console.log(username, ipAddress, userAgent, msg);
+                console.error(username, ipAddress, userAgent, msg);
                 res.status(200).json({ success: false, error: msg });
+                return;
             } else {
                 ad.authenticate(user.userPrincipalName, password, function (err, auth) {
                     if (auth) {
@@ -74,7 +74,7 @@ var _authenticateUser = async function (req, res) {
                     } else {
                         // Authentication failed
                         msg = "Wrong username or password";
-                        console.log(username, ipAddress, userAgent, msg);
+                        console.error(username, ipAddress, userAgent, msg);
                         res.status(200).json({ success: false, error: msg });
                         return;
                     }
@@ -83,7 +83,7 @@ var _authenticateUser = async function (req, res) {
         });
     } else {
         msg = "No username provided";
-        console.log(username, ipAddress, userAgent, msg);
+        console.error(username, ipAddress, userAgent, msg);
         res.status(200).json({ success: false, error: msg });
     }
 }
@@ -99,7 +99,7 @@ var _logoutUser = async function (req, res) {
     // Check for basic auth header
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
         msg = "Missing Authorization Header"
-        console.log(username, ipAddress, userAgent, msg);
+        console.error(username, ipAddress, userAgent, msg);
         return res.status(401).json({ success: false, error: msg });
     }
 
