@@ -1,4 +1,3 @@
-const createError = require("http-errors");
 const express = require("express");
 const session = require('express-session');
 const bodyParser = require("body-parser");
@@ -6,17 +5,14 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const fileUpload = require("express-fileupload");
+const createError = require("http-errors");
 
-const routes = require('./routes/index');
 const auth = require('./routes/auth');
 const pdb = require('./routes/pdb');
 const upload = require('./routes/upload');
 const admin = require('./routes/admin');
 
 var app = express();
-
-app.set('view engine', 'jade');
-app.set('views', path.join(__dirname, 'views'));
 
 app.use(logger("dev"));
 app.use(express.json());
