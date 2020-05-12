@@ -1,6 +1,6 @@
 export interface ServerResponse {
     error: string | null;
-    data: string | null;
+    data: any | string | null;
 };
 
 export interface RcFile extends File {

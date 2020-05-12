@@ -71,11 +71,11 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                 timeout: 2000
             });
         } catch (err) {
-            console.error(err);
-            setIsAuthenticated(() => false);
-            setLoggingIn(() => false);
-            setHasSubmitted(() => false);
-            modalError(err);
+            console.error(err.message);
+            setIsAuthenticated(false);
+            setLoggingIn(false);
+            setHasSubmitted(false);
+            modalError(err.message);
             return;
         }
 
@@ -84,30 +84,30 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
             const errorMessage = result.error as string;
             console.error('Login failure');
             console.error(errorMessage);
-            setIsAuthenticated(() => false);
-            setLoggingIn(() => false);
-            setHasSubmitted(() => false);
+            setIsAuthenticated(false);
+            setLoggingIn(false);
+            setHasSubmitted(false);
             modalError(errorMessage);
             return;
         }
 
         console.log('Successfully logged in');
-        setIsAuthenticated(() => true);
-        setLoggingIn(() => false);
-        setHasSubmitted(() => false);
-        setUsername(() => username);
-        setPassword(() => password);
-        setIpAddress(() => ipAddress);
+        setIsAuthenticated(true);
+        setLoggingIn(false);
+        setHasSubmitted(false);
+        setUsername(username);
+        setPassword(password);
+        setIpAddress(ipAddress);
         authContext!.signIn(username, password, ipAddress);
     };
 
     const handleSubmit = (event: any) => {
         event.preventDefault();
-        setUsername(() => username);
-        setPassword(() => password);
-        setIsAuthenticated(() => false);
-        setLoggingIn(() => true);
-        setHasSubmitted(() => true);
+        setUsername(username);
+        setPassword(password);
+        setIsAuthenticated(false);
+        setLoggingIn(true);
+        setHasSubmitted(true);
         handleLogin(username, password);
     };
 

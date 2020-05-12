@@ -26,6 +26,7 @@ import StructureSelector from "../../components/StructureSelector/StructureSelec
 import { Project, RcFile, ValidatedFile, SelectOption, UploadSession, UploadWork } from "../../../../types/types";
 import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "../../services/validation/validation";
 import { fetchProjectList } from "../../services/pdb/pdb";
+import { fetchUploadBegin } from "../../services/upload/upload";
 
 const { Content } = Layout;
 
@@ -83,23 +84,27 @@ const Uploader: React.FC = () => {
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
 
     useEffect(() => {
-        const fetchData = async (username: string, password: string) => {
+        const fetchProjects = async (username: string, password: string) => {
             if (uploaderContext!.projectList!.length < 1) {
                 // Only fetch the data when the project list is yet empty
                 console.log(`Fetching projects for ${username} ...`);
-                let newProjectList = [] as Project[];
+
                 uploaderContext!.setIsLoadingProjectList(true);
+
+                let newProjectList = [] as Project[];
                 try {
                     newProjectList = await fetchProjectList(username, password);
-                    // newProjectList = await fetchDummyProjectList(username, password); // TODO: Remove this line
                 } catch (err) {
-                    console.log(err.message);
+                    console.error(err.message);
+                    setErrorMessage(err.message);
+                    setShowErrorModal(true);
+                } finally {
+                    uploaderContext!.setProjectList(newProjectList);
+                    uploaderContext!.setIsLoadingProjectList(false);
                 }
-                uploaderContext!.setProjectList(newProjectList);
-                uploaderContext!.setIsLoadingProjectList(false);
             }
         };
-        fetchData(authContext!.username, authContext!.password);
+        fetchProjects(authContext!.username, authContext!.password);
     }, [authContext]);
 
     useEffect(() => {
@@ -163,39 +168,12 @@ const Uploader: React.FC = () => {
         } else {
             newErrorMessage = error.message;
         }
-        console.log(newErrorMessage);
-        setErrorMessage(errorMessage => newErrorMessage);
+        console.error(newErrorMessage);
+        setErrorMessage(newErrorMessage);
         setShowErrorModal(true);
         setFailed(true);
         setIsUploading(false);
         return error;
-    };
-
-    const handleUploadSessionBeginRequest = (username: string, password: string, uploadSession: UploadSession) => {
-        let promise = new Promise((resolve, reject) => {
-            const config: AxiosRequestConfig = {
-                url: "/upload/begin",
-                method: "post",
-                headers: { "Content-Type": "application/json" },
-                data: uploadSession,
-                timeout: uploadTimeout,
-                withCredentials: true,
-                auth: {
-                    username: username,
-                    password: password
-                },
-                responseType: "json"
-            };
-
-            resolve(axios.request(config)
-                .then(handleUploadSessionResponse)
-                .then(function (response: AxiosResponse) {
-                    const uploadSessionId = response!.data!.data!.uploadSessionId;
-                    return uploadSessionId;
-                })
-                .catch(handleUploadSessionError));
-        });
-        return promise;
     };
 
     const handleValidationRequest = (username: string, password: string, formData: any) => {
@@ -434,21 +412,17 @@ const Uploader: React.FC = () => {
 
         // Start the upload session
         console.log("Preparing upload");
-        const result = await handleUploadSessionBeginRequest(authContext!.username, authContext!.password, uploadSession);
-
-        // Check result before continuing
-        const checkResult = result as any;
-        const error = checkResult!.error;
-        if (error) {
-            console.error(error);
-            setErrorMessage(error);
+        let uploadSessionId: number;
+        try {
+            uploadSessionId = await fetchUploadBegin(authContext!.username, authContext!.password, uploadSession);
+        } catch (err) {
+            console.error(err.message);
+            setErrorMessage(err.message);
             setShowErrorModal(true);
             setIsUploading(false);
             setFailed(true);
             return; // Abort
         }
-
-        const uploadSessionId = result as number;
 
         // Prepare the uploading of each file
         console.log("Preparing validation and uploading of files");
@@ -494,8 +468,6 @@ const Uploader: React.FC = () => {
                 setShowErrorModal(true);
             }));
         });
-
-        alert("test");
 
         const newUploadWork = {
             newTotalSizeBytes: newTotalSizeBytes,
@@ -760,13 +732,15 @@ const Uploader: React.FC = () => {
                                         dataType={uploaderContext!.selectedDataTypeValue}
                                     />
                                 </Content>
-                                {uploaderContext!.isLoadingProjectList &&
+                                {
+                                    uploaderContext!.isLoadingProjectList &&
                                     <Content style={{ marginTop: "20px" }}>
                                         <div>Loading projects for {authContext!.username} ...</div>
                                         <Spin indicator={antIcon} />
                                     </Content>
                                 }
-                                {!(uploaderContext!.isLoadingProjectList) &&
+                                {
+                                    !(uploaderContext!.isLoadingProjectList) &&
                                     <Content style={{ marginTop: "20px" }}>
                                         <StructureSelector
                                             projectList={uploaderContext!.projectList}
