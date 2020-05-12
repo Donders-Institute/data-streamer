@@ -1,18 +1,20 @@
 const db = require('./db');
+const createError = require("http-errors");
 
 // Purge the database tables (admin user only)
-async function _purge(req, res) {
+async function _purge(req, res, next) {
     let cleanTablesResult;
-
     try {
         cleanTablesResult = await db.cleanTables();
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ data: null, error: err });
+        return next(createError(500, err.message));
     }
 
     console.log(JSON.stringify(cleanTablesResult));
-    return res.status(200).json({ data: cleanTablesResult, error: null });
+    res.status(200).json({
+        data: cleanTablesResult,
+        error: null
+    });
 }
 
 module.exports.purge = _purge;

@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const mkdirp = require('mkdirp');
+const createError = require("http-errors");
 
 const db = require('./db');
 const utils = require('./utils');
@@ -9,103 +10,74 @@ const config = require(path.join(__dirname + '/../config/streamer-ui-config.json
 const SERVICE_ADMIN_USERNAME = config.serviceAdmin.username;
 const SERVICE_ADMIN_PASSWORD = config.serviceAdmin.password;
 
-// Verify upload structure
+// Middleware to verify upload structure
 async function _verifyStructure(req, res, next) {
-    let msg = "";
-
     if (!req.body) {
-        msg = `No attributes were uploaded: "req.body" is empty`
-        console.error(msg);
-        return res.status(400).json({ data: null, error: msg });
+        return next(createError(400, `No attributes were uploaded: "req.body" is empty`));
     }
 
-    let projectNumber = req.body.projectNumber;
-    let subjectLabel = req.body.subjectLabel;
-    let sessionLabel = req.body.sessionLabel;
-    let dataType = req.body.dataType;
+    const projectNumber = req.body.projectNumber;
+    const subjectLabel = req.body.subjectLabel;
+    const sessionLabel = req.body.sessionLabel;
+    const dataType = req.body.dataType;
 
     if (!projectNumber) {
-        msg = 'projectNumber empty';
-        console.error(msg);
-        return res.status(400).json({ data: null, error: msg });
+        return next(createError(400, "projectNumber empty"));
     }
     if (!subjectLabel) {
-        msg = 'subjectLabel empty';
-        console.error(msg);
-        return res.status(400).json({ data: null, error: msg });
+        return next(createError(400, "subjectLabel empty"));
     }
     if (!sessionLabel) {
-        msg = 'sessionLabel empty';
-        console.error(msg);
-        return res.status(400).json({ data: null, error: msg });
+        return next(createError(400, "sessionLabel empty"));
     }
     if (!dataType) {
-        msg = 'dataType empty';
-        console.error(msg);
-        return res.status(400).json({ data: null, error: msg });
+        return next(createError(400, "dataType empty"));
     }
 
     next();
 }
 
-// Verify upload session id
+// Middleware to verify upload session id
 async function _verifyUploadSessionId(req, res, next) {
-    let msg = "";
-
     if (!req.body) {
-        msg = `No attributes were validated: "req.body" is empty`
-        return res.status(400).json({ data: null, error: msg });
+        return next(createError(400, `No attributes were validated: "req.body" is empty`));
     }
 
-    let uploadSessionId = req.body.uploadSessionId;
+    const uploadSessionId = req.body.uploadSessionId;
     if (!uploadSessionId) {
-        msg = 'uploadSessionId empty';
-        return res.status(400).json({ data: null, error: msg });
+        return next(createError(400, "uploadSessionId empty"));
     }
 
     next();
 }
 
-// Verify file contents in the form data
+// Middleware to verify file contents in the form data
 async function _verifyFileContents(req, res, next) {
-    let msg = "";
 
     // Check for files to be uploaded
     if (!req.files) {
-        msg = `No files: "req.files" is empty in request`;
-        console.log(msg);
-        return res.status(400).json({ data: null, error: msg });
+        return next(createError(400, `No files: "req.files" is empty`));
     }
     if (!req.files.files) {
-        msg = `No files: "req.files.files" is empty in request`;
-        console.log(msg);
-        return res.status(400).json({ data: null, error: msg });
+        return next(createError(400, `No files:  "req.files.files" is empty`));
     }
 
     // Given the req.files.files, derive the number of files to be uploaded
     const numFiles = utils.getNumFiles(req.files.files);
     if (numFiles === 0) {
-        msg = "No files: file list is empty in request";
-        console.error(msg);
-        return res.status(400).json({ data: null, error: msg });
+        return next(createError(400, "No files: file list is empty"));
     }
 
     // Allow single file only
     if (numFiles > 1) {
-        msg = "Only single file upload is supported";
-        console.error(msg);
-        return res.status(400).json({ data: null, error: msg });
+        return next(createError(400, "Only single file upload is supported"));
     }
 
     next();
 }
 
 // Begin upload session, obtain upload session id
-async function _begin(req, res) {
-
-    let msg = "";
-    const startTime = new Date();
-    let insertUploadSessionResult;
+async function _begin(req, res, next) {
 
     // Obtain the DCCN username
     const base64Credentials = req.headers.authorization.split(' ')[1];
@@ -126,18 +98,18 @@ async function _begin(req, res) {
     const dataType = req.body.dataType;
 
     // Create the target directory if it does not exist
-    var dirname = utils.getDirName(projectNumber, subjectLabel, sessionLabel, dataType);
-    if (!dirname) {
-        msg = 'Error obtaining directory name';
-        console.error(msg);
-        return res.status(500).json({ data: null, error: msg });
+    var projectStorageDirname = utils.getDirName(projectNumber, subjectLabel, sessionLabel, dataType);
+    if (!projectStorageDirname) {
+        return next(createError(500, "Error obtaining project storage directory name"));
     }
-    if (!fs.existsSync(dirname)) {
-        mkdirp.sync(dirname);
-        console.log(`Successfully created directory "${dirname}"`);
+    if (!fs.existsSync(projectStorageDirname)) {
+        mkdirp.sync(projectStorageDirname);
+        console.log(`Successfully created directory "${projectStorageDirname}"`);
     }
 
     // Add a row to the ui database
+    let insertUploadSessionResult;
+    const startTime = new Date();
     try {
         insertUploadSessionResult = await db.insertUploadSession(
             username,
@@ -149,32 +121,30 @@ async function _begin(req, res) {
             dataType,
             startTime);
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ data: null, error: err });
+        return next(createError(500, err.message));
     }
 
     // Success, return the result
     console.log(username, ipAddress, userAgent, startTime);
     console.log(JSON.stringify(insertUploadSessionResult));
-    return res.status(200).json({ data: insertUploadSessionResult, error: null });
+    res.status(200).json({
+        data: insertUploadSessionResult,
+        error: null
+    });
 }
 
 // Check if the file to be uploaded and the destination folder do not exist already
-async function _validateFile(req, res) {
-    let msg = "";
-
+async function _validateFile(req, res, next) {
     // Obtain structure
     const projectNumber = req.body.projectNumber;
     const subjectLabel = req.body.subjectLabel;
     const sessionLabel = req.body.sessionLabel;
     const dataType = req.body.dataType;
 
-    // Obtain the target project storage directory
+    // Obtain the target project storage directory name
     const projectStorageDirname = utils.getDirName(projectNumber, subjectLabel, sessionLabel, dataType);
     if (!projectStorageDirname) {
-        msg = "Error obtaining project storage directory name";
-        console.error(msg);
-        return res.status(500).json({ data: null, error: msg });
+        return next(createError(500, "Error obtaining project storage directory name"));
     }
 
     // Given the req.files.files, derive the number of uploaded files to be validated
@@ -197,13 +167,14 @@ async function _validateFile(req, res) {
     const validationResult = { filename, fileExists };
 
     console.log(JSON.stringify(validationResult));
-    return res.status(200).json({ data: validationResult, error: null });
+    res.status(200).json({
+        data: validationResult,
+        error: null
+    });
 }
 
 // Add a file to the upload session
-async function _addFile(req, res) {
-    let msg = "";
-
+async function _addFile(req, res, next) {
     // Obtain upload session id
     const uploadSessionId = req.body.uploadSessionId;
 
@@ -213,12 +184,10 @@ async function _addFile(req, res) {
     const sessionLabel = req.body.sessionLabel;
     const dataType = req.body.dataType;
 
-    // Obtain the target directory
-    const dirname = utils.getDirName(projectNumber, subjectLabel, sessionLabel, dataType);
-    if (!dirname) {
-        msg = 'Error obtaining directory name';
-        console.error(msg);
-        return res.status(500).json({ data: null, error: msg });
+    // Obtain the target project storage directory name
+    const projectStorageDirname = utils.getDirName(projectNumber, subjectLabel, sessionLabel, dataType);
+    if (!projectStorageDirname) {
+        return next(createError(500, "Error obtaining project storage directory name"));
     }
 
     // Given the req.files.files, derive the number of uploaded files
@@ -238,11 +207,10 @@ async function _addFile(req, res) {
     const filesizeBytes = file.size;
 
     // Store the file in the buffer
-    const err = utils.storeFile(file, dirname);
+    const err = utils.storeFile(file, projectStorageDirname);
     if (err) {
-        console.error(err);
-        msg = `Error storing file ${filename} in ${dirname}`;
-        return res.status(500).json({ data: null, error: msg });
+        console.error(err.message);
+        return next(createError(500, `Error storing file ${filename} in project storage directory ${projectStorageDirname}`));
     }
 
     // Add a row to the ui database
@@ -250,46 +218,40 @@ async function _addFile(req, res) {
     try {
         insertUploadFileResult = await db.insertUploadFile(uploadSessionId, filename, filesizeBytes);
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ data: null, error: err });
+        return next(createError(500, err.message));
     }
 
     console.log(JSON.stringify(insertUploadFileResult));
-    return res.status(200).json({ data: insertUploadFileResult, error: null });
+    res.status(200).json({
+        data: insertUploadFileResult,
+        error: null
+    });
 }
 
 // Finalize the upload session
-async function _finalize(req, res) {
-
-    let msg = "";
-    let endTime = new Date();
-    let updateUploadSessionResult;
-
+async function _finalize(req, res, next) {
     // Obtain upload session id
-    let uploadSessionId = req.body.uploadSessionId;
-    if (!uploadSessionId) {
-        msg = `uploadSessionId is empty`;
-        console.error(msg);
-        return res.status(400).json({ data: null, error: msg });
-    }
+    const uploadSessionId = req.body.uploadSessionId;
 
     // Update a row in the ui database
+    let updateUploadSessionResult;
+    const endTime = new Date();
     try {
         updateUploadSessionResult = await db.updateUploadSession(uploadSessionId, endTime);
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ data: null, error: err });
+        return next(createError(500, err.message));
     }
 
     // Return the result
     console.log(JSON.stringify(updateUploadSessionResult));
-    return res.status(200).json({ data: updateUploadSessionResult, error: null });
+    res.status(200).json({
+        data: updateUploadSessionResult,
+        error: null
+    });
 }
 
 // Submit a streamer job
-async function _submit(req, res) {
-    let msg = "";
-
+async function _submit(req, res, next) {
     // Obtain user credentials
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
@@ -305,34 +267,30 @@ async function _submit(req, res) {
 
     // Verify username
     if (!streamerUser) {
-        msg = 'streamerUser empty';
-        return res.status(500).json({ data: null, error: msg });
+        return next(createError(401, "streamerUser is empty"));
     }
 
     // Verify service admin username and password
     if (!username) {
-        msg = 'service admin username empty';
-        return res.status(500).json({ data: null, error: msg });
+        return next(createError(401, "service admin username is empty"));
     }
     if (!password) {
-        msg = 'service admin password emnpty';
-        return res.status(500).json({ data: null, error: msg });
+        return next(createError(401, "service admin password is empty"));
     }
 
     // Obtain upload session id
-    let uploadSessionId = req.body.uploadSessionId;
+    const uploadSessionId = req.body.uploadSessionId;
 
     // Obtain structure
-    let projectNumber = req.body.projectNumber;
-    let subjectLabel = req.body.subjectLabel;
-    let sessionLabel = req.body.sessionLabel;
-    let dataType = req.body.dataType;
+    const projectNumber = req.body.projectNumber;
+    const subjectLabel = req.body.subjectLabel;
+    const sessionLabel = req.body.sessionLabel;
+    const dataType = req.body.dataType;
 
     // Construct the streamer URL for a new streamer job POST message
-    var streamerUrl = utils.getStreamerUrl(projectNumber, subjectLabel, sessionLabel, dataType);
+    const streamerUrl = utils.getStreamerUrl(projectNumber, subjectLabel, sessionLabel, dataType);
     if (!streamerUrl) {
-        msg = 'Error creating streamer URL';
-        return res.status(500).json({ data: null, error: msg });
+        return next(createError(500, "Error creating streamer URL"));
     }
 
     // Get the list of files to be uploaded
@@ -340,8 +298,7 @@ async function _submit(req, res) {
     try {
         submitResult = await db.getUploadFileList(uploadSessionId);
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ data: null, error: err });
+        return next(createError(500, err.message));
     }
 
     // Make a POST call to streamer with basic authentication
@@ -370,13 +327,14 @@ async function _submit(req, res) {
         .then(() => {
             console.log("Successfully submitted streamer job");
             console.log(JSON.stringify(submitResult));
-            return res.status(200).json({ data: submitResult, error: null });
+            return res.status(200).json({
+                data: submitResult,
+                error: null
+            });
         })
         .catch((err) => {
             console.error(err);
-            msg = "could not connect to streamer service";
-            console.error(msg);
-            return res.status(500).json({ data: null, error: msg });
+            return next(createError(500, "Could not connect to streamer service"));
         });
 }
 

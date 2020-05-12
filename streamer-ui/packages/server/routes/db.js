@@ -6,6 +6,7 @@ const STREAMER_UI_DB_USER = process.env.STREAMER_UI_DB_USER || "postgres";
 const STREAMER_UI_DB_PASSWORD = process.env.STREAMER_UI_DB_PASSWORD || "postgres";
 const STREAMER_UI_DB_NAME = process.env.STREAMER_UI_DB_NAME || "postgres";
 
+// Connect to streamer UI database 
 async function connect() {
     const client = new Client({
         user: STREAMER_UI_DB_USER,

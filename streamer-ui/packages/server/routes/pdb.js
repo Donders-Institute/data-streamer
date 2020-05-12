@@ -1,5 +1,6 @@
 const mysql = require('mysql');
 const path = require("path");
+const createError = require("http-errors");
 
 const config = require(path.join(__dirname + '/../config/streamer-ui-config.json'));
 const PROJECT_DATABASE_HOST = config.projectDatabase.host;
@@ -8,7 +9,8 @@ const PROJECT_DATABASE_USERNAME = config.projectDatabase.username;
 const PROJECT_DATABASE_PASSWORD = config.projectDatabase.password;
 const PROJECT_DATABASE_DATABASE_NAME = config.projectDatabase.databaseName;
 
-async function _getListProjects(req, res) {
+// Obtain list of user projects from Project Database
+async function _getProjects(req, res, next) {
     // Obtain username
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
@@ -27,20 +29,12 @@ async function _getListProjects(req, res) {
 
     con.connect(function (err) {
         if (err) {
-            console.error(err);
-            return res.status(500).json({
-                data: null,
-                error: err
-            });
+            return next(createError(500, err.message));
         }
         con.query(sql, function (err, results) {
             if (err) {
                 con.end();
-                console.error(err);
-                return res.status(500).json({
-                    data: null,
-                    error: err
-                });
+                return next(createError(500, err.messsage));
             } else {
                 con.end();
                 // Success
@@ -54,4 +48,4 @@ async function _getListProjects(req, res) {
     });
 }
 
-module.exports.getListProjects = _getListProjects;
+module.exports.getProjects = _getProjects;
