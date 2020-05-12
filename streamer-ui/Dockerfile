@@ -21,7 +21,6 @@ COPY $pwd/packages/server/start-server.sh ./
 COPY $pwd/packages/server/*.js ./
 COPY $pwd/packages/server/bin ./bin
 COPY $pwd/packages/server/routes ./routes
-COPY $pwd/packages/server/views ./views
 COPY $pwd/packages/server/config ./config
 RUN ( chmod +x start-server.sh )
 COPY --from=build /opt/streamer-ui-client/build /opt/streamer-ui-server/frontend
