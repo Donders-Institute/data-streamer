@@ -23,9 +23,9 @@ import FileSelector from "../../components/FileSelector/FileSelector";
 import FileList from "../../components/FileList/FileList";
 import TargetPath from "../../components/TargetPath/TargetPath";
 import StructureSelector from "../../components/StructureSelector/StructureSelector";
-import { RcFile, ValidatedFile, SelectOption, UploadSession, UploadWork } from "../../../../types/types";
+import { Project, RcFile, ValidatedFile, SelectOption, UploadSession, UploadWork } from "../../../../types/types";
 import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "../../services/validation/validation";
-import { fetchProjectList } from "../../services/fetch/fetch";
+import { fetchProjectList } from "../../services/pdb/pdb";
 
 const { Content } = Layout;
 
@@ -84,11 +84,17 @@ const Uploader: React.FC = () => {
 
     useEffect(() => {
         const fetchData = async (username: string, password: string) => {
-            if (!(uploaderContext!.projectList)) {
-                // Only fetch the data when the project list does not yet exist
+            if (uploaderContext!.projectList!.length < 1) {
+                // Only fetch the data when the project list is yet empty
+                console.log(`Fetching projects for ${username} ...`);
+                let newProjectList = [] as Project[];
                 uploaderContext!.setIsLoadingProjectList(true);
-                const newProjectList = await fetchProjectList(username, password);
-                // const newProjectList = await fetchDummyProjectList(username, password); // TODO: Remove this line
+                try {
+                    newProjectList = await fetchProjectList(username, password);
+                    // newProjectList = await fetchDummyProjectList(username, password); // TODO: Remove this line
+                } catch (err) {
+                    console.log(err.message);
+                }
                 uploaderContext!.setProjectList(newProjectList);
                 uploaderContext!.setIsLoadingProjectList(false);
             }

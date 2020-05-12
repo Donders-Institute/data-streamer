@@ -1,9 +1,9 @@
 import React from "react";
 
-import { RcFile, ProjectList, ValidateStatuses } from "../../types/types";
+import { RcFile, Project, ValidateStatuses } from "../../types/types";
 
 export interface IUploaderContext {
-    projectList: ProjectList;
+    projectList: Project[];
     isLoadingProjectList: boolean;
     selectedProjectStatus: (typeof ValidateStatuses)[number];
     selectedSubjectStatus: (typeof ValidateStatuses)[number];
@@ -22,7 +22,7 @@ export interface IUploaderContext {
     fileList: RcFile[];
     fileListSummary: number;
     hasFilesSelected: boolean;
-    setProjectList: (projectList: ProjectList) => void;
+    setProjectList: (projectList: Project[]) => void;
     setIsLoadingProjectList: (isLoadingProjectList: boolean) => void;
     setSelectedProjectStatus: (selectedProjectStatus: (typeof ValidateStatuses)[number]) => void;
     setSelectedSubjectStatus: (selectedSubjectStatus: (typeof ValidateStatuses)[number]) => void;

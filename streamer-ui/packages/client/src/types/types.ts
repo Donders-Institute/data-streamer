@@ -32,8 +32,6 @@ export type SelectOption = {
     key: string;
 }
 
-export type ProjectList = Project[] | null;
-
 export interface UploadWork {
     newTotalSizeBytes: number;
     work: Promise<unknown>[];

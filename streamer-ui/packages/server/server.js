@@ -143,7 +143,7 @@ app.use(function (req, res, next) {
 // Error handler
 // No stacktraces leaked to user
 app.use(function (err, req, res, next) {
-    console.err(err);
+    console.log(err.message);
     res.status(err.status || 500).json({
         data: null,
         error: err.message
