@@ -97,7 +97,7 @@ app.post('/upload/validatefile',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
-    auth.verifyUploadSessionId,
+    upload.verifyUploadSessionId,
     upload.verifyStructure,
     upload.verifyFileContents,
     upload.validateFile);

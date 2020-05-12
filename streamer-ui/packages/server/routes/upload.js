@@ -339,8 +339,8 @@ var _submit = async function (req, res, next) {
         });
 }
 
-module.exports.verifyStructure = _verifyStructure;
 module.exports.verifyUploadSessionId = _verifyUploadSessionId;
+module.exports.verifyStructure = _verifyStructure;
 module.exports.verifyFileContents = _verifyFileContents;
 
 module.exports.begin = _begin;
