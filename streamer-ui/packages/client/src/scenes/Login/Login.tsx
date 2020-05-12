@@ -15,7 +15,7 @@ import { FormComponentProps } from "antd/lib/form";
 import { Redirect } from "react-router-dom";
 
 import { AuthContext, IAuthContext } from "../../services/auth/AuthContext";
-import { fetchOnce, basicAuthString } from "../../services/fetch/fetch";
+import { fetchRetry, basicAuthString } from "../../services/fetch/fetch";
 
 import HeaderLogin from "../../components/HeaderLogin/HeaderLogin";
 
@@ -59,7 +59,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
 
         let result: ServerResponse;
         try {
-            result = await fetchOnce<ServerResponse>({
+            result = await fetchRetry<ServerResponse>({
                 url: "/login",
                 options: {
                     method: 'POST',
@@ -67,6 +67,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                     headers,
                     body
                 } as RequestInit,
+                numRetries: 1,
                 timeout: 2000
             });
         } catch (err) {

@@ -5,7 +5,7 @@ import * as serviceWorker from "./serviceWorker";
 
 import App from "./app/App";
 import { AuthProvider, IAuthContext } from "./services/auth/AuthContext";
-import { ProjectList, RcFile, ValidateStatuses } from "./types/types";
+import { Project, RcFile, ValidateStatuses } from "./types/types";
 import { UploaderProvider, IUploaderContext } from "./services/uploader/UploaderContext";
 
 import "./index.less";
@@ -49,7 +49,7 @@ const Root: React.FC = () => {
 
     // Set uploader context
 
-    const setProjectList = (projectList: ProjectList) => {
+    const setProjectList = (projectList: Project[]) => {
         setUploaderContext(state => ({ ...state, projectList }));
     };
 
@@ -126,7 +126,7 @@ const Root: React.FC = () => {
     };
 
     const [uploaderContext, setUploaderContext] = useState({
-        projectList: null as unknown as ProjectList,
+        projectList: [] as Project[],
         isLoadingProjectList: true,
         selectedProjectStatus: "" as (typeof ValidateStatuses)[number],
         selectedSubjectStatus: "" as (typeof ValidateStatuses)[number],
