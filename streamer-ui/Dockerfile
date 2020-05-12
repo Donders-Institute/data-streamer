@@ -15,8 +15,9 @@ RUN yarn build
 # Create the server
 FROM node:12
 WORKDIR /opt/streamer-ui-server
-COPY $pwd/packages/server/package*.json ./
-RUN npm install
+COPY $pwd/packages/server/package.json ./
+COPY $pwd/packages/server/yarn.lock ./
+RUN yarn install
 COPY $pwd/packages/server/start-server.sh ./
 COPY $pwd/packages/server/*.js ./
 COPY $pwd/packages/server/bin ./bin
