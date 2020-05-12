@@ -6,30 +6,30 @@ const PROJECT_VOL = process.env.PROJECT_VOL || __dirname + '/uploads';
 const STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname + '/uploads';
 const STREAMER_URL_PREFIX = process.env.STREAMER_URL_PREFIX || "http://streamer:3001";
 
-// Get the project storage directory name
-function _getProjectStorageDirName(projectNumber, subjectLabel, sessionLabel, dataType) {
-    var projectStorageDirname;
+// Get the streamer UI buffer directory name
+var _getStreamerUIBufferDirName = function (projectNumber, subjectLabel, sessionLabel, dataType) {
+    let streamerUIBufferDirName;
     if (projectNumber && subjectLabel && sessionLabel && dataType) {
         var sub = 'sub-' + subjectLabel;
         var ses = 'ses-' + sessionLabel;
-        projectStorageDirname = path.join(PROJECT_VOL, projectNumber, 'raw', sub, ses, dataType);
+        streamerUIBufferDirName = path.join(STREAMER_UI_BUFFER_DIR, projectNumber, sub, ses, dataType);
     }
-    return projectStorageDirname;
+    return streamerUIBufferDirName;
 }
 
-// Get the streamer UI buffer directory name
-function _getDirName(projectNumber, subjectLabel, sessionLabel, dataType) {
-    var dirname;
+// Get the project storage directory name
+var _getProjectStorageDirName = function (projectNumber, subjectLabel, sessionLabel, dataType) {
+    let projectStorageDirName;
     if (projectNumber && subjectLabel && sessionLabel && dataType) {
         var sub = 'sub-' + subjectLabel;
         var ses = 'ses-' + sessionLabel;
-        dirname = path.join(STREAMER_UI_BUFFER_DIR, projectNumber, sub, ses, dataType);
+        projectStorageDirName = path.join(PROJECT_VOL, projectNumber, 'raw', sub, ses, dataType);
     }
-    return dirname;
+    return projectStorageDirName;
 }
 
 // Derive the number of files
-function _getNumFiles(files) {
+var _getNumFiles = function (files) {
     if (files[0]) {
         return files.length;
     } else {
@@ -38,7 +38,7 @@ function _getNumFiles(files) {
 }
 
 // Check if the file already exists
-function _fileExists(filename, dirname) {
+var _fileExists = function (filename, dirname) {
     var targetPath = path.join(dirname, filename);
     var fileExists = true;
     try {
@@ -50,7 +50,7 @@ function _fileExists(filename, dirname) {
 }
 
 // Move the uploaded file from the temporary directory to the UI buffer
-function _storeFile(file, dirname) {
+var _storeFile = async function (file, dirname) {
     var targetPath = path.join(dirname, file.name);
     file.mv(targetPath, function (err) {
         if (err) {
@@ -62,7 +62,7 @@ function _storeFile(file, dirname) {
 }
 
 // Get the streamer URL
-function _getStreamerUrl(projectNumber, subjectLabel, sessionLabel, dataType) {
+var _getStreamerUrl = function (projectNumber, subjectLabel, sessionLabel, dataType) {
     var url;
     if (projectNumber && subjectLabel && sessionLabel && dataType) {
         url = `${STREAMER_URL_PREFIX}/user/${projectNumber}/${subjectLabel}/${sessionLabel}/${dataType}`;
@@ -71,11 +71,7 @@ function _getStreamerUrl(projectNumber, subjectLabel, sessionLabel, dataType) {
 }
 
 // Fetch once with timeout in milliseconds
-async function _fetchOnce({
-    url,
-    options,
-    timeout
-}) {
+var _fetchOnce = async function ({ url, options, timeout }) {
     return Promise.race([
         fetch(url, options).then(response => {
             if (!response.ok) {
@@ -90,12 +86,7 @@ async function _fetchOnce({
 }
 
 // Retry fetch with number of retries and timeout in milliseconds
-async function _fetchRetry({
-    url,
-    options,
-    numRetries,
-    timeout
-}) {
+var _fetchRetry = async function ({ url, options, numRetries, timeout }) {
     try {
         return await _fetchOnce({ url, options, timeout });
     } catch (error) {
@@ -105,13 +96,13 @@ async function _fetchRetry({
 }
 
 // Get basic auth string for "Authorization" key in headers
-function _basicAuthString({ username, password }) {
+var _basicAuthString = function ({ username, password }) {
     const b64encoded = btoa(`${username}:${password}`);
     return `Basic ${b64encoded}`;
 }
 
 module.exports.getProjectStorageDirName = _getProjectStorageDirName;
-module.exports.getDirName = _getDirName;
+module.exports.getStreamerUIBufferDirName = _getStreamerUIBufferDirName;
 module.exports.getNumFiles = _getNumFiles;
 module.exports.fileExists = _fileExists;
 module.exports.storeFile = _storeFile;
