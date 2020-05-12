@@ -8,10 +8,10 @@ const logger = require("morgan");
 const fileUpload = require("express-fileupload");
 
 const routes = require('./routes/index');
-const modAuthentication = require('./routes/mod_authentication');
-const modListProjects = require('./routes/mod_listProjects');
-const modUpload = require('./routes/mod_upload');
-const modPurge = require('./routes/mod_purge');
+const auth = require('./routes/auth');
+const pdb = require('./routes/pdb');
+const upload = require('./routes/upload');
+const admin = require('./routes/admin');
 
 var app = express();
 
@@ -50,105 +50,105 @@ app.use(session({
     }
 }));
 
-// Serve static frontend files
-app.use('/', routes);
+// GET Serve frontend home page
+app.get('/',
+    auth.isAuthenticated,
+    (req, res) => {
+        res.sendFile(path.join(__dirname + '/./frontend/index.html'));
+    });
+
+// GET Serve login page
+app.get('/login',
+    (req, res) => {
+        // Comment out for testing
+        // req.session.user = 'testuser';
+        // req.session.authenticated = true;
+        res.sendFile(path.join(__dirname + '/../frontend/index.html'));
+    });
+
+// GET Serve logout page
+app.get('/logout',
+    auth.logoutUser);
 
 // POST Login for regular user
 app.post('/login',
-    modAuthentication.hasBasicAuthHeader,
-    modAuthentication.loginUser);
+    auth.hasBasicAuthHeader,
+    auth.loginUser);
 
 // POST Logout for regular user
 app.post('/logout',
-    modAuthentication.hasBasicAuthHeader,
-    modAuthentication.verifyUser,
-    modAuthentication.logoutUser);
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    auth.logoutUser);
 
 // GET Obtain list of projects for regular user
 app.get('/projects',
-    modAuthentication.isAuthenticated,
-    modAuthentication.hasBasicAuthHeader,
-    modAuthentication.verifyUser,
-    modListProjects.getListProjects);
+    auth.isAuthenticated,
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    pdb.getProjects);
 
 // POST Begin upload session for regular user, obtain an upload session id
 app.post('/upload/begin',
-    modAuthentication.isAuthenticated,
-    modAuthentication.hasBasicAuthHeader,
-    modAuthentication.verifyUser,
-    modUpload.verifyStructure,
-    modUpload.begin);
+    auth.isAuthenticated,
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    upload.verifyStructure,
+    upload.begin);
 
 // POST Validate file for upload session for regular user
 app.post('/upload/validatefile',
-    modAuthentication.isAuthenticated,
-    modAuthentication.hasBasicAuthHeader,
-    modAuthentication.verifyUser,
-    modUpload.verifyUploadSessionId,
-    modUpload.verifyStructure,
-    modUpload.verifyFileContents,
-    modUpload.validateFile);
+    auth.isAuthenticated,
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    auth.verifyUploadSessionId,
+    upload.verifyStructure,
+    upload.verifyFileContents,
+    upload.validateFile);
 
 // POST Add file to upload session for regular user
 app.post('/upload/addfile',
-    modAuthentication.isAuthenticated,
-    modAuthentication.hasBasicAuthHeader,
-    modAuthentication.verifyUser,
-    modUpload.verifyUploadSessionId,
-    modUpload.verifyStructure,
-    modUpload.verifyFileContents,
-    modUpload.addFile);
+    auth.isAuthenticated,
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    upload.verifyUploadSessionId,
+    upload.verifyStructure,
+    upload.verifyFileContents,
+    upload.addFile);
 
 // POST Finalize upload session for regular user
 app.post('/upload/finalize',
-    modAuthentication.isAuthenticated,
-    modAuthentication.hasBasicAuthHeader,
-    modAuthentication.verifyUser,
-    modUpload.verifyUploadSessionId,
-    modUpload.finalize);
+    auth.isAuthenticated,
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    upload.verifyUploadSessionId,
+    upload.finalize);
 
 // POST Submit a streamer job for regular user
 app.post('/upload/submit',
-    modAuthentication.isAuthenticated,
-    modAuthentication.hasBasicAuthHeader,
-    modAuthentication.verifyUser,
-    modUpload.verifyUploadSessionId,
-    modUpload.verifyStructure,
-    modUpload.submit);
+    auth.isAuthenticated,
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    upload.verifyUploadSessionId,
+    upload.verifyStructure,
+    upload.submit);
 
 // POST Purge database tables for admin user
 app.get('/clean',
-    modAuthentication.hasBasicAuthHeader,
-    modAuthentication.verifyAdminCredentials,
-    modPurge.purge);
+    auth.hasBasicAuthHeader,
+    auth.verifyAdminCredentials,
+    admin.purge);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {
     next(createError(404));
 });
 
-// Error handlers
-
-// Development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-    app.use(function (err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
-    });
-}
-
-// Production error handler
-// no stacktraces leaked to user
+// Error handler
+// No stacktraces leaked to user
 app.use(function (err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
+    console.err(err);
+    res.status(err.status || 500).json({ data: null, error: err.message });
 });
 
 app.listen(STREAMER_UI_PORT, STREAMER_UI_HOST);

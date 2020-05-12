@@ -1,4 +1,5 @@
 const ActiveDirectory = require('activedirectory');
+const createError = require("http-errors");
 const path = require('path');
 const fs = require('fs');
 
@@ -12,56 +13,54 @@ adconfig.tlsOptions = tlsOptions;
 const STREAMER_UI_DB_USER = process.env.STREAMER_UI_DB_USER || "user";
 const STREAMER_UI_DB_PASSWORD = process.env.STREAMER_UI_DB_PASSWORD || "password";
 
-// Verify session authentication status
+// Middleware to verify session authentication status
 async function _isAuthenticated(req, res, next) {
     if (req.session && typeof req.session.user !== 'undefined' && typeof req.session.authenticated !== 'undefined') {
         if (req.session.authenticated == true) {
-            next();
+            return next();
         }
     }
+
     res.redirect('/login');
 }
 
-// Check for basic auth header
+// Middleware to check for basic auth header
 async function _hasBasicAuthHeader(req, res, next) {
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
-        const msg = 'Missing Authorization Header';
-        console.error(msg);
-        return res.status(401).json({ data: null, error: msg });
+        return next(createError(401, "Missing Authorization Header"));
     }
+
     next();
 }
 
-// Verify regular user
+// Middleware to verify regular user
 async function _verifyUser(req, res, next) {
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
     const username = credentials.split(':')[0];
 
     if (req.session.user !== username) {
-        const msg = 'Invalid user credentials';
-        console.error(msg);
-        return res.status(401).json({ data: null, error: msg });
+        return next(createError(401, "Invalid user credentials"));
     }
+
     next();
 }
 
-// Verify admin credentials
+// Middleware to verify admin credentials
 async function _verifyAdminCredentials(req, res, next) {
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
     const [username, password] = credentials.split(':');
 
     if (username !== STREAMER_UI_DB_USER || password !== STREAMER_UI_DB_PASSWORD) {
-        const msg = 'Invalid admin user credentials';
-        console.error(msg);
-        return res.status(401).json({ data: null, error: msg });
+        return next(createError(401, "Invalid admin user credentials"));
     }
+
     next();
 }
 
 // Login user: Authenticate user with Active Directory
-async function _authenticateUserWithActiveDirectory(req, res) {
+async function _authenticateUserWithActiveDirectory(req, res, next) {
     let msg = "";
     let username = "";
     let password = "";
@@ -80,29 +79,27 @@ async function _authenticateUserWithActiveDirectory(req, res) {
     const ad = new ActiveDirectory(adconfig);
     ad.findUser(username, function (err, user) {
         if (err) {
-            const consoleMsg = 'ERROR: ' + JSON.stringify(err);
-            console.error(username, ipAddress, userAgent, consoleMsg);
-            msg = "Something went wrong. Try again later.";
-            console.error(msg);
-            return res.status(401).json({ data: null, error: msg });
+            console.error(username, ipAddress, userAgent);
+            console.error(err.message);
+            return next(createError(401, "Something went wrong. Try again later"));
         }
+
         if (!user) {
-            msg = "Username not found.";
+            msg = "Username not found";
             console.error(username, ipAddress, userAgent, msg);
-            return res.status(401).json({ data: null, error: msg });
+            return next(createError(401, msg));
         }
 
         ad.authenticate(user.userPrincipalName, password, function (err, auth) {
             if (!auth) {
                 // Authentication failed
-                msg = "Wrong username or password";
-                console.error(username, ipAddress, userAgent, msg);
-                return res.status(401).json({ data: null, error: msg });
+                console.error(username, ipAddress, userAgent);
+                return next(createError(401, "Wrong username or password"));
             }
             // Authentication successful
             req.session.user = username;
             req.session.authenticated = true;
-            console.log(username, ipAddress, userAgent, "");
+            console.log(username, ipAddress, userAgent);
             return res.status(200).json({
                 data: "Login successful. You will soon be redirected to the index",
                 error: null
