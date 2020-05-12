@@ -1,10 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2018",
     "lib": [
+      "es2018",
+      "esnext.asynciterable",
       "dom",
-      "dom.iterable",
-      "es5"
+      "dom.iterable"
+    ],
+    "typeRoots": [
+      "node_modules/@types",
+      "src/@types"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -20,7 +25,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react"
+    "jsx": "preserve"
   },
   "include": [
     "src"
