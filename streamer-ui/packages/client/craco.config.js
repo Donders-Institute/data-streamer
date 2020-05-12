@@ -3,7 +3,7 @@ const CracoAntDesignPlugin = require("craco-antd");
 
 module.exports = {
     eslint: {
-        mode: "file"
+        enable: false
     },
     plugins: [
         {

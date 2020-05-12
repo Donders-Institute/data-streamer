@@ -1,21 +1,44 @@
 {
+  "root": true,
+  "plugins": [
+    "@typescript-eslint/eslint-plugin",
+    "react"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "env": {
+    "es6": true,
+    "node": true
+  },
   "extends": [
     "eslint:recommended",
-    // "plugin:react/recommended",
-    // "plugin:@typescript-eslint/eslint-recommended",
-    // "plugin:@typescript-eslint/recommended",
-    "react-app"
+    //"plugin:react/recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/base"
+    //"plugin:@typescript-eslint/recommended"
+    // "react-app"
   ],
   "rules": {
-    "comma-dangle": ["warn", "never"],
-    "semi": ["warn", "always"],
-    "quotes": ["warn", "double"],
-
+    "comma-dangle": [
+      "warn",
+      "never"
+    ],
+    "semi": [
+      "warn",
+      "always"
+    ],
+    "quotes": [
+      "warn",
+      "double"
+    ],
     "indent": "off",
-    "@typescript-eslint/indent": ["warn", 4]
-
-    // "react/prop-types": "off",
-
+    "@typescript-eslint/indent": [
+      "warn",
+      4
+    ],
+    "react/prop-types": "off"
     // "@typescript-eslint/no-non-null-assertion": "off",
     // "@typescript-eslint/camelcase": [
     //     "warn",
@@ -31,5 +54,10 @@
     //         "allowHigherOrderFunctions": true
     //     }
     // ]
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
   }
 }
