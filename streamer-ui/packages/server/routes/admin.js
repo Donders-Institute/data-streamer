@@ -2,7 +2,7 @@ const db = require('./db');
 const createError = require("http-errors");
 
 // Purge the database tables (admin user only)
-async function _purge(req, res, next) {
+var _purge = async function (req, res, next) {
     let cleanTablesResult;
     try {
         cleanTablesResult = await db.cleanTables();

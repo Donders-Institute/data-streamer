@@ -144,7 +144,10 @@ app.use(function (req, res, next) {
 // No stacktraces leaked to user
 app.use(function (err, req, res, next) {
     console.err(err);
-    res.status(err.status || 500).json({ data: null, error: err.message });
+    res.status(err.status || 500).json({
+        data: null,
+        error: err.message
+    });
 });
 
 app.listen(STREAMER_UI_PORT, STREAMER_UI_HOST);

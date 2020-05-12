@@ -10,7 +10,7 @@ const PROJECT_DATABASE_PASSWORD = config.projectDatabase.password;
 const PROJECT_DATABASE_DATABASE_NAME = config.projectDatabase.databaseName;
 
 // Obtain list of user projects from Project Database
-async function _getProjects(req, res, next) {
+var _getProjects = function (req, res, next) {
     // Obtain username
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');

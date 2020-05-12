@@ -14,7 +14,7 @@ const STREAMER_UI_DB_USER = process.env.STREAMER_UI_DB_USER || "user";
 const STREAMER_UI_DB_PASSWORD = process.env.STREAMER_UI_DB_PASSWORD || "password";
 
 // Middleware to verify session authentication status
-async function _isAuthenticated(req, res, next) {
+var _isAuthenticated = function (req, res, next) {
     if (req.session && typeof req.session.user !== 'undefined' && typeof req.session.authenticated !== 'undefined') {
         if (req.session.authenticated == true) {
             return next();
@@ -25,7 +25,7 @@ async function _isAuthenticated(req, res, next) {
 }
 
 // Middleware to check for basic auth header
-async function _hasBasicAuthHeader(req, res, next) {
+var _hasBasicAuthHeader = function (req, res, next) {
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
         return next(createError(401, "Missing Authorization Header"));
     }
@@ -34,7 +34,7 @@ async function _hasBasicAuthHeader(req, res, next) {
 }
 
 // Middleware to verify regular user
-async function _verifyUser(req, res, next) {
+var _verifyUser = function (req, res, next) {
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
     const username = credentials.split(':')[0];
@@ -47,7 +47,7 @@ async function _verifyUser(req, res, next) {
 }
 
 // Middleware to verify admin credentials
-async function _verifyAdminCredentials(req, res, next) {
+var _verifyAdminCredentials = function (req, res, next) {
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
     const [username, password] = credentials.split(':');
@@ -60,7 +60,7 @@ async function _verifyAdminCredentials(req, res, next) {
 }
 
 // Login user: Authenticate user with Active Directory
-async function _authenticateUserWithActiveDirectory(req, res, next) {
+var _authenticateUserWithActiveDirectory = function (req, res, next) {
     let msg = "";
     let username = "";
     let password = "";
@@ -109,7 +109,7 @@ async function _authenticateUserWithActiveDirectory(req, res, next) {
 }
 
 // Logout user by removing corresponding session data
-async function _logoutUser(req, res) {
+var _logoutUser = function (req, res) {
     let sess = req.session;
 
     delete sess.user;

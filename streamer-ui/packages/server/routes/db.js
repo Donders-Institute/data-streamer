@@ -24,11 +24,21 @@ async function connect() {
 }
 
 // Start a new upload session: set all columns except end_time
-async function _insertUploadSession(username, ipAddress, userAgent, projectNumber, subjectLabel, sessionLabel, dataType, startTime) {
-    var client;
-    var uploadSessionId;
+var _insertUploadSession = async function (
+    username,
+    ipAddress,
+    userAgent,
+    projectNumber,
+    subjectLabel,
+    sessionLabel,
+    dataType,
+    startTime
+) {
+    let client;
+    let uploadSessionId;
+
     try {
-        client = await connect()
+        client = await connect();
     } catch (error) {
         throw "Could not connect to database";
     }
@@ -58,16 +68,15 @@ async function _insertUploadSession(username, ipAddress, userAgent, projectNumbe
 }
 
 // Add an upload file
-async function _insertUploadFile(uploadSessionId, filename, filesizeBytes) {
-    var client;
-    var uploadFileId;
-
+var _insertUploadFile = async function (uploadSessionId, filename, filesizeBytes) {
+    let client;
     try {
-        client = await connect()
+        client = await connect();
     } catch (error) {
         throw "Could not connect to database";
     }
 
+    let uploadFileId;
     try {
         const result = await client.query(`INSERT INTO uploadfile(filename, filesize_bytes, upload_session_id) VALUES($1, $2, $3) RETURNING id;`, [filename, filesizeBytes, uploadSessionId]);
         uploadFileId = result.rows[0].id;
@@ -90,11 +99,10 @@ async function _insertUploadFile(uploadSessionId, filename, filesizeBytes) {
 }
 
 // End the upload session: set end_time
-async function _updateUploadSession(uploadSessionId, endTime) {
-    var client;
-
+var _updateUploadSession = async function (uploadSessionId, endTime) {
+    let client;
     try {
-        client = await connect()
+        client = await connect();
     } catch (error) {
         throw "Could not connect to database";
     }
@@ -122,17 +130,16 @@ async function _updateUploadSession(uploadSessionId, endTime) {
 }
 
 // Obtain the list of upload files
-async function _getUploadFileList(uploadSessionId) {
-    var client;
-    var files = [];
-    var result;
-
+var _getUploadFileList = async function (uploadSessionId) {
+    let client;
     try {
-        client = await connect()
+        client = await connect();
     } catch (error) {
         throw "Could not connect to database";
     }
 
+    let files = [];
+    let result;
     try {
         result = await client.query(`SELECT filename FROM uploadfile WHERE upload_session_id=($1);`, [uploadSessionId]);
     } catch (error) {
@@ -160,15 +167,15 @@ async function _getUploadFileList(uploadSessionId) {
     return getUploadFileListResult;
 }
 
-
 // Delete all rows in uploadsession table and 
-async function _cleanTables() {
-    var client;
+var _cleanTables = async function () {
+    let client;
     try {
-        client = await connect()
+        client = await connect();
     } catch (error) {
         throw "Could not connect to database";
     }
+
     try {
         await client.query(`TRUNCATE TABLE uploadsession, uploadfile`);
     } catch (error) {
