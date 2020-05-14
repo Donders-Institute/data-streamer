@@ -7,18 +7,18 @@ import {
     Input
 } from "antd";
 import { FormComponentProps } from "antd/lib/form";
-import { Project, SelectOption, ValidateStatuses } from "../../../../types/types";
-import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "../../services/validation/validation";
+import { Project, SelectOption, InputValidationStatuses } from "../../../../types/types";
+import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "../../services/inputValidation/inputValidation";
 
 const { Option } = Select;
 
 interface IProps {
     projectList: Project[];
-    selectedProjectStatus: (typeof ValidateStatuses)[number];
-    selectedSubjectStatus: (typeof ValidateStatuses)[number];
-    selectedSessionStatus: (typeof ValidateStatuses)[number];
-    selectedDataTypeStatus: (typeof ValidateStatuses)[number];
-    selectedDataTypeOtherStatus: (typeof ValidateStatuses)[number];
+    selectedProjectStatus: (typeof InputValidationStatuses)[number];
+    selectedSubjectStatus: (typeof InputValidationStatuses)[number];
+    selectedSessionStatus: (typeof InputValidationStatuses)[number];
+    selectedDataTypeStatus: (typeof InputValidationStatuses)[number];
+    selectedDataTypeOtherStatus: (typeof InputValidationStatuses)[number];
     isSelectedProject: boolean;
     projectNumber: string;
     subjectLabel: string;

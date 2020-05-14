@@ -1,17 +1,41 @@
+export interface GetProjectsQueryElement {
+    project: string;
+}
+
+export interface GetProjectsResult {
+    data: GetProjectsQueryElement[];
+}
+
+export interface ValidateFileResult {
+    filename: string;
+    fileExists: boolean;
+    fileIsEmpty: boolean;
+}
+
+export interface AddFileResult {
+    uploadFileId: number;
+}
+
+export interface FinalizeResult {
+    uploadSessionId: number;
+    endTime: string;
+}
+
 export interface ServerResponse {
     error: string | null;
-    data: any | string | null;
+    data: string | GetProjectsResult | ValidateFileResult | AddFileResult | FinalizeResult | null;
 };
+
+export interface ValidationResult {
+    existingFiles: string[];
+    emptyFiles: string[];
+    validatedFiles: ValidateFileResult[];
+}
 
 export interface RcFile extends File {
     uid: string;
     readonly lastModifiedDate: Date;
     readonly webkitRelativePath: string;
-}
-
-export interface ValidatedFile {
-    filename: string;
-    fileExists: boolean;
 }
 
 export interface Project {
@@ -20,8 +44,17 @@ export interface Project {
 }
 
 export interface UploadSession {
+    uploadSessionId: number;
     username: string;
     ipAddress: string;
+    projectNumber: string;
+    subjectLabel: string;
+    sessionLabel: string;
+    dataType: string;
+    totalSizeBytes: number;
+}
+
+export interface Structure {
     projectNumber: string;
     subjectLabel: string;
     sessionLabel: string;
@@ -39,4 +72,4 @@ export interface UploadWork {
     uploadSession: UploadSession;
 }
 
-export declare const ValidateStatuses: ["success", "warning", "error", "validating", ""];
+export declare const InputValidationStatuses: ["success", "warning", "error", "validating", ""];

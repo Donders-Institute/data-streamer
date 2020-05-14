@@ -5,7 +5,7 @@ import * as serviceWorker from "./serviceWorker";
 
 import App from "./app/App";
 import { AuthProvider, IAuthContext } from "./services/auth/AuthContext";
-import { Project, RcFile, ValidateStatuses } from "./types/types";
+import { Project, RcFile, InputValidationStatuses } from "./types/types";
 import { UploaderProvider, IUploaderContext } from "./services/uploader/UploaderContext";
 
 import "./index.less";
@@ -57,23 +57,23 @@ const Root: React.FC = () => {
         setUploaderContext(state => ({ ...state, isLoadingProjectList }));
     };
 
-    const setSelectedProjectStatus = (selectedProjectStatus: (typeof ValidateStatuses)[number]) => {
+    const setSelectedProjectStatus = (selectedProjectStatus: (typeof InputValidationStatuses)[number]) => {
         setUploaderContext(state => ({ ...state, selectedProjectStatus }));
     };
 
-    const setSelectedSubjectStatus = (selectedSubjectStatus: (typeof ValidateStatuses)[number]) => {
+    const setSelectedSubjectStatus = (selectedSubjectStatus: (typeof InputValidationStatuses)[number]) => {
         setUploaderContext(state => ({ ...state, selectedSubjectStatus }));
     };
 
-    const setSelectedSessionStatus = (selectedSessionStatus: (typeof ValidateStatuses)[number]) => {
+    const setSelectedSessionStatus = (selectedSessionStatus: (typeof InputValidationStatuses)[number]) => {
         setUploaderContext(state => ({ ...state, selectedSessionStatus }));
     };
 
-    const setSelectedDataTypeStatus = (selectedDataTypeStatus: (typeof ValidateStatuses)[number]) => {
+    const setSelectedDataTypeStatus = (selectedDataTypeStatus: (typeof InputValidationStatuses)[number]) => {
         setUploaderContext(state => ({ ...state, selectedDataTypeStatus }));
     };
 
-    const setSelectedDataTypeOtherStatus = (selectedDataTypeOtherStatus: (typeof ValidateStatuses)[number]) => {
+    const setSelectedDataTypeOtherStatus = (selectedDataTypeOtherStatus: (typeof InputValidationStatuses)[number]) => {
         setUploaderContext(state => ({ ...state, selectedDataTypeOtherStatus }));
     };
 
@@ -128,11 +128,11 @@ const Root: React.FC = () => {
     const [uploaderContext, setUploaderContext] = useState({
         projectList: [] as Project[],
         isLoadingProjectList: true,
-        selectedProjectStatus: "" as (typeof ValidateStatuses)[number],
-        selectedSubjectStatus: "" as (typeof ValidateStatuses)[number],
-        selectedSessionStatus: "" as (typeof ValidateStatuses)[number],
-        selectedDataTypeStatus: "" as (typeof ValidateStatuses)[number],
-        selectedDataTypeOtherStatus: "" as (typeof ValidateStatuses)[number],
+        selectedProjectStatus: "" as (typeof InputValidationStatuses)[number],
+        selectedSubjectStatus: "" as (typeof InputValidationStatuses)[number],
+        selectedSessionStatus: "" as (typeof InputValidationStatuses)[number],
+        selectedDataTypeStatus: "" as (typeof InputValidationStatuses)[number],
+        selectedDataTypeOtherStatus: "" as (typeof InputValidationStatuses)[number],
         selectedProjectValue: "",
         selectedSubjectValue: "",
         selectedSessionValue: "",

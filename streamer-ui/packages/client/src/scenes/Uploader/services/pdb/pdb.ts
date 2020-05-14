@@ -1,5 +1,5 @@
 import { fetchRetry, basicAuthString } from "../../../../services/fetch/fetch";
-import { Project, ServerResponse } from "../../../../types/types";
+import { Project, ServerResponse, GetProjectsQueryElement, GetProjectsResult } from "../../../../types/types";
 
 // Fake fetcher for testing purposes
 
@@ -24,12 +24,8 @@ export const fetchDummyProjectList = async (username: string, password: string) 
 const fetchNumRetries = 1;
 const fetchTimeout = 5000; // ms
 
-interface SQLQueryProjectElement {
-    project: string;
-}
-
 export const fetchProjectList = async (username: string, password: string) => {
-    let headers = new Headers(
+    const headers = new Headers(
         {
             'Content-Type': 'application/json',
             'Authorization': basicAuthString({ username, password })
@@ -58,21 +54,22 @@ export const fetchProjectList = async (username: string, password: string) => {
     }
 
     console.dir(result.data);
-    if (!result.data.data) {
-        throw new Error("Empty data.data in result");
-    }
 
-    console.dir(result.data.data);
+    // if (!result.data.data) {
+    //     throw new Error("Empty data.data in result");
+    // }
+
+    // console.dir(result.data.data);
 
     let projectList = [] as Project[];
-    const data = result.data.data;
-    for (let i = 0; i < data.length; i++) {
-        let projectElement: SQLQueryProjectElement = data[i];
-        let projectNumber = projectElement.project;
-        let project = { id: i, number: projectNumber } as Project;
-        console.log(projectNumber);
-        projectList!.push(project);
-    }
+    // const data = result.data.data;
+    // for (let i = 0; i < data.length; i++) {
+    //     let projectElement: GetProjectsQueryElement = data[i];
+    //     let projectNumber = projectElement.project;
+    //     let project = { id: i, number: projectNumber } as Project;
+    //     console.log(projectNumber);
+    //     projectList!.push(project);
+    // }
 
     return projectList;
 };

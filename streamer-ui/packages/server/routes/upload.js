@@ -77,6 +77,7 @@ var _verifyFileContents = function (req, res, next) {
 }
 
 // Begin upload session, obtain upload session id
+// If the streamer UI buffer folder does not exist create it
 var _begin = async function (req, res, next) {
 
     // Obtain the DCCN username
@@ -107,7 +108,7 @@ var _begin = async function (req, res, next) {
         console.log(`Successfully created streamer buffer UI directory "${dirName}"`);
     }
 
-    // Add a row to the ui database
+    // Add an upload session to the streamer UI database
     let insertUploadSessionResult;
     const startTime = new Date();
     try {
@@ -134,7 +135,6 @@ var _begin = async function (req, res, next) {
 }
 
 // Check if the file to be uploaded and the destination project storage folder do not exist already
-// If the project storage folder does not exist, create it.
 var _validateFile = function (req, res, next) {
     // Obtain structure
     const projectNumber = req.body.projectNumber;
@@ -163,9 +163,17 @@ var _validateFile = function (req, res, next) {
     const file = files[0];
     const filename = file.name;
 
-    // Validate file: check if it exists in the project storage folder
+    // Check if file has zero size
+    const fileIsEmpty = file.size === 0;
+
+    // Check if project storage folder and file exists already
     const fileExists = utils.fileExists(filename, projectStorageDirName);
-    const validationResult = { filename, fileExists };
+
+    const validationResult = {
+        filename,
+        fileExists,
+        fileIsEmpty
+    };
 
     console.log(JSON.stringify(validationResult));
     res.status(200).json({
@@ -214,7 +222,7 @@ var _addFile = async function (req, res, next) {
         return next(createError(500, `Error storing file ${filename} in project storage directory ${dirName}`));
     }
 
-    // Add a row to the streamer UI database
+    // Add an upload file to the streamer UI database
     let insertUploadFileResult;
     try {
         insertUploadFileResult = await db.insertUploadFile(uploadSessionId, filename, filesizeBytes);
@@ -234,7 +242,7 @@ var _finalize = async function (req, res, next) {
     // Obtain upload session id
     const uploadSessionId = req.body.uploadSessionId;
 
-    // Update a row in the streamer UI database
+    // Update an upload session in the streamer UI database
     let updateUploadSessionResult;
     const endTime = new Date();
     try {
