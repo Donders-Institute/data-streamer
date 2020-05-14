@@ -98,8 +98,8 @@ var _begin = async function (req, res, next) {
     const sessionLabel = req.body.sessionLabel;
     const dataType = req.body.dataType;
 
-    // Create the streamer buffer UI directory if it does not exist
-    var dirName = utils.getStreamerBufferUIDirName(projectNumber, subjectLabel, sessionLabel, dataType);
+    // Create the streamer UI buffer directory if it does not exist
+    var dirName = utils.getStreamerUIBufferDirName(projectNumber, subjectLabel, sessionLabel, dataType);
     if (!dirName) {
         return next(createError(500, "Error obtaining streamer buffer UI directory name"));
     }
@@ -193,8 +193,8 @@ var _addFile = async function (req, res, next) {
     const sessionLabel = req.body.sessionLabel;
     const dataType = req.body.dataType;
 
-    // Obtain the streamer buffer UI directory name
-    const dirName = utils.getStreamerBufferUIDirName(projectNumber, subjectLabel, sessionLabel, dataType);
+    // Obtain the streamer UI buffer directory name
+    const dirName = utils.getStreamerUIBufferDirName(projectNumber, subjectLabel, sessionLabel, dataType);
     if (!dirName) {
         return next(createError(500, "Error obtaining streamer buffer UI directory name"));
     }
