@@ -97,6 +97,48 @@ const initiate = async (
     return 0; // uploadSessionId as number;
 };
 
+export const prepare = async (
+    username: string,
+    password: string,
+    ipAddress: string,
+    projectNumber: string,
+    subjectLabel: string,
+    sessionLabel: string,
+    dataType: string,
+    fileList: RcFile[]
+) => {
+
+    let uploadSessionId: number;
+    try {
+        uploadSessionId = await initiate(
+            username,
+            password,
+            projectNumber,
+            subjectLabel,
+            sessionLabel,
+            dataType);
+    } catch (err) {
+        throw err;
+    }
+
+    // Derive the total size of the files to be uploaded in bytes
+    let totalSizeBytes = 0;
+    fileList.forEach((file: RcFile) => {
+        totalSizeBytes += file.size;
+    });
+
+    return {
+        uploadSessionId,
+        username,
+        ipAddress,
+        projectNumber,
+        subjectLabel,
+        sessionLabel,
+        dataType,
+        totalSizeBytes
+    } as UploadSession;
+}
+
 // Validate a single file to be uploaded
 const validateFile = async (
     username: string,
@@ -155,6 +197,45 @@ const validateFile = async (
     const validateFileResult = result.data as ValidateFileResult;
     return validateFileResult;
 };
+
+// Check for existing project storage folder and existing files
+export const validate = async (
+    username: string,
+    password: string,
+    uploadSession: UploadSession,
+    fileList: RcFile[]
+) => {
+    let validationResult = {
+        existingFiles: [] as string[],
+        emptyFiles: [] as string[],
+        validatedFiles: [] as ValidateFileResult[]
+    } as ValidationResult;
+
+    fileList.forEach(async (file: RcFile) => {
+        let validateFileResult: ValidateFileResult;
+        try {
+            validateFileResult = await validateFile(
+                username,
+                password,
+                uploadSession,
+                file);
+        } catch (err) {
+            throw err;
+        }
+
+        // Gather existing files
+        if (validateFileResult.fileExists) {
+            validationResult.existingFiles.push(file.name);
+        }
+
+        // Gather empty files
+        if (validateFileResult.fileIsEmpty) {
+            validationResult.emptyFiles.push(file.name);
+        }
+    });
+
+    return validationResult;
+}
 
 // Add a file to be uploaded
 const addFile = async (
@@ -215,7 +296,7 @@ const addFile = async (
     return addFileResult;
 };
 
-// Finalize upload session
+// Finalize the upload session
 const finalize = async (
     username: string,
     password: string,
@@ -268,84 +349,55 @@ const finalize = async (
     return finalizeResult;
 };
 
-
-export const prepare = async (
+// Finally, submit a streamer job
+const submit = async (
     username: string,
     password: string,
-    ipAddress: string,
-    projectNumber: string,
-    subjectLabel: string,
-    sessionLabel: string,
-    dataType: string,
-    fileList: RcFile[]
+    uploadSession: UploadSession
 ) => {
+    const headers = new Headers(
+        {
+            'Content-Type': 'application/json',
+            'Authorization': basicAuthString({ username, password })
+        }
+    );
 
-    let uploadSessionId: number;
+    const body = JSON.stringify({
+        uploadSessionId: uploadSession.uploadSessionId,
+        projectNumber: uploadSession.projectNumber,
+        subjectLabel: uploadSession.subjectLabel,
+        sessionLabel: uploadSession.sessionLabel,
+        dataType: uploadSession.dataType
+    });
+
+    let result: ServerResponse;
     try {
-        uploadSessionId = await initiate(
-            username,
-            password,
-            projectNumber,
-            subjectLabel,
-            sessionLabel,
-            dataType);
+        result = await fetchRetry<ServerResponse>({
+            url: "/upload/submit",
+            options: {
+                method: 'POST',
+                credentials: 'include',
+                headers,
+                body
+            } as RequestInit,
+            numRetries: uploadNumRetries,
+            timeout: uploadTimeout
+        });
     } catch (err) {
         throw err;
     }
 
-    // Derive the total size of the files to be uploaded in bytes
-    let totalSizeBytes = 0;
-    fileList.forEach((file: RcFile) => {
-        totalSizeBytes += file.size;
-    });
+    // Double check result for errors
+    if (result.error) {
+        const errorMessage = result.error as string;
+        throw new Error(errorMessage);
+    }
 
-    return {
-        uploadSessionId,
-        username,
-        ipAddress,
-        projectNumber,
-        subjectLabel,
-        sessionLabel,
-        dataType,
-        totalSizeBytes
-    } as UploadSession;
-}
+    if (!result.data) {
+        const errorMessage = "data is empty in result"
+        throw new Error(errorMessage);
+    }
 
-// Check for existing project storage folder and existing files
-export const validate = async (
-    username: string,
-    password: string,
-    uploadSession: UploadSession,
-    fileList: RcFile[]
-) => {
-    let validationResult = {
-        existingFiles: [] as string[],
-        emptyFiles: [] as string[],
-        validatedFiles: [] as ValidateFileResult[]
-    } as ValidationResult;
-
-    fileList.forEach(async (file: RcFile) => {
-        let validateFileResult: ValidateFileResult;
-        try {
-            validateFileResult = await validateFile(
-                username,
-                password,
-                uploadSession,
-                file);
-        } catch (err) {
-            throw err;
-        }
-
-        // Gather existing files
-        if (validateFileResult.fileExists) {
-            validationResult.existingFiles.push(file.name);
-        }
-
-        // Gather empty files
-        if (validateFileResult.fileIsEmpty) {
-            validationResult.emptyFiles.push(file.name);
-        }
-    });
-
-    return validationResult;
-}
+    const submitResult = result.data as SubmitResult;
+    return submitResult;
+};

@@ -71,24 +71,25 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                 timeout: 2000
             });
         } catch (err) {
+            console.error('Login failure');
             console.error(err);
             setIsAuthenticated(false);
             setLoggingIn(false);
             setHasSubmitted(false);
             modalError(err.message);
-            return;
+            return; // Abort
         }
 
         // Double check result for errors
         if (result.error) {
-            const errorMessage = result.error as string;
             console.error('Login failure');
+            const errorMessage = result.error as string;
             console.error(errorMessage);
             setIsAuthenticated(false);
             setLoggingIn(false);
             setHasSubmitted(false);
             modalError(errorMessage);
-            return;
+            return; // Abort
         }
 
         console.log('Successfully logged in');

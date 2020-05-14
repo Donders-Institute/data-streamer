@@ -63,6 +63,7 @@ const Uploader: React.FC = () => {
 
     useEffect(() => {
         const fetchProjects = async (username: string, password: string) => {
+            console.dir(uploaderContext!.projectList);
             if (uploaderContext!.projectList!.length < 1) {
                 // Only fetch the data when the project list is yet empty
                 console.log(`Fetching projects for ${username} ...`);
