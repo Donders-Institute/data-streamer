@@ -53,7 +53,7 @@ export const fetchProjectList = async (username: string, password: string) => {
     }
 
     const getProjectsResult = result.data as ProjectsResult;
-    const projects = getProjectsResult.data;
+    const projects = getProjectsResult.data as ProjectsResultElement[];
 
     let projectList = [] as Project[];
     for (let i = 0; i < projects.length; i++) {
