@@ -79,6 +79,7 @@ const Uploader: React.FC = () => {
                     setErrorMessage(newErrorMessage);
                     setShowErrorModal(true);
                 } finally {
+                    console.dir(newProjectList);
                     uploaderContext!.setProjectList(newProjectList);
                     uploaderContext!.setIsLoadingProjectList(false);
                 }
