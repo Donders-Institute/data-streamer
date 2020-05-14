@@ -52,8 +52,13 @@ export const fetchProjectList = async (username: string, password: string) => {
         throw new Error("Empty data in result");
     }
 
+    console.dir(result.data);
+
     const getProjectsResult = result.data as ProjectsResult;
     const projects = getProjectsResult.data as ProjectsResultElement[];
+
+    console.dir(getProjectsResult);
+    console.dir(projects);
 
     let projectList = [] as Project[];
     for (let i = 0; i < projects.length; i++) {
@@ -63,8 +68,7 @@ export const fetchProjectList = async (username: string, password: string) => {
             id: i,
             number: projectNumber
         } as Project;
-        console.log(projectNumber);
-        projectList!.push(project);
+        projectList.push(project);
     }
 
     return projectList;
