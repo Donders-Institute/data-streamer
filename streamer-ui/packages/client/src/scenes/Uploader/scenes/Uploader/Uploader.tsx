@@ -13,7 +13,7 @@ import {
     Tooltip,
     List
 } from "antd";
-import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
+// import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
 import { AuthContext, IAuthContext } from "../../../../services/auth/AuthContext";
 import { UploaderContext, IUploaderContext } from "../../../../services/uploader/UploaderContext";
@@ -127,251 +127,184 @@ const Uploader: React.FC = () => {
         checkProceed();
     }, [uploaderContext]);
 
-    const handleUploadSessionResponse = (response: AxiosResponse) => {
-        // console.log(response.data);
-        // console.log(response.status);
-        // console.log(response.statusText);
-        // console.log(response.headers);
-        // console.log(response.config);
-        return response;
-    };
+    // const handleUploadSessionResponse = (response: AxiosResponse) => {
+    //     // console.log(response.data);
+    //     // console.log(response.status);
+    //     // console.log(response.statusText);
+    //     // console.log(response.headers);
+    //     // console.log(response.config);
+    //     return response;
+    // };
 
-    const handleUploadSessionError = (error: AxiosError) => {
-        var newErrorMessage = "could not connect to data streamer UI server";
-        if (error.response) {
-            // console.log(error.response.data);
-            // console.log(error.response.status);
-            // console.log(error.response.headers);
-            if (error.response.data) {
-                newErrorMessage = JSON.stringify(error.response.data, null, 2);
-            }
-        } else {
-            newErrorMessage = error.message;
-        }
-        console.error(newErrorMessage);
-        setErrorMessage(newErrorMessage);
-        setShowErrorModal(true);
-        setFailed(true);
-        setIsUploading(false);
-        return error;
-    };
+    // const handleUploadSessionError = (error: AxiosError) => {
+    //     var newErrorMessage = "could not connect to data streamer UI server";
+    //     if (error.response) {
+    //         // console.log(error.response.data);
+    //         // console.log(error.response.status);
+    //         // console.log(error.response.headers);
+    //         if (error.response.data) {
+    //             newErrorMessage = JSON.stringify(error.response.data, null, 2);
+    //         }
+    //     } else {
+    //         newErrorMessage = error.message;
+    //     }
+    //     console.error(newErrorMessage);
+    //     setErrorMessage(newErrorMessage);
+    //     setShowErrorModal(true);
+    //     setFailed(true);
+    //     setIsUploading(false);
+    //     return error;
+    // };
 
-    const handleValidationRequest = (username: string, password: string, formData: any) => {
-        let promise = new Promise((resolve, reject) => {
-            const config: AxiosRequestConfig = {
-                url: "/upload/validatefile",
-                method: "post",
-                headers: { "Content-Type": "multipart/form-data" },
-                data: formData,
-                timeout: uploadTimeout,
-                withCredentials: true,
-                auth: {
-                    username: username,
-                    password: password
-                },
-                responseType: "json"
-            };
+    // const handleValidationRequest = (username: string, password: string, formData: any) => {
+    //     let promise = new Promise((resolve, reject) => {
+    //         const config: AxiosRequestConfig = {
+    //             url: "/upload/validatefile",
+    //             method: "post",
+    //             headers: { "Content-Type": "multipart/form-data" },
+    //             data: formData,
+    //             timeout: uploadTimeout,
+    //             withCredentials: true,
+    //             auth: {
+    //                 username: username,
+    //                 password: password
+    //             },
+    //             responseType: "json"
+    //         };
 
-            resolve(axios.request(config)
-                .then(handleUploadSessionResponse)
-                .then(function (response: AxiosResponse) {
-                    const ValidateFileResult = response!.data!.data!;
-                    return ValidateFileResult as ValidateFileResult;
-                })
-                .catch(handleUploadSessionError));
-        });
-        return promise;
-    };
+    //         resolve(axios.request(config)
+    //             .then(handleUploadSessionResponse)
+    //             .then(function (response: AxiosResponse) {
+    //                 const ValidateFileResult = response!.data!.data!;
+    //                 return ValidateFileResult as ValidateFileResult;
+    //             })
+    //             .catch(handleUploadSessionError));
+    //     });
+    //     return promise;
+    // };
 
-    const handleUploadRequest = (username: string, password: string, formData: any, fileSizeBytes: number) => {
-        let promise = new Promise((resolve, reject) => {
-            const config: AxiosRequestConfig = {
-                url: "/upload/addfile",
-                method: "post",
-                headers: { "Content-Type": "multipart/form-data" },
-                data: formData,
-                timeout: uploadTimeout,
-                withCredentials: true,
-                auth: {
-                    username: username,
-                    password: password
-                },
-                responseType: "json"
-            };
+    // const handleUploadRequest = (username: string, password: string, formData: any, fileSizeBytes: number) => {
+    //     let promise = new Promise((resolve, reject) => {
+    //         const config: AxiosRequestConfig = {
+    //             url: "/upload/addfile",
+    //             method: "post",
+    //             headers: { "Content-Type": "multipart/form-data" },
+    //             data: formData,
+    //             timeout: uploadTimeout,
+    //             withCredentials: true,
+    //             auth: {
+    //                 username: username,
+    //                 password: password
+    //             },
+    //             responseType: "json"
+    //         };
 
-            resolve(axios.request(config)
-                .then(handleUploadSessionResponse)
-                .then(function (response: AxiosResponse) {
-                    let value = totalSizeBytes > 0 ? uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes) : 100;
-                    setUploadingPercentage(uploadingPercentage => value);
-                    setRemainingItems(remainingItems => remainingItems - 1);
-                    return value;
-                })
-                .catch(handleUploadSessionError));
-        });
-        return promise;
-    };
+    //         resolve(axios.request(config)
+    //             .then(handleUploadSessionResponse)
+    //             .then(function (response: AxiosResponse) {
+    //                 let value = totalSizeBytes > 0 ? uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes) : 100;
+    //                 setUploadingPercentage(uploadingPercentage => value);
+    //                 setRemainingItems(remainingItems => remainingItems - 1);
+    //                 return value;
+    //             })
+    //             .catch(handleUploadSessionError));
+    //     });
+    //     return promise;
+    // };
 
-    const handleUploadSessionFinalizeRequest = (username: string, password: string, uploadSessionId: number) => {
-        let promise = new Promise((resolve, reject) => {
-            const config: AxiosRequestConfig = {
-                url: "/upload/finalize",
-                method: "post",
-                headers: { "Content-Type": "application/json" },
-                data: {
-                    "uploadSessionId": uploadSessionId
-                },
-                timeout: uploadTimeout,
-                withCredentials: true,
-                auth: {
-                    username: username,
-                    password: password
-                },
-                responseType: "json"
-            };
+    // const handleUploadSessionFinalizeRequest = (username: string, password: string, uploadSessionId: number) => {
+    //     let promise = new Promise((resolve, reject) => {
+    //         const config: AxiosRequestConfig = {
+    //             url: "/upload/finalize",
+    //             method: "post",
+    //             headers: { "Content-Type": "application/json" },
+    //             data: {
+    //                 "uploadSessionId": uploadSessionId
+    //             },
+    //             timeout: uploadTimeout,
+    //             withCredentials: true,
+    //             auth: {
+    //                 username: username,
+    //                 password: password
+    //             },
+    //             responseType: "json"
+    //         };
 
-            resolve(axios.request(config)
-                .then(handleUploadSessionResponse)
-                .then(function (response: AxiosResponse) {
-                    return true;
-                })
-                .catch(handleUploadSessionError));
-        });
-        return promise;
-    };
+    //         resolve(axios.request(config)
+    //             .then(handleUploadSessionResponse)
+    //             .then(function (response: AxiosResponse) {
+    //                 return true;
+    //             })
+    //             .catch(handleUploadSessionError));
+    //     });
+    //     return promise;
+    // };
 
-    const handleUploadSessionSubmitRequest = (username: string, password: string, uploadSessionId: number, uploadSession: UploadSession) => {
-        let promise = new Promise((resolve, reject) => {
-            const config: AxiosRequestConfig = {
-                url: "/upload/submit",
-                method: "post",
-                headers: { "Content-Type": "application/json" },
-                data: {
-                    ...uploadSession,
-                    "uploadSessionId": uploadSessionId
-                },
-                timeout: uploadTimeout,
-                withCredentials: true,
-                auth: {
-                    username: username,
-                    password: password
-                },
-                responseType: "json"
-            };
+    // const handleUploadSessionSubmitRequest = (username: string, password: string, uploadSessionId: number, uploadSession: UploadSession) => {
+    //     let promise = new Promise((resolve, reject) => {
+    //         const config: AxiosRequestConfig = {
+    //             url: "/upload/submit",
+    //             method: "post",
+    //             headers: { "Content-Type": "application/json" },
+    //             data: {
+    //                 ...uploadSession,
+    //                 "uploadSessionId": uploadSessionId
+    //             },
+    //             timeout: uploadTimeout,
+    //             withCredentials: true,
+    //             auth: {
+    //                 username: username,
+    //                 password: password
+    //             },
+    //             responseType: "json"
+    //         };
 
-            resolve(axios.request(config)
-                .then(handleUploadSessionResponse)
-                .then(function (response: AxiosResponse) {
-                    const uploadFiles = response!.data!.data!.files;
-                    return uploadFiles;
-                })
-                .catch(handleUploadSessionError));
-        });
-        return promise;
-    };
+    //         resolve(axios.request(config)
+    //             .then(handleUploadSessionResponse)
+    //             .then(function (response: AxiosResponse) {
+    //                 const uploadFiles = response!.data!.data!.files;
+    //                 return uploadFiles;
+    //             })
+    //             .catch(handleUploadSessionError));
+    //     });
+    //     return promise;
+    // };
 
-    function dummyAxiosRequest<T = any, R = AxiosResponse<T>>(config: AxiosRequestConfig): Promise<R> {
-        const promise = new Promise<R>(function (resolve, reject) {
-            setTimeout(function () {
-                let response = {
-                    data: { test: "test" },
-                    status: 200,
-                    statusText: "OK",
-                    headers: {},
-                    config: config
-                } as unknown as (R | PromiseLike<R> | undefined);
-                resolve(response);
-            }, 2000);
-        });
-        return promise;
-    }
+    // // Upload files in parallel
+    // const handleRealUpload = async () => {
+    //     setTotalSizeBytes(totalSizeBytes => uploadWork.newTotalSizeBytes);
 
-    const handleDummyValidationRequest = (username: string, password: string, formData: any) => {
-        let promise = new Promise((resolve, reject) => {
-            const config: AxiosRequestConfig = {
-                url: "/upload/validatefile",
-                method: "post",
-                headers: { "Content-Type": "multipart/form-data" },
-                data: formData,
-                timeout: uploadTimeout,
-                withCredentials: true,
-                auth: {
-                    username: username,
-                    password: password
-                },
-                responseType: "json"
-            };
+    //     await Promise.all(uploadWork.work)
+    //         .then(function (results) {
+    //             setRemainingItems(remainingItems => 0);
+    //             setUploadingPercentage(uploadingPercentage => 100);
+    //             setTotalSizeBytes(totalSizeBytes => 0);
+    //         });
 
-            resolve(dummyAxiosRequest(config)
-                .then(handleUploadSessionResponse)
-                .then(function (response: AxiosResponse) {
-                    const ValidateFileResult = response!.data!.data!;
-                    return ValidateFileResult as ValidateFileResult;
-                })
-                .catch(handleUploadSessionError));
-        });
-        return promise;
-    };
+    //     // Finalize the upload session
+    //     console.log("Finalize upload");
+    //     await handleUploadSessionFinalizeRequest(authContext!.username, authContext!.password, uploadWork.uploadSessionId);
 
-    // Upload files in parallel
-    const handleRealUpload = async () => {
-        setTotalSizeBytes(totalSizeBytes => uploadWork.newTotalSizeBytes);
+    //     // Submit the streamer job
+    //     console.log("Submitting streamer job");
+    //     const submitResult = await handleUploadSessionSubmitRequest(authContext!.username, authContext!.password, uploadWork.uploadSessionId, uploadWork.uploadSession);
 
-        await Promise.all(uploadWork.work)
-            .then(function (results) {
-                setRemainingItems(remainingItems => 0);
-                setUploadingPercentage(uploadingPercentage => 100);
-                setTotalSizeBytes(totalSizeBytes => 0);
-            });
+    //     let result = submitResult as any;
+    //     let error = result!.message;
+    //     if (error) {
+    //         setIsUploading(false);
+    //         setFailed(true);
+    //         console.error(error);
+    //         setErrorMessage(error);
+    //         setShowErrorModal(true);
+    //     } else {
+    //         const uploadedFiles = submitResult as string[];
+    //         console.log("Successfully submitted streamer job for files: " + JSON.stringify(uploadedFiles));
 
-        // Finalize the upload session
-        console.log("Finalize upload");
-        await handleUploadSessionFinalizeRequest(authContext!.username, authContext!.password, uploadWork.uploadSessionId);
-
-        // Submit the streamer job
-        console.log("Submitting streamer job");
-        const submitResult = await handleUploadSessionSubmitRequest(authContext!.username, authContext!.password, uploadWork.uploadSessionId, uploadWork.uploadSession);
-
-        let result = submitResult as any;
-        let error = result!.message;
-        if (error) {
-            setIsUploading(false);
-            setFailed(true);
-            console.error(error);
-            setErrorMessage(error);
-            setShowErrorModal(true);
-        } else {
-            const uploadedFiles = submitResult as string[];
-            console.log("Successfully submitted streamer job for files: " + JSON.stringify(uploadedFiles));
-
-            setIsUploading(false);
-            setFailed(false);
-        }
-    }
-
-    // Validate each file sequentially if the file in the destination folder already exist
-    const handleValidation = async (validationWork: Promise<unknown>[]) => {
-        console.log("Validating files");
-        let existingFiles = [] as string[];
-        for (let i = 0; i < validationWork.length; i++) {
-            console.log(`Validating file: ${uploaderContext!.fileList[i].name}`);
-            let validatedResult: any;
-            try {
-                validatedResult = await validationWork[i];
-            } catch (error) {
-                console.error(error);
-                throw new Error(error);
-            }
-
-            const ValidateFileResult = validatedResult as ValidateFileResult;
-            if (ValidateFileResult!.fileExists) {
-                existingFiles.push(ValidateFileResult!.filename);
-            }
-        }
-
-        console.log("Validation complete");
-        return existingFiles;
-    };
+    //         setIsUploading(false);
+    //         setFailed(false);
+    //     }
+    // }
 
     const handleUpload = async (event: any) => {
         setShowFilesExistModal(false);

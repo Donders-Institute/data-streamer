@@ -56,7 +56,7 @@ export interface RcFile extends File {
 
 export interface Project {
     id: number;
-    number: string;
+    projectNumber: string;
 }
 
 export interface UploadSession {

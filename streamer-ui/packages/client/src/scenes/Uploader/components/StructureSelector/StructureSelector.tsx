@@ -86,7 +86,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
     const dataTypeOption: SelectOption = { key: (dataType ? dataType : "datatype") };
 
     const optionsProjects = projectList!.map((project, key) => (
-        <Option value={project.number} key={key}>{project.number}</Option>
+        <Option value={project.projectNumber} key={key}>{project.projectNumber}</Option>
     ));
 
     const optionsDataTypes = dataTypesList.map((item, key) => (

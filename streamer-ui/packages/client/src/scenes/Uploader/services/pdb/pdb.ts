@@ -54,17 +54,16 @@ export const fetchProjectList = async (username: string, password: string) => {
 
     const projectsResult = result.data as ProjectsResult;
 
-    console.dir(projectsResult);
-
     let projectList = [] as Project[];
     for (let i = 0; i < projectsResult.length; i++) {
         let projectElement = projectsResult[i] as ProjectsResultElement;
-        console.dir(projectElement);
         let projectNumber = projectElement.project;
+
         let project = {
             id: i,
-            number: projectNumber
+            projectNumber
         } as Project;
+
         projectList.push(project);
     }
 
