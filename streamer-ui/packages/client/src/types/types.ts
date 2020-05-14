@@ -23,9 +23,14 @@ export interface FinalizeResult {
     endTime: string;
 }
 
+export interface SubmitResult {
+    uploadSessionId: number;
+    files: RcFile[];
+}
+
 export interface ServerResponse {
     error: string | null;
-    data: string | ProjectsResult | ValidateFileResult | AddFileResult | FinalizeResult | null;
+    data: string | ProjectsResult | ValidateFileResult | AddFileResult | FinalizeResult | SubmitResult | null;
 };
 
 export interface ValidationResult {
