@@ -1,5 +1,15 @@
 import { fetchRetry, basicAuthString } from "../../../../services/fetch/fetch";
-import { UploadSession, ServerResponse, Structure, RcFile, ValidateFileResult, ValidationResult } from "../../../../types/types";
+
+import {
+    UploadSession,
+    ServerResponse,
+    Structure,
+    RcFile,
+    ValidateFileResult,
+    ValidationResult,
+    AddFileResult,
+    FinalizeResult
+} from "../../../../types/types";
 
 // 1 GB = 1024 * 1024 * 1024 bytes = 1073741824 bytes
 export const maxSizeLimitBytes = 1073741824;
@@ -26,7 +36,7 @@ export const detectFile = (file: RcFile) => {
 };
 
 // Initiate an upload session. Obtain a upload session id
-const initiateUpload = async (
+const initiate = async (
     username: string,
     password: string,
     projectNumber: string,
@@ -88,7 +98,7 @@ const initiateUpload = async (
 };
 
 // Validate a single file to be uploaded
-const validateUploadFile = async (
+const validateFile = async (
     username: string,
     password: string,
     uploadSession: UploadSession,
@@ -142,22 +152,12 @@ const validateUploadFile = async (
         throw new Error(errorMessage);
     }
 
-    // if (!result.data.data) {
-    //     const errorMessage = "data.data is empty in result"
-    //     throw new Error(errorMessage);
-    // }
-
-    const validateFileResult = {
-        filename: file.name,
-        fileExists: false,
-        fileIsEmpty: false
-    } as ValidateFileResult;
-    // const validateFileResult = result.data.data;
+    const validateFileResult = result.data as ValidateFileResult;
     return validateFileResult;
 };
 
 // Add a file to be uploaded
-const addUploadFile = async (
+const addFile = async (
     username: string,
     password: string,
     uploadSession: UploadSession,
@@ -211,19 +211,11 @@ const addUploadFile = async (
         throw new Error(errorMessage);
     }
 
-    // if (!result.data.data) {
-    //     const errorMessage = "data.data is empty in result"
-    //     throw new Error(errorMessage);
-    // }
-
-    const uploadSessionId = 0;
-
-    // const uploadSessionId = result.data.data.uploadSessionId;
-    // uploadSessionId = uploadSessionId as number;
-    return uploadSessionId;
+    const addFileResult = result.data as AddFileResult;
+    return addFileResult;
 };
 
-export const prepareUpload = async (
+export const prepare = async (
     username: string,
     password: string,
     ipAddress: string,
@@ -236,7 +228,7 @@ export const prepareUpload = async (
 
     let uploadSessionId: number;
     try {
-        uploadSessionId = await initiateUpload(
+        uploadSessionId = await initiate(
             username,
             password,
             projectNumber,
@@ -266,7 +258,7 @@ export const prepareUpload = async (
 }
 
 // Check for existing project storage folder and existing files
-export const validateUpload = async (
+export const validate = async (
     username: string,
     password: string,
     uploadSession: UploadSession,
@@ -281,7 +273,7 @@ export const validateUpload = async (
     fileList.forEach(async (file: RcFile) => {
         let validateFileResult: ValidateFileResult;
         try {
-            validateFileResult = await validateUploadFile(
+            validateFileResult = await validateFile(
                 username,
                 password,
                 uploadSession,
