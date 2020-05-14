@@ -1,5 +1,5 @@
 import { fetchRetry, basicAuthString } from "../../../../services/fetch/fetch";
-import { Project, ServerResponse, GetProjectsQueryElement, GetProjectsResult } from "../../../../types/types";
+import { Project, ServerResponse, ProjectsResultElement, ProjectsResult } from "../../../../types/types";
 
 // Fake fetcher for testing purposes
 
@@ -53,23 +53,20 @@ export const fetchProjectList = async (username: string, password: string) => {
         throw new Error("Empty data in result");
     }
 
-    console.dir(result.data);
-
-    // if (!result.data.data) {
-    //     throw new Error("Empty data.data in result");
-    // }
-
-    // console.dir(result.data.data);
+    const getProjectsResult = result.data as ProjectsResult;
+    const projects = getProjectsResult.data;
 
     let projectList = [] as Project[];
-    // const data = result.data.data;
-    // for (let i = 0; i < data.length; i++) {
-    //     let projectElement: GetProjectsQueryElement = data[i];
-    //     let projectNumber = projectElement.project;
-    //     let project = { id: i, number: projectNumber } as Project;
-    //     console.log(projectNumber);
-    //     projectList!.push(project);
-    // }
+    for (let i = 0; i < projects.length; i++) {
+        let projectElement = projects[i] as ProjectsResultElement;
+        let projectNumber = projectElement.project;
+        let project = {
+            id: i,
+            number: projectNumber
+        } as Project;
+        console.log(projectNumber);
+        projectList!.push(project);
+    }
 
     return projectList;
 };

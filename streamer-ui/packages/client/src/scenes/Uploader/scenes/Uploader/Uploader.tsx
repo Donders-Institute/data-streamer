@@ -26,7 +26,7 @@ import StructureSelector from "../../components/StructureSelector/StructureSelec
 import { Project, RcFile, ValidateFileResult, SelectOption, UploadSession, ValidationResult } from "../../../../types/types";
 import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "../../services/inputValidation/inputValidation";
 import { fetchProjectList } from "../../services/pdb/pdb";
-import { maxSizeLimitBytes, maxSizeLimitAsString, uploadTimeout, detectFile, prepareUpload, validateUpload } from "../../services/upload/upload";
+import { maxSizeLimitBytes, maxSizeLimitAsString, uploadTimeout, detectFile, prepare, validate } from "../../services/upload/upload";
 
 const { Content } = Layout;
 
@@ -382,7 +382,7 @@ const Uploader: React.FC = () => {
         // Prepare upload
         let uploadSession: UploadSession;
         try {
-            uploadSession = await prepareUpload(
+            uploadSession = await prepare(
                 authContext!.username,
                 authContext!.password,
                 authContext!.ipAddress,
@@ -405,7 +405,7 @@ const Uploader: React.FC = () => {
         // Validate files to be uploaded one by one
         let validationResult: ValidationResult;
         try {
-            validationResult = await validateUpload(
+            validationResult = await validate(
                 authContext!.username,
                 authContext!.password,
                 uploadSession,
@@ -429,7 +429,7 @@ const Uploader: React.FC = () => {
                     dataSource={validationResult.existingFiles}
                     renderItem={(existingFile: string) => <List.Item>{existingFile}</List.Item>}
                 />
-            </div >;
+            </div>;
 
             setFilesExistMessage(existingFilesAsDiv => newExistingFilesAsDiv);
             setShowFilesExistModal(true);

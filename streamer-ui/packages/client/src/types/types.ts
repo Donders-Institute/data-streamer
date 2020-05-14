@@ -1,9 +1,11 @@
-export interface GetProjectsQueryElement {
+// Get projects query element
+export interface ProjectsResultElement {
     project: string;
 }
 
-export interface GetProjectsResult {
-    data: GetProjectsQueryElement[];
+// Get projects query result
+export interface ProjectsResult {
+    data: ProjectsResultElement[];
 }
 
 export interface ValidateFileResult {
@@ -23,7 +25,7 @@ export interface FinalizeResult {
 
 export interface ServerResponse {
     error: string | null;
-    data: string | GetProjectsResult | ValidateFileResult | AddFileResult | FinalizeResult | null;
+    data: string | ProjectsResult | ValidateFileResult | AddFileResult | FinalizeResult | null;
 };
 
 export interface ValidationResult {
