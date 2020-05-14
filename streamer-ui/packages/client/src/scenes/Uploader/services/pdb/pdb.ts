@@ -48,7 +48,6 @@ export const fetchProjectList = async (username: string, password: string) => {
         throw err;
     }
 
-    console.dir(result);
     if (!result.data) {
         throw new Error("Empty data in result");
     }

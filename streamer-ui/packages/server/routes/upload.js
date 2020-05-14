@@ -218,7 +218,7 @@ var _addFile = async function (req, res, next) {
     // Store the file in the streamer UI buffer
     const err = await utils.storeFile(file, dirName);
     if (err) {
-        console.error(err.message);
+        console.log(JSON.stringify(err));
         return next(createError(500, `Error storing file ${filename} in project storage directory ${dirName}`));
     }
 
