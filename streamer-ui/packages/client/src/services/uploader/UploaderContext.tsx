@@ -1,15 +1,15 @@
 import React from "react";
 
-import { RcFile, Project, ValidateStatuses } from "../../types/types";
+import { RcFile, Project, InputValidationStatuses } from "../../types/types";
 
 export interface IUploaderContext {
     projectList: Project[];
     isLoadingProjectList: boolean;
-    selectedProjectStatus: (typeof ValidateStatuses)[number];
-    selectedSubjectStatus: (typeof ValidateStatuses)[number];
-    selectedSessionStatus: (typeof ValidateStatuses)[number];
-    selectedDataTypeStatus: (typeof ValidateStatuses)[number];
-    selectedDataTypeOtherStatus: (typeof ValidateStatuses)[number];
+    selectedProjectStatus: (typeof InputValidationStatuses)[number];
+    selectedSubjectStatus: (typeof InputValidationStatuses)[number];
+    selectedSessionStatus: (typeof InputValidationStatuses)[number];
+    selectedDataTypeStatus: (typeof InputValidationStatuses)[number];
+    selectedDataTypeOtherStatus: (typeof InputValidationStatuses)[number];
     selectedProjectValue: string;
     selectedSubjectValue: string;
     selectedSessionValue: string;
@@ -24,11 +24,11 @@ export interface IUploaderContext {
     hasFilesSelected: boolean;
     setProjectList: (projectList: Project[]) => void;
     setIsLoadingProjectList: (isLoadingProjectList: boolean) => void;
-    setSelectedProjectStatus: (selectedProjectStatus: (typeof ValidateStatuses)[number]) => void;
-    setSelectedSubjectStatus: (selectedSubjectStatus: (typeof ValidateStatuses)[number]) => void;
-    setSelectedSessionStatus: (selectedSessionStatus: (typeof ValidateStatuses)[number]) => void;
-    setSelectedDataTypeStatus: (selectedDataTypeStatus: (typeof ValidateStatuses)[number]) => void;
-    setSelectedDataTypeOtherStatus: (selectedDataTypeOtherStatus: (typeof ValidateStatuses)[number]) => void;
+    setSelectedProjectStatus: (selectedProjectStatus: (typeof InputValidationStatuses)[number]) => void;
+    setSelectedSubjectStatus: (selectedSubjectStatus: (typeof InputValidationStatuses)[number]) => void;
+    setSelectedSessionStatus: (selectedSessionStatus: (typeof InputValidationStatuses)[number]) => void;
+    setSelectedDataTypeStatus: (selectedDataTypeStatus: (typeof InputValidationStatuses)[number]) => void;
+    setSelectedDataTypeOtherStatus: (selectedDataTypeOtherStatus: (typeof InputValidationStatuses)[number]) => void;
     setSelectedProjectValue: (selectedProjectValue: string) => void;
     setSelectedSubjectValue: (selectedSubjectValue: string) => void;
     setSelectedSessionValue: (selectedSessionValue: string) => void;

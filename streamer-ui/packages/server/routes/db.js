@@ -55,14 +55,14 @@ var _insertUploadSession = async function (
     }
 
     const insertUploadSessionResult = {
-        "uploadSessionId": uploadSessionId,
-        "username": username,
-        "ipAddress": ipAddress,
-        "projectNumber": projectNumber,
-        "subjectLabel": subjectLabel,
-        "sessionLabel": sessionLabel,
-        "dataType": dataType,
-        "startTime": startTime
+        uploadSessionId,
+        username,
+        ipAddress,
+        projectNumber,
+        subjectLabel,
+        sessionLabel,
+        dataType,
+        startTime
     }
     return insertUploadSessionResult;
 }
@@ -93,8 +93,8 @@ var _insertUploadFile = async function (uploadSessionId, filename, filesizeBytes
     }
 
     const insertUploadFileResult = {
-        "uploadFileId": uploadFileId,
-    }
+        uploadFileId
+    };
     return insertUploadFileResult;
 }
 
@@ -123,8 +123,8 @@ var _updateUploadSession = async function (uploadSessionId, endTime) {
     }
 
     const updateUploadSessionResult = {
-        "uploadSessionId": uploadSessionId,
-        "endTime": endTime
+        uploadSessionId,
+        endTime
     }
     return updateUploadSessionResult;
 }
@@ -161,8 +161,8 @@ var _getUploadFileList = async function (uploadSessionId) {
     }
 
     const getUploadFileListResult = {
-        "uploadSessionId": uploadSessionId,
-        "files": files
+        uploadSessionId,
+        files
     }
     return getUploadFileListResult;
 }
@@ -187,8 +187,9 @@ var _cleanTables = async function () {
         throw "Could not disconnect database";
     }
 
+    const status = "purged";
     const cleanTablesResult = {
-        "status": "cleaned"
+        status
     }
     return cleanTablesResult;
 }
