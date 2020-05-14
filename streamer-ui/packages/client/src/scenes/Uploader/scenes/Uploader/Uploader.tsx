@@ -13,7 +13,6 @@ import {
     Tooltip,
     List
 } from "antd";
-// import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 
 import { AuthContext, IAuthContext } from "../../../../services/auth/AuthContext";
 import { UploaderContext, IUploaderContext } from "../../../../services/uploader/UploaderContext";
@@ -23,10 +22,35 @@ import FileSelector from "../../components/FileSelector/FileSelector";
 import FileList from "../../components/FileList/FileList";
 import TargetPath from "../../components/TargetPath/TargetPath";
 import StructureSelector from "../../components/StructureSelector/StructureSelector";
-import { Project, RcFile, ValidateFileResult, SelectOption, UploadSession, ValidationResult } from "../../../../types/types";
-import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "../../services/inputValidation/inputValidation";
+
+import {
+    Project,
+    RcFile,
+    SelectOption,
+    UploadSession,
+    ValidationResult,
+    AddFileResult,
+    SubmitResult
+} from "../../../../types/types";
+
 import { fetchProjectList } from "../../services/pdb/pdb";
-import { maxSizeLimitBytes, maxSizeLimitAsString, uploadTimeout, detectFile, prepare, validate } from "../../services/upload/upload";
+
+import {
+    maxSizeLimitBytes,
+    maxSizeLimitAsString,
+    detectFile,
+    initiate,
+    validate,
+    addFile,
+    finalize,
+    submit
+} from "../../services/upload/upload";
+
+import {
+    validateSubjectLabelInput,
+    validateSessionLabelInput,
+    validateSelectedDataTypeOtherInput
+} from "../../services/inputValidation/inputValidation";
 
 const { Content } = Layout;
 
@@ -39,25 +63,24 @@ const Uploader: React.FC = () => {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [filesExistMessage, setFilesExistMessage] = useState(<div></div>);
     const [errorMessage, setErrorMessage] = useState("");
+
+    const [uploadSession, setUploadSession] = useState({
+        uploadSessionId: -1,
+        username: authContext!.username,
+        ipAddress: authContext!.ipAddress,
+        projectNumber: "",
+        subjectLabel: "",
+        sessionLabel: "",
+        dataType: "",
+        totalSizeBytes: 0
+    } as UploadSession);
+
     const [uploadingPercentage, setUploadingPercentage] = useState(0);
     const [totalSizeBytes, setTotalSizeBytes] = useState(0);
     const [remainingItems, setRemainingItems] = useState(0);
     const [isUploading, setIsUploading] = useState(true);
     const [failed, setFailed] = useState(false);
     const [proceed, setProceed] = useState(false);
-    const [uploadWork, setUploadWork] = useState({
-        newTotalSizeBytes: 0,
-        work: [] as Promise<unknown>[],
-        uploadSessionId: 0,
-        uploadSession: {
-            username: "",
-            ipAddress: "",
-            projectNumber: "",
-            subjectLabel: "",
-            sessionLabel: "",
-            dataType: ""
-        } as UploadSession
-    });
 
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
 
@@ -120,166 +143,122 @@ const Uploader: React.FC = () => {
             }
             if (!dataTypeOk) {
                 setProceed(false);
-                return;
+                return; // Abort
             }
             setProceed(true);
+
+            // Update upload session
+            const newUploadSession = {
+                uploadSessionId: uploadSession.uploadSessionId,
+                username: uploadSession.username,
+                ipAddress: uploadSession.ipAddress,
+                projectNumber: uploaderContext!.selectedProjectValue,
+                subjectLabel: uploaderContext!.selectedSubjectValue,
+                sessionLabel: uploaderContext!.selectedSessionValue,
+                dataType: uploaderContext!.selectedDataTypeValue,
+                totalSizeBytes: uploadSession.totalSizeBytes
+            } as UploadSession;
+
+            setUploadSession(uploadSession => newUploadSession);
         };
         checkProceed();
     }, [uploaderContext]);
 
-    // const handleUploadSessionResponse = (response: AxiosResponse) => {
-    //     // console.log(response.data);
-    //     // console.log(response.status);
-    //     // console.log(response.statusText);
-    //     // console.log(response.headers);
-    //     // console.log(response.config);
-    //     return response;
-    // };
+    const handleAddFile = async (file: RcFile) => {
+        console.log(`Add file to be uploaded ${file.name} ...`);
 
-    // const handleUploadSessionError = (error: AxiosError) => {
-    //     var newErrorMessage = "could not connect to data streamer UI server";
-    //     if (error.response) {
-    //         // console.log(error.response.data);
-    //         // console.log(error.response.status);
-    //         // console.log(error.response.headers);
-    //         if (error.response.data) {
-    //             newErrorMessage = JSON.stringify(error.response.data, null, 2);
-    //         }
-    //     } else {
-    //         newErrorMessage = error.message;
-    //     }
-    //     console.error(newErrorMessage);
-    //     setErrorMessage(newErrorMessage);
-    //     setShowErrorModal(true);
-    //     setFailed(true);
-    //     setIsUploading(false);
-    //     return error;
-    // };
+        let addFileResult: AddFileResult;
+        try {
+            addFileResult = await addFile(
+                authContext!.username,
+                authContext!.password,
+                uploadSession,
+                file);
+        } catch (err) {
+            throw err;
+        }
 
-    // const handleUploadRequest = (username: string, password: string, formData: any, fileSizeBytes: number) => {
-    //     let promise = new Promise((resolve, reject) => {
-    //         const config: AxiosRequestConfig = {
-    //             url: "/upload/addfile",
-    //             method: "post",
-    //             headers: { "Content-Type": "multipart/form-data" },
-    //             data: formData,
-    //             timeout: uploadTimeout,
-    //             withCredentials: true,
-    //             auth: {
-    //                 username: username,
-    //                 password: password
-    //             },
-    //             responseType: "json"
-    //         };
+        const fileSizeBytes = file.size;
+        const newUploadingPercentage = totalSizeBytes > 0 ? uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes) : 100;
 
-    //         resolve(axios.request(config)
-    //             .then(handleUploadSessionResponse)
-    //             .then(function (response: AxiosResponse) {
-    //                 let value = totalSizeBytes > 0 ? uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes) : 100;
-    //                 setUploadingPercentage(uploadingPercentage => value);
-    //                 setRemainingItems(remainingItems => remainingItems - 1);
-    //                 return value;
-    //             })
-    //             .catch(handleUploadSessionError));
-    //     });
-    //     return promise;
-    // };
+        setUploadingPercentage(newUploadingPercentage);
+        setRemainingItems(remainingItems => remainingItems - 1);
 
-    // const handleUploadSessionFinalizeRequest = (username: string, password: string, uploadSessionId: number) => {
-    //     let promise = new Promise((resolve, reject) => {
-    //         const config: AxiosRequestConfig = {
-    //             url: "/upload/finalize",
-    //             method: "post",
-    //             headers: { "Content-Type": "application/json" },
-    //             data: {
-    //                 "uploadSessionId": uploadSessionId
-    //             },
-    //             timeout: uploadTimeout,
-    //             withCredentials: true,
-    //             auth: {
-    //                 username: username,
-    //                 password: password
-    //             },
-    //             responseType: "json"
-    //         };
+        return addFileResult;
+    };
 
-    //         resolve(axios.request(config)
-    //             .then(handleUploadSessionResponse)
-    //             .then(function (response: AxiosResponse) {
-    //                 return true;
-    //             })
-    //             .catch(handleUploadSessionError));
-    //     });
-    //     return promise;
-    // };
+    // Handle the actual upload (i.e. with user approval if needed).
+    // 1. Upload all files to the streamer buffer.
+    // 2. Finalize the upload session. 
+    // 3. Submit a streamer job to take care of the transfer of files in the background 
+    //    (i.e. to the project storage folder and the Donders Repository)
+    const handleApprovedUpload = async () => {
 
-    // const handleUploadSessionSubmitRequest = (username: string, password: string, uploadSessionId: number, uploadSession: UploadSession) => {
-    //     let promise = new Promise((resolve, reject) => {
-    //         const config: AxiosRequestConfig = {
-    //             url: "/upload/submit",
-    //             method: "post",
-    //             headers: { "Content-Type": "application/json" },
-    //             data: {
-    //                 ...uploadSession,
-    //                 "uploadSessionId": uploadSessionId
-    //             },
-    //             timeout: uploadTimeout,
-    //             withCredentials: true,
-    //             auth: {
-    //                 username: username,
-    //                 password: password
-    //             },
-    //             responseType: "json"
-    //         };
+        console.log("Prepare the uploading to the streamer buffer");
+        let uploadWork = [] as Promise<AddFileResult>[];
 
-    //         resolve(axios.request(config)
-    //             .then(handleUploadSessionResponse)
-    //             .then(function (response: AxiosResponse) {
-    //                 const uploadFiles = response!.data!.data!.files;
-    //                 return uploadFiles;
-    //             })
-    //             .catch(handleUploadSessionError));
-    //     });
-    //     return promise;
-    // };
+        uploaderContext!.fileList.forEach((file: RcFile) => {
+            let formData = new FormData();
 
-    // Upload files in parallel
-    const handleRealUpload = async () => {
-        console.log("handleRealUpload");
-        //     setTotalSizeBytes(totalSizeBytes => uploadWork.newTotalSizeBytes);
+            formData.append("uploadSessionId", uploadSession.uploadSessionId.toLocaleString());
+            formData.append("projectNumber", uploadSession.projectNumber);
+            formData.append("subjectLabel", uploadSession.subjectLabel);
+            formData.append("sessionLabel", uploadSession.sessionLabel);
+            formData.append("dataType", uploadSession.dataType);
 
-        //     await Promise.all(uploadWork.work)
-        //         .then(function (results) {
-        //             setRemainingItems(remainingItems => 0);
-        //             setUploadingPercentage(uploadingPercentage => 100);
-        //             setTotalSizeBytes(totalSizeBytes => 0);
-        //         });
+            formData.append("ipAddress", uploadSession.ipAddress);
+            formData.append("filename", file.name);
+            formData.append("filesize", file.size.toLocaleString());
+            formData.append("uid", file.uid);
 
-        //     // Finalize the upload session
-        //     console.log("Finalize upload");
-        //     await handleUploadSessionFinalizeRequest(authContext!.username, authContext!.password, uploadWork.uploadSessionId);
+            uploadWork.push(handleAddFile(file));
+        });
 
-        //     // Submit the streamer job
-        //     console.log("Submitting streamer job");
-        //     const submitResult = await handleUploadSessionSubmitRequest(authContext!.username, authContext!.password, uploadWork.uploadSessionId, uploadWork.uploadSession);
+        console.log("Upload all files to the streamer buffer");
+        try {
+            await Promise.all(uploadWork);
+        } catch (err) {
+            throw err;
+        } finally {
+            setRemainingItems(0);
+            setUploadingPercentage(100);
+            setTotalSizeBytes(0);
+        }
 
-        //     let result = submitResult as any;
-        //     let error = result!.message;
-        //     if (error) {
-        //         setIsUploading(false);
-        //         setFailed(true);
-        //         console.error(error);
-        //         setErrorMessage(error);
-        //         setShowErrorModal(true);
-        //     } else {
-        //         const uploadedFiles = submitResult as string[];
-        //         console.log("Successfully submitted streamer job for files: " + JSON.stringify(uploadedFiles));
+        console.log("Finalize the upload session");
+        try {
+            await finalize(
+                authContext!.username,
+                authContext!.password,
+                uploadSession
+            );
+        } catch (err) {
+            throw err;
+        }
 
-        //         setIsUploading(false);
-        //         setFailed(false);
-        //     }
-    }
+        console.log("Submit a streamer job");
+        let submitResult: SubmitResult;
+        try {
+            submitResult = await submit(
+                authContext!.username,
+                authContext!.password,
+                uploadSession
+            );
+        } catch (err) {
+            throw err;
+        }
 
+        console.log("Successfully submitted streamer job for files: " + JSON.stringify(submitResult.fileNames));
+
+        setIsUploading(false);
+        setFailed(false);
+    };
+
+    // Handle the upload request. 
+    // 1. Initiate the upload
+    // 2. Validate the files to be uploaded
+    // 3. Check if user confirmation is needed to overwite an existing project storage folder and files
+    // 4. If all green, proceed with the actual upload
     const handleUpload = async (event: any) => {
         setShowFilesExistModal(false);
         setFailed(false);
@@ -288,10 +267,10 @@ const Uploader: React.FC = () => {
         setIsUploading(true);
         setShowUploadModal(true);
 
-        // Prepare upload
-        let uploadSession: UploadSession;
+        // Initiate the upload
+        let newUploadSession: UploadSession;
         try {
-            uploadSession = await prepare(
+            newUploadSession = await initiate(
                 authContext!.username,
                 authContext!.password,
                 authContext!.ipAddress,
@@ -310,15 +289,17 @@ const Uploader: React.FC = () => {
             return; // Abort
         }
 
-        console.dir(uploadSession);
+        console.dir(newUploadSession);
 
-        // Validate files to be uploaded one by one
+        setUploadSession(uploadSession => newUploadSession);
+
+        // Validate the files to be uploaded, one by one
         let validationResult: ValidationResult;
         try {
             validationResult = await validate(
                 authContext!.username,
                 authContext!.password,
-                uploadSession,
+                newUploadSession,
                 uploaderContext!.fileList);
         } catch (err) {
             console.error(err);
@@ -332,8 +313,10 @@ const Uploader: React.FC = () => {
 
         console.dir(validationResult);
 
+        // Before continuing the actual upload, 
+        // check if user confirmation is needed 
+        // to overwite an existing project storage folder and files (if any)
         if (validationResult.existingFiles.length > 0) {
-            // Handle user confirmation first
             let newExistingFilesAsDiv = <div style={{ marginTop: "20px" }}>
                 <List
                     size="small"
@@ -344,95 +327,23 @@ const Uploader: React.FC = () => {
 
             setFilesExistMessage(existingFilesAsDiv => newExistingFilesAsDiv);
             setShowFilesExistModal(true);
-            return; // Aoort
+            return; // Abort
         }
 
-        // No user confirmation required, proceed
-        handleRealUpload();
+        // No user confirmation is needed. Proceed.
+        try {
+            handleApprovedUpload();
+        } catch (err) {
+            console.error(err);
+            const newErrorMessage = JSON.stringify(err);
+            setErrorMessage(newErrorMessage);
+            setShowErrorModal(true);
+            setIsUploading(false);
+            setFailed(true);
+        }
+    }
 
-        // setUploadWork(uploadWork => newUploadWork);
-
-        // // Prepare the uploading of each file
-        // console.log("Preparing validation and uploading of files");
-
-        // let newTotalSizeBytes = 0;
-        // let validationWork = [] as Promise<unknown>[];
-        // let work = [] as Promise<unknown>[];
-        // uploaderContext!.fileList.forEach((file: any) => {
-        //     var formData = new FormData();
-
-        //     // Add the attributes
-        //     formData.append("uploadSessionId", uploadSessionId.toLocaleString());
-        //     formData.append("projectNumber", uploaderContext!.selectedProjectValue);
-        //     formData.append("subjectLabel", uploaderContext!.selectedSubjectValue);
-        //     formData.append("sessionLabel", uploaderContext!.selectedSessionValue);
-        //     formData.append("dataType", uploaderContext!.selectedDataTypeValue);
-
-        //     formData.append("ipAddress", authContext!.ipAddress);
-        //     formData.append("filename", file.name);
-        //     formData.append("filesize", file.size);
-        //     formData.append("uid", file.uid);
-
-        //     newTotalSizeBytes += file.size;
-
-        //     // Add one file
-        //     formData.append("files", file);
-
-        //     // Prepare validation for this file
-        //     const pv = handleValidationRequest(authContext!.username, authContext!.password, formData);
-        //     //  const pv = handleDummyValidationRequest(authContext!.username, authContext!.password, formData);
-        //     validationWork.push(pv.catch(error => {
-        //         console.error(error);
-        //         throw error;
-        //     }));
-
-        //     // Prepare upload for this file
-        //     const p = handleUploadRequest(authContext!.username, authContext!.password, formData, file.size);
-        //     work.push(p.catch(error => {
-        //         setFailed(true);
-        //         setIsUploading(false);
-        //         console.error(error);
-        //         setErrorMessage(error);
-        //         setShowErrorModal(true);
-        //     }));
-        // });
-
-        // const newUploadWork = {
-        //     newTotalSizeBytes: newTotalSizeBytes,
-        //     work: work,
-        //     uploadSessionId: uploadSessionId,
-        //     uploadSession: uploadSession
-        // } as UploadWork;
-        // setUploadWork(uploadWork => newUploadWork);
-
-        // let existingFiles = [] as string[];
-        // try {
-        //     existingFiles = await handleValidation(validationWork);
-        // } catch {
-        //     setFailed(true);
-        //     setIsUploading(false);
-        //     console.error("Validation failed");
-        //     return; // Abort
-        // }
-        // console.log("Validation complete");
-
-        // if (existingFiles.length > 0) {
-        //     // Handle user confirmation first
-        //     let newExistingFilesAsDiv = <div style={{ marginTop: "20px" }}>
-        //         <List
-        //             size="small"
-        //             dataSource={existingFiles}
-        //             renderItem={(existingFile: string) => <List.Item>{existingFile}</List.Item>}
-        //         />
-        //     </div >;
-        //     setFilesExistMessage(existingFilesAsDiv => newExistingFilesAsDiv);
-        //     setShowFilesExistModal(true);
-        // } else {
-        //     // No user confirmation required, proceed
-        //     handleRealUpload();
-        // }
-    };
-
+    // Remove a file from the file list presented in the UI
     const handleDelete = (uid: string, filename: string, size: number) => {
         const fileListUpdated = uploaderContext!.fileList.filter(
             (item: any) => item.name !== filename && item.uid !== uid
@@ -443,12 +354,14 @@ const Uploader: React.FC = () => {
         uploaderContext!.setFileListSummary(uploaderContext!.fileListSummary - size);
     };
 
+    // Remove the whole file list presented in the UI
     const handleDeleteList = () => {
         uploaderContext!.setHasFilesSelected(false);
         uploaderContext!.setFileList([] as RcFile[]);
         uploaderContext!.setFileListSummary(0);
     };
 
+    // Check if the file already exists in the file list presented in the UI
     const fileNameExists = (file: RcFile, fileList: RcFile[]) => {
         const duplicates = fileList.filter(
             item => item.name === file.name && item.uid !== file.uid
@@ -460,6 +373,7 @@ const Uploader: React.FC = () => {
         }
     };
 
+    // Helper function for file selector
     const handleBeforeUpload = async (file: RcFile, batch: RcFile[]) => {
         let batchSizeBytes = 0;
         let isValidBatch = true;
@@ -532,6 +446,7 @@ const Uploader: React.FC = () => {
         }
     };
 
+    // Deal with project selection drop down
     const handleSelectProjectValue = (value: SelectOption) => {
         uploaderContext!.setSelectedProjectStatus("success");
         uploaderContext!.setSelectedProjectValue(value.key);
@@ -547,6 +462,7 @@ const Uploader: React.FC = () => {
         setProceed(false);
     };
 
+    // Deal with subject label free text input
     const handleChangeSubjectLabel = async (event: any) => {
         uploaderContext!.setSelectedSubjectStatus("validating");
         let isValid = validateSubjectLabelInput(event.target.value);
@@ -566,6 +482,7 @@ const Uploader: React.FC = () => {
         }
     };
 
+    // Deal with session label free text input
     const handleChangeSessionLabel = async (event: any) => {
 
         uploaderContext!.setSelectedSessionStatus("validating");
@@ -586,6 +503,7 @@ const Uploader: React.FC = () => {
         }
     };
 
+    // Deal with data type selection drop down and data type other free text input
     const handleSelectDataTypeValue = async (value: SelectOption) => {
         uploaderContext!.setSelectedDataTypeStatus("success");
         uploaderContext!.setSelectedDataTypeValue(value.key);
@@ -599,6 +517,7 @@ const Uploader: React.FC = () => {
         }
     };
 
+    // Deal with data type other free text input
     const handleChangeSelectedDataTypeOther = async (event: any) => {
         uploaderContext!.setSelectedDataTypeOtherStatus("validating");
         let isValid = validateSelectedDataTypeOtherInput(event.target.value);
@@ -829,10 +748,21 @@ const Uploader: React.FC = () => {
                                 <Col span={12} style={{ textAlign: "right" }}>
                                     <Button
                                         type="primary"
-                                        onClick={(e) => {
+                                        onClick={async (e) => {
                                             setShowFilesExistModal(false);
                                             setFilesExistMessage(<div></div>);
-                                            handleRealUpload();
+
+                                            // No user confirmation needed, proceed
+                                            try {
+                                                handleApprovedUpload();
+                                            } catch (err) {
+                                                console.error(err);
+                                                const newErrorMessage = JSON.stringify(err);
+                                                setErrorMessage(newErrorMessage);
+                                                setShowErrorModal(true);
+                                                setIsUploading(false);
+                                                setFailed(true);
+                                            }
                                         }}
                                     >
                                         Ok
