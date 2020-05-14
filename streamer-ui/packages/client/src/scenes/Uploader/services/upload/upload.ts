@@ -5,10 +5,12 @@ import {
     ServerResponse,
     Structure,
     RcFile,
+    InitiateResult,
     ValidateFileResult,
     ValidationResult,
     AddFileResult,
-    FinalizeResult
+    FinalizeResult,
+    SubmitResult
 } from "../../../../types/types";
 
 // 1 GB = 1024 * 1024 * 1024 bytes = 1073741824 bytes
@@ -88,13 +90,8 @@ const initiate = async (
         throw new Error(errorMessage);
     }
 
-    // if (!result.data.data) {
-    //     const errorMessage = "data.data is empty in result"
-    //     throw new Error(errorMessage);
-    // }
-
-    // const uploadSessionId = result.data.data.uploadSessionId;
-    return 0; // uploadSessionId as number;
+    const initiateResult = result.data as InitiateResult;
+    return initiateResult;
 };
 
 export const prepare = async (
@@ -108,9 +105,9 @@ export const prepare = async (
     fileList: RcFile[]
 ) => {
 
-    let uploadSessionId: number;
+    let initiateResult: InitiateResult;
     try {
-        uploadSessionId = await initiate(
+        initiateResult = await initiate(
             username,
             password,
             projectNumber,
@@ -121,13 +118,16 @@ export const prepare = async (
         throw err;
     }
 
+    // Obtain the upload session id
+    const uploadSessionId = initiateResult.uploadSessionId;
+
     // Derive the total size of the files to be uploaded in bytes
     let totalSizeBytes = 0;
     fileList.forEach((file: RcFile) => {
         totalSizeBytes += file.size;
     });
 
-    return {
+    const uploadSession = {
         uploadSessionId,
         username,
         ipAddress,
@@ -137,6 +137,8 @@ export const prepare = async (
         dataType,
         totalSizeBytes
     } as UploadSession;
+
+    return uploadSession;
 }
 
 // Validate a single file to be uploaded

@@ -8,6 +8,17 @@ export interface ProjectsResult {
     data: ProjectsResultElement[];
 }
 
+export interface InitiateResult {
+    uploadSessionId: number;
+    username: string;
+    ipAddress: string;
+    projectNumber: string;
+    subjectLabel: string;
+    sessionLabel: string;
+    dataType: string;
+    startTime: string;
+}
+
 export interface ValidateFileResult {
     filename: string;
     fileExists: boolean;
@@ -30,7 +41,7 @@ export interface SubmitResult {
 
 export interface ServerResponse {
     error: string | null;
-    data: string | ProjectsResult | ValidateFileResult | AddFileResult | FinalizeResult | SubmitResult | null;
+    data: string | InitiateResult | ProjectsResult | ValidateFileResult | AddFileResult | FinalizeResult | SubmitResult | null;
 };
 
 export interface ValidationResult {
