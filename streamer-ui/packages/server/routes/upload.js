@@ -43,6 +43,8 @@ var _verifyUploadSessionId = function (req, res, next) {
         return next(createError(400, `No attributes were validated: "req.body" is empty`));
     }
 
+    console.log(JSON.stringify(req.body));
+
     const uploadSessionId = req.body.uploadSessionId;
     if (!uploadSessionId) {
         return next(createError(400, "uploadSessionId empty"));
