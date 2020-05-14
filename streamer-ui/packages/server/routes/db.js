@@ -138,7 +138,7 @@ var _getUploadFileList = async function (uploadSessionId) {
         throw "Could not connect to database";
     }
 
-    let files = [];
+    let fileNames = [];
     let result;
     try {
         result = await client.query(`SELECT filename FROM uploadfile WHERE upload_session_id=($1);`, [uploadSessionId]);
@@ -149,7 +149,7 @@ var _getUploadFileList = async function (uploadSessionId) {
         const data = result.rows;
         if (data) {
             data.forEach(row => {
-                files.push(row.filename);
+                fileNames.push(row.filename);
             });
         }
     }
@@ -162,7 +162,7 @@ var _getUploadFileList = async function (uploadSessionId) {
 
     const getUploadFileListResult = {
         uploadSessionId,
-        files
+        fileNames
     }
     return getUploadFileListResult;
 }

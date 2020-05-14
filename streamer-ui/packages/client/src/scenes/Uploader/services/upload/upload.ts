@@ -5,7 +5,7 @@ import {
     ServerResponse,
     Structure,
     RcFile,
-    InitiateResult,
+    BeginResult,
     ValidateFileResult,
     ValidationResult,
     AddFileResult,
@@ -37,8 +37,8 @@ export const detectFile = (file: RcFile) => {
     });
 };
 
-// Initiate an upload session. Obtain the upload session id
-const initiate = async (
+// Start an upload session. Obtain the upload session id
+const begin = async (
     username: string,
     password: string,
     projectNumber: string,
@@ -90,14 +90,14 @@ const initiate = async (
         throw new Error(errorMessage);
     }
 
-    const initiateResult = result.data as InitiateResult;
+    const beginResult = result.data as BeginResult;
 
     // Obtain the upload session id
-    const uploadSessionId = initiateResult.uploadSessionId;
+    const uploadSessionId = beginResult.uploadSessionId;
     return uploadSessionId;
 };
 
-export const prepare = async (
+export const initiate = async (
     username: string,
     password: string,
     ipAddress: string,
@@ -111,7 +111,7 @@ export const prepare = async (
     // Obtain the upload session id
     let uploadSessionId: number;
     try {
-        uploadSessionId = await initiate(
+        uploadSessionId = await begin(
             username,
             password,
             projectNumber,
@@ -241,7 +241,7 @@ export const validate = async (
 }
 
 // Add a file to be uploaded
-const addFile = async (
+export const addFile = async (
     username: string,
     password: string,
     uploadSession: UploadSession,
@@ -300,7 +300,7 @@ const addFile = async (
 };
 
 // Finalize the upload session
-const finalize = async (
+export const finalize = async (
     username: string,
     password: string,
     uploadSession: UploadSession
@@ -353,7 +353,7 @@ const finalize = async (
 };
 
 // Finally, submit a streamer job
-const submit = async (
+export const submit = async (
     username: string,
     password: string,
     uploadSession: UploadSession

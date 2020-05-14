@@ -13,8 +13,8 @@ export const fetchDummyProjectList = async (username: string, password: string) 
     const projectList = [
         {
             id: 1,
-            number: "3010000.01"
-        }
+            projectNumber: "3010000.01"
+        } as Project
     ] as Project[];
     return projectList;
 };

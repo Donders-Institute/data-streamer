@@ -6,7 +6,7 @@ export interface ProjectsResultElement {
 // Get projects query result
 export type ProjectsResult = ProjectsResultElement[];
 
-export interface InitiateResult {
+export interface BeginResult {
     uploadSessionId: number;
     username: string;
     ipAddress: string;
@@ -34,12 +34,12 @@ export interface FinalizeResult {
 
 export interface SubmitResult {
     uploadSessionId: number;
-    files: RcFile[];
+    fileNames: string[];
 }
 
 export interface ServerResponse {
     error: string | null;
-    data: string | InitiateResult | ProjectsResult | ValidateFileResult | AddFileResult | FinalizeResult | SubmitResult | null;
+    data: string | BeginResult | ProjectsResult | ValidateFileResult | AddFileResult | FinalizeResult | SubmitResult | null;
 };
 
 export interface ValidationResult {
