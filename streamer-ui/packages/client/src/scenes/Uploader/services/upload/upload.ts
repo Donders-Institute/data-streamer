@@ -215,6 +215,60 @@ const addFile = async (
     return addFileResult;
 };
 
+// Finalize upload session
+const finalize = async (
+    username: string,
+    password: string,
+    uploadSession: UploadSession
+) => {
+    const headers = new Headers(
+        {
+            'Content-Type': 'application/json',
+            'Authorization': basicAuthString({ username, password })
+        }
+    );
+
+    const body = JSON.stringify({
+        uploadSessionId: uploadSession.uploadSessionId,
+        projectNumber: uploadSession.projectNumber,
+        subjectLabel: uploadSession.subjectLabel,
+        sessionLabel: uploadSession.sessionLabel,
+        dataType: uploadSession.dataType
+    });
+
+    let result: ServerResponse;
+    try {
+        result = await fetchRetry<ServerResponse>({
+            url: "/upload/finalize",
+            options: {
+                method: 'POST',
+                credentials: 'include',
+                headers,
+                body
+            } as RequestInit,
+            numRetries: uploadNumRetries,
+            timeout: uploadTimeout
+        });
+    } catch (err) {
+        throw err;
+    }
+
+    // Double check result for errors
+    if (result.error) {
+        const errorMessage = result.error as string;
+        throw new Error(errorMessage);
+    }
+
+    if (!result.data) {
+        const errorMessage = "data is empty in result"
+        throw new Error(errorMessage);
+    }
+
+    const finalizeResult = result.data as FinalizeResult;
+    return finalizeResult;
+};
+
+
 export const prepare = async (
     username: string,
     password: string,

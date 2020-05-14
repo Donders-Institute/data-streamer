@@ -79,14 +79,14 @@ var _authenticateUserWithActiveDirectory = function (req, res, next) {
     const ad = new ActiveDirectory(adconfig);
     ad.findUser(username, function (err, user) {
         if (err) {
-            console.error(username, ipAddress, userAgent);
-            console.error(err.message);
+            console.log(username, ipAddress, userAgent);
+            console.log(JSON.stringify(err.message));
             return next(createError(401, "Something went wrong. Try again later"));
         }
 
         if (!user) {
             msg = "Username not found";
-            console.error(username, ipAddress, userAgent, msg);
+            console.log(username, ipAddress, userAgent, msg);
             return next(createError(401, msg));
         }
 

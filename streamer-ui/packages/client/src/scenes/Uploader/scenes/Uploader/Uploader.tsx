@@ -73,8 +73,9 @@ const Uploader: React.FC = () => {
                 try {
                     newProjectList = await fetchProjectList(username, password);
                 } catch (err) {
-                    console.error(err.message);
-                    setErrorMessage(err.message);
+                    console.error(err);
+                    const newErrorMessage = JSON.stringify(err);
+                    setErrorMessage(newErrorMessage);
                     setShowErrorModal(true);
                 } finally {
                     uploaderContext!.setProjectList(newProjectList);
@@ -392,8 +393,9 @@ const Uploader: React.FC = () => {
                 uploaderContext!.selectedDataTypeValue,
                 uploaderContext!.fileList);
         } catch (err) {
-            console.error(err.message);
-            setErrorMessage(err.message);
+            console.error(err);
+            const newErrorMessage = JSON.stringify(err);
+            setErrorMessage(newErrorMessage);
             setShowErrorModal(true);
             setIsUploading(false);
             setFailed(true);
@@ -411,8 +413,9 @@ const Uploader: React.FC = () => {
                 uploadSession,
                 uploaderContext!.fileList);
         } catch (err) {
-            console.error(err.message);
-            setErrorMessage(err.message);
+            console.error(err);
+            const newErrorMessage = JSON.stringify(err);
+            setErrorMessage(newErrorMessage);
             setShowErrorModal(true);
             setIsUploading(false);
             setFailed(true);
