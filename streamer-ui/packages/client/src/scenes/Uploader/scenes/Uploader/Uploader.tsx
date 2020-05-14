@@ -156,33 +156,6 @@ const Uploader: React.FC = () => {
     //     return error;
     // };
 
-    // const handleValidationRequest = (username: string, password: string, formData: any) => {
-    //     let promise = new Promise((resolve, reject) => {
-    //         const config: AxiosRequestConfig = {
-    //             url: "/upload/validatefile",
-    //             method: "post",
-    //             headers: { "Content-Type": "multipart/form-data" },
-    //             data: formData,
-    //             timeout: uploadTimeout,
-    //             withCredentials: true,
-    //             auth: {
-    //                 username: username,
-    //                 password: password
-    //             },
-    //             responseType: "json"
-    //         };
-
-    //         resolve(axios.request(config)
-    //             .then(handleUploadSessionResponse)
-    //             .then(function (response: AxiosResponse) {
-    //                 const ValidateFileResult = response!.data!.data!;
-    //                 return ValidateFileResult as ValidateFileResult;
-    //             })
-    //             .catch(handleUploadSessionError));
-    //     });
-    //     return promise;
-    // };
-
     // const handleUploadRequest = (username: string, password: string, formData: any, fileSizeBytes: number) => {
     //     let promise = new Promise((resolve, reject) => {
     //         const config: AxiosRequestConfig = {
@@ -270,41 +243,42 @@ const Uploader: React.FC = () => {
     //     return promise;
     // };
 
-    // // Upload files in parallel
-    // const handleRealUpload = async () => {
-    //     setTotalSizeBytes(totalSizeBytes => uploadWork.newTotalSizeBytes);
+    // Upload files in parallel
+    const handleRealUpload = async () => {
+        console.log("handleRealUpload");
+        //     setTotalSizeBytes(totalSizeBytes => uploadWork.newTotalSizeBytes);
 
-    //     await Promise.all(uploadWork.work)
-    //         .then(function (results) {
-    //             setRemainingItems(remainingItems => 0);
-    //             setUploadingPercentage(uploadingPercentage => 100);
-    //             setTotalSizeBytes(totalSizeBytes => 0);
-    //         });
+        //     await Promise.all(uploadWork.work)
+        //         .then(function (results) {
+        //             setRemainingItems(remainingItems => 0);
+        //             setUploadingPercentage(uploadingPercentage => 100);
+        //             setTotalSizeBytes(totalSizeBytes => 0);
+        //         });
 
-    //     // Finalize the upload session
-    //     console.log("Finalize upload");
-    //     await handleUploadSessionFinalizeRequest(authContext!.username, authContext!.password, uploadWork.uploadSessionId);
+        //     // Finalize the upload session
+        //     console.log("Finalize upload");
+        //     await handleUploadSessionFinalizeRequest(authContext!.username, authContext!.password, uploadWork.uploadSessionId);
 
-    //     // Submit the streamer job
-    //     console.log("Submitting streamer job");
-    //     const submitResult = await handleUploadSessionSubmitRequest(authContext!.username, authContext!.password, uploadWork.uploadSessionId, uploadWork.uploadSession);
+        //     // Submit the streamer job
+        //     console.log("Submitting streamer job");
+        //     const submitResult = await handleUploadSessionSubmitRequest(authContext!.username, authContext!.password, uploadWork.uploadSessionId, uploadWork.uploadSession);
 
-    //     let result = submitResult as any;
-    //     let error = result!.message;
-    //     if (error) {
-    //         setIsUploading(false);
-    //         setFailed(true);
-    //         console.error(error);
-    //         setErrorMessage(error);
-    //         setShowErrorModal(true);
-    //     } else {
-    //         const uploadedFiles = submitResult as string[];
-    //         console.log("Successfully submitted streamer job for files: " + JSON.stringify(uploadedFiles));
+        //     let result = submitResult as any;
+        //     let error = result!.message;
+        //     if (error) {
+        //         setIsUploading(false);
+        //         setFailed(true);
+        //         console.error(error);
+        //         setErrorMessage(error);
+        //         setShowErrorModal(true);
+        //     } else {
+        //         const uploadedFiles = submitResult as string[];
+        //         console.log("Successfully submitted streamer job for files: " + JSON.stringify(uploadedFiles));
 
-    //         setIsUploading(false);
-    //         setFailed(false);
-    //     }
-    // }
+        //         setIsUploading(false);
+        //         setFailed(false);
+        //     }
+    }
 
     const handleUpload = async (event: any) => {
         setShowFilesExistModal(false);
@@ -374,7 +348,7 @@ const Uploader: React.FC = () => {
         }
 
         // No user confirmation required, proceed
-        // handleRealUpload();
+        handleRealUpload();
 
         // setUploadWork(uploadWork => newUploadWork);
 
