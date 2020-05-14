@@ -101,7 +101,9 @@ const Uploader: React.FC = () => {
                     setErrorMessage(newErrorMessage);
                     setShowErrorModal(true);
                 } finally {
-                    console.dir(newProjectList);
+                    newProjectList.forEach((project: Project) => {
+                        console.log(project.projectNumber);
+                    });
                     uploaderContext!.setProjectList(newProjectList);
                     uploaderContext!.setIsLoadingProjectList(false);
                 }
