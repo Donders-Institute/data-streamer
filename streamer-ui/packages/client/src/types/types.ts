@@ -4,9 +4,7 @@ export interface ProjectsResultElement {
 }
 
 // Get projects query result
-export interface ProjectsResult {
-    data: ProjectsResultElement[];
-}
+export type ProjectsResult = ProjectsResultElement[];
 
 export interface InitiateResult {
     uploadSessionId: number;
