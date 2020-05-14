@@ -156,20 +156,15 @@ const validateFile = async (
         }
     );
 
-    // Convert to string
-    const uploadSessionId = uploadSession.uploadSessionId.toLocaleString();
-    const fileSizeBytes = file.size.toLocaleString();
-    console.log("uploadSessionId: " + uploadSessionId);
-
     let formData = new FormData();
-    formData.append("uploadSessionId", uploadSessionId);
+    formData.append("uploadSessionId", uploadSession.uploadSessionId.toString());
     formData.append("projectNumber", uploadSession.projectNumber);
     formData.append("subjectLabel", uploadSession.subjectLabel);
     formData.append("sessionLabel", uploadSession.sessionLabel);
     formData.append("dataType", uploadSession.dataType);
 
     formData.append("filename", file.name);
-    formData.append("filesize", fileSizeBytes);
+    formData.append("filesize", file.size.toString());
     formData.append("uid", file.uid);
 
     formData.append("files", file);
@@ -259,20 +254,15 @@ export const addFile = async (
         }
     );
 
-    // Convert to string
-    const uploadSessionId = uploadSession.uploadSessionId.toLocaleString();
-    const fileSizeBytes = file.size.toLocaleString();
-    console.log("uploadSessionId: " + uploadSessionId);
-
     let formData = new FormData();
-    formData.append("uploadSessionId", uploadSessionId);
+    formData.append("uploadSessionId", uploadSession.uploadSessionId.toString());
     formData.append("projectNumber", uploadSession.projectNumber);
     formData.append("subjectLabel", uploadSession.subjectLabel);
     formData.append("sessionLabel", uploadSession.sessionLabel);
     formData.append("dataType", uploadSession.dataType);
 
     formData.append("filename", file.name);
-    formData.append("filesize", fileSizeBytes);
+    formData.append("filesize", file.size.toString());
     formData.append("uid", file.uid);
 
     formData.append("files", file);

@@ -202,7 +202,7 @@ const Uploader: React.FC = () => {
         uploaderContext!.fileList.forEach((file: RcFile) => {
             let formData = new FormData();
 
-            formData.append("uploadSessionId", uploadSession.uploadSessionId.toLocaleString());
+            formData.append("uploadSessionId", uploadSession.uploadSessionId.toString());
             formData.append("projectNumber", uploadSession.projectNumber);
             formData.append("subjectLabel", uploadSession.subjectLabel);
             formData.append("sessionLabel", uploadSession.sessionLabel);
@@ -210,7 +210,7 @@ const Uploader: React.FC = () => {
 
             formData.append("ipAddress", uploadSession.ipAddress);
             formData.append("filename", file.name);
-            formData.append("filesize", file.size.toLocaleString());
+            formData.append("filesize", file.size.toString());
             formData.append("uid", file.uid);
 
             uploadWork.push(handleAddFile(file));
