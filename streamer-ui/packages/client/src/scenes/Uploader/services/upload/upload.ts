@@ -37,7 +37,7 @@ export const detectFile = (file: RcFile) => {
     });
 };
 
-// Initiate an upload session. Obtain a upload session id
+// Initiate an upload session. Obtain the upload session id
 const initiate = async (
     username: string,
     password: string,
@@ -86,12 +86,15 @@ const initiate = async (
     }
 
     if (!result.data) {
-        const errorMessage = "data is empty in result"
+        const errorMessage = "data is empty in result";
         throw new Error(errorMessage);
     }
 
     const initiateResult = result.data as InitiateResult;
-    return initiateResult;
+
+    // Obtain the upload session id
+    const uploadSessionId = initiateResult.uploadSessionId;
+    return uploadSessionId;
 };
 
 export const prepare = async (
@@ -105,9 +108,10 @@ export const prepare = async (
     fileList: RcFile[]
 ) => {
 
-    let initiateResult: InitiateResult;
+    // Obtain the upload session id
+    let uploadSessionId: number;
     try {
-        initiateResult = await initiate(
+        uploadSessionId = await initiate(
             username,
             password,
             projectNumber,
@@ -117,9 +121,6 @@ export const prepare = async (
     } catch (err) {
         throw err;
     }
-
-    // Obtain the upload session id
-    const uploadSessionId = initiateResult.uploadSessionId;
 
     // Derive the total size of the files to be uploaded in bytes
     let totalSizeBytes = 0;
@@ -192,7 +193,7 @@ const validateFile = async (
     }
 
     if (!result.data) {
-        const errorMessage = "data is empty in result"
+        const errorMessage = "data is empty in result";
         throw new Error(errorMessage);
     }
 
@@ -290,7 +291,7 @@ const addFile = async (
     }
 
     if (!result.data) {
-        const errorMessage = "data is empty in result"
+        const errorMessage = "data is empty in result";
         throw new Error(errorMessage);
     }
 
@@ -343,7 +344,7 @@ const finalize = async (
     }
 
     if (!result.data) {
-        const errorMessage = "data is empty in result"
+        const errorMessage = "data is empty in result";
         throw new Error(errorMessage);
     }
 
@@ -396,7 +397,7 @@ const submit = async (
     }
 
     if (!result.data) {
-        const errorMessage = "data is empty in result"
+        const errorMessage = "data is empty in result";
         throw new Error(errorMessage);
     }
 
