@@ -22,10 +22,6 @@ var _verifyStructure = function (req, res, next) {
     let dataType;
 
     if (req.is("application/json")) {
-        console.log("application/json");
-        console.log("verifyStructure");
-        console.log(JSON.stringify(req));
-        console.log(JSON.stringify(req.body));
         projectNumber = req.body.projectNumber;
         subjectLabel = req.body.subjectLabel;
         sessionLabel = req.body.sessionLabel;
@@ -68,10 +64,6 @@ var _verifyUploadSessionId = function (req, res, next) {
     let uploadSessionId;
 
     if (req.is("application/json")) {
-        console.log("application/json");
-        console.log("verifyUploadSessionId");
-        console.log(JSON.stringify(req));
-        console.log(JSON.stringify(req.body));
         uploadSessionId = req.body.uploadSessionId;
     }
 
@@ -177,7 +169,8 @@ var _begin = async function (req, res, next) {
 
 // Check if the file to be uploaded and the destination project storage folder do not exist already
 var _validateFile = function (req, res, next) {
-    // Obtain structure
+
+    // Obtain structure from form data
     const projectNumber = req.body.projectNumber;
     const subjectLabel = req.body.subjectLabel;
     const sessionLabel = req.body.sessionLabel;
@@ -225,10 +218,11 @@ var _validateFile = function (req, res, next) {
 
 // Add a file to the upload session
 var _addFile = async function (req, res, next) {
-    // Obtain upload session id
+
+    // Obtain upload session id from form data
     const uploadSessionId = req.body.uploadSessionId;
 
-    // Obtain structure
+    // Obtain structure from form data
     const projectNumber = req.body.projectNumber;
     const subjectLabel = req.body.subjectLabel;
     const sessionLabel = req.body.sessionLabel;
