@@ -130,9 +130,8 @@ var _begin = async function (req, res, next) {
     // Obtain the user agent
     const userAgent = req.headers['user-agent'];
 
-    // Obtain the IP address"
-    const ipAddress = req.ip | "";
-    console.log(`ipAddres: ${ipAddress}`);
+    // Set the IP address (to be removed)
+    const ipAddress = "0.0.0.0";
 
     // Obtain structure
     const projectNumber = req.body.projectNumber;

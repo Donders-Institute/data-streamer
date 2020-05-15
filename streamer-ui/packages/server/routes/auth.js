@@ -64,7 +64,6 @@ var _authenticateUserWithActiveDirectory = function (req, res, next) {
     let msg = "";
     let username = "";
     let password = "";
-    let ipAddress = "";
     let userAgent = "";
 
     // Obtain auth credentials
@@ -79,27 +78,27 @@ var _authenticateUserWithActiveDirectory = function (req, res, next) {
     const ad = new ActiveDirectory(adconfig);
     ad.findUser(username, function (err, user) {
         if (err) {
-            console.log(username, ipAddress, userAgent);
+            console.log(username, userAgent);
             console.log(JSON.stringify(err.message));
             return next(createError(401, "Something went wrong. Try again later"));
         }
 
         if (!user) {
             msg = "Username not found";
-            console.log(username, ipAddress, userAgent, msg);
+            console.log(username, userAgent, msg);
             return next(createError(401, msg));
         }
 
         ad.authenticate(user.userPrincipalName, password, function (err, auth) {
             if (!auth) {
                 // Authentication failed
-                console.error(username, ipAddress, userAgent);
+                console.error(username, userAgent);
                 return next(createError(401, "Wrong username or password"));
             }
             // Authentication successful
             req.session.user = username;
             req.session.authenticated = true;
-            console.log(username, ipAddress, userAgent);
+            console.log(username, userAgent);
             return res.status(200).json({
                 data: "Login successful. You will soon be redirected to the index",
                 error: null

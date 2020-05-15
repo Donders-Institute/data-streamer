@@ -1,3 +1,26 @@
+// Fetch once redirect with timeout in milliseconds
+export async function fetchOnceRedirect({
+    url,
+    options,
+    timeout
+}: {
+    url: string;
+    options: RequestInit;
+    timeout: number
+}): Promise<string> {
+    return Promise.race([
+        fetch(url, options).then(response => {
+            if (!response.redirected) {
+                throw new Error(response.statusText);
+            }
+            return response.text() as Promise<string>;
+        }),
+        new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('timeout')), timeout)
+        ) as Promise<string>
+    ]);
+}
+
 // Fetch once with timeout in milliseconds
 export async function fetchOnce<T>({
     url,

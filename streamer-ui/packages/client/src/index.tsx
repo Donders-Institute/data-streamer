@@ -4,8 +4,8 @@ import { BrowserRouter as Router } from "react-router-dom";
 import * as serviceWorker from "./serviceWorker";
 
 import App from "./app/App";
-import { AuthProvider, IAuthContext } from "./services/auth/AuthContext";
-import { Project, RcFile, InputValidationStatuses } from "./types/types";
+import { AuthProvider, IAuthContext, handleSignIn, handleSignOut } from "./services/auth/auth";
+import { Project, RcFile, InputValidationStatuses, ServerResponse } from "./types/types";
 import { UploaderProvider, IUploaderContext } from "./services/uploader/UploaderContext";
 
 import "./index.less";
@@ -14,37 +14,52 @@ const Root: React.FC = () => {
 
     // Set auth context
 
-    const signIn = (username: string, password: string, ipAddress: string) => {
+    const signIn = async (username: string, password: string) => {
+        let result: ServerResponse;
+        try {
+            result = await handleSignIn(username, password);
+        } catch (err) {
+            throw err;
+        }
+
         setAuthContext(state => (
             {
                 ...state,
                 username,
                 password,
-                ipAddress,
                 isAuthenticated: true
             }
         ));
+
+        return result;
     };
 
-    const signOut = () => {
+    const signOut = async (username: string, password: string) => {
+        let result: ServerResponse;
+        try {
+            result = await handleSignOut(username, password);
+        } catch (err) {
+            throw err;
+        }
+
         setAuthContext(state => (
             {
                 ...state,
                 username: "",
                 password: "",
-                ipAddress: "",
                 isAuthenticated: false
             }
         ));
+
+        return result;
     };
 
     const [authContext, setAuthContext] = useState({
         username: "",
         password: "",
-        ipAddress: "",
         isAuthenticated: false,
-        signIn: signIn,
-        signOut: signOut
+        signIn,
+        signOut
     } as IAuthContext);
 
     // Set uploader context

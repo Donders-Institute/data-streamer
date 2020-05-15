@@ -1,9 +1,17 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import { Layout, Row, Col, Icon, Menu, Modal, Tooltip } from "antd";
 
-import { AuthContext, IAuthContext } from "../../services/auth/AuthContext";
-import { fetchRetry, basicAuthString } from "../../services/fetch/fetch";
+import {
+    Layout,
+    Row,
+    Col,
+    Icon,
+    Menu,
+    Modal,
+    Tooltip
+} from "antd";
+
+import { AuthContext, IAuthContext } from "../../services/auth/auth";
 import { ServerResponse } from "../../types/types";
 
 import "../../App.less";
@@ -24,35 +32,18 @@ function modalError(msg: string) {
 
 const Header: React.FC = () => {
     const authContext: IAuthContext | null = useContext(AuthContext);
-    const username = authContext!.username;
-    const password = authContext!.password;
 
     const LOCATION_HOME = "home";
     const LOCATION_HELP = "help";
     const LOCATION_AUTH = "auth";
 
-    const handleLogout = async () => {
+    const handleSignOut = async () => {
+        const username = authContext!.username;
+        const password = authContext!.password;
 
-        let headers = new Headers(
-            {
-                'Content-Type': 'application/json',
-                'Authorization': basicAuthString({ username, password })
-            }
-        );
-        let body = JSON.stringify({});
-
+        let result: ServerResponse;
         try {
-            await fetchRetry<any>({
-                url: "/logout",
-                options: {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers,
-                    body
-                } as RequestInit,
-                numRetries: 1,
-                timeout: 2000
-            });
+            result = await authContext!.signOut(username, password);
         } catch (err) {
             console.error('Sign out failure');
             console.error(err);
@@ -61,12 +52,20 @@ const Header: React.FC = () => {
             return; // Abort
         }
 
-        authContext!.signOut();
+        // Double check result for errors
+        if (result.error) {
+            console.error('Sign out failure');
+            const errorMessage = result.error as string;
+            console.error(errorMessage);
+            modalError(errorMessage);
+            return; // Abort
+        }
+
         console.log('Successfully signed out');
     };
 
     return (
-        <div>
+        <React.Fragment>
             <Layout>
                 <Layout.Header className="App-header-top"></Layout.Header>
             </Layout>
@@ -127,7 +126,7 @@ const Header: React.FC = () => {
                                     <Menu.Item
                                         key={LOCATION_AUTH}
                                     >
-                                        <a onClick={() => { handleLogout(); }}>
+                                        <a onClick={() => { handleSignOut(); }}>
                                             <Icon type="logout" /> <span><strong>Sign out</strong></span>
                                         </a>
                                     </Menu.Item>
@@ -137,7 +136,7 @@ const Header: React.FC = () => {
                     </Row>
                 </Layout.Header>
             </Layout>
-        </div>
+        </React.Fragment>
     );
 };
 
