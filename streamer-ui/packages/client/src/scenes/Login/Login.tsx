@@ -1,4 +1,5 @@
 import React, { useState, useContext } from "react";
+
 import {
     Card,
     Form,
@@ -11,11 +12,11 @@ import {
     Spin,
     Modal
 } from "antd";
+
 import { FormComponentProps } from "antd/lib/form";
 import { Redirect } from "react-router-dom";
 
-import { AuthContext, IAuthContext } from "../../services/auth/AuthContext";
-import { fetchRetry, basicAuthString } from "../../services/fetch/fetch";
+import { AuthContext, IAuthContext } from "../../services/auth/auth";
 import { ServerResponse } from "../../types/types";
 
 import HeaderLogin from "../../components/HeaderLogin/HeaderLogin";
@@ -25,10 +26,10 @@ import logoDCCN from "../../assets/dccn-logo.png";
 
 const { Content } = Layout;
 
-function modalError(msg: string) {
+function modalError(errorMessage: string) {
     Modal.error({
         title: "Error",
-        content: msg,
+        content: errorMessage,
         onOk() {
             Modal.destroyAll();
         }
@@ -40,7 +41,6 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [ipAddress, setIpAddress] = useState("0.0.0.0");
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loggingIn, setLoggingIn] = useState(false);
     const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -49,27 +49,9 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
 
     const handleLogin = async (username: string, password: string) => {
-        let headers = new Headers(
-            {
-                'Content-Type': 'application/json',
-                'Authorization': basicAuthString({ username, password })
-            }
-        );
-        let body = JSON.stringify({});
-
         let result: ServerResponse;
         try {
-            result = await fetchRetry<ServerResponse>({
-                url: "/login",
-                options: {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers,
-                    body
-                } as RequestInit,
-                numRetries: 1,
-                timeout: 2000
-            });
+            result = await authContext!.signIn(username, password);
         } catch (err) {
             console.error('Login failure');
             console.error(err);
@@ -98,8 +80,6 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
         setHasSubmitted(false);
         setUsername(username);
         setPassword(password);
-        setIpAddress(ipAddress);
-        authContext!.signIn(username, password, ipAddress);
     };
 
     const handleSubmit = (event: any) => {
@@ -123,14 +103,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
     };
 
     return (
-        <div>
-            {/* {
-                !authContext!.isAuthenticated &&
-                <Button
-                    onClick={() => authContext!.signIn("rutvdee", "testpassword", "0.0.0.0")}>
-                    Authenticate rutvdee
-                </Button>
-            } */}
+        <React.Fragment>
             {
                 isAuthenticated &&
                 <Redirect to="/" />
@@ -207,7 +180,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                     </Content>
                 </Content>
             }
-        </div>
+        </React.Fragment>
     );
 };
 

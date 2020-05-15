@@ -101,7 +101,7 @@ const FileList: React.FC<IProps> = ({ fileList, fileListSummary, hasFilesSelecte
     ];
 
     return (
-        <div>
+        <React.Fragment>
             <Tooltip placement="topLeft" title="Shows list of files to be uploaded">
                 <Table
                     rowKey={(record: any) => record.uid}
@@ -122,7 +122,7 @@ const FileList: React.FC<IProps> = ({ fileList, fileListSummary, hasFilesSelecte
                     />
                 }
             </Tooltip>
-        </div>
+        </React.Fragment>
     );
 };
 

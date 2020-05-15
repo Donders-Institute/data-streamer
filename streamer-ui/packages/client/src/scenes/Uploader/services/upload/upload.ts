@@ -100,7 +100,6 @@ const begin = async (
 export const initiate = async (
     username: string,
     password: string,
-    ipAddress: string,
     projectNumber: string,
     subjectLabel: string,
     sessionLabel: string,
@@ -131,7 +130,6 @@ export const initiate = async (
     const uploadSession = {
         uploadSessionId,
         username,
-        ipAddress,
         projectNumber,
         subjectLabel,
         sessionLabel,

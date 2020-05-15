@@ -15,7 +15,7 @@ interface IProps {
 const FileSelector: React.FC<IProps> = ({ handleBeforeUpload }) => {
 
     return (
-        <div>
+        <React.Fragment>
             <Tooltip placement="topLeft" title="Select source files to be uploaded">
                 <h2>Select files to be uploaded</h2>
                 <Dragger
@@ -35,7 +35,7 @@ const FileSelector: React.FC<IProps> = ({ handleBeforeUpload }) => {
                     <p className="ant-upload-hint">Select one or more files.</p>
                 </Dragger>
             </Tooltip>
-        </div >
+        </React.Fragment>
     );
 };
 

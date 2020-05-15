@@ -91,7 +91,7 @@ const TargetPath: React.FC<TargetPathProps> = (
     }
 
     return (
-        <div>
+        <React.Fragment>
             <Tooltip placement="bottomLeft" title="Destination folder where files are uploaded to">
                 {drivePath}
                 {backwardSlashPath}
@@ -108,7 +108,7 @@ const TargetPath: React.FC<TargetPathProps> = (
                 {dataTypePath}
                 {backwardSlashPath}
             </Tooltip>
-        </div>
+        </React.Fragment>
     );
 };
 

@@ -62,7 +62,6 @@ export interface Project {
 export interface UploadSession {
     uploadSessionId: number;
     username: string;
-    ipAddress: string;
     projectNumber: string;
     subjectLabel: string;
     sessionLabel: string;

@@ -14,7 +14,7 @@ import {
     List
 } from "antd";
 
-import { AuthContext, IAuthContext } from "../../../../services/auth/AuthContext";
+import { AuthContext, IAuthContext } from "../../../../services/auth/auth";
 import { UploaderContext, IUploaderContext } from "../../../../services/uploader/UploaderContext";
 
 import Header from "../../../../components/Header/Header";
@@ -30,7 +30,8 @@ import {
     UploadSession,
     ValidationResult,
     AddFileResult,
-    SubmitResult
+    SubmitResult,
+    ServerResponse
 } from "../../../../types/types";
 
 import { fetchProjectList } from "../../services/pdb/pdb";
@@ -67,7 +68,6 @@ const Uploader: React.FC = () => {
     const [uploadSession, setUploadSession] = useState({
         uploadSessionId: -1,
         username: authContext!.username,
-        ipAddress: authContext!.ipAddress,
         projectNumber: "",
         subjectLabel: "",
         sessionLabel: "",
@@ -153,7 +153,6 @@ const Uploader: React.FC = () => {
             const newUploadSession = {
                 uploadSessionId: uploadSession.uploadSessionId,
                 username: uploadSession.username,
-                ipAddress: uploadSession.ipAddress,
                 projectNumber: uploaderContext!.selectedProjectValue,
                 subjectLabel: uploaderContext!.selectedSubjectValue,
                 sessionLabel: uploaderContext!.selectedSessionValue,
@@ -165,6 +164,41 @@ const Uploader: React.FC = () => {
         };
         checkProceed();
     }, [uploaderContext]);
+
+    const handleSignOut = async () => {
+        const username = authContext!.username;
+        const password = authContext!.password;
+
+        let result: ServerResponse;
+        try {
+            result = await authContext!.signOut(username, password);
+        } catch (err) {
+            console.error('Sign out failure');
+            console.error(err);
+            const newErrorMessage = JSON.stringify(err);
+            setErrorMessage(newErrorMessage);
+            setShowErrorModal(true);
+            setIsUploading(false);
+            setFailed(true);
+            return; // Abort
+        }
+
+        // Double check result for errors
+        if (result.error) {
+            console.error('Sign out failure');
+            const newErrorMessage = result.error as string;
+            console.error(newErrorMessage);
+            setErrorMessage(newErrorMessage);
+            setShowErrorModal(true);
+            setIsUploading(false);
+            setFailed(true);
+            return; // Abort
+        }
+
+        setIsUploading(false);
+        setFailed(false);
+        console.log('Successfully signed out');
+    };
 
     const handleAddFile = async (file: RcFile) => {
         console.log(`Add file to be uploaded ${file.name} ...`);
@@ -208,7 +242,6 @@ const Uploader: React.FC = () => {
             formData.append("sessionLabel", uploadSession.sessionLabel);
             formData.append("dataType", uploadSession.dataType);
 
-            formData.append("ipAddress", uploadSession.ipAddress);
             formData.append("filename", file.name);
             formData.append("filesize", file.size.toString());
             formData.append("uid", file.uid);
@@ -275,7 +308,7 @@ const Uploader: React.FC = () => {
             newUploadSession = await initiate(
                 authContext!.username,
                 authContext!.password,
-                authContext!.ipAddress,
+                "0.0.0.0",
                 uploaderContext!.selectedProjectValue,
                 uploaderContext!.selectedSubjectValue,
                 uploaderContext!.selectedSessionValue,
@@ -538,7 +571,7 @@ const Uploader: React.FC = () => {
     };
 
     return (
-        <Layout>
+        <React.Fragment>
             <Content style={{ background: "#f0f2f5" }}>
                 <Header />
                 <div style={{ padding: "10px" }}>
@@ -671,7 +704,7 @@ const Uploader: React.FC = () => {
                                     </Button>
                                     <Button
                                         disabled={isUploading}
-                                        onClick={(e) => authContext!.signOut()}
+                                        onClick={() => { handleSignOut(); }}
                                     >
                                         <Icon type="logout" /> Sign out
                                     </Button>
@@ -825,7 +858,7 @@ const Uploader: React.FC = () => {
                     <div>{errorMessage}</div>
                 </Modal>
             </Content>
-        </Layout>
+        </React.Fragment>
     );
 };
 
