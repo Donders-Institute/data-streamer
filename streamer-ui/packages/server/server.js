@@ -60,12 +60,8 @@ app.get('/login',
         // Comment out for testing
         // req.session.user = 'testuser';
         // req.session.authenticated = true;
-        res.sendFile(path.join(__dirname + '/../frontend/index.html'));
+        res.sendFile(path.join(__dirname + '/./frontend/index.html'));
     });
-
-// GET Serve logout page
-app.get('/logout',
-    auth.logoutUser);
 
 // POST Login for regular user
 app.post('/login',
