@@ -12,16 +12,15 @@ const SERVICE_ADMIN_PASSWORD = config.serviceAdmin.password;
 
 // Middleware to verify upload structure (can be in JSON or form data)
 var _verifyStructure = function (req, res, next) {
-    if (!req.body) {
-        return next(createError(400, `No attributes were uploaded: "req.body" is empty`));
-    }
-
     let projectNumber;
     let subjectLabel;
     let sessionLabel;
     let dataType;
 
     if (req.is("application/json")) {
+        if (!req.body) {
+            return next(createError(400, `No attributes were uploaded: "req.body" is empty`));
+        }
         projectNumber = req.body.projectNumber;
         subjectLabel = req.body.subjectLabel;
         sessionLabel = req.body.sessionLabel;
@@ -57,18 +56,17 @@ var _verifyStructure = function (req, res, next) {
 
 // Middleware to verify upload session id (can be in JSON or form data)
 var _verifyUploadSessionId = function (req, res, next) {
-    if (!req.body) {
-        return next(createError(400, `No attributes were validated: "req.body" is empty`));
-    }
-
     let uploadSessionId;
 
     if (req.is("application/json")) {
+        if (!req.body) {
+            return next(createError(400, `No attributes were validated: "req.body" is empty`));
+        }
         uploadSessionId = req.body.uploadSessionId;
     }
 
     if (req.is("multipart/form-data")) {
-        console.log("application/json");
+        console.log("multipart/form-data");
         console.log("verifyUploadSessionId");
         console.log(JSON.stringify(req));
         console.log(JSON.stringify(req.body));

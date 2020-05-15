@@ -846,7 +846,7 @@ const Uploader: React.FC = () => {
                     <div>{errorMessage}</div>
                 </Modal>
             </Content>
-        </React.Fragment>
+        </React.Fragment >
     );
 };
 

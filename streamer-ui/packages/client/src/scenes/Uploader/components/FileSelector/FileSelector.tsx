@@ -23,6 +23,7 @@ const FileSelector: React.FC<IProps> = ({ handleBeforeUpload }) => {
                     name="file"
                     multiple={true}
                     beforeUpload={handleBeforeUpload}
+                    customRequest={() => { }} // Prevent upload traffic to server
                     showUploadList={false}
                     directory={false}
                 >
