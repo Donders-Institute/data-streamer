@@ -30,12 +30,11 @@ var _verifyStructure = function (req, res, next) {
     if (req.is("multipart/form-data")) {
         console.log("multipart/form-data");
         console.log("verifyStructure");
-        console.log(JSON.stringify(req));
-        console.log(JSON.stringify(req.body));
-        projectNumber = req.body.projectNumber;
-        subjectLabel = req.body.subjectLabel;
-        sessionLabel = req.body.sessionLabel;
-        dataType = req.body.dataType;
+        console.log(req.projectNumber);
+        projectNumber = req.projectNumber;
+        subjectLabel = req.subjectLabel;
+        sessionLabel = req.sessionLabel;
+        dataType = req.dataType;
     }
 
     if (!projectNumber) {
@@ -68,9 +67,8 @@ var _verifyUploadSessionId = function (req, res, next) {
     if (req.is("multipart/form-data")) {
         console.log("multipart/form-data");
         console.log("verifyUploadSessionId");
-        console.log(JSON.stringify(req));
-        console.log(JSON.stringify(req.body));
-        uploadSessionId = req.body.uploadSessionId;
+        console.log(req.uploadSessionId);
+        uploadSessionId = req.uploadSessionId;
     }
 
     if (!uploadSessionId) {
@@ -84,7 +82,8 @@ var _verifyUploadSessionId = function (req, res, next) {
 var _verifyFileContents = function (req, res, next) {
 
     console.log("verifyFileContents");
-    console.log(JSON.stringify(req));
+    console.log(req.files);
+    console.log(req.files.files);
 
     // Check for files to be uploaded
     if (!req.files) {
@@ -157,7 +156,7 @@ var _begin = async function (req, res, next) {
     }
 
     // Success, return the result
-    console.log(username, ipAddress, userAgent, startTime);
+    console.log(username, userAgent, startTime);
     console.log(JSON.stringify(insertUploadSessionResult));
     res.status(200).json({
         data: insertUploadSessionResult,
@@ -168,11 +167,14 @@ var _begin = async function (req, res, next) {
 // Check if the file to be uploaded and the destination project storage folder do not exist already
 var _validateFile = function (req, res, next) {
 
+    console.log("obtain structure");
+    console.log(req.projectNumber);
+
     // Obtain structure from form data
-    const projectNumber = req.body.projectNumber;
-    const subjectLabel = req.body.subjectLabel;
-    const sessionLabel = req.body.sessionLabel;
-    const dataType = req.body.dataType;
+    const projectNumber = req.projectNumber;
+    const subjectLabel = req.subjectLabel;
+    const sessionLabel = req.sessionLabel;
+    const dataType = req.dataType;
 
     // Obtain the project storage directory name
     const projectStorageDirName = utils.getProjectStorageDirName(projectNumber, subjectLabel, sessionLabel, dataType);
@@ -217,14 +219,20 @@ var _validateFile = function (req, res, next) {
 // Add a file to the upload session
 var _addFile = async function (req, res, next) {
 
+    console.log("obtain uploadSessionId");
+    console.log(req.uploadSessionId);
+
     // Obtain upload session id from form data
-    const uploadSessionId = req.body.uploadSessionId;
+    const uploadSessionId = req.uploadSessionId;
+
+    console.log("obtain structure");
+    console.log(req.projectNumber);
 
     // Obtain structure from form data
-    const projectNumber = req.body.projectNumber;
-    const subjectLabel = req.body.subjectLabel;
-    const sessionLabel = req.body.sessionLabel;
-    const dataType = req.body.dataType;
+    const projectNumber = req.projectNumber;
+    const subjectLabel = req.subjectLabel;
+    const sessionLabel = req.sessionLabel;
+    const dataType = req.dataType;
 
     // Obtain the streamer UI buffer directory name
     const dirName = utils.getStreamerUIBufferDirName(projectNumber, subjectLabel, sessionLabel, dataType);
@@ -272,6 +280,7 @@ var _addFile = async function (req, res, next) {
 
 // Finalize the upload session
 var _finalize = async function (req, res, next) {
+
     // Obtain upload session id
     const uploadSessionId = req.body.uploadSessionId;
 
@@ -294,6 +303,7 @@ var _finalize = async function (req, res, next) {
 
 // Submit a streamer job
 var _submit = async function (req, res, next) {
+
     // Obtain user credentials
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
