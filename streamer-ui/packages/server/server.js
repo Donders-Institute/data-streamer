@@ -21,11 +21,6 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'frontend')));
 
-// app.use(express.urlencoded({ extended: false }));
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(fileUpload());
-
 const STREAMER_UI_HOST = process.env.STREAMER_UI_HOST || "localhost";
 const STREAMER_UI_PORT = process.env.STREAMER_UI_PORT || 9000;
 
@@ -99,8 +94,7 @@ app.post('/upload/validatefile',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
-    content.hasFormData,
-    handleMultipartFormData.single('validatefile'), // Handle with multipart/form-data
+    handleMultipartFormData.single('validatefile'),
     upload.verifyUploadSessionId,
     upload.verifyStructure,
     upload.verifyFileContents,
@@ -111,8 +105,7 @@ app.post('/upload/addfile',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
-    content.hasFormData,
-    handleMultipartFormData.single('addfile'), // Handle with multipart/form-data
+    handleMultipartFormData.single('addfile'),
     upload.verifyUploadSessionId,
     upload.verifyStructure,
     upload.verifyFileContents,

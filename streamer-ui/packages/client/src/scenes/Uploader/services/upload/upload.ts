@@ -165,9 +165,9 @@ const validateFile = async (
     uploadSession: UploadSession,
     file: RcFile
 ) => {
+    // Do not set multipart/form-data as Content-Type to make it work
     const headers = new Headers(
         {
-            'Content-Type': "multipart/form-data",
             'Authorization': basicAuthString({ username, password })
         }
     );
@@ -255,9 +255,9 @@ export const addFile = async (
     uploadSession: UploadSession,
     file: RcFile
 ) => {
+    // Do not set multipart/form-data as Content-Type to make it work
     const headers = new Headers(
         {
-            'Content-Type': "multipart/form-data",
             'Authorization': basicAuthString({ username, password })
         }
     );
