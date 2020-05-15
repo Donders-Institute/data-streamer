@@ -1,10 +1,8 @@
 const express = require("express");
-const session = require('express-session');
-// const bodyParser = require("body-parser");
+const session = require("express-session");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-// const fileUpload = require("express-fileupload");
 const createError = require("http-errors");
 const multer = require("multer");
 
@@ -14,13 +12,16 @@ const pdb = require('./routes/pdb');
 const upload = require('./routes/upload');
 const admin = require('./routes/admin');
 
+const handleMultipartFormData = multer();
+
 var app = express();
 
 app.use(logger("dev"));
 app.use(express.json());
-// app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'frontend')));
+
+// app.use(express.urlencoded({ extended: false }));
 // app.use(bodyParser.json());
 // app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(fileUpload());
@@ -99,7 +100,7 @@ app.post('/upload/validatefile',
     auth.hasBasicAuthHeader,
     auth.verifyUser,
     content.hasFormData,
-    multer.single('validatefile'), // Handle with multipart/form-data
+    handleMultipartFormData.single('validatefile'), // Handle with multipart/form-data
     upload.verifyUploadSessionId,
     upload.verifyStructure,
     upload.verifyFileContents,
@@ -111,7 +112,7 @@ app.post('/upload/addfile',
     auth.hasBasicAuthHeader,
     auth.verifyUser,
     content.hasFormData,
-    multer.single('addfile'), // Handle with multipart/form-data
+    handleMultipartFormData.single('addfile'), // Handle with multipart/form-data
     upload.verifyUploadSessionId,
     upload.verifyStructure,
     upload.verifyFileContents,
