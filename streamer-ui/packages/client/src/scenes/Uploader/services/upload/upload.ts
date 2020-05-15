@@ -240,6 +240,9 @@ export const validate = async (
         if (validateFileResult.fileIsEmpty) {
             validationResult.emptyFiles.push(file.name);
         }
+
+        // Gather validated files
+        validationResult.validatedFiles.push(validateFileResult);
     });
 
     return validationResult;
