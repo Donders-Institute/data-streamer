@@ -1,11 +1,12 @@
 const express = require("express");
 const session = require('express-session');
-const bodyParser = require("body-parser");
+// const bodyParser = require("body-parser");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-const fileUpload = require("express-fileupload");
+// const fileUpload = require("express-fileupload");
 const createError = require("http-errors");
+const multer = require("multer");
 
 const auth = require('./routes/auth');
 const content = require('./routes/content');
@@ -17,12 +18,12 @@ var app = express();
 
 app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'frontend')));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(fileUpload());
+// app.use(bodyParser.json());
+// app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(fileUpload());
 
 const STREAMER_UI_HOST = process.env.STREAMER_UI_HOST || "localhost";
 const STREAMER_UI_PORT = process.env.STREAMER_UI_PORT || 9000;
@@ -98,6 +99,7 @@ app.post('/upload/validatefile',
     auth.hasBasicAuthHeader,
     auth.verifyUser,
     content.hasFormData,
+    multer.single('validatefile'), // Handle with multipart/form-data
     upload.verifyUploadSessionId,
     upload.verifyStructure,
     upload.verifyFileContents,
@@ -109,6 +111,7 @@ app.post('/upload/addfile',
     auth.hasBasicAuthHeader,
     auth.verifyUser,
     content.hasFormData,
+    multer.single('addfile'), // Handle with multipart/form-data
     upload.verifyUploadSessionId,
     upload.verifyStructure,
     upload.verifyFileContents,

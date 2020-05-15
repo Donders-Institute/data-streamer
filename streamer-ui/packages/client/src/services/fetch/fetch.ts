@@ -1,4 +1,4 @@
-// Fetch once redirect with timeout in milliseconds
+// Fetch once text redirect with timeout in milliseconds
 export async function fetchOnceRedirect({
     url,
     options,
@@ -26,7 +26,7 @@ export async function fetchOnceRedirect({
     ]);
 }
 
-// Fetch once with timeout in milliseconds
+// Fetch once JSON with timeout in milliseconds
 export async function fetchOnce<T>({
     url,
     options,
@@ -53,7 +53,7 @@ export async function fetchOnce<T>({
     ]);
 }
 
-// Retry fetch with number of retries and timeout in milliseconds
+// Fetch retry JSON with number of retries and timeout in milliseconds
 export async function fetchRetry<T>({
     url,
     options,
