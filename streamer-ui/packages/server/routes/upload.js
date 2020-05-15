@@ -10,32 +10,17 @@ const config = require(path.join(__dirname + '/../config/streamer-ui-config.json
 const SERVICE_ADMIN_USERNAME = config.serviceAdmin.username;
 const SERVICE_ADMIN_PASSWORD = config.serviceAdmin.password;
 
-// Middleware to verify upload structure (can be in JSON or form data)
+// Middleware to verify upload structure 
+// (can be in JSON or multipare/form-data after multer middleware)
 var _verifyStructure = function (req, res, next) {
-    let projectNumber;
-    let subjectLabel;
-    let sessionLabel;
-    let dataType;
-
-    if (req.is("application/json")) {
-        if (!req.body) {
-            return next(createError(400, `No attributes were uploaded: "req.body" is empty`));
-        }
-        projectNumber = req.body.projectNumber;
-        subjectLabel = req.body.subjectLabel;
-        sessionLabel = req.body.sessionLabel;
-        dataType = req.body.dataType;
+    if (!req.body) {
+        return next(createError(400, `No attributes were uploaded: "req.body" is empty`));
     }
 
-    if (req.is("multipart/form-data")) {
-        console.log("multipart/form-data");
-        console.log("verifyStructure");
-        console.log(req.projectNumber);
-        projectNumber = req.projectNumber;
-        subjectLabel = req.subjectLabel;
-        sessionLabel = req.sessionLabel;
-        dataType = req.dataType;
-    }
+    const projectNumber = req.body.projectNumber;
+    const subjectLabel = req.body.subjectLabel;
+    const sessionLabel = req.body.sessionLabel;
+    const dataType = req.body.dataType;
 
     if (!projectNumber) {
         return next(createError(400, "projectNumber empty"));
@@ -55,21 +40,11 @@ var _verifyStructure = function (req, res, next) {
 
 // Middleware to verify upload session id (can be in JSON or form data)
 var _verifyUploadSessionId = function (req, res, next) {
-    let uploadSessionId;
-
-    if (req.is("application/json")) {
-        if (!req.body) {
-            return next(createError(400, `No attributes were validated: "req.body" is empty`));
-        }
-        uploadSessionId = req.body.uploadSessionId;
+    if (!req.body) {
+        return next(createError(400, `No attributes were validated: "req.body" is empty`));
     }
 
-    if (req.is("multipart/form-data")) {
-        console.log("multipart/form-data");
-        console.log("verifyUploadSessionId");
-        console.log(req.uploadSessionId);
-        uploadSessionId = req.uploadSessionId;
-    }
+    const uploadSessionId = req.body.uploadSessionId;
 
     if (!uploadSessionId) {
         return next(createError(400, "uploadSessionId empty"));
@@ -78,7 +53,8 @@ var _verifyUploadSessionId = function (req, res, next) {
     next();
 }
 
-// Middleware to verify file contents in the form data
+// Middleware to verify file contents in the 
+// multipare/form-data after multer middleware
 var _verifyFileContents = function (req, res, next) {
 
     console.log("verifyFileContents");
@@ -165,16 +141,14 @@ var _begin = async function (req, res, next) {
 }
 
 // Check if the file to be uploaded and the destination project storage folder do not exist already
+// After multipare/form-data after multer middleware
 var _validateFile = function (req, res, next) {
 
-    console.log("obtain structure");
-    console.log(req.projectNumber);
-
     // Obtain structure from form data
-    const projectNumber = req.projectNumber;
-    const subjectLabel = req.subjectLabel;
-    const sessionLabel = req.sessionLabel;
-    const dataType = req.dataType;
+    const projectNumber = req.body.projectNumber;
+    const subjectLabel = req.body.subjectLabel;
+    const sessionLabel = req.body.sessionLabel;
+    const dataType = req.body.dataType;
 
     // Obtain the project storage directory name
     const projectStorageDirName = utils.getProjectStorageDirName(projectNumber, subjectLabel, sessionLabel, dataType);
@@ -217,22 +191,17 @@ var _validateFile = function (req, res, next) {
 }
 
 // Add a file to the upload session
+// After multipare/form-data after multer middleware
 var _addFile = async function (req, res, next) {
 
-    console.log("obtain uploadSessionId");
-    console.log(req.uploadSessionId);
-
     // Obtain upload session id from form data
-    const uploadSessionId = req.uploadSessionId;
-
-    console.log("obtain structure");
-    console.log(req.projectNumber);
+    const uploadSessionId = req.body.uploadSessionId;
 
     // Obtain structure from form data
-    const projectNumber = req.projectNumber;
-    const subjectLabel = req.subjectLabel;
-    const sessionLabel = req.sessionLabel;
-    const dataType = req.dataType;
+    const projectNumber = req.body.projectNumber;
+    const subjectLabel = req.body.subjectLabel;
+    const sessionLabel = req.body.sessionLabel;
+    const dataType = req.body.dataType;
 
     // Obtain the streamer UI buffer directory name
     const dirName = utils.getStreamerUIBufferDirName(projectNumber, subjectLabel, sessionLabel, dataType);
