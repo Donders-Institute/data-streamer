@@ -100,6 +100,7 @@ const Uploader: React.FC = () => {
                     const newErrorMessage = JSON.stringify(err);
                     setErrorMessage(newErrorMessage);
                     setShowErrorModal(true);
+
                 } finally {
                     newProjectList.forEach((project: Project) => {
                         console.log(project.projectNumber);
@@ -116,23 +117,23 @@ const Uploader: React.FC = () => {
         const checkProceed = async () => {
             if (!(uploaderContext!.hasFilesSelected)) {
                 setProceed(false);
-                return;
+                return; // Abort
             }
             if (uploaderContext!.selectedProjectStatus !== "success") {
                 setProceed(false);
-                return;
+                return; // Abort
             }
             if (uploaderContext!.selectedSubjectStatus !== "success") {
                 setProceed(false);
-                return;
+                return; // Abort
             }
             if (uploaderContext!.selectedSessionStatus !== "success") {
                 setProceed(false);
-                return;
+                return; // Abort
             }
             if (uploaderContext!.selectedDataTypeStatus !== "success") {
                 setProceed(false);
-                return;
+                return; // Abort
             }
             let dataTypeOk = false;
             if (uploaderContext!.isSelectedDataTypeOther) {
@@ -285,8 +286,8 @@ const Uploader: React.FC = () => {
     const handleUpload = async (event: any) => {
         setShowFilesExistModal(false);
         setFailed(false);
-        setRemainingItems(remainingItems => uploaderContext!.fileList.length);
-        setUploadingPercentage(uploadingPercentage => 0);
+        setRemainingItems(uploaderContext!.fileList.length);
+        setUploadingPercentage(0);
         setIsUploading(true);
         setShowUploadModal(true);
 
@@ -678,7 +679,7 @@ const Uploader: React.FC = () => {
                                     <Button
                                         type="primary"
                                         disabled={isUploading}
-                                        onClick={(e) => {
+                                        onClick={() => {
                                             setShowUploadModal(false);
 
                                             // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
@@ -753,7 +754,7 @@ const Uploader: React.FC = () => {
                             <Row>
                                 <Col span={12} style={{ textAlign: "left" }}>
                                     <Button
-                                        onClick={(e) => {
+                                        onClick={() => {
                                             setShowFilesExistModal(false);
                                             setFilesExistMessage(<div></div>);
                                             setShowUploadModal(false);
@@ -770,7 +771,7 @@ const Uploader: React.FC = () => {
                                 <Col span={12} style={{ textAlign: "right" }}>
                                     <Button
                                         type="primary"
-                                        onClick={async (e) => {
+                                        onClick={() => {
                                             setShowFilesExistModal(false);
                                             setFilesExistMessage(<div></div>);
 
@@ -829,7 +830,7 @@ const Uploader: React.FC = () => {
                                 <Col span={24} style={{ textAlign: "right" }}>
                                     <Button
                                         type="primary"
-                                        onClick={(e) => {
+                                        onClick={() => {
                                             setFailed(true);
                                             setShowErrorModal(false);
                                             setErrorMessage("");
@@ -845,7 +846,7 @@ const Uploader: React.FC = () => {
                     <div>{errorMessage}</div>
                 </Modal>
             </Content>
-        </React.Fragment>
+        </React.Fragment >
     );
 };
 
