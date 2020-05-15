@@ -41,9 +41,8 @@ const Header: React.FC = () => {
         );
         let body = JSON.stringify({});
 
-        let result: ServerResponse;
         try {
-            result = await fetchRetry<ServerResponse>({
+            await fetchRetry<any>({
                 url: "/logout",
                 options: {
                     method: 'POST',
@@ -58,15 +57,6 @@ const Header: React.FC = () => {
             console.error('Sign out failure');
             console.error(err);
             const errorMessage = JSON.stringify(err);
-            modalError(errorMessage);
-            return; // Abort
-        }
-
-        // Double check result for errors
-        if (result.error) {
-            console.error('Sign out failure');
-            const errorMessage = result.error as string;
-            console.error(errorMessage);
             modalError(errorMessage);
             return; // Abort
         }
