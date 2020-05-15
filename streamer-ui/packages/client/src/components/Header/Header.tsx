@@ -1,9 +1,10 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import { Layout, Row, Col, Icon, Menu, Button, Modal, Tooltip } from "antd";
-import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
+import { Layout, Row, Col, Icon, Menu, Modal, Tooltip } from "antd";
 
 import { AuthContext, IAuthContext } from "../../services/auth/AuthContext";
+import { fetchRetry, basicAuthString } from "../../services/fetch/fetch";
+import { ServerResponse } from "../../types/types";
 
 import "../../App.less";
 
@@ -22,57 +23,56 @@ function modalError(msg: string) {
 }
 
 const Header: React.FC = () => {
+    const authContext: IAuthContext | null = useContext(AuthContext);
+    const username = authContext!.username;
+    const password = authContext!.password;
+
     const LOCATION_HOME = "home";
     const LOCATION_HELP = "help";
     const LOCATION_AUTH = "auth";
 
-    const authContext: IAuthContext | null = useContext(AuthContext);
+    const handleLogout = async () => {
 
-    const handleLogoutResponse = (response: AxiosResponse) => {
-        // console.log(response.data);
-        // console.log(response.status);
-        // console.log(response.statusText);
-        // console.log(response.headers);
-        // console.log(response.config);
-        authContext!.signOut();
-    };
-
-    const handleLogoutError = (error: AxiosError) => {
-        var errorMessage = "could not connect to data streamer UI server";
-        if (error.response) {
-            // console.log(error.response.data);
-            // console.log(error.response.status);
-            // console.log(error.response.headers);
-            if (error.response.data) {
-                errorMessage = JSON.stringify(error.response.data, null, 2);
+        let headers = new Headers(
+            {
+                'Content-Type': 'application/json',
+                'Authorization': basicAuthString({ username, password })
             }
-        } else {
-            console.log(error.message);
-            errorMessage = error.message;
-        }
-        modalError(errorMessage);
-        return error;
-    };
+        );
+        let body = JSON.stringify({});
 
-    const handleLogout = () => {
-        return new Promise((resolve) => {
-            const config: AxiosRequestConfig = {
+        let result: ServerResponse;
+        try {
+            result = await fetchRetry<ServerResponse>({
                 url: "/logout",
-                method: "post",
-                timeout: 2000,
-                withCredentials: true,
-                auth: {
-                    username: authContext!.username,
-                    password: authContext!.password
-                },
-                responseType: "json"
-            };
+                options: {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers,
+                    body
+                } as RequestInit,
+                numRetries: 1,
+                timeout: 2000
+            });
+        } catch (err) {
+            console.error('Sign out failure');
+            console.error(err);
+            const errorMessage = JSON.stringify(err);
+            modalError(errorMessage);
+            return; // Abort
+        }
 
-            resolve(
-                axios(config)
-                    .then(handleLogoutResponse)
-                    .catch(handleLogoutError));
-        });
+        // Double check result for errors
+        if (result.error) {
+            console.error('Sign out failure');
+            const errorMessage = result.error as string;
+            console.error(errorMessage);
+            modalError(errorMessage);
+            return; // Abort
+        }
+
+        authContext!.signOut();
+        console.log('Successfully signed out');
     };
 
     return (

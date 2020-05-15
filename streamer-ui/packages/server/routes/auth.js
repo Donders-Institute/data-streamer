@@ -39,6 +39,9 @@ var _verifyUser = function (req, res, next) {
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
     const username = credentials.split(':')[0];
 
+    console.log("verifyUser");
+    console.log(JSON.stringify(req.body));
+
     if (req.session.user !== username) {
         return next(createError(401, "Invalid user credentials"));
     }
