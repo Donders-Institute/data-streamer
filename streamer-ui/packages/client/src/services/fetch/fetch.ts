@@ -10,14 +10,19 @@ export async function fetchOnceRedirect({
 }): Promise<string> {
     return Promise.race([
         fetch(url, options).then(response => {
-            if (!response.redirected) {
-                throw new Error(response.statusText);
+            if (!response.ok) {
+                return new Promise<string>((_, reject) =>
+                    reject(new Error(response.statusText))
+                )
             }
-            return response.text() as Promise<string>;
+            return new Promise<string>((resolve, _) =>
+                resolve(response.text())
+            )
+
         }),
-        new Promise((_, reject) =>
+        new Promise<string>((_, reject) =>
             setTimeout(() => reject(new Error('timeout')), timeout)
-        ) as Promise<string>
+        )
     ]);
 }
 
@@ -34,13 +39,17 @@ export async function fetchOnce<T>({
     return Promise.race([
         fetch(url, options).then(response => {
             if (!response.ok) {
-                throw new Error(response.statusText);
+                return new Promise<T>((_, reject) =>
+                    reject(new Error(response.statusText))
+                )
             }
-            return response.json() as Promise<T>;
+            return new Promise<T>((resolve, _) =>
+                resolve(response.json())
+            )
         }),
-        new Promise((_, reject) =>
+        new Promise<T>((_, reject) =>
             setTimeout(() => reject(new Error('timeout')), timeout)
-        ) as Promise<T>
+        )
     ]);
 }
 
