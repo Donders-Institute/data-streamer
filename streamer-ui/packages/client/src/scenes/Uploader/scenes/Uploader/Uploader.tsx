@@ -234,18 +234,6 @@ const Uploader: React.FC = () => {
         let uploadWork = [] as Promise<AddFileResult>[];
 
         uploaderContext!.fileList.forEach((file: RcFile) => {
-            let formData = new FormData();
-
-            formData.append("uploadSessionId", uploadSession.uploadSessionId.toString());
-            formData.append("projectNumber", uploadSession.projectNumber);
-            formData.append("subjectLabel", uploadSession.subjectLabel);
-            formData.append("sessionLabel", uploadSession.sessionLabel);
-            formData.append("dataType", uploadSession.dataType);
-
-            formData.append("filename", file.name);
-            formData.append("filesize", file.size.toString());
-            formData.append("uid", file.uid);
-
             uploadWork.push(handleAddFile(file));
         });
 
@@ -308,7 +296,6 @@ const Uploader: React.FC = () => {
             newUploadSession = await initiate(
                 authContext!.username,
                 authContext!.password,
-                "0.0.0.0",
                 uploaderContext!.selectedProjectValue,
                 uploaderContext!.selectedSubjectValue,
                 uploaderContext!.selectedSessionValue,

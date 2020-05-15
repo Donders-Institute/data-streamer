@@ -140,6 +140,24 @@ export const initiate = async (
     return uploadSession;
 }
 
+// Create form data from the upload session data and file
+const getFormData = (uploadSession: UploadSession, file: RcFile) => {
+    let formData = new FormData();
+    formData.append("uploadSessionId", uploadSession.uploadSessionId.toString());
+    formData.append("projectNumber", uploadSession.projectNumber);
+    formData.append("subjectLabel", uploadSession.subjectLabel);
+    formData.append("sessionLabel", uploadSession.sessionLabel);
+    formData.append("dataType", uploadSession.dataType);
+
+    formData.append("filename", file.name);
+    formData.append("filesize", file.size.toString());
+    formData.append("uid", file.uid);
+
+    formData.append("files", file);
+
+    return formData;
+}
+
 // Validate a single file to be uploaded
 const validateFile = async (
     username: string,
@@ -154,18 +172,7 @@ const validateFile = async (
         }
     );
 
-    let formData = new FormData();
-    formData.append("uploadSessionId", uploadSession.uploadSessionId.toString());
-    formData.append("projectNumber", uploadSession.projectNumber);
-    formData.append("subjectLabel", uploadSession.subjectLabel);
-    formData.append("sessionLabel", uploadSession.sessionLabel);
-    formData.append("dataType", uploadSession.dataType);
-
-    formData.append("filename", file.name);
-    formData.append("filesize", file.size.toString());
-    formData.append("uid", file.uid);
-
-    formData.append("files", file);
+    const formData = getFormData(uploadSession, file);
 
     let result: ServerResponse;
     try {
@@ -252,18 +259,7 @@ export const addFile = async (
         }
     );
 
-    let formData = new FormData();
-    formData.append("uploadSessionId", uploadSession.uploadSessionId.toString());
-    formData.append("projectNumber", uploadSession.projectNumber);
-    formData.append("subjectLabel", uploadSession.subjectLabel);
-    formData.append("sessionLabel", uploadSession.sessionLabel);
-    formData.append("dataType", uploadSession.dataType);
-
-    formData.append("filename", file.name);
-    formData.append("filesize", file.size.toString());
-    formData.append("uid", file.uid);
-
-    formData.append("files", file);
+    const formData = getFormData(uploadSession, file);
 
     let result: ServerResponse;
     try {
