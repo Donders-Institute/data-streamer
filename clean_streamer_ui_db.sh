@@ -6,4 +6,4 @@ if [ -z "$1" ]; then
 fi
 
 echo "cleaning streamer ui db ..."
-set -a && source env.sh && set +a && curl -u $STREAMER_UI_DB_USER:$STREAMER_UI_DB_PASSWORD -i -H 'Accept:application/json' $1/clean
+set -a && source env.sh && set +a && curl -X POST -u $STREAMER_UI_DB_USER:$STREAMER_UI_DB_PASSWORD -i -H 'Accept:application/json' $1/clean

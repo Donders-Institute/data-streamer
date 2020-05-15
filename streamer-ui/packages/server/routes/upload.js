@@ -10,16 +10,38 @@ const config = require(path.join(__dirname + '/../config/streamer-ui-config.json
 const SERVICE_ADMIN_USERNAME = config.serviceAdmin.username;
 const SERVICE_ADMIN_PASSWORD = config.serviceAdmin.password;
 
-// Middleware to verify upload structure
+// Middleware to verify upload structure (can be in JSON or form data)
 var _verifyStructure = function (req, res, next) {
     if (!req.body) {
         return next(createError(400, `No attributes were uploaded: "req.body" is empty`));
     }
 
-    const projectNumber = req.body.projectNumber;
-    const subjectLabel = req.body.subjectLabel;
-    const sessionLabel = req.body.sessionLabel;
-    const dataType = req.body.dataType;
+    let projectNumber;
+    let subjectLabel;
+    let sessionLabel;
+    let dataType;
+
+    if (req.is("application/json")) {
+        console.log("application/json");
+        console.log("verifyStructure");
+        console.log(JSON.stringify(req));
+        console.log(JSON.stringify(req.body));
+        projectNumber = req.body.projectNumber;
+        subjectLabel = req.body.subjectLabel;
+        sessionLabel = req.body.sessionLabel;
+        dataType = req.body.dataType;
+    }
+
+    if (req.is("multipart/form-data")) {
+        console.log("multipart/form-data");
+        console.log("verifyStructure");
+        console.log(JSON.stringify(req));
+        console.log(JSON.stringify(req.body));
+        projectNumber = req.body.projectNumber;
+        subjectLabel = req.body.subjectLabel;
+        sessionLabel = req.body.sessionLabel;
+        dataType = req.body.dataType;
+    }
 
     if (!projectNumber) {
         return next(createError(400, "projectNumber empty"));
@@ -37,15 +59,30 @@ var _verifyStructure = function (req, res, next) {
     next();
 }
 
-// Middleware to verify upload session id
+// Middleware to verify upload session id (can be in JSON or form data)
 var _verifyUploadSessionId = function (req, res, next) {
     if (!req.body) {
         return next(createError(400, `No attributes were validated: "req.body" is empty`));
     }
 
-    console.log(JSON.stringify(req.body));
+    let uploadSessionId;
 
-    const uploadSessionId = req.body.uploadSessionId;
+    if (req.is("application/json")) {
+        console.log("application/json");
+        console.log("verifyUploadSessionId");
+        console.log(JSON.stringify(req));
+        console.log(JSON.stringify(req.body));
+        uploadSessionId = req.body.uploadSessionId;
+    }
+
+    if (req.is("multipart/form-data")) {
+        console.log("application/json");
+        console.log("verifyUploadSessionId");
+        console.log(JSON.stringify(req));
+        console.log(JSON.stringify(req.body));
+        uploadSessionId = req.body.uploadSessionId;
+    }
+
     if (!uploadSessionId) {
         return next(createError(400, "uploadSessionId empty"));
     }
@@ -55,6 +92,9 @@ var _verifyUploadSessionId = function (req, res, next) {
 
 // Middleware to verify file contents in the form data
 var _verifyFileContents = function (req, res, next) {
+
+    console.log("verifyFileContents");
+    console.log(JSON.stringify(req));
 
     // Check for files to be uploaded
     if (!req.files) {

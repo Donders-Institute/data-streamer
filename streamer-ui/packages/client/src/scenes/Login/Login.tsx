@@ -16,12 +16,12 @@ import { Redirect } from "react-router-dom";
 
 import { AuthContext, IAuthContext } from "../../services/auth/AuthContext";
 import { fetchRetry, basicAuthString } from "../../services/fetch/fetch";
+import { ServerResponse } from "../../types/types";
 
 import HeaderLogin from "../../components/HeaderLogin/HeaderLogin";
 
 import "../../App.less";
 import logoDCCN from "../../assets/dccn-logo.png";
-import { ServerResponse } from "../../types/types";
 
 const { Content } = Layout;
 

@@ -8,6 +8,7 @@ const fileUpload = require("express-fileupload");
 const createError = require("http-errors");
 
 const auth = require('./routes/auth');
+const content = require('./routes/content');
 const pdb = require('./routes/pdb');
 const upload = require('./routes/upload');
 const admin = require('./routes/admin');
@@ -69,12 +70,14 @@ app.get('/logout',
 // POST Login for regular user
 app.post('/login',
     auth.hasBasicAuthHeader,
+    content.hasJson,
     auth.loginUser);
 
 // POST Logout for regular user
 app.post('/logout',
     auth.hasBasicAuthHeader,
     auth.verifyUser,
+    content.hasJson,
     auth.logoutUser);
 
 // GET Obtain list of projects for regular user
@@ -89,6 +92,7 @@ app.post('/upload/begin',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
+    content.hasJson,
     upload.verifyStructure,
     upload.begin);
 
@@ -97,6 +101,7 @@ app.post('/upload/validatefile',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
+    content.hasFormData,
     upload.verifyUploadSessionId,
     upload.verifyStructure,
     upload.verifyFileContents,
@@ -107,6 +112,7 @@ app.post('/upload/addfile',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
+    content.hasFormData,
     upload.verifyUploadSessionId,
     upload.verifyStructure,
     upload.verifyFileContents,
@@ -117,6 +123,7 @@ app.post('/upload/finalize',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
+    content.hasJson,
     upload.verifyUploadSessionId,
     upload.finalize);
 
@@ -125,14 +132,16 @@ app.post('/upload/submit',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
+    content.hasJson,
     upload.verifyUploadSessionId,
     upload.verifyStructure,
     upload.submit);
 
 // POST Purge database tables for admin user
-app.get('/clean',
+app.post('/clean',
     auth.hasBasicAuthHeader,
     auth.verifyAdminCredentials,
+    content.hasJson,
     admin.purge);
 
 // Catch 404 and forward to error handler
