@@ -18,7 +18,6 @@ export async function fetchOnceRedirect({
             return new Promise<string>((resolve, _) =>
                 resolve(response.text())
             )
-
         }),
         new Promise<string>((_, reject) =>
             setTimeout(() => reject(new Error('timeout')), timeout)

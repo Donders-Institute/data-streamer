@@ -53,36 +53,6 @@ var _verifyUploadSessionId = function (req, res, next) {
     next();
 }
 
-// Middleware to verify file contents in the 
-// multipare/form-data after multer middleware
-var _verifyFileContents = function (req, res, next) {
-
-    console.log("verifyFileContents");
-    console.log(req.files);
-    console.log(req.files.files);
-
-    // Check for files to be uploaded
-    if (!req.files) {
-        return next(createError(400, `No files: "req.files" is empty`));
-    }
-    if (!req.files.files) {
-        return next(createError(400, `No files:  "req.files.files" is empty`));
-    }
-
-    // Given the req.files.files, derive the number of files to be uploaded
-    const numFiles = utils.getNumFiles(req.files.files);
-    if (numFiles === 0) {
-        return next(createError(400, "No files: file list is empty"));
-    }
-
-    // Allow single file only
-    if (numFiles > 1) {
-        return next(createError(400, "Only single file upload is supported"));
-    }
-
-    next();
-}
-
 // Begin upload session, obtain upload session id
 // If the streamer UI buffer folder does not exist create it
 var _begin = async function (req, res, next) {
@@ -156,20 +126,10 @@ var _validateFile = function (req, res, next) {
         return next(createError(500, "Error obtaining project storage directory name"));
     }
 
-    // Given the req.files.files, derive the number of uploaded files to be validated
-    const numFiles = utils.getNumFiles(req.files.files);
-
-    // Collection of file objects from the uploaded form data
-    let files = [];
-    if (numFiles === 1) {
-        files.push(req.files.files);
-    } else {
-        files = req.files.files;
-    }
-
-    // Allow single file validation only
-    const file = files[0];
+    // Obtain file
+    const file = req.file;
     const filename = file.name;
+    console.log(filename);
 
     // Check if file has zero size
     const fileIsEmpty = file.size === 0;
@@ -209,21 +169,11 @@ var _addFile = async function (req, res, next) {
         return next(createError(500, "Error obtaining streamer buffer UI directory name"));
     }
 
-    // Given the req.files.files, derive the number of uploaded files
-    const numFiles = utils.getNumFiles(req.files.files);
-
-    // Collection of file objects from the uploaded form data
-    let files = [];
-    if (numFiles === 1) {
-        files.push(req.files.files);
-    } else {
-        files = req.files.files;
-    }
-
-    // Allow single file upload only
-    const file = files[0];
+    // Obtain file
+    const file = req.file;
     const filename = file.name;
     const filesizeBytes = file.size;
+    console.log(filename);
 
     // Store the file in the streamer UI buffer
     const err = await utils.storeFile(file, dirName);

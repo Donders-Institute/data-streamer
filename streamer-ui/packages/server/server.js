@@ -12,7 +12,8 @@ const pdb = require('./routes/pdb');
 const upload = require('./routes/upload');
 const admin = require('./routes/admin');
 
-const handleMultipartFormData = multer();
+// Handle multipart form data
+const formData = multer();
 
 var app = express();
 
@@ -94,10 +95,10 @@ app.post('/upload/validatefile',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
-    handleMultipartFormData.single('validatefile'),
+    formData.single('validatefile'), // multipart form data contains single file
+    content.hasFile,
     upload.verifyUploadSessionId,
     upload.verifyStructure,
-    upload.verifyFileContents,
     upload.validateFile);
 
 // POST Add file to upload session for regular user
@@ -105,10 +106,10 @@ app.post('/upload/addfile',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
-    handleMultipartFormData.single('addfile'),
+    formData.single('addfile'), // multipart form data contains single file
+    content.hasFile,
     upload.verifyUploadSessionId,
     upload.verifyStructure,
-    upload.verifyFileContents,
     upload.addFile);
 
 // POST Finalize upload session for regular user

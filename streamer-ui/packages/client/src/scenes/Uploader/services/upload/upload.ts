@@ -141,7 +141,7 @@ export const initiate = async (
 }
 
 // Create form data from the upload session data and file
-const getFormData = (uploadSession: UploadSession, file: RcFile) => {
+const getFormData = (uploadSession: UploadSession, file: RcFile, fileFieldName: string) => {
     let formData = new FormData();
     formData.append("uploadSessionId", uploadSession.uploadSessionId.toString());
     formData.append("projectNumber", uploadSession.projectNumber);
@@ -153,7 +153,7 @@ const getFormData = (uploadSession: UploadSession, file: RcFile) => {
     formData.append("filesize", file.size.toString());
     formData.append("uid", file.uid);
 
-    formData.append("files", file);
+    formData.append(fileFieldName, file);
 
     return formData;
 }
@@ -165,14 +165,15 @@ const validateFile = async (
     uploadSession: UploadSession,
     file: RcFile
 ) => {
-    // Do not set multipart/form-data as Content-Type to make it work
+    // Do not set Content-Type here to make it work
+    // (i.e. we do not know boundary for multipart/form-data)
     const headers = new Headers(
         {
             'Authorization': basicAuthString({ username, password })
         }
     );
 
-    const formData = getFormData(uploadSession, file);
+    const formData = getFormData(uploadSession, file, "validatefile");
 
     let result: ServerResponse;
     try {
@@ -255,14 +256,15 @@ export const addFile = async (
     uploadSession: UploadSession,
     file: RcFile
 ) => {
-    // Do not set multipart/form-data as Content-Type to make it work
+    // Do not set Content-Type here to make it work 
+    // (i.e. we do not know boundary for multipart/form-data)
     const headers = new Headers(
         {
             'Authorization': basicAuthString({ username, password })
         }
     );
 
-    const formData = getFormData(uploadSession, file);
+    const formData = getFormData(uploadSession, file, "addfile");
 
     let result: ServerResponse;
     try {

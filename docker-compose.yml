@@ -39,6 +39,7 @@ services:
       - STREAMER_UI_DB_NAME=${STREAMER_UI_DB_NAME:-postgres}
     volumes:
       - ${PROJECT_VOL}:/project
+      - ${STREAMER_SERVICE_CRON_VOL}:/cron
     depends_on:
       - service
       - ui-db
