@@ -28,15 +28,6 @@ var _getProjectStorageDirName = function (projectNumber, subjectLabel, sessionLa
     return projectStorageDirName;
 }
 
-// Derive the number of files
-var _getNumFiles = function (files) {
-    if (files[0]) {
-        return files.length;
-    } else {
-        return 1;
-    }
-}
-
 // Check if the file already exists
 var _fileExists = function (filename, dirname) {
     var targetPath = path.join(dirname, filename);
@@ -75,11 +66,15 @@ var _fetchOnce = async function ({ url, options, timeout }) {
     return Promise.race([
         fetch(url, options).then(response => {
             if (!response.ok) {
-                throw new Error(response.statusText);
+                return new Promise((resolve, reject) =>
+                    reject(new Error(response.statusText))
+                )
             }
-            return response.json();
+            return new Promise((resolve, reject) =>
+                resolve(response.json())
+            )
         }),
-        new Promise((_, reject) =>
+        new Promise((resolve, reject) =>
             setTimeout(() => reject(new Error('timeout')), timeout)
         )
     ]);
@@ -103,7 +98,6 @@ var _basicAuthString = function ({ username, password }) {
 
 module.exports.getProjectStorageDirName = _getProjectStorageDirName;
 module.exports.getStreamerUIBufferDirName = _getStreamerUIBufferDirName;
-module.exports.getNumFiles = _getNumFiles;
 module.exports.fileExists = _fileExists;
 module.exports.storeFile = _storeFile;
 module.exports.getStreamerUrl = _getStreamerUrl;
