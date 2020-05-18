@@ -68,15 +68,15 @@ var _fetchOnce = async function ({ url, options, timeout }) {
             if (!response.ok) {
                 return new Promise((resolve, reject) =>
                     reject(new Error(response.statusText))
-                )
+                ).catch((err) => { throw err; })
             }
             return new Promise((resolve, reject) =>
                 resolve(response.json())
-            )
+            ).catch((err) => { throw err; })
         }),
         new Promise((resolve, reject) =>
             setTimeout(() => reject(new Error('timeout')), timeout)
-        )
+        ).catch((err) => { throw err; })
     ]);
 }
 

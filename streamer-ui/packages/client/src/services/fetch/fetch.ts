@@ -13,15 +13,15 @@ export async function fetchOnceRedirect({
             if (!response.ok) {
                 return new Promise<string>((_, reject) =>
                     reject(new Error(response.statusText))
-                )
+                ).catch((err) => { throw err; })
             }
             return new Promise<string>((resolve, _) =>
                 resolve(response.text())
-            )
+            ).catch((err) => { throw err; })
         }),
         new Promise<string>((_, reject) =>
             setTimeout(() => reject(new Error('timeout')), timeout)
-        )
+        ).catch((err) => { throw err; })
     ]);
 }
 
@@ -40,15 +40,15 @@ export async function fetchOnce<T>({
             if (!response.ok) {
                 return new Promise<T>((_, reject) =>
                     reject(new Error(response.statusText))
-                )
+                ).catch((err) => { throw err; })
             }
             return new Promise<T>((resolve, _) =>
                 resolve(response.json())
-            )
+            ).catch((err) => { throw err; })
         }),
         new Promise<T>((_, reject) =>
             setTimeout(() => reject(new Error('timeout')), timeout)
-        )
+        ).catch((err) => { throw err; })
     ]);
 }
 
