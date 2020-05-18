@@ -277,10 +277,10 @@ var _submit = async function (req, res, next) {
     }
 
     // Make a POST call to streamer with basic authentication
-    const headers = new Headers({
+    const headers = {
         'Content-Type': 'application/json',
         'Authorization': utils.basicAuthString({ username, password })
-    });
+    };
     const body = JSON.stringify({
         streamerUser: streamerUser,
         drUser: ''
