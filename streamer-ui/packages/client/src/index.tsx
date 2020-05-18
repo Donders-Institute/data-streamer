@@ -66,27 +66,27 @@ const Root: React.FC = () => {
 
     const setUploadSessionId = async (uploadSessionId: number) => {
         console.log(uploadSessionId);
-        setUploaderContext(state => ({ ...state, uploadSessionId }));
+        setUploaderContext(state => ({ ...state, uploadSessionId } as IUploaderContext));
     };
 
     const setTotalSizeBytes = async (totalSizeBytes: number) => {
-        setUploaderContext(state => ({ ...state, totalSizeBytes }));
+        setUploaderContext(state => ({ ...state, totalSizeBytes } as IUploaderContext));
     };
 
     const setProjectList = async (projectList: Project[]) => {
-        setUploaderContext(state => ({ ...state, projectList }));
+        setUploaderContext(state => ({ ...state, projectList } as IUploaderContext));
     };
 
     const setIsLoadingProjectList = async (isLoadingProjectList: boolean) => {
-        setUploaderContext(state => ({ ...state, isLoadingProjectList }));
+        setUploaderContext(state => ({ ...state, isLoadingProjectList } as IUploaderContext));
     };
 
     const setSelectedProjectStatus = async (selectedProjectStatus: (typeof InputValidationStatuses)[number]) => {
-        setUploaderContext(state => ({ ...state, selectedProjectStatus }));
+        setUploaderContext(state => ({ ...state, selectedProjectStatus } as IUploaderContext));
     };
 
     const setSelectedSubjectStatus = async (selectedSubjectStatus: (typeof InputValidationStatuses)[number]) => {
-        setUploaderContext(state => ({ ...state, selectedSubjectStatus }));
+        setUploaderContext(state => ({ ...state, selectedSubjectStatus } as IUploaderContext));
     };
 
     const setSelectedSessionStatus = async (selectedSessionStatus: (typeof InputValidationStatuses)[number]) => {
