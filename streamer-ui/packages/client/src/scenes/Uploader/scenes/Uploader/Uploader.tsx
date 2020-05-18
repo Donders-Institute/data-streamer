@@ -65,16 +65,6 @@ const Uploader: React.FC = () => {
     const [filesExistMessage, setFilesExistMessage] = useState(<div></div>);
     const [errorMessage, setErrorMessage] = useState("");
 
-    const [uploadSession, setUploadSession] = useState({
-        uploadSessionId: -1,
-        username: authContext!.username,
-        projectNumber: "",
-        subjectLabel: "",
-        sessionLabel: "",
-        dataType: "",
-        totalSizeBytes: 0
-    } as UploadSession);
-
     const [uploadingPercentage, setUploadingPercentage] = useState(0);
     const [remainingItems, setRemainingItems] = useState(0);
     const [isUploading, setIsUploading] = useState(true);
@@ -149,18 +139,6 @@ const Uploader: React.FC = () => {
                 return; // Abort
             }
 
-            // Update upload session
-            const newUploadSession = {
-                uploadSessionId: uploaderContext!.uploadSessionId,
-                username: authContext!.username,
-                projectNumber: uploaderContext!.selectedProjectValue,
-                subjectLabel: uploaderContext!.selectedSubjectValue,
-                sessionLabel: uploaderContext!.selectedSessionValue,
-                dataType: uploaderContext!.selectedDataTypeValue,
-                totalSizeBytes: uploaderContext!.totalSizeBytes
-            } as UploadSession;
-            setUploadSession(uploadSession => newUploadSession);
-
             setProceed(true);
         };
         checkProceed();
@@ -203,8 +181,17 @@ const Uploader: React.FC = () => {
 
     const handleAddFile = async (file: RcFile) => {
 
-        console.log(`Upload session: ${uploaderContext!.uploadSessionId}`);
-        console.log(`Upload session: ${uploadSession.uploadSessionId}; upload file: ${file.name}`);
+        const uploadSession = {
+            uploadSessionId: uploaderContext!.uploadSessionId,
+            username: authContext!.username,
+            projectNumber: uploaderContext!.selectedProjectValue,
+            subjectLabel: uploaderContext!.selectedSubjectValue,
+            sessionLabel: uploaderContext!.selectedSessionValue,
+            dataType: uploaderContext!.selectedDataTypeValue,
+            totalSizeBytes: uploaderContext!.totalSizeBytes
+        } as UploadSession;
+
+        console.log(`Upload session: ${uploaderContext!.uploadSessionId}; upload file: ${file.name}`);
         console.dir(uploadSession);
 
         let addFileResult: AddFileResult;
@@ -255,6 +242,16 @@ const Uploader: React.FC = () => {
             uploaderContext!.setTotalSizeBytes(0);
         }
 
+        const uploadSession = {
+            uploadSessionId: uploaderContext!.uploadSessionId,
+            username: authContext!.username,
+            projectNumber: uploaderContext!.selectedProjectValue,
+            subjectLabel: uploaderContext!.selectedSubjectValue,
+            sessionLabel: uploaderContext!.selectedSessionValue,
+            dataType: uploaderContext!.selectedDataTypeValue,
+            totalSizeBytes: uploaderContext!.totalSizeBytes
+        } as UploadSession;
+
         console.log("Finalize the upload session");
         try {
             await finalize(
@@ -298,9 +295,9 @@ const Uploader: React.FC = () => {
         setShowUploadModal(true);
 
         // Initiate the upload
-        let newUploadSession: UploadSession;
+        let uploadSession: UploadSession;
         try {
-            newUploadSession = await initiate(
+            uploadSession = await initiate(
                 authContext!.username,
                 authContext!.password,
                 uploaderContext!.selectedProjectValue,
@@ -319,11 +316,11 @@ const Uploader: React.FC = () => {
         }
 
         // Update state
-        uploaderContext!.setUploadSessionId(newUploadSession.uploadSessionId);
-        uploaderContext!.setTotalSizeBytes(newUploadSession.totalSizeBytes);
+        uploaderContext!.setUploadSessionId(uploadSession.uploadSessionId);
+        uploaderContext!.setTotalSizeBytes(uploadSession.totalSizeBytes);
 
-        console.log(`Upload session: ${newUploadSession.uploadSessionId}`);
-        console.dir(newUploadSession);
+        console.log(`Upload session: ${uploadSession.uploadSessionId}`);
+        console.dir(uploadSession);
 
         // Validate the files to be uploaded, one by one
         let validationResult: ValidationResult;
@@ -331,7 +328,7 @@ const Uploader: React.FC = () => {
             validationResult = await validate(
                 authContext!.username,
                 authContext!.password,
-                newUploadSession,
+                uploadSession,
                 uploaderContext!.fileList);
         } catch (err) {
             console.error(err);
