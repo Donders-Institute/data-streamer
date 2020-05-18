@@ -50,7 +50,7 @@ var _getStreamerUrl = function (projectNumber, subjectLabel, sessionLabel, dataT
 }
 
 // Fetch once with timeout in milliseconds
-var _fetchOnce = async function ({ url, options, timeout }) {
+var _fetchOnce = async function (url, options, timeout) {
     return Promise.race([
         // Fetch route
         fetch(url, options).then((response) => {
@@ -73,12 +73,13 @@ var _fetchOnce = async function ({ url, options, timeout }) {
 }
 
 // Retry fetch with number of retries and timeout in milliseconds
-var _fetchRetry = async function ({ url, options, numRetries, timeout }) {
+var _fetchRetry = async function (url, options, numRetries, timeout) {
     try {
-        return await _fetchOnce({ url, options, timeout });
+        return await _fetchOnce(url, options, timeout);
     } catch (error) {
         if (numRetries === 1) throw error;
-        return await _fetchRetry({ url, options, numRetries: numRetries - 1, timeout });
+        const newNumRetries = numRetries - 1;
+        return await _fetchRetry(url, options, newNumRetries, timeout);
     }
 }
 
@@ -86,7 +87,6 @@ var _fetchRetry = async function ({ url, options, numRetries, timeout }) {
 var _basicAuthString = function (username, password) {
     const credentials = `${username}:${password}`;
     const b64encoded = Buffer.from(credentials, 'binary').toString('base64');
-    console.log(b64encoded);
     return `Basic ${b64encoded}`;
 }
 
