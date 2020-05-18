@@ -320,6 +320,7 @@ const Uploader: React.FC = () => {
             return; // Abort
         }
 
+        console.log(`Upload session: ${uploaderContext!.uploadSessionId}`);
         console.dir(validationResult);
 
         // Before continuing the actual upload, 
@@ -355,7 +356,7 @@ const Uploader: React.FC = () => {
     // Remove a file from the file list presented in the UI
     const handleDelete = async (uid: string, filename: string, size: number) => {
         const fileListUpdated = uploaderContext!.fileList.filter(
-            (item: any) => item.name !== filename && item.uid !== uid
+            (item: RcFile) => item.name !== filename && item.uid !== uid
         );
         const hasFilesSelectedUpdated = fileListUpdated.length > 0;
         await uploaderContext!.setHasFilesSelected(hasFilesSelectedUpdated);
@@ -472,7 +473,7 @@ const Uploader: React.FC = () => {
     };
 
     // Deal with subject label free text input
-    const handleChangeSubjectLabel = async (event: any) => {
+    const handleChangeSubjectLabel = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const newSubjectLabel = event.target.value;
         await uploaderContext!.setSelectedSubjectStatus("validating");
         let isValid = validateSubjectLabelInput(newSubjectLabel);
@@ -493,7 +494,7 @@ const Uploader: React.FC = () => {
     };
 
     // Deal with session label free text input
-    const handleChangeSessionLabel = async (event: any) => {
+    const handleChangeSessionLabel = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const newSessionLabel = event.target.value;
         await uploaderContext!.setSelectedSessionStatus("validating");
         let isValid = validateSessionLabelInput(newSessionLabel);
@@ -529,7 +530,7 @@ const Uploader: React.FC = () => {
     };
 
     // Deal with data type other free text input
-    const handleChangeSelectedDataTypeOther = async (event: any) => {
+    const handleChangeSelectedDataTypeOther = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const newDataTypeOtherValue = event.target.value;
         await uploaderContext!.setSelectedDataTypeOtherStatus("validating");
         let isValid = validateSelectedDataTypeOtherInput(newDataTypeOtherValue);
