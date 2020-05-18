@@ -9,24 +9,18 @@ export async function fetchOnceRedirect({
     timeout: number
 }): Promise<string> {
     return Promise.race([
-        fetch(url, options).then(async response => {
+        // Fetch route
+        fetch(url, options).then((response) => {
             if (!response.ok) {
-                try {
-                    return new Promise<string>(() => {
-                        throw new Error(response.statusText);
-                    });
-                }
-                catch (err) {
-                    throw err;
-                }
+                throw new Error(response.statusText);
             }
-            try {
-                return new Promise<string>((resolve, _) => resolve(response.text()));
-            }
-            catch (err_1) {
-                throw err_1;
-            }
+            return response;
+        }).then((response) => {
+            return response.text() as Promise<string>;;
+        }).catch((err) => {
+            throw err;
         }),
+        // Timer route
         new Promise<string>((_, reject) =>
             setTimeout(() => reject(new Error('timeout')), timeout)
         ).catch((err) => { throw err; })
@@ -44,27 +38,23 @@ export async function fetchOnce<T>({
     timeout: number
 }): Promise<T> {
     return Promise.race([
-        fetch(url, options).then(async response => {
+        // Fetch route
+        fetch(url, options).then((response) => {
             if (!response.ok) {
-                try {
-                    return new Promise<T>(() => {
-                        throw new Error(response.statusText);
-                    });
-                }
-                catch (err) {
-                    throw err;
-                }
+                throw new Error(response.statusText);
             }
-            try {
-                return new Promise<T>((resolve, _) => resolve(response.json()));
-            }
-            catch (err_1) {
-                throw err_1;
-            }
+            return response;
+        }).then((response) => {
+            return response.json() as Promise<T>;
+        }).catch((err) => {
+            throw err;
         }),
+        // Timer route
         new Promise<T>((_, reject) =>
             setTimeout(() => reject(new Error('timeout')), timeout)
-        ).catch((err) => { throw err; })
+        ).catch((err) => {
+            throw err;
+        })
     ]);
 }
 
