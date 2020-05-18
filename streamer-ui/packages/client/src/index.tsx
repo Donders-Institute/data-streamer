@@ -64,6 +64,14 @@ const Root: React.FC = () => {
 
     // Set uploader context
 
+    const setUploadSessionId = (uploadSessionId: number) => {
+        setUploaderContext(state => ({ ...state, uploadSessionId }));
+    };
+
+    const setTotalSizeBytes = (totalSizeBytes: number) => {
+        setUploaderContext(state => ({ ...state, totalSizeBytes }));
+    };
+
     const setProjectList = (projectList: Project[]) => {
         setUploaderContext(state => ({ ...state, projectList }));
     };
@@ -141,6 +149,8 @@ const Root: React.FC = () => {
     };
 
     const [uploaderContext, setUploaderContext] = useState({
+        uploadSessionId: -1,
+        totalSizeBytes: 0,
         projectList: [] as Project[],
         isLoadingProjectList: true,
         selectedProjectStatus: "" as (typeof InputValidationStatuses)[number],
@@ -160,25 +170,27 @@ const Root: React.FC = () => {
         fileList: [] as RcFile[],
         fileListSummary: 0,
         hasFilesSelected: false,
-        setProjectList: setProjectList,
-        setIsLoadingProjectList: setIsLoadingProjectList,
-        setSelectedProjectStatus: setSelectedProjectStatus,
-        setSelectedSubjectStatus: setSelectedSubjectStatus,
-        setSelectedSessionStatus: setSelectedSessionStatus,
-        setSelectedDataTypeStatus: setSelectedDataTypeStatus,
-        setSelectedDataTypeOtherStatus: setSelectedDataTypeOtherStatus,
-        setSelectedProjectValue: setSelectedProjectValue,
-        setSelectedSubjectValue: setSelectedSubjectValue,
-        setSelectedSessionValue: setSelectedSessionValue,
-        setSelectedDataTypeValue: setSelectedDataTypeValue,
-        setIsSelectedProject: setIsSelectedProject,
-        setIsSelectedSubject: setIsSelectedSubject,
-        setIsSelectedSession: setIsSelectedSession,
-        setIsSelectedDataType: setIsSelectedDataType,
-        setIsSelectedDataTypeOther: setIsSelectedDataTypeOther,
-        setFileList: setFileList,
-        setHasFilesSelected: setHasFilesSelected,
-        setFileListSummary: setFileListSummary
+        setUploadSessionId,
+        setTotalSizeBytes,
+        setProjectList,
+        setIsLoadingProjectList,
+        setSelectedProjectStatus,
+        setSelectedSubjectStatus,
+        setSelectedSessionStatus,
+        setSelectedDataTypeStatus,
+        setSelectedDataTypeOtherStatus,
+        setSelectedProjectValue,
+        setSelectedSubjectValue,
+        setSelectedSessionValue,
+        setSelectedDataTypeValue,
+        setIsSelectedProject,
+        setIsSelectedSubject,
+        setIsSelectedSession,
+        setIsSelectedDataType,
+        setIsSelectedDataTypeOther,
+        setFileList,
+        setHasFilesSelected,
+        setFileListSummary
     } as IUploaderContext);
 
     return (
