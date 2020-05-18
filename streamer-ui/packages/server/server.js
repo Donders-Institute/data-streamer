@@ -4,16 +4,13 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const createError = require("http-errors");
-const multer = require("multer");
 
 const auth = require('./routes/auth');
 const content = require('./routes/content');
+const formData = require('./routes/formData');
 const pdb = require('./routes/pdb');
 const upload = require('./routes/upload');
 const admin = require('./routes/admin');
-
-// Handle multipart form data
-const formData = multer();
 
 var app = express();
 
@@ -95,7 +92,7 @@ app.post('/upload/validatefile',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
-    formData.single('validatefile'), // multipart form data contains single file
+    formData.processValidateFile,
     content.hasFile,
     upload.verifyUploadSessionId,
     upload.verifyStructure,
@@ -106,7 +103,7 @@ app.post('/upload/addfile',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
-    formData.single('addfile'), // multipart form data contains single file
+    formData.processAddFile,
     content.hasFile,
     upload.verifyUploadSessionId,
     upload.verifyStructure,
