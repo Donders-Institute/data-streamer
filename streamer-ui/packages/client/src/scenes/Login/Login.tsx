@@ -82,8 +82,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
         setPassword(password);
     };
 
-    const handleSubmit = (event: any) => {
-        event.preventDefault();
+    const handleSubmit = () => {
         setUsername(username);
         setPassword(password);
         setIsAuthenticated(false);
@@ -143,7 +142,13 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                                     <div style={{ fontSize: "small", margin: "0px 0px 0px 0px" }}>
                                         Enter your DCCN credentials
                                     </div>
-                                    <Form className="login-form" onSubmit={handleSubmit} style={{ margin: "0px 0px 0px 0px" }}>
+                                    <Form
+                                        className="login-form"
+                                        onSubmit={() => {
+                                            handleSubmit();
+                                        }}
+                                        style={{ margin: "0px 0px 0px 0px" }}
+                                    >
                                         <Form.Item style={{ margin: "0px 0px 0px 0px" }}>
                                             {getFieldDecorator("username", {
                                                 rules: [{ required: true, message: "Please input your DCCN username" }]
