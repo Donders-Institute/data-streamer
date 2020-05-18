@@ -50,7 +50,7 @@ const FileList: React.FC<IProps> = ({ fileList, fileListSummary, hasFilesSelecte
             title: "",
             key: "action",
             width: "10%",
-            render: (text: string, record: any) => (
+            render: (text: string, record: RcFile) => (
                 <span
                     style={{ float: "right" }}
                     onClick={() => {
@@ -104,7 +104,7 @@ const FileList: React.FC<IProps> = ({ fileList, fileListSummary, hasFilesSelecte
         <React.Fragment>
             <Tooltip placement="topLeft" title="Shows list of files to be uploaded">
                 <Table
-                    rowKey={(record: any) => record.uid}
+                    rowKey={(record: RcFile) => record.uid}
                     columns={columnsFileList}
                     dataSource={fileList}
                     pagination={false}

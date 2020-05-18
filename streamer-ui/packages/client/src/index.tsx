@@ -65,6 +65,7 @@ const Root: React.FC = () => {
     // Set uploader context
 
     const setUploadSessionId = async (uploadSessionId: number) => {
+        console.log(uploadSessionId);
         setUploaderContext(state => ({ ...state, uploadSessionId }));
     };
 

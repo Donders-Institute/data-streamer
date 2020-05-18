@@ -82,7 +82,8 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
         setPassword(password);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
         setUsername(username);
         setPassword(password);
         setIsAuthenticated(false);
@@ -144,8 +145,8 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                                     </div>
                                     <Form
                                         className="login-form"
-                                        onSubmit={() => {
-                                            handleSubmit();
+                                        onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
+                                            handleSubmit(event);
                                         }}
                                         style={{ margin: "0px 0px 0px 0px" }}
                                     >

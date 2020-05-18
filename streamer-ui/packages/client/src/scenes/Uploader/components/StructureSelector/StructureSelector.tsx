@@ -26,10 +26,10 @@ interface IProps {
     dataType: string;
     sessionLabel: string;
     handleSelectProjectValue: (value: SelectOption) => void;
-    handleChangeSubjectLabel: (event: any) => void;
-    handleChangeSessionLabel: (event: any) => void;
+    handleChangeSubjectLabel: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    handleChangeSessionLabel: (event: React.ChangeEvent<HTMLInputElement>) => void;
     handleSelectDataTypeValue: (value: SelectOption) => void;
-    handleChangeSelectedDataTypeOther: (event: any) => void;
+    handleChangeSelectedDataTypeOther: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const dataTypesList = [
