@@ -132,7 +132,7 @@ app.post('/upload/submit',
     upload.submit);
 
 // POST Purge database tables for admin user
-app.post('/clean',
+app.post('/purge',
     auth.hasBasicAuthHeader,
     auth.verifyAdminCredentials,
     content.hasJson,
