@@ -5,6 +5,7 @@ const createError = require("http-errors");
 
 const utils = require('./utils');
 
+// Storing file to disk configuration
 const streamerUIBufferStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         const projectNumber = req.body.projectNumber;
@@ -87,13 +88,14 @@ const streamerUIBufferStorage = multer.diskStorage({
 
 // Handle multipart form data with single file with fieldname validatefile
 var _processValidateFile = function (req, res, next) {
+    // Do not store the file to disk
     const upload = multer().single('validatefile');
 
     upload(req, res, function (err) {
         if (err instanceof multer.MulterError) {
             return next(createError(400, `Multer error: ${err.message}`));
         } else if (err) {
-            return next(createError(400, "Unknown error"));
+            return next(createError(400, `processValidateFile error: ${err.message}`));
         }
 
         next();
@@ -111,7 +113,7 @@ var _processAddFile = function (req, res, next) {
         if (err instanceof multer.MulterError) {
             return next(createError(400, `Multer error: ${err.message}`));
         } else if (err) {
-            return next(createError(400, "Unknown error"));
+            return next(createError(400, `processAddFile error: ${err.message}`));
         }
 
         next();
