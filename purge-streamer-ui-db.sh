@@ -6,4 +6,4 @@ if [ -z "$1" ]; then
 fi
 
 echo "Purge streamer ui db ..."
-set -a && source env.sh && set +a && curl -X POST -u $STREAMER_UI_DB_USER:$STREAMER_UI_DB_PASSWORD -i -H 'Accept:application/json' $1/purge
+set -a && source env.sh && set +a && curl -X POST -u $STREAMER_UI_DB_USER:$STREAMER_UI_DB_PASSWORD -i -H 'Content-Type: application/json' $1/purge
