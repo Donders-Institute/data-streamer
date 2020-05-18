@@ -179,19 +179,9 @@ const Uploader: React.FC = () => {
         console.log('Successfully signed out');
     };
 
-    const handleAddFile = async (file: RcFile) => {
+    const handleAddFile = async (file: RcFile, uploadSession: UploadSession) => {
 
-        const uploadSession = {
-            uploadSessionId: uploaderContext!.uploadSessionId,
-            username: authContext!.username,
-            projectNumber: uploaderContext!.selectedProjectValue,
-            subjectLabel: uploaderContext!.selectedSubjectValue,
-            sessionLabel: uploaderContext!.selectedSessionValue,
-            dataType: uploaderContext!.selectedDataTypeValue,
-            totalSizeBytes: uploaderContext!.totalSizeBytes
-        } as UploadSession;
-
-        console.log(`Upload session: ${uploaderContext!.uploadSessionId}; upload file: ${file.name}`);
+        console.log(`Upload session: ${uploadSession.uploadSessionId}; upload file: ${file.name}`);
         console.dir(uploadSession);
 
         let addFileResult: AddFileResult;
@@ -207,9 +197,9 @@ const Uploader: React.FC = () => {
 
         // Derive percentage done and remaining files
         let newUploadingPercentage = 100;
-        if (uploaderContext!.totalSizeBytes > 0) {
+        if (uploadSession.totalSizeBytes > 0) {
             const fileSizeBytes = file.size;
-            uploadingPercentage + Math.floor(100.0 * fileSizeBytes / uploaderContext!.totalSizeBytes)
+            uploadingPercentage + Math.floor(100.0 * fileSizeBytes / uploadSession.totalSizeBytes)
         }
         setUploadingPercentage(newUploadingPercentage);
         setRemainingItems(remainingItems => remainingItems - 1);
@@ -222,13 +212,13 @@ const Uploader: React.FC = () => {
     // 2. Finalize the upload session. 
     // 3. Submit a streamer job to take care of the transfer of files in the background 
     //    (i.e. to the project storage folder and the Donders Repository)
-    const handleApprovedUpload = async () => {
+    const handleApprovedUpload = async (uploadSession: UploadSession) => {
 
         console.log("Prepare the uploading to the streamer buffer");
         let uploadWork = [] as Promise<AddFileResult>[];
 
         uploaderContext!.fileList.forEach((file: RcFile) => {
-            uploadWork.push(handleAddFile(file));
+            uploadWork.push(handleAddFile(file, uploadSession));
         });
 
         console.log("Upload all files to the streamer buffer");
@@ -239,18 +229,7 @@ const Uploader: React.FC = () => {
         } finally {
             setRemainingItems(0);
             setUploadingPercentage(100);
-            uploaderContext!.setTotalSizeBytes(0);
         }
-
-        const uploadSession = {
-            uploadSessionId: uploaderContext!.uploadSessionId,
-            username: authContext!.username,
-            projectNumber: uploaderContext!.selectedProjectValue,
-            subjectLabel: uploaderContext!.selectedSubjectValue,
-            sessionLabel: uploaderContext!.selectedSessionValue,
-            dataType: uploaderContext!.selectedDataTypeValue,
-            totalSizeBytes: uploaderContext!.totalSizeBytes
-        } as UploadSession;
 
         console.log("Finalize the upload session");
         try {
@@ -286,7 +265,7 @@ const Uploader: React.FC = () => {
     // 2. Validate the files to be uploaded
     // 3. Check if user confirmation is needed to overwite an existing project storage folder and files
     // 4. If all green, proceed with the actual upload
-    const handleUpload = async (event: any) => {
+    const handleUpload = async () => {
         setShowFilesExistModal(false);
         setFailed(false);
         setRemainingItems(uploaderContext!.fileList.length);
@@ -319,6 +298,7 @@ const Uploader: React.FC = () => {
         uploaderContext!.setUploadSessionId(uploadSession.uploadSessionId);
         uploaderContext!.setTotalSizeBytes(uploadSession.totalSizeBytes);
 
+        console.log(`Upload session: ${uploaderContext!.uploadSessionId}`);
         console.log(`Upload session: ${uploadSession.uploadSessionId}`);
         console.dir(uploadSession);
 
@@ -361,7 +341,7 @@ const Uploader: React.FC = () => {
 
         // No user confirmation is needed. Proceed.
         try {
-            handleApprovedUpload();
+            handleApprovedUpload(uploadSession);
         } catch (err) {
             console.error(err);
             const newErrorMessage = JSON.stringify(err);
@@ -664,7 +644,7 @@ const Uploader: React.FC = () => {
                                                     width: "200px",
                                                     float: "right"
                                                 }}
-                                                onClick={handleUpload}
+                                                onClick={() => { handleUpload(); }}
                                             >
                                                 Upload
                                             </Button>
@@ -781,9 +761,19 @@ const Uploader: React.FC = () => {
                                             setShowFilesExistModal(false);
                                             setFilesExistMessage(<div></div>);
 
+                                            const uploadSession = {
+                                                uploadSessionId: uploaderContext!.uploadSessionId,
+                                                username: authContext!.username,
+                                                projectNumber: uploaderContext!.selectedProjectValue,
+                                                subjectLabel: uploaderContext!.selectedSubjectValue,
+                                                sessionLabel: uploaderContext!.selectedSessionValue,
+                                                dataType: uploaderContext!.selectedDataTypeValue,
+                                                totalSizeBytes: uploaderContext!.totalSizeBytes
+                                            } as UploadSession;
+
                                             // No user confirmation needed, proceed
                                             try {
-                                                handleApprovedUpload();
+                                                handleApprovedUpload(uploadSession);
                                             } catch (err) {
                                                 console.error(err);
                                                 const newErrorMessage = JSON.stringify(err);
