@@ -76,7 +76,6 @@ const Uploader: React.FC = () => {
     } as UploadSession);
 
     const [uploadingPercentage, setUploadingPercentage] = useState(0);
-    const [totalSizeBytes, setTotalSizeBytes] = useState(0);
     const [remainingItems, setRemainingItems] = useState(0);
     const [isUploading, setIsUploading] = useState(true);
     const [failed, setFailed] = useState(false);
@@ -111,6 +110,7 @@ const Uploader: React.FC = () => {
             }
         };
         fetchProjects(authContext!.username, authContext!.password);
+
     }, [authContext]);
 
     useEffect(() => {
@@ -148,20 +148,20 @@ const Uploader: React.FC = () => {
                 setProceed(false);
                 return; // Abort
             }
-            setProceed(true);
 
             // Update upload session
             const newUploadSession = {
-                uploadSessionId: uploadSession.uploadSessionId,
-                username: uploadSession.username,
+                uploadSessionId: uploaderContext!.uploadSessionId,
+                username: authContext!.username,
                 projectNumber: uploaderContext!.selectedProjectValue,
                 subjectLabel: uploaderContext!.selectedSubjectValue,
                 sessionLabel: uploaderContext!.selectedSessionValue,
                 dataType: uploaderContext!.selectedDataTypeValue,
-                totalSizeBytes: uploadSession.totalSizeBytes
+                totalSizeBytes: uploaderContext!.totalSizeBytes
             } as UploadSession;
-
             setUploadSession(uploadSession => newUploadSession);
+
+            setProceed(true);
         };
         checkProceed();
     }, [uploaderContext]);
@@ -203,7 +203,8 @@ const Uploader: React.FC = () => {
 
     const handleAddFile = async (file: RcFile) => {
 
-        console.log(`Upload session: ${uploadSession.uploadSessionId}; upload file: ${uploadSession.uploadSessionId}`);
+        console.log(`Upload session: ${uploaderContext!.uploadSessionId}`);
+        console.log(`Upload session: ${uploadSession.uploadSessionId}; upload file: ${file.name}`);
         console.dir(uploadSession);
 
         let addFileResult: AddFileResult;
@@ -217,9 +218,12 @@ const Uploader: React.FC = () => {
             throw err;
         }
 
-        const fileSizeBytes = file.size;
-        const newUploadingPercentage = totalSizeBytes > 0 ? uploadingPercentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes) : 100;
-
+        // Derive percentage done and remaining files
+        let newUploadingPercentage = 100;
+        if (uploaderContext!.totalSizeBytes > 0) {
+            const fileSizeBytes = file.size;
+            uploadingPercentage + Math.floor(100.0 * fileSizeBytes / uploaderContext!.totalSizeBytes)
+        }
         setUploadingPercentage(newUploadingPercentage);
         setRemainingItems(remainingItems => remainingItems - 1);
 
@@ -248,7 +252,7 @@ const Uploader: React.FC = () => {
         } finally {
             setRemainingItems(0);
             setUploadingPercentage(100);
-            setTotalSizeBytes(0);
+            uploaderContext!.setTotalSizeBytes(0);
         }
 
         console.log("Finalize the upload session");
@@ -315,7 +319,8 @@ const Uploader: React.FC = () => {
         }
 
         // Update state
-        setUploadSession(uploadSession => newUploadSession);
+        uploaderContext!.setUploadSessionId(newUploadSession.uploadSessionId);
+        uploaderContext!.setTotalSizeBytes(newUploadSession.totalSizeBytes);
 
         console.log(`Upload session: ${newUploadSession.uploadSessionId}`);
         console.dir(newUploadSession);
