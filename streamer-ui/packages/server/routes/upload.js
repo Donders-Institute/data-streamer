@@ -100,13 +100,13 @@ var _begin = async function (req, res, next) {
     const dataType = req.body.dataType;
 
     // Create the streamer UI buffer directory if it does not exist
-    var dirName = utils.getStreamerUIBufferDirName(projectNumber, subjectLabel, sessionLabel, dataType);
-    if (!dirName) {
+    var dirname = utils.getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
+    if (!dirname) {
         return next(createError(500, "Error obtaining streamer buffer UI directory name"));
     }
-    if (!fs.existsSync(dirName)) {
-        mkdirp.sync(dirName);
-        console.log(`Successfully created streamer buffer UI directory "${dirName}"`);
+    if (!fs.existsSync(dirname)) {
+        mkdirp.sync(dirname);
+        console.log(`Successfully created streamer buffer UI directory "${dirname}"`);
     }
 
     // Add an upload session to the streamer UI database
@@ -135,8 +135,8 @@ var _begin = async function (req, res, next) {
     });
 }
 
-// Check if the file to be uploaded and the destination project storage folder do not exist already
-// After multipare/form-data after multer middleware
+// Check if the project storage folder and the file to be uploaded exist already
+// (After processed the multipare/form-data with the multer middleware)
 var _validateFile = function (req, res, next) {
 
     // Obtain structure from form data
@@ -146,8 +146,8 @@ var _validateFile = function (req, res, next) {
     const dataType = req.body.dataType;
 
     // Obtain the project storage directory name
-    const projectStorageDirName = utils.getProjectStorageDirName(projectNumber, subjectLabel, sessionLabel, dataType);
-    if (!projectStorageDirName) {
+    const projectStorageDirname = utils.getProjectStorageDirname(projectNumber, subjectLabel, sessionLabel, dataType);
+    if (!projectStorageDirname) {
         return next(createError(500, "Error obtaining project storage directory name"));
     }
 
@@ -156,14 +156,11 @@ var _validateFile = function (req, res, next) {
     const fileSizeBytes = req.body.fileSizeBytes;
     const fileSizeBytesInt = parseInt(fileSizeBytes, 0);
 
-    console.log(filename);
-    console.log(fileSizeBytesInt);
-
     // Check if file has zero size
     const fileIsEmpty = fileSizeBytesInt === 0;
 
     // Check if project storage folder and file exists already
-    const fileExists = utils.fileExists(filename, projectStorageDirName);
+    const fileExists = utils.fileExists(filename, projectStorageDirname);
 
     const validationResult = {
         filename,
@@ -179,40 +176,15 @@ var _validateFile = function (req, res, next) {
 }
 
 // Add a file to the upload session
-// After multipare/form-data after multer middleware
+// (After having stored the file with the multer middleware)
 var _addFile = async function (req, res, next) {
 
     // Obtain upload session id from form data
     const uploadSessionId = req.body.uploadSessionId;
 
-    // Obtain structure from form data
-    const projectNumber = req.body.projectNumber;
-    const subjectLabel = req.body.subjectLabel;
-    const sessionLabel = req.body.sessionLabel;
-    const dataType = req.body.dataType;
-
-    // Obtain the streamer UI buffer directory name
-    const dirName = utils.getStreamerUIBufferDirName(projectNumber, subjectLabel, sessionLabel, dataType);
-    if (!dirName) {
-        return next(createError(500, "Error obtaining streamer buffer UI directory name"));
-    }
-
-    // Obtain file
-    const file = req.file;
-
     // Obtain file attributes
     const filename = req.body.filename;
     const fileSizeBytes = req.body.fileSizeBytes;
-
-    console.log(filename);
-    console.log(fileSizeBytes);
-
-    // Store the file in the streamer UI buffer
-    const err = await utils.storeFile(file, filename, dirName);
-    if (err) {
-        console.log(JSON.stringify(err));
-        return next(createError(500, `Error storing file ${filename} in project storage directory ${dirName}`));
-    }
 
     // Add an upload file to the streamer UI database
     let insertUploadFileResult;

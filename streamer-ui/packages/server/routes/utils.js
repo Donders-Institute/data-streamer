@@ -7,31 +7,31 @@ const STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname +
 const STREAMER_URL_PREFIX = process.env.STREAMER_URL_PREFIX || "http://streamer:3001";
 
 // Get the streamer UI buffer directory name
-var _getStreamerUIBufferDirName = function (projectNumber, subjectLabel, sessionLabel, dataType) {
-    let streamerUIBufferDirName;
+var _getStreamerUIBufferDirname = function (projectNumber, subjectLabel, sessionLabel, dataType) {
+    let streamerUIBufferDirname;
     if (projectNumber && subjectLabel && sessionLabel && dataType) {
         var sub = 'sub-' + subjectLabel;
         var ses = 'ses-' + sessionLabel;
-        streamerUIBufferDirName = path.join(STREAMER_UI_BUFFER_DIR, projectNumber, sub, ses, dataType);
+        streamerUIBufferDirname = path.join(STREAMER_UI_BUFFER_DIR, projectNumber, sub, ses, dataType);
     }
-    return streamerUIBufferDirName;
+    return streamerUIBufferDirname;
 }
 
 // Get the project storage directory name
-var _getProjectStorageDirName = function (projectNumber, subjectLabel, sessionLabel, dataType) {
-    let projectStorageDirName;
+var _getProjectStorageDirname = function (projectNumber, subjectLabel, sessionLabel, dataType) {
+    let projectStorageDirname;
     if (projectNumber && subjectLabel && sessionLabel && dataType) {
         var sub = 'sub-' + subjectLabel;
         var ses = 'ses-' + sessionLabel;
-        projectStorageDirName = path.join(PROJECT_VOL, projectNumber, 'raw', sub, ses, dataType);
+        projectStorageDirname = path.join(PROJECT_VOL, projectNumber, 'raw', sub, ses, dataType);
     }
-    return projectStorageDirName;
+    return projectStorageDirname;
 }
 
 // Check if the file already exists
 var _fileExists = function (filename, dirname) {
-    var targetPath = path.join(dirname, filename);
-    var fileExists = true;
+    const targetPath = path.join(dirname, filename);
+    let fileExists = true;
     try {
         fs.accessSync(targetPath, fs.F_OK);
     } catch (err) {
@@ -40,21 +40,9 @@ var _fileExists = function (filename, dirname) {
     return fileExists;
 }
 
-// Move the uploaded file from the temporary directory to the UI buffer
-var _storeFile = async function (file, filename, dirname) {
-    var targetPath = path.join(dirname, filename);
-    file.mv(targetPath, function (err) {
-        if (err) {
-            return err;
-        } else {
-            return null;
-        }
-    });
-}
-
 // Get the streamer URL
 var _getStreamerUrl = function (projectNumber, subjectLabel, sessionLabel, dataType) {
-    var url;
+    let url;
     if (projectNumber && subjectLabel && sessionLabel && dataType) {
         url = `${STREAMER_URL_PREFIX}/user/${projectNumber}/${subjectLabel}/${sessionLabel}/${dataType}`;
     }
@@ -96,10 +84,9 @@ var _basicAuthString = function ({ username, password }) {
     return `Basic ${b64encoded}`;
 }
 
-module.exports.getProjectStorageDirName = _getProjectStorageDirName;
-module.exports.getStreamerUIBufferDirName = _getStreamerUIBufferDirName;
+module.exports.getProjectStorageDirname = _getProjectStorageDirname;
+module.exports.getStreamerUIBufferDirname = _getStreamerUIBufferDirname;
 module.exports.fileExists = _fileExists;
-module.exports.storeFile = _storeFile;
 module.exports.getStreamerUrl = _getStreamerUrl;
 
 module.exports.fetchOnce = _fetchOnce;

@@ -1,5 +1,89 @@
 const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 const createError = require("http-errors");
+
+const utils = require('./utils');
+
+const streamerUIBufferStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const projectNumber = req.body.projectNumber;
+        const subjectLabel = req.body.subjectLabel;
+        const sessionLabel = req.body.sessionLabel;
+        const dataType = req.body.dataType;
+
+        if (!projectNumber) {
+            const err = new Error("projectNumber empty");
+            cb(err, null);
+        }
+        if (!subjectLabel) {
+            const err = new Error("subjectLabel empty");
+            cb(err, null);
+        }
+        if (!sessionLabel) {
+            const err = new Error("sessionLabel empty");
+            cb(err, null);
+        }
+        if (!dataType) {
+            const err = new Error("dataType empty");
+            cb(err, null);
+        }
+
+        // Obtain the destination path name
+        const dirname = utils.getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
+        if (!dirname) {
+            const err = new Error("Error obtaining streamer buffer UI directory name");
+            cb(err, null);
+        }
+
+        // Check if the destination folder exists. Must have been created earlier with upload session begin request.
+        if (!fs.existsSync(dirname)) {
+            const err = new Error("Destination folder in streamer buffer UI does not exist");
+            cb(err, null);
+        }
+
+        cb(null, dirname);
+    },
+    filename: (req, file, cb) => {
+        const projectNumber = req.body.projectNumber;
+        const subjectLabel = req.body.subjectLabel;
+        const sessionLabel = req.body.sessionLabel;
+        const dataType = req.body.dataType;
+        const filename = req.body.filename;
+
+        if (!projectNumber) {
+            const err = new Error("projectNumber empty");
+            cb(err, null);
+        }
+        if (!subjectLabel) {
+            const err = new Error("subjectLabel empty");
+            cb(err, null);
+        }
+        if (!sessionLabel) {
+            const err = new Error("sessionLabel empty");
+            cb(err, null);
+        }
+        if (!dataType) {
+            const err = new Error("dataType empty");
+            cb(err, null);
+        }
+        if (!filename) {
+            const err = new Error("filename empty");
+            cb(err, null);
+        }
+
+        // Obtain the destination path
+        var dirname = utils.getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
+        if (!dirname) {
+            const err = new Error("Error obtaining streamer buffer UI directory name");
+            cb(err, null);
+        }
+
+        // Derive destination path
+        const filepath = path.join(dirname, filename);
+        cb(null, filepath);
+    }
+});
 
 // Handle multipart form data with single file with fieldname validatefile
 var _processValidateFile = function (req, res, next) {
@@ -17,8 +101,11 @@ var _processValidateFile = function (req, res, next) {
 }
 
 // Handle multipart form data with single file with fieldname addfile
+// Store the file
 var _processAddFile = function (req, res, next) {
-    const upload = multer().single('addfile');
+    const upload = multer({
+        storage: streamerUIBufferStorage
+    }).single('addfile');
 
     upload(req, res, function (err) {
         if (err instanceof multer.MulterError) {
