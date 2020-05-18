@@ -93,9 +93,9 @@ app.post('/upload/validatefile',
     auth.hasBasicAuthHeader,
     auth.verifyUser,
     formData.processValidateFile,
-    content.hasFile,
     upload.verifyUploadSessionId,
     upload.verifyStructure,
+    upload.verifyFile,
     upload.validateFile);
 
 // POST Add file to upload session for regular user
@@ -104,9 +104,9 @@ app.post('/upload/addfile',
     auth.hasBasicAuthHeader,
     auth.verifyUser,
     formData.processAddFile,
-    content.hasFile,
     upload.verifyUploadSessionId,
     upload.verifyStructure,
+    upload.verifyFile,
     upload.addFile);
 
 // POST Finalize upload session for regular user

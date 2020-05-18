@@ -41,8 +41,8 @@ var _fileExists = function (filename, dirname) {
 }
 
 // Move the uploaded file from the temporary directory to the UI buffer
-var _storeFile = async function (file, dirname) {
-    var targetPath = path.join(dirname, file.name);
+var _storeFile = async function (file, filename, dirname) {
+    var targetPath = path.join(dirname, filename);
     file.mv(targetPath, function (err) {
         if (err) {
             return err;

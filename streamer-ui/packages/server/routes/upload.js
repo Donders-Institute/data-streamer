@@ -53,6 +53,31 @@ var _verifyUploadSessionId = function (req, res, next) {
     next();
 }
 
+// Middleware to verify file contents in the multipare/form-data (after multer middleware)
+var _verifyFile = function (req, res, next) {
+    // Check presence of file
+    if (!req.file) {
+        return next(createError(400, `No file: "req.file" is empty`));
+    }
+
+    // Verify file attributes
+    if (!req.body) {
+        return next(createError(400, `No attributes were uploaded: "req.body" is empty`));
+    }
+
+    const filename = req.body.filename;
+    const fileSizeBytes = req.body.fileSizeBytes;
+
+    if (!filename) {
+        return next(createError(400, "filename empty"));
+    }
+    if (!fileSizeBytes) {
+        return next(createError(400, "fileSizeBytes empty"));
+    }
+
+    next();
+}
+
 // Begin upload session, obtain upload session id
 // If the streamer UI buffer folder does not exist create it
 var _begin = async function (req, res, next) {
@@ -126,13 +151,16 @@ var _validateFile = function (req, res, next) {
         return next(createError(500, "Error obtaining project storage directory name"));
     }
 
-    // Obtain file
-    const file = req.file;
-    const filename = file.name;
+    // Obtain file attributes
+    const filename = req.body.filename;
+    const fileSizeBytes = req.body.fileSizeBytes;
+    const fileSizeBytesInt = parseInt(fileSizeBytes, 0);
+
     console.log(filename);
+    console.log(fileSizeBytesInt);
 
     // Check if file has zero size
-    const fileIsEmpty = file.size === 0;
+    const fileIsEmpty = fileSizeBytesInt === 0;
 
     // Check if project storage folder and file exists already
     const fileExists = utils.fileExists(filename, projectStorageDirName);
@@ -171,12 +199,16 @@ var _addFile = async function (req, res, next) {
 
     // Obtain file
     const file = req.file;
-    const filename = file.name;
-    const filesizeBytes = file.size;
+
+    // Obtain file attributes
+    const filename = req.body.filename;
+    const fileSizeBytes = req.body.fileSizeBytes;
+
     console.log(filename);
+    console.log(fileSizeBytes);
 
     // Store the file in the streamer UI buffer
-    const err = await utils.storeFile(file, dirName);
+    const err = await utils.storeFile(file, filename, dirName);
     if (err) {
         console.log(JSON.stringify(err));
         return next(createError(500, `Error storing file ${filename} in project storage directory ${dirName}`));
@@ -185,7 +217,7 @@ var _addFile = async function (req, res, next) {
     // Add an upload file to the streamer UI database
     let insertUploadFileResult;
     try {
-        insertUploadFileResult = await db.insertUploadFile(uploadSessionId, filename, filesizeBytes);
+        insertUploadFileResult = await db.insertUploadFile(uploadSessionId, filename, fileSizeBytes);
     } catch (err) {
         return next(createError(500, err.message));
     }
@@ -311,6 +343,7 @@ var _submit = async function (req, res, next) {
 
 module.exports.verifyUploadSessionId = _verifyUploadSessionId;
 module.exports.verifyStructure = _verifyStructure;
+module.exports.verifyFile = _verifyFile;
 
 module.exports.begin = _begin;
 module.exports.validateFile = _validateFile;

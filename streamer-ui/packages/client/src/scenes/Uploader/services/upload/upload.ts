@@ -150,8 +150,7 @@ const getFormData = (uploadSession: UploadSession, file: RcFile, fileFieldName: 
     formData.append("dataType", uploadSession.dataType);
 
     formData.append("filename", file.name);
-    formData.append("filesize", file.size.toString());
-    formData.append("uid", file.uid);
+    formData.append("fileSizeBytes", file.size.toString());
 
     formData.append(fileFieldName, file);
 
