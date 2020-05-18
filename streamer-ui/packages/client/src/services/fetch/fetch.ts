@@ -9,15 +9,23 @@ export async function fetchOnceRedirect({
     timeout: number
 }): Promise<string> {
     return Promise.race([
-        fetch(url, options).then(response => {
+        fetch(url, options).then(async response => {
             if (!response.ok) {
-                return new Promise<string>((_, reject) =>
-                    reject(new Error(response.statusText))
-                ).catch((err) => { throw err; })
+                try {
+                    return new Promise<string>(() => {
+                        throw new Error(response.statusText);
+                    });
+                }
+                catch (err) {
+                    throw err;
+                }
             }
-            return new Promise<string>((resolve, _) =>
-                resolve(response.text())
-            ).catch((err) => { throw err; })
+            try {
+                return new Promise<string>((resolve, _) => resolve(response.text()));
+            }
+            catch (err_1) {
+                throw err_1;
+            }
         }),
         new Promise<string>((_, reject) =>
             setTimeout(() => reject(new Error('timeout')), timeout)
@@ -36,15 +44,23 @@ export async function fetchOnce<T>({
     timeout: number
 }): Promise<T> {
     return Promise.race([
-        fetch(url, options).then(response => {
+        fetch(url, options).then(async response => {
             if (!response.ok) {
-                return new Promise<T>((_, reject) =>
-                    reject(new Error(response.statusText))
-                ).catch((err) => { throw err; })
+                try {
+                    return new Promise<T>(() => {
+                        throw new Error(response.statusText);
+                    });
+                }
+                catch (err) {
+                    throw err;
+                }
             }
-            return new Promise<T>((resolve, _) =>
-                resolve(response.json())
-            ).catch((err) => { throw err; })
+            try {
+                return new Promise<T>((resolve, _) => resolve(response.json()));
+            }
+            catch (err_1) {
+                throw err_1;
+            }
         }),
         new Promise<T>((_, reject) =>
             setTimeout(() => reject(new Error('timeout')), timeout)
