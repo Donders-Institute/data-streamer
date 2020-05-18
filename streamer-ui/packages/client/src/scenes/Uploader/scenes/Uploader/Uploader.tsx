@@ -202,7 +202,9 @@ const Uploader: React.FC = () => {
     };
 
     const handleAddFile = async (file: RcFile) => {
-        console.log(`Add file to be uploaded ${file.name} ...`);
+
+        console.log(`Upload session: ${uploadSession.uploadSessionId}; upload file: ${uploadSession.uploadSessionId}`);
+        console.dir(uploadSession);
 
         let addFileResult: AddFileResult;
         try {
@@ -312,9 +314,11 @@ const Uploader: React.FC = () => {
             return; // Abort
         }
 
-        console.dir(newUploadSession);
-
+        // Update state
         setUploadSession(uploadSession => newUploadSession);
+
+        console.log(`Upload session: ${newUploadSession.uploadSessionId}`);
+        console.dir(newUploadSession);
 
         // Validate the files to be uploaded, one by one
         let validationResult: ValidationResult;
