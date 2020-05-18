@@ -288,29 +288,29 @@ var _submit = async function (req, res, next) {
     const numRetries = 1;
     const timeout = 2000; // ms
 
-    try {
-        await utils.fetchRetry(
-            streamerUrl,
-            {
-                method: 'POST',
-                credentials: 'include',
-                headers,
-                body
-            },
-            numRetries,
-            timeout
-        );
-    } catch (err) {
+    // Submit the streamer job in the background
+    utils.fetchRetry(
+        streamerUrl,
+        {
+            method: 'POST',
+            credentials: 'include',
+            headers,
+            body
+        },
+        numRetries,
+        timeout
+    ).then(() => {
+        console.log("Successfully submitted streamer job");
+        console.log(JSON.stringify(submitResult));
+        return res.status(200).json({
+            data: submitResult,
+            error: null
+        });
+    }
+    ).catch((err) => {
         console.error(err);
         return next(createError(500, "Could not connect to streamer service"));
-    }
-
-    console.log("Successfully submitted streamer job");
-    console.log(JSON.stringify(submitResult));
-    return res.status(200).json({
-        data: submitResult,
-        error: null
-    });
+    })
 }
 
 module.exports.verifyUploadSessionId = _verifyUploadSessionId;

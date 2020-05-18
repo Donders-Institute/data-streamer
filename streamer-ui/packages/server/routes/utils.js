@@ -52,31 +52,23 @@ var _getStreamerUrl = function (projectNumber, subjectLabel, sessionLabel, dataT
 // Fetch once with timeout in milliseconds
 var _fetchOnce = async function ({ url, options, timeout }) {
     return Promise.race([
-        fetch(url, options).then(async response => {
+        // Fetch route
+        fetch(url, options).then((response) => {
             if (!response.ok) {
-                // eslint-disable-next-line no-useless-catch
-                try {
-                    return new Promise(() => {
-                        throw new Error(response.statusText);
-                    });
-                }
-                catch (err) {
-                    throw err;
-                }
+                throw new Error(response.statusText);
             }
-            // eslint-disable-next-line no-useless-catch
-            try {
-                return new Promise((resolve) => {
-                    return resolve(response.json());
-                });
-            }
-            catch (err_1) {
-                throw err_1;
-            }
+            return response;
+        }).then((response) => {
+            return response.json();
+        }).catch((err) => {
+            throw err;
         }),
+        // Timer route
         new Promise((resolve, reject) =>
             setTimeout(() => reject(new Error('timeout')), timeout)
-        ).catch((err) => { throw err; })
+        ).catch((err) => {
+            throw err;
+        })
     ]);
 }
 
