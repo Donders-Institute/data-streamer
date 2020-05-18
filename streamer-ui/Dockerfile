@@ -14,6 +14,7 @@ RUN yarn build
 
 # Create the server
 FROM node:12
+RUN apt-get update && apt-get install -y cron
 WORKDIR /opt/streamer-ui-server
 COPY $pwd/packages/server/package.json ./
 COPY $pwd/packages/server/yarn.lock ./

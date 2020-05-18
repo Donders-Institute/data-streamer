@@ -79,7 +79,7 @@ const Uploader: React.FC = () => {
                 // Only fetch the data when the project list is yet empty
                 console.log(`Fetching projects for ${username} ...`);
 
-                uploaderContext!.setIsLoadingProjectList(true);
+                await uploaderContext!.setIsLoadingProjectList(true);
 
                 let newProjectList = [] as Project[];
                 try {
@@ -94,8 +94,8 @@ const Uploader: React.FC = () => {
                     newProjectList.forEach((project: Project) => {
                         console.log(project.projectNumber);
                     });
-                    uploaderContext!.setProjectList(newProjectList);
-                    uploaderContext!.setIsLoadingProjectList(false);
+                    await uploaderContext!.setProjectList(newProjectList);
+                    await uploaderContext!.setIsLoadingProjectList(false);
                 }
             }
         };
@@ -295,8 +295,8 @@ const Uploader: React.FC = () => {
         }
 
         // Update state
-        uploaderContext!.setUploadSessionId(uploadSession.uploadSessionId);
-        uploaderContext!.setTotalSizeBytes(uploadSession.totalSizeBytes);
+        await uploaderContext!.setUploadSessionId(uploadSession.uploadSessionId);
+        await uploaderContext!.setTotalSizeBytes(uploadSession.totalSizeBytes);
 
         console.log(`Upload session: ${uploaderContext!.uploadSessionId}`);
         console.log(`Upload session: ${uploadSession.uploadSessionId}`);
@@ -353,21 +353,21 @@ const Uploader: React.FC = () => {
     }
 
     // Remove a file from the file list presented in the UI
-    const handleDelete = (uid: string, filename: string, size: number) => {
+    const handleDelete = async (uid: string, filename: string, size: number) => {
         const fileListUpdated = uploaderContext!.fileList.filter(
             (item: any) => item.name !== filename && item.uid !== uid
         );
         const hasFilesSelectedUpdated = fileListUpdated.length > 0;
-        uploaderContext!.setHasFilesSelected(hasFilesSelectedUpdated);
-        uploaderContext!.setFileList(fileListUpdated);
-        uploaderContext!.setFileListSummary(uploaderContext!.fileListSummary - size);
+        await uploaderContext!.setHasFilesSelected(hasFilesSelectedUpdated);
+        await uploaderContext!.setFileList(fileListUpdated);
+        await uploaderContext!.setFileListSummary(uploaderContext!.fileListSummary - size);
     };
 
     // Remove the whole file list presented in the UI
-    const handleDeleteList = () => {
-        uploaderContext!.setHasFilesSelected(false);
-        uploaderContext!.setFileList([] as RcFile[]);
-        uploaderContext!.setFileListSummary(0);
+    const handleDeleteList = async () => {
+        await uploaderContext!.setHasFilesSelected(false);
+        await uploaderContext!.setFileList([] as RcFile[]);
+        await uploaderContext!.setFileListSummary(0);
     };
 
     // Check if the file already exists in the file list presented in the UI
@@ -417,13 +417,13 @@ const Uploader: React.FC = () => {
         }
 
         if (isValidBatch) {
-            uploaderContext!.setHasFilesSelected(true);
-            uploaderContext!.setFileList([...(uploaderContext!.fileList), ...batch]);
-            uploaderContext!.setFileListSummary(uploaderContext!.fileListSummary + batchSizeBytes);
+            await uploaderContext!.setHasFilesSelected(true);
+            await uploaderContext!.setFileList([...(uploaderContext!.fileList), ...batch]);
+            await uploaderContext!.setFileListSummary(uploaderContext!.fileListSummary + batchSizeBytes);
         } else {
-            uploaderContext!.setFileList([...(uploaderContext!.fileList)]);
-            uploaderContext!.setHasFilesSelected(uploaderContext!.fileList.length > 0);
-            uploaderContext!.setFileListSummary(uploaderContext!.fileListSummary);
+            await uploaderContext!.setFileList([...(uploaderContext!.fileList)]);
+            await uploaderContext!.setHasFilesSelected(uploaderContext!.fileList.length > 0);
+            await uploaderContext!.setFileListSummary(uploaderContext!.fileListSummary);
             let msg = "";
             if (directories.length > 0) {
                 if (directories.length === 1) {
@@ -456,91 +456,91 @@ const Uploader: React.FC = () => {
     };
 
     // Deal with project selection drop down
-    const handleSelectProjectValue = (value: SelectOption) => {
-        uploaderContext!.setSelectedProjectStatus("success");
-        uploaderContext!.setSelectedProjectValue(value.key);
-        uploaderContext!.setIsSelectedProject(true);
+    const handleSelectProjectValue = async (value: SelectOption) => {
+        await uploaderContext!.setSelectedProjectStatus("success");
+        await uploaderContext!.setSelectedProjectValue(value.key);
+        await uploaderContext!.setIsSelectedProject(true);
         // Reset the other fields
-        uploaderContext!.setSelectedSubjectValue("");
-        uploaderContext!.setIsSelectedSubject(false);
-        uploaderContext!.setSelectedSessionValue("");
-        uploaderContext!.setIsSelectedSession(false);
-        uploaderContext!.setSelectedDataTypeValue("");
-        uploaderContext!.setIsSelectedDataType(false);
-        uploaderContext!.setIsSelectedDataTypeOther(false);
+        await uploaderContext!.setSelectedSubjectValue("");
+        await uploaderContext!.setIsSelectedSubject(false);
+        await uploaderContext!.setSelectedSessionValue("");
+        await uploaderContext!.setIsSelectedSession(false);
+        await uploaderContext!.setSelectedDataTypeValue("");
+        await uploaderContext!.setIsSelectedDataType(false);
+        await uploaderContext!.setIsSelectedDataTypeOther(false);
         setProceed(false);
     };
 
     // Deal with subject label free text input
     const handleChangeSubjectLabel = async (event: any) => {
-        uploaderContext!.setSelectedSubjectStatus("validating");
+        await uploaderContext!.setSelectedSubjectStatus("validating");
         let isValid = validateSubjectLabelInput(event.target.value);
         if (isValid) {
-            uploaderContext!.setSelectedSubjectStatus("success");
-            uploaderContext!.setSelectedSubjectValue(event.target.value);
-            uploaderContext!.setIsSelectedSubject(true);
+            await uploaderContext!.setSelectedSubjectStatus("success");
+            await uploaderContext!.setSelectedSubjectValue(event.target.value);
+            await uploaderContext!.setIsSelectedSubject(true);
         } else {
             let value = event.target.value;
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = uploaderContext!.selectedSubjectValue;
             }
-            uploaderContext!.setSelectedSubjectStatus("error");
-            uploaderContext!.setSelectedSubjectValue(value);
-            uploaderContext!.setIsSelectedSubject(false);
+            await uploaderContext!.setSelectedSubjectStatus("error");
+            await uploaderContext!.setSelectedSubjectValue(value);
+            await uploaderContext!.setIsSelectedSubject(false);
         }
     };
 
     // Deal with session label free text input
     const handleChangeSessionLabel = async (event: any) => {
 
-        uploaderContext!.setSelectedSessionStatus("validating");
+        await uploaderContext!.setSelectedSessionStatus("validating");
         let isValid = validateSessionLabelInput(event.target.value);
         if (isValid) {
-            uploaderContext!.setSelectedSessionStatus("success");
-            uploaderContext!.setSelectedSessionValue(event.target.value);
-            uploaderContext!.setIsSelectedSession(true);
+            await uploaderContext!.setSelectedSessionStatus("success");
+            await uploaderContext!.setSelectedSessionValue(event.target.value);
+            await uploaderContext!.setIsSelectedSession(true);
         } else {
             let value = event.target.value;
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = uploaderContext!.selectedSessionValue;
             }
-            uploaderContext!.setSelectedSessionStatus("error");
-            uploaderContext!.setSelectedSessionValue(value);
-            uploaderContext!.setIsSelectedSession(false);
+            await uploaderContext!.setSelectedSessionStatus("error");
+            await uploaderContext!.setSelectedSessionValue(value);
+            await uploaderContext!.setIsSelectedSession(false);
         }
     };
 
     // Deal with data type selection drop down and data type other free text input
     const handleSelectDataTypeValue = async (value: SelectOption) => {
-        uploaderContext!.setSelectedDataTypeStatus("success");
-        uploaderContext!.setSelectedDataTypeValue(value.key);
-        uploaderContext!.setIsSelectedDataType(true);
-        uploaderContext!.setSelectedDataTypeOtherStatus("");
+        await uploaderContext!.setSelectedDataTypeStatus("success");
+        await uploaderContext!.setSelectedDataTypeValue(value.key);
+        await uploaderContext!.setIsSelectedDataType(true);
+        await uploaderContext!.setSelectedDataTypeOtherStatus("");
         if (value.key === "other") {
-            uploaderContext!.setIsSelectedDataTypeOther(true);
-            uploaderContext!.setSelectedDataTypeValue("");
+            await uploaderContext!.setIsSelectedDataTypeOther(true);
+            await uploaderContext!.setSelectedDataTypeValue("");
         } else {
-            uploaderContext!.setIsSelectedDataTypeOther(false);
+            await uploaderContext!.setIsSelectedDataTypeOther(false);
         }
     };
 
     // Deal with data type other free text input
     const handleChangeSelectedDataTypeOther = async (event: any) => {
-        uploaderContext!.setSelectedDataTypeOtherStatus("validating");
+        await uploaderContext!.setSelectedDataTypeOtherStatus("validating");
         let isValid = validateSelectedDataTypeOtherInput(event.target.value);
         if (isValid) {
-            uploaderContext!.setSelectedDataTypeOtherStatus("success");
-            uploaderContext!.setSelectedDataTypeValue(event.target.value);
+            await uploaderContext!.setSelectedDataTypeOtherStatus("success");
+            await uploaderContext!.setSelectedDataTypeValue(event.target.value);
         } else {
             let value = event.target.value;
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = uploaderContext!.selectedDataTypeValue;
             }
-            uploaderContext!.setSelectedDataTypeOtherStatus("error");
-            uploaderContext!.setSelectedDataTypeValue(value);
+            await uploaderContext!.setSelectedDataTypeOtherStatus("error");
+            await uploaderContext!.setSelectedDataTypeValue(value);
         }
     };
 
@@ -665,13 +665,13 @@ const Uploader: React.FC = () => {
                                     <Button
                                         type="primary"
                                         disabled={isUploading}
-                                        onClick={() => {
+                                        onClick={async () => {
                                             setShowUploadModal(false);
 
                                             // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
-                                            uploaderContext!.setFileList([] as RcFile[]);
-                                            uploaderContext!.setFileListSummary(0);
-                                            uploaderContext!.setHasFilesSelected(false);
+                                            await uploaderContext!.setFileList([] as RcFile[]);
+                                            await uploaderContext!.setFileListSummary(0);
+                                            await uploaderContext!.setHasFilesSelected(false);
                                         }}
                                     >
                                         Upload another batch
@@ -740,15 +740,15 @@ const Uploader: React.FC = () => {
                             <Row>
                                 <Col span={12} style={{ textAlign: "left" }}>
                                     <Button
-                                        onClick={() => {
+                                        onClick={async () => {
                                             setShowFilesExistModal(false);
                                             setFilesExistMessage(<div></div>);
                                             setShowUploadModal(false);
 
                                             // Keep projectList, projectNumber, subject, session, dataType, etc. but refresh the filelist
-                                            uploaderContext!.setFileList([] as RcFile[]);
-                                            uploaderContext!.setFileListSummary(0);
-                                            uploaderContext!.setHasFilesSelected(false);
+                                            await uploaderContext!.setFileList([] as RcFile[]);
+                                            await uploaderContext!.setFileListSummary(0);
+                                            await uploaderContext!.setHasFilesSelected(false);
                                         }}
                                     >
                                         Cancel
