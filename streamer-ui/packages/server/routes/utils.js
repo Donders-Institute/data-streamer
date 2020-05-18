@@ -83,8 +83,9 @@ var _fetchRetry = async function ({ url, options, numRetries, timeout }) {
 }
 
 // Get basic auth string for "Authorization" key in headers
-var _basicAuthString = function ({ username, password }) {
-    const b64encoded = Buffer.from(`${username}:${password}`, 'binary').toString('base64');
+var _basicAuthString = function (username, password) {
+    const credentials = `${username}:${password}`;
+    const b64encoded = Buffer.from(credentials).toString('base64');
     return `Basic ${b64encoded}`;
 }
 

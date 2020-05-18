@@ -279,7 +279,7 @@ var _submit = async function (req, res, next) {
     // Make a POST call to streamer with basic authentication
     const headers = {
         'Content-Type': 'application/json',
-        'Authorization': utils.basicAuthString({ username, password })
+        'Authorization': utils.basicAuthString(username, password)
     };
     const body = JSON.stringify({
         streamerUser: streamerUser,
@@ -289,6 +289,7 @@ var _submit = async function (req, res, next) {
     const timeout = 2000; // ms
 
     // Submit the streamer job in the background
+    console.log("Submitting streamer job");
     utils.fetchRetry(
         streamerUrl,
         {
