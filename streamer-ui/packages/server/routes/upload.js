@@ -281,6 +281,7 @@ var _submit = async function (req, res, next) {
         'Content-Type': 'application/json',
         'Authorization': utils.basicAuthString(username, password)
     };
+    console.log(headers);
     const body = JSON.stringify({
         streamerUser: streamerUser,
         drUser: ''
