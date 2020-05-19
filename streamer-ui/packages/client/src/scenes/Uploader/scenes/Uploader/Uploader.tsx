@@ -322,6 +322,8 @@ const Uploader: React.FC = () => {
 
         console.log(`Upload session: ${uploaderContext!.uploadSessionId}`);
         console.dir(validationResult);
+        console.log(validationResult.existingFiles);
+        console.log(validationResult.existingFiles.length > 0);
 
         // Before continuing the actual upload, 
         // check if user confirmation is needed 
