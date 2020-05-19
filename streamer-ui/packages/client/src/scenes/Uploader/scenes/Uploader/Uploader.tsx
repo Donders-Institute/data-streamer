@@ -341,16 +341,15 @@ const Uploader: React.FC = () => {
         }
 
         // No user confirmation is needed. Proceed.
-        try {
-            handleApprovedUpload(uploadSession);
-        } catch (err) {
-            console.error(err);
-            const newErrorMessage = JSON.stringify(err);
-            setErrorMessage(newErrorMessage);
-            setShowErrorModal(true);
-            setIsUploading(false);
-            setFailed(true);
-        }
+        handleApprovedUpload(uploadSession)
+            .catch((err) => {
+                console.error(err);
+                const newErrorMessage = JSON.stringify(err);
+                setErrorMessage(newErrorMessage);
+                setShowErrorModal(true);
+                setIsUploading(false);
+                setFailed(true);
+            });
     }
 
     // Remove a file from the file list presented in the UI
@@ -772,16 +771,14 @@ const Uploader: React.FC = () => {
                                             } as UploadSession;
 
                                             // No user confirmation needed, proceed
-                                            try {
-                                                handleApprovedUpload(uploadSession);
-                                            } catch (err) {
+                                            handleApprovedUpload(uploadSession).catch((err) => {
                                                 console.error(err);
                                                 const newErrorMessage = JSON.stringify(err);
                                                 setErrorMessage(newErrorMessage);
                                                 setShowErrorModal(true);
                                                 setIsUploading(false);
                                                 setFailed(true);
-                                            }
+                                            });
                                         }}
                                     >
                                         Ok

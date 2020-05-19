@@ -286,6 +286,7 @@ var _submit = async function (req, res, next) {
         drUser: ''
     });
     const numRetries = 1;
+
     const timeout = 2000; // ms
 
     // Submit the streamer job in the background
