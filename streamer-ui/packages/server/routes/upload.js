@@ -1,18 +1,18 @@
-const path = require("path");
-const fs = require("fs");
-const mkdirp = require('mkdirp');
-const createError = require("http-errors");
+import { join } from "path";
+import { existsSync } from "fs";
+import { sync } from 'mkdirp';
+import createError from "http-errors";
 
-const db = require('./db');
-const utils = require('./utils');
+import { insertUploadSession, insertUploadFile, updateUploadSession, getUploadFileList } from './db';
+import { getStreamerUIBufferDirname, getProjectStorageDirname, fileExists as _fileExists, getStreamerUrl, basicAuthString, fetchRetry } from './utils';
 
-const config = require(path.join(__dirname + '/../config/streamer-ui-config.json'));
+const config = require(join(__dirname + '/../config/streamer-ui-config.json'));
 const SERVICE_ADMIN_USERNAME = config.serviceAdmin.username;
 const SERVICE_ADMIN_PASSWORD = config.serviceAdmin.password;
 
 // Middleware to verify upload structure 
 // (can be in JSON or multipare/form-data after multer middleware)
-var _verifyStructure = function (req, res, next) {
+export function verifyStructure(req, res, next) {
     if (!req.body) {
         return next(createError(400, `No attributes were uploaded: "req.body" is empty`));
     }
@@ -39,7 +39,7 @@ var _verifyStructure = function (req, res, next) {
 }
 
 // Middleware to verify upload session id (can be in JSON or form data)
-var _verifyUploadSessionId = function (req, res, next) {
+export function verifyUploadSessionId(req, res, next) {
     if (!req.body) {
         return next(createError(400, `No attributes were validated: "req.body" is empty`));
     }
@@ -54,7 +54,7 @@ var _verifyUploadSessionId = function (req, res, next) {
 }
 
 // Middleware to verify file contents in the multipare/form-data (after multer middleware)
-var _verifyFile = function (req, res, next) {
+export function verifyFile(req, res, next) {
     // Check presence of file
     if (!req.file) {
         return next(createError(400, `No file: "req.file" is empty`));
@@ -80,7 +80,7 @@ var _verifyFile = function (req, res, next) {
 
 // Begin upload session, obtain upload session id
 // If the streamer UI buffer folder does not exist create it
-var _begin = async function (req, res, next) {
+export async function begin(req, res, next) {
 
     // Obtain the DCCN username
     const base64Credentials = req.headers.authorization.split(' ')[1];
@@ -100,12 +100,12 @@ var _begin = async function (req, res, next) {
     const dataType = req.body.dataType;
 
     // Create the streamer UI buffer directory if it does not exist
-    var dirname = utils.getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
+    var dirname = getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
     if (!dirname) {
         return next(createError(500, "Error obtaining streamer buffer UI directory name"));
     }
-    if (!fs.existsSync(dirname)) {
-        mkdirp.sync(dirname);
+    if (!existsSync(dirname)) {
+        sync(dirname);
         console.log(`Successfully created streamer buffer UI directory "${dirname}"`);
     }
 
@@ -113,7 +113,7 @@ var _begin = async function (req, res, next) {
     let insertUploadSessionResult;
     const startTime = new Date();
     try {
-        insertUploadSessionResult = await db.insertUploadSession(
+        insertUploadSessionResult = await insertUploadSession(
             username,
             ipAddress,
             userAgent,
@@ -137,7 +137,7 @@ var _begin = async function (req, res, next) {
 
 // Check if the project storage folder and the file to be uploaded exist already
 // (After processed the multipare/form-data with the multer middleware)
-var _validateFile = function (req, res, next) {
+export function validateFile(req, res, next) {
 
     // Obtain structure from form data
     const projectNumber = req.body.projectNumber;
@@ -146,7 +146,7 @@ var _validateFile = function (req, res, next) {
     const dataType = req.body.dataType;
 
     // Obtain the project storage directory name
-    const projectStorageDirname = utils.getProjectStorageDirname(projectNumber, subjectLabel, sessionLabel, dataType);
+    const projectStorageDirname = getProjectStorageDirname(projectNumber, subjectLabel, sessionLabel, dataType);
     if (!projectStorageDirname) {
         return next(createError(500, "Error obtaining project storage directory name"));
     }
@@ -160,7 +160,7 @@ var _validateFile = function (req, res, next) {
     const fileIsEmpty = fileSizeBytesInt === 0;
 
     // Check if project storage folder and file exists already
-    const fileExists = utils.fileExists(filename, projectStorageDirname);
+    const fileExists = _fileExists(filename, projectStorageDirname);
 
     const validationResult = {
         filename,
@@ -177,7 +177,7 @@ var _validateFile = function (req, res, next) {
 
 // Add a file to the upload session
 // (After having stored the file with the multer middleware)
-var _addFile = async function (req, res, next) {
+export async function addFile(req, res, next) {
 
     // Obtain upload session id from form data
     const uploadSessionId = req.body.uploadSessionId;
@@ -189,7 +189,7 @@ var _addFile = async function (req, res, next) {
     // Add an upload file to the streamer UI database
     let insertUploadFileResult;
     try {
-        insertUploadFileResult = await db.insertUploadFile(uploadSessionId, filename, fileSizeBytes);
+        insertUploadFileResult = await insertUploadFile(uploadSessionId, filename, fileSizeBytes);
     } catch (err) {
         return next(createError(500, err.message));
     }
@@ -202,7 +202,7 @@ var _addFile = async function (req, res, next) {
 }
 
 // Finalize the upload session
-var _finalize = async function (req, res, next) {
+export async function finalize(req, res, next) {
 
     // Obtain upload session id
     const uploadSessionId = req.body.uploadSessionId;
@@ -211,7 +211,7 @@ var _finalize = async function (req, res, next) {
     let updateUploadSessionResult;
     const endTime = new Date();
     try {
-        updateUploadSessionResult = await db.updateUploadSession(uploadSessionId, endTime);
+        updateUploadSessionResult = await updateUploadSession(uploadSessionId, endTime);
     } catch (err) {
         return next(createError(500, err.message));
     }
@@ -225,7 +225,7 @@ var _finalize = async function (req, res, next) {
 }
 
 // Submit a streamer job
-var _submit = async function (req, res, next) {
+export async function submit(req, res, next) {
 
     // Obtain user credentials
     const base64Credentials = req.headers.authorization.split(' ')[1];
@@ -263,7 +263,7 @@ var _submit = async function (req, res, next) {
     const dataType = req.body.dataType;
 
     // Construct the streamer URL for a new streamer job POST message
-    const streamerUrl = utils.getStreamerUrl(projectNumber, subjectLabel, sessionLabel, dataType);
+    const streamerUrl = getStreamerUrl(projectNumber, subjectLabel, sessionLabel, dataType);
     if (!streamerUrl) {
         return next(createError(500, "Error creating streamer URL"));
     }
@@ -271,7 +271,7 @@ var _submit = async function (req, res, next) {
     // Get the list of files to be uploaded
     let submitResult;
     try {
-        submitResult = await db.getUploadFileList(uploadSessionId);
+        submitResult = await getUploadFileList(uploadSessionId);
     } catch (err) {
         return next(createError(500, err.message));
     }
@@ -279,7 +279,7 @@ var _submit = async function (req, res, next) {
     // Make a POST call to streamer with basic authentication
     const headers = {
         'Content-Type': 'application/json',
-        'Authorization': utils.basicAuthString(username, password)
+        'Authorization': basicAuthString(username, password)
     };
     const body = JSON.stringify({
         streamerUser: streamerUser,
@@ -291,7 +291,7 @@ var _submit = async function (req, res, next) {
 
     // Submit the streamer job in the background
     console.log("Submitting streamer job");
-    utils.fetchRetry(
+    fetchRetry(
         streamerUrl,
         {
             method: 'POST',
@@ -314,13 +314,3 @@ var _submit = async function (req, res, next) {
         return next(createError(500, "Could not connect to streamer service"));
     })
 }
-
-module.exports.verifyUploadSessionId = _verifyUploadSessionId;
-module.exports.verifyStructure = _verifyStructure;
-module.exports.verifyFile = _verifyFile;
-
-module.exports.begin = _begin;
-module.exports.validateFile = _validateFile;
-module.exports.addFile = _addFile;
-module.exports.finalize = _finalize;
-module.exports.submit = _submit

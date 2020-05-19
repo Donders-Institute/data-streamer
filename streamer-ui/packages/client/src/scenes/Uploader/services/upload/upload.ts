@@ -253,7 +253,7 @@ export const validate = async (
         validatedFiles
     } as ValidationResult;
     return validationResult;
-}
+};
 
 // Add a file to be uploaded
 export const addFile = async (

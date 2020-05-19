@@ -1,4 +1,4 @@
-const { Client } = require('pg');
+import { Client } from 'pg';
 
 const STREAMER_UI_DB_HOST = process.env.STREAMER_UI_DB_HOST || "ui-db";
 const STREAMER_UI_DB_PORT = process.env.STREAMER_UI_DB_PORT || 5432;
@@ -24,7 +24,7 @@ async function connect() {
 }
 
 // Start a new upload session: set all columns except end_time
-var _insertUploadSession = async function (
+export async function insertUploadSession(
     username,
     ipAddress,
     userAgent,
@@ -68,7 +68,7 @@ var _insertUploadSession = async function (
 }
 
 // Add an upload file
-var _insertUploadFile = async function (uploadSessionId, filename, filesizeBytes) {
+export async function insertUploadFile(uploadSessionId, filename, filesizeBytes) {
     let client;
     try {
         client = await connect();
@@ -99,7 +99,7 @@ var _insertUploadFile = async function (uploadSessionId, filename, filesizeBytes
 }
 
 // End the upload session: set end_time
-var _updateUploadSession = async function (uploadSessionId, endTime) {
+export async function updateUploadSession(uploadSessionId, endTime) {
     let client;
     try {
         client = await connect();
@@ -130,7 +130,7 @@ var _updateUploadSession = async function (uploadSessionId, endTime) {
 }
 
 // Obtain the list of upload files
-var _getUploadFileList = async function (uploadSessionId) {
+export async function getUploadFileList(uploadSessionId) {
     let client;
     try {
         client = await connect();
@@ -168,7 +168,7 @@ var _getUploadFileList = async function (uploadSessionId) {
 }
 
 // Delete all rows in uploadsession table and 
-var _cleanTables = async function () {
+export async function purgeTables() {
     let client;
     try {
         client = await connect();
@@ -188,14 +188,8 @@ var _cleanTables = async function () {
     }
 
     const status = "purged";
-    const cleanTablesResult = {
+    const purgeResult = {
         status
     }
-    return cleanTablesResult;
+    return purgeResult;
 }
-
-module.exports.insertUploadSession = _insertUploadSession;
-module.exports.insertUploadFile = _insertUploadFile;
-module.exports.updateUploadSession = _updateUploadSession;
-module.exports.getUploadFileList = _getUploadFileList;
-module.exports.cleanTables = _cleanTables;

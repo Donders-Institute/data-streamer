@@ -1,23 +1,45 @@
-const express = require("express");
-const session = require("express-session");
-const path = require("path");
-const cookieParser = require("cookie-parser");
-const logger = require("morgan");
-const createError = require("http-errors");
+import * as express from "express";
+import session from "express-session";
+import { join } from "path";
+import cookieParser from "cookie-parser";
+import logger from "morgan";
+import createError from "http-errors";
 
-const auth = require('./routes/auth');
-const content = require('./routes/content');
-const formData = require('./routes/formData');
-const pdb = require('./routes/pdb');
-const upload = require('./routes/upload');
-const admin = require('./routes/admin');
+import {
+    isAuthenticated,
+    hasBasicAuthHeader,
+    verifyUser,
+    verifyAdminCredentials,
+    loginUser,
+    logoutUser
+} from "./routes/auth";
 
-var app = express();
+import { hasJson } from "./routes/content";
+import { getProjects } from "./routes/pdb";
+import { purge } from "./routes/admin";
+
+import {
+    processValidateFile,
+    processAddFile
+} from "./routes/formData";
+
+import {
+    verifyStructure,
+    verifyUploadSessionId,
+    verifyFile,
+    begin,
+    validateFile,
+    addFile,
+    finalize,
+    submit
+} from "./routes/upload";
+
+let app = express();
 
 app.use(logger("dev"));
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'frontend')));
+app.use(express.static(join(__dirname, 'frontend')));
 
 const STREAMER_UI_HOST = process.env.STREAMER_UI_HOST || "localhost";
 const STREAMER_UI_PORT = process.env.STREAMER_UI_PORT || 9000;
@@ -44,9 +66,9 @@ app.use(session({
 
 // GET Serve frontend home page
 app.get('/',
-    auth.isAuthenticated,
+    isAuthenticated,
     (req, res) => {
-        res.sendFile(path.join(__dirname + '/./frontend/index.html'));
+        res.sendFile(join(__dirname + '/./frontend/index.html'));
     });
 
 // GET Serve login page
@@ -55,85 +77,85 @@ app.get('/login',
         // Comment out for testing
         // req.session.user = 'testuser';
         // req.session.authenticated = true;
-        res.sendFile(path.join(__dirname + '/./frontend/index.html'));
+        res.sendFile(join(__dirname + '/./frontend/index.html'));
     });
 
 // POST Login for regular user
 app.post('/login',
-    auth.hasBasicAuthHeader,
-    content.hasJson,
-    auth.loginUser);
+    hasBasicAuthHeader,
+    hasJson,
+    loginUser);
 
 // POST Logout for regular user
 app.post('/logout',
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
-    content.hasJson,
-    auth.logoutUser);
+    hasBasicAuthHeader,
+    verifyUser,
+    hasJson,
+    logoutUser);
 
 // GET Obtain list of projects for regular user
 app.get('/projects',
-    auth.isAuthenticated,
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
-    pdb.getProjects);
+    isAuthenticated,
+    hasBasicAuthHeader,
+    verifyUser,
+    getProjects);
 
 // POST Begin upload session for regular user, obtain an upload session id
 app.post('/upload/begin',
-    auth.isAuthenticated,
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
-    content.hasJson,
-    upload.verifyStructure,
-    upload.begin);
+    isAuthenticated,
+    hasBasicAuthHeader,
+    verifyUser,
+    hasJson,
+    verifyStructure,
+    begin);
 
 // POST Validate file for upload session for regular user
 app.post('/upload/validatefile',
-    auth.isAuthenticated,
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
-    formData.processValidateFile,
-    upload.verifyUploadSessionId,
-    upload.verifyStructure,
-    upload.verifyFile,
-    upload.validateFile);
+    isAuthenticated,
+    hasBasicAuthHeader,
+    verifyUser,
+    processValidateFile,
+    verifyUploadSessionId,
+    verifyStructure,
+    verifyFile,
+    validateFile);
 
 // POST Add file to upload session for regular user
 app.post('/upload/addfile',
-    auth.isAuthenticated,
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
-    formData.processAddFile,
-    upload.verifyUploadSessionId,
-    upload.verifyStructure,
-    upload.verifyFile,
-    upload.addFile);
+    isAuthenticated,
+    hasBasicAuthHeader,
+    verifyUser,
+    processAddFile,
+    verifyUploadSessionId,
+    verifyStructure,
+    verifyFile,
+    addFile);
 
 // POST Finalize upload session for regular user
 app.post('/upload/finalize',
-    auth.isAuthenticated,
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
-    content.hasJson,
-    upload.verifyUploadSessionId,
-    upload.finalize);
+    isAuthenticated,
+    hasBasicAuthHeader,
+    verifyUser,
+    hasJson,
+    verifyUploadSessionId,
+    finalize);
 
 // POST Submit a streamer job for regular user
 app.post('/upload/submit',
-    auth.isAuthenticated,
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
-    content.hasJson,
-    upload.verifyUploadSessionId,
-    upload.verifyStructure,
-    upload.submit);
+    isAuthenticated,
+    hasBasicAuthHeader,
+    verifyUser,
+    hasJson,
+    verifyUploadSessionId,
+    verifyStructure,
+    submit);
 
 // POST Purge database tables for admin user
 app.post('/purge',
-    auth.hasBasicAuthHeader,
-    auth.verifyAdminCredentials,
-    content.hasJson,
-    admin.purge);
+    hasBasicAuthHeader,
+    verifyAdminCredentials,
+    hasJson,
+    purge);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {
