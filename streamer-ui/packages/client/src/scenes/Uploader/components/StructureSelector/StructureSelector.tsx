@@ -25,11 +25,11 @@ interface IProps {
     isSelectedDataTypeOther: boolean;
     dataType: string;
     sessionLabel: string;
-    handleSelectProjectValue: (value: SelectOption) => void;
-    handleChangeSubjectLabel: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    handleChangeSessionLabel: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    handleSelectDataTypeValue: (value: SelectOption) => void;
-    handleChangeSelectedDataTypeOther: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    handleSelectProject: (projectNumber: string) => Promise<void>;
+    handleChangeSubjectLabel: (subjectLabel: string) => Promise<void>;
+    handleChangeSessionLabel: (sessionLabel: string) => Promise<void>;
+    handleSelectDataType: (dataType: string) => Promise<void>;
+    handleChangeSelectedDataTypeOther: (dataTypeOther: string) => Promise<void>;
 }
 
 const dataTypesList = [
@@ -74,10 +74,10 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
         isSelectedDataTypeOther,
         dataType,
         sessionLabel,
-        handleSelectProjectValue,
+        handleSelectProject,
         handleChangeSubjectLabel,
         handleChangeSessionLabel,
-        handleSelectDataTypeValue,
+        handleSelectDataType,
         handleChangeSelectedDataTypeOther
     }) => {
     const { getFieldDecorator } = form;
@@ -127,7 +127,10 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         <Select
                             labelInValue
                             defaultValue={projectNumberOption}
-                            onSelect={handleSelectProjectValue}
+                            onSelect={(value: SelectOption) => {
+                                const projectNumber = value.key;
+                                handleSelectProject(projectNumber);
+                            }}
                             style={{ width: "400px" }}
                         >
                             {optionsProjects}
@@ -154,7 +157,10 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         })(
                             <Input
                                 placeholder="subjectlabel"
-                                onChange={handleChangeSubjectLabel}
+                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                    const subjectLabel = event.target.value;
+                                    handleChangeSubjectLabel(subjectLabel);
+                                }}
                                 style={{ width: "400px" }}
                                 disabled={!isSelectedProject}
                             />,
@@ -181,7 +187,10 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         })(
                             <Input
                                 placeholder="sessionlabel"
-                                onChange={handleChangeSessionLabel}
+                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                    const sessionLabel = event.target.value;
+                                    handleChangeSessionLabel(sessionLabel);
+                                }}
                                 style={{ width: "400px" }}
                                 disabled={!isSelectedProject}
                             />,
@@ -202,7 +211,10 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         <Select
                             labelInValue
                             defaultValue={dataTypeOption}
-                            onSelect={handleSelectDataTypeValue}
+                            onSelect={(value: SelectOption) => {
+                                const dataType = value.key;
+                                handleSelectDataType(dataType);
+                            }}
                             style={{ width: "400px" }}
                             disabled={!isSelectedProject}
                         >
@@ -231,7 +243,10 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                             })(
                                 <Input
                                     placeholder="datatype"
-                                    onChange={handleChangeSelectedDataTypeOther}
+                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                        const dataTypeOther = event.target.value;
+                                        handleChangeSelectedDataTypeOther(dataTypeOther);
+                                    }}
                                     style={{ width: "400px" }}
                                     disabled={!isSelectedProject}
                                 />,
