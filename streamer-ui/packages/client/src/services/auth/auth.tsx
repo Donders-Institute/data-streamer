@@ -1,6 +1,11 @@
 import React from "react";
 
-import { fetchRetry, fetchOnceRedirect, basicAuthString } from "../../services/fetch/fetch";
+import {
+    fetchRetry,
+    fetchOnceRedirect,
+    basicAuthString
+} from "../../services/fetch/fetch";
+
 import { ServerResponse } from "../../types/types";
 
 export interface IAuthContext {
@@ -15,7 +20,7 @@ export const AuthContext = React.createContext<IAuthContext | null>(null);
 export const AuthProvider = AuthContext.Provider;
 export const AuthConsumer = AuthContext.Consumer;
 
-export const handleSignIn = async (username: string, password: string) => {
+export async function handleSignIn(username: string, password: string) {
     let headers = new Headers(
         {
             'Content-Type': 'application/json',
@@ -48,9 +53,9 @@ export const handleSignIn = async (username: string, password: string) => {
     }
 
     return result;
-}
+};
 
-export const handleSignOut = async (username: string, password: string) => {
+export async function handleSignOut(username: string, password: string) {
     let headers = new Headers(
         {
             'Content-Type': 'application/json',

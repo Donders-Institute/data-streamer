@@ -1,14 +1,21 @@
-import { fetchRetry, basicAuthString } from "../../../../services/fetch/fetch";
-import { Project, ServerResponse, ProjectsResultElement, ProjectsResult } from "../../../../types/types";
+import {
+    fetchRetry,
+    basicAuthString
+} from "../../../../services/fetch/fetch";
+
+import {
+    Project,
+    ServerResponse,
+    ProjectsResultElement,
+    ProjectsResult
+} from "../../../../types/types";
 
 // Fake fetcher for testing purposes
-
-const timeout = (ms: number) => {
-    return new Promise(resolve => setTimeout(resolve, ms));
-};
-
-export const fetchDummyProjectList = async (username: string, password: string) => {
+export async function fetchDummyProjectList(username: string, password: string) {
     console.log(`Fetching data for ${username} ...`);
+    const timeout = (ms: number) => {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    };
     await timeout(2000);
     const projectList = [
         {
@@ -20,11 +27,10 @@ export const fetchDummyProjectList = async (username: string, password: string) 
 };
 
 // Actual fetching from project database
-
 const fetchNumRetries = 1;
 const fetchTimeout = 2000; // ms
 
-export const fetchProjectList = async (username: string, password: string) => {
+export async function fetchProjectList(username: string, password: string) {
     const headers = new Headers(
         {
             'Content-Type': 'application/json',

@@ -48,7 +48,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
     const { getFieldDecorator } = form;
     const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
 
-    const handleLogin = async (username: string, password: string) => {
+    async function handleLogin(username: string, password: string) {
         let result: ServerResponse;
         try {
             result = await authContext!.signIn(username, password);
@@ -82,7 +82,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
         setPassword(password);
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         setUsername(username);
         setPassword(password);
@@ -90,16 +90,6 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
         setLoggingIn(true);
         setHasSubmitted(true);
         handleLogin(username, password);
-    };
-
-    const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newUsername = e.target.value;
-        setUsername(newUsername);
-    };
-
-    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newPassword = e.target.value;
-        setPassword(newPassword);
     };
 
     return (
@@ -145,9 +135,7 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                                     </div>
                                     <Form
                                         className="login-form"
-                                        onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
-                                            handleSubmit(event);
-                                        }}
+                                        onSubmit={(event: React.FormEvent<HTMLFormElement>) => { handleSubmit(event); }}
                                         style={{ margin: "0px 0px 0px 0px" }}
                                     >
                                         <Form.Item style={{ margin: "0px 0px 0px 0px" }}>
@@ -157,7 +145,9 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                                                 <Input
                                                     prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
                                                     placeholder="User name"
-                                                    onChange={handleUsernameChange}
+                                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                                        setUsername(event.target.value);
+                                                    }}
                                                 />,
                                             )}
                                         </Form.Item>
@@ -169,7 +159,9 @@ const LoginForm: React.FC<FormComponentProps> = ({ form }) => {
                                                     prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
                                                     type="password"
                                                     placeholder="Password"
-                                                    onChange={handlePasswordChange}
+                                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                                        setPassword(event.target.value);
+                                                    }}
                                                 />,
                                             )}
                                         </Form.Item>
