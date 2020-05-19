@@ -17,6 +17,8 @@ import {
 export const maxSizeLimitBytes = 1073741824;
 export const maxSizeLimitAsString = "1 GB";
 
+export const shortTimeout = 2000; // ms
+
 // 5 minutes = 5 * 60 * 1000 ms = 300000 ms
 export const uploadTimeout = 300000; // ms
 
@@ -73,7 +75,7 @@ const begin = async (
                 body
             } as RequestInit,
             numRetries: uploadNumRetries,
-            timeout: uploadTimeout
+            timeout: shortTimeout
         });
     } catch (err) {
         throw err;
@@ -329,7 +331,7 @@ export const finalize = async (
                 body
             } as RequestInit,
             numRetries: uploadNumRetries,
-            timeout: uploadTimeout
+            timeout: shortTimeout
         });
     } catch (err) {
         throw err;

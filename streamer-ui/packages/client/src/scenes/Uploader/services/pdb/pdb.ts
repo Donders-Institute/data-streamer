@@ -22,7 +22,7 @@ export const fetchDummyProjectList = async (username: string, password: string) 
 // Actual fetching from project database
 
 const fetchNumRetries = 1;
-const fetchTimeout = 5000; // ms
+const fetchTimeout = 2000; // ms
 
 export const fetchProjectList = async (username: string, password: string) => {
     const headers = new Headers(
