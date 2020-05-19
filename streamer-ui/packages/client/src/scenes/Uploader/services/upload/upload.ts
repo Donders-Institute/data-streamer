@@ -222,6 +222,8 @@ export const validate = async (
     } as ValidationResult;
 
     fileList.forEach(async (file: RcFile) => {
+        const filename = file.name as string;
+
         let validateFileResult: ValidateFileResult;
         try {
             validateFileResult = await validateFile(
@@ -235,12 +237,12 @@ export const validate = async (
 
         // Gather existing files
         if (validateFileResult.fileExists) {
-            validationResult.existingFiles.push(file.name);
+            validationResult.existingFiles.push(filename);
         }
 
         // Gather empty files
         if (validateFileResult.fileIsEmpty) {
-            validationResult.emptyFiles.push(file.name);
+            validationResult.emptyFiles.push(filename);
         }
 
         // Gather validated files
