@@ -457,9 +457,9 @@ const Uploader: React.FC = () => {
     };
 
     // Deal with project selection drop down
-    const handleSelectProjectValue = async (value: SelectOption) => {
+    const handleSelectProject = async (projectNumber: string) => {
         await uploaderContext!.setSelectedProjectStatus("success");
-        await uploaderContext!.setSelectedProjectValue(value.key);
+        await uploaderContext!.setSelectedProjectValue(projectNumber);
         await uploaderContext!.setIsSelectedProject(true);
         // Reset the other fields
         await uploaderContext!.setSelectedSubjectValue("");
@@ -473,16 +473,15 @@ const Uploader: React.FC = () => {
     };
 
     // Deal with subject label free text input
-    const handleChangeSubjectLabel = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newSubjectLabel = event.target.value;
+    const handleChangeSubjectLabel = async (subjectLabel: string) => {
         await uploaderContext!.setSelectedSubjectStatus("validating");
-        let isValid = validateSubjectLabelInput(newSubjectLabel);
+        let isValid = validateSubjectLabelInput(subjectLabel);
         if (isValid) {
             await uploaderContext!.setSelectedSubjectStatus("success");
-            await uploaderContext!.setSelectedSubjectValue(newSubjectLabel);
+            await uploaderContext!.setSelectedSubjectValue(subjectLabel);
             await uploaderContext!.setIsSelectedSubject(true);
         } else {
-            let value = newSubjectLabel;
+            let value = subjectLabel;
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = uploaderContext!.selectedSubjectValue;
@@ -494,16 +493,15 @@ const Uploader: React.FC = () => {
     };
 
     // Deal with session label free text input
-    const handleChangeSessionLabel = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newSessionLabel = event.target.value;
+    const handleChangeSessionLabel = async (sessionLabel: string) => {
         await uploaderContext!.setSelectedSessionStatus("validating");
-        let isValid = validateSessionLabelInput(newSessionLabel);
+        let isValid = validateSessionLabelInput(sessionLabel);
         if (isValid) {
             await uploaderContext!.setSelectedSessionStatus("success");
-            await uploaderContext!.setSelectedSessionValue(newSessionLabel);
+            await uploaderContext!.setSelectedSessionValue(sessionLabel);
             await uploaderContext!.setIsSelectedSession(true);
         } else {
-            let value = newSessionLabel;
+            let value = sessionLabel;
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = uploaderContext!.selectedSessionValue;
@@ -515,13 +513,12 @@ const Uploader: React.FC = () => {
     };
 
     // Deal with data type selection drop down and data type other free text input
-    const handleSelectDataTypeValue = async (value: SelectOption) => {
-        const newDataTypeValue = value.key;
+    const handleSelectDataType = async (dataType: string) => {
         await uploaderContext!.setSelectedDataTypeStatus("success");
-        await uploaderContext!.setSelectedDataTypeValue(newDataTypeValue);
+        await uploaderContext!.setSelectedDataTypeValue(dataType);
         await uploaderContext!.setIsSelectedDataType(true);
         await uploaderContext!.setSelectedDataTypeOtherStatus("");
-        if (newDataTypeValue === "other") {
+        if (dataType === "other") {
             await uploaderContext!.setIsSelectedDataTypeOther(true);
             await uploaderContext!.setSelectedDataTypeValue("");
         } else {
@@ -530,15 +527,14 @@ const Uploader: React.FC = () => {
     };
 
     // Deal with data type other free text input
-    const handleChangeSelectedDataTypeOther = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newDataTypeOtherValue = event.target.value;
+    const handleChangeSelectedDataTypeOther = async (dataTypeOther: string) => {
         await uploaderContext!.setSelectedDataTypeOtherStatus("validating");
-        let isValid = validateSelectedDataTypeOtherInput(newDataTypeOtherValue);
+        let isValid = validateSelectedDataTypeOtherInput(dataTypeOther);
         if (isValid) {
             await uploaderContext!.setSelectedDataTypeOtherStatus("success");
-            await uploaderContext!.setSelectedDataTypeValue(newDataTypeOtherValue);
+            await uploaderContext!.setSelectedDataTypeValue(dataTypeOther);
         } else {
-            let value = newDataTypeOtherValue;
+            let value = dataTypeOther;
             // Silently reset in case of empty string.
             if (value !== "") {
                 value = uploaderContext!.selectedDataTypeValue;
@@ -615,10 +611,10 @@ const Uploader: React.FC = () => {
                                             sessionLabel={uploaderContext!.selectedSessionValue}
                                             isSelectedDataTypeOther={uploaderContext!.isSelectedDataTypeOther}
                                             dataType={uploaderContext!.selectedDataTypeValue}
-                                            handleSelectProjectValue={handleSelectProjectValue}
+                                            handleSelectProject={handleSelectProject}
                                             handleChangeSubjectLabel={handleChangeSubjectLabel}
                                             handleChangeSessionLabel={handleChangeSessionLabel}
-                                            handleSelectDataTypeValue={handleSelectDataTypeValue}
+                                            handleSelectDataType={handleSelectDataType}
                                             handleChangeSelectedDataTypeOther={handleChangeSelectedDataTypeOther}
                                         />
                                     </Content>
