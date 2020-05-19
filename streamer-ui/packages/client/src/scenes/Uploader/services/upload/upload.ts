@@ -64,7 +64,7 @@ const begin = async (
 
     let result: ServerResponse;
     try {
-        result = await fetchRetry<ServerResponse>({
+        result = await fetchRetry({
             url: "/upload/begin",
             options: {
                 method: 'POST',
@@ -176,7 +176,7 @@ const validateFile = async (
 
     let result: ServerResponse;
     try {
-        result = await fetchRetry<ServerResponse>({
+        result = await fetchRetry({
             url: "/upload/validatefile",
             options: {
                 method: 'POST',
@@ -267,7 +267,7 @@ export const addFile = async (
 
     let result: ServerResponse;
     try {
-        result = await fetchRetry<ServerResponse>({
+        result = await fetchRetry({
             url: "/upload/addfile",
             options: {
                 method: 'POST',
@@ -320,7 +320,7 @@ export const finalize = async (
 
     let result: ServerResponse;
     try {
-        result = await fetchRetry<ServerResponse>({
+        result = await fetchRetry({
             url: "/upload/finalize",
             options: {
                 method: 'POST',
@@ -373,7 +373,7 @@ export const submit = async (
 
     let result: ServerResponse;
     try {
-        result = await fetchRetry<ServerResponse>({
+        result = await fetchRetry({
             url: "/upload/submit",
             options: {
                 method: 'POST',

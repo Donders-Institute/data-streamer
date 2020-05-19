@@ -40,6 +40,7 @@ STREAMER_UI_DB_PORT=5432
 STREAMER_UI_DB_USER=postgres
 STREAMER_UI_DB_PASSWORD=postgres
 STREAMER_UI_DB_NAME=postgres
+STREAMER_UI_CRON_VOL=./testdata/ui/cron-ui
 
 # configuration for streamer ui database
 STREAMER_UI_DB_EXTERNAL_PORT=9001

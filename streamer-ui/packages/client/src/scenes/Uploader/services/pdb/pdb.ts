@@ -34,7 +34,7 @@ export const fetchProjectList = async (username: string, password: string) => {
 
     let result: ServerResponse;
     try {
-        result = await fetchRetry<ServerResponse>({
+        result = await fetchRetry({
             url: "/projects",
             options: {
                 method: 'GET',

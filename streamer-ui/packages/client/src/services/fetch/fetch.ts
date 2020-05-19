@@ -1,3 +1,5 @@
+import { ServerResponse } from "../../types/types";
+
 // Fetch once text redirect with timeout in milliseconds
 export async function fetchOnceRedirect({
     url,
@@ -28,7 +30,7 @@ export async function fetchOnceRedirect({
 }
 
 // Fetch once JSON with timeout in milliseconds
-export async function fetchOnce<T>({
+export async function fetchOnce({
     url,
     options,
     timeout
@@ -36,22 +38,22 @@ export async function fetchOnce<T>({
     url: string;
     options: RequestInit;
     timeout: number
-}): Promise<T> {
+}): Promise<ServerResponse> {
     return Promise.race([
         // Fetch route
         fetch(url, options).then((response) => {
-            if (!response.ok) {
-                throw new Error(response.statusText);
-            }
-            return response;
-        }).then((response) => {
-            return response.json() as Promise<T>;
+            return response.json() as Promise<ServerResponse>;
         }).catch((err) => {
             throw err;
         }),
         // Timer route
-        new Promise<T>((_, reject) =>
-            setTimeout(() => reject(new Error('timeout')), timeout)
+        new Promise<ServerResponse>((_, reject) => {
+            const result = {
+                data: null,
+                error: "timeout"
+            } as ServerResponse;
+            setTimeout(() => reject(result), timeout);
+        }
         ).catch((err) => {
             throw err;
         })
@@ -59,7 +61,7 @@ export async function fetchOnce<T>({
 }
 
 // Fetch retry JSON with number of retries and timeout in milliseconds
-export async function fetchRetry<T>({
+export async function fetchRetry({
     url,
     options,
     numRetries,
@@ -69,7 +71,7 @@ export async function fetchRetry<T>({
     options: RequestInit;
     numRetries: number;
     timeout: number
-}): Promise<T> {
+}): Promise<ServerResponse> {
     try {
         return await fetchOnce({ url, options, timeout });
     } catch (error) {

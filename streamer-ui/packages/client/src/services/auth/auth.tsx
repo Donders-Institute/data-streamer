@@ -26,7 +26,7 @@ export const handleSignIn = async (username: string, password: string) => {
 
     let result: ServerResponse;
     try {
-        result = await fetchRetry<ServerResponse>({
+        result = await fetchRetry({
             url: "/login",
             options: {
                 method: 'POST',
@@ -39,6 +39,12 @@ export const handleSignIn = async (username: string, password: string) => {
         });
     } catch (err) {
         throw err;
+    }
+
+    // Double check result for errors
+    if (result.error) {
+        const errorMessage = result.error as string;
+        throw new Error(errorMessage);
     }
 
     return result;
