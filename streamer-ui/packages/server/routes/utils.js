@@ -31,6 +31,8 @@ var _getProjectStorageDirname = function (projectNumber, subjectLabel, sessionLa
 // Check if the file already exists
 var _fileExists = function (filename, dirname) {
     const targetPath = path.join(dirname, filename);
+    console.log("Check if targetPath exists:");
+    console.log(targetPath);
     let fileExists = true;
     try {
         fs.accessSync(targetPath, fs.F_OK);
