@@ -7,6 +7,8 @@ services:
     environment:
       - STREAMER_UI_HOST=${STREAMER_UI_HOST:-0.0.0.0}
       - STREAMER_UI_PORT=${STREAMER_UI_PORT:-9000}
+      - STREAMER_UI_PROJECT_DIR=${STREAMER_UI_PROJECT_DIR}
+      - STREAMER_UI_CRON_DIR=${STREAMER_UI_CRON_DIR}
       - STREAMER_UI_BUFFER_DIR=${STREAMER_UI_BUFFER_DIR}
       - STREAMER_URL_PREFIX=http://service:${STREAMER_SERVICE_PORT:-3001}
       - STREAMER_UI_DB_HOST=ui-db
@@ -15,8 +17,8 @@ services:
       - STREAMER_UI_DB_PASSWORD=${STREAMER_UI_DB_PASSWORD:-postgres}
       - STREAMER_UI_DB_NAME=${STREAMER_UI_DB_NAME:-postgres}
     volumes:
-      - ${PROJECT_VOL}:/project
-      - ${STREAMER_UI_CRON_VOL}:/cron
+      - ${PROJECT_VOL}:${STREAMER_UI_PROJECT_DIR}
+      - ${STREAMER_UI_CRON_VOL}:${STREAMER_UI_CRON_DIR}
     depends_on:
       - ui-db
   ui-db:
