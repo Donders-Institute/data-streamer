@@ -1,12 +1,10 @@
-const createError = require("http-errors");
+import createError from "http-errors";
 
-// Middleware to verify Content-Type 'application/json'
-var _hasJson = function (req, res, next) {
+// Middleware to verify Content-Type 'application/json' in header
+export function hasJson(req, res, next) {
     if (!req.is('application/json')) {
         return next(createError(400, "Invalid Content-Type"));
     }
 
     next();
 }
-
-module.exports.hasJson = _hasJson;
