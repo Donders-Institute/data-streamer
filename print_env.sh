@@ -27,6 +27,9 @@ echo
 echo "# volume for streamer ui statistics database"
 echo "STREAMER_UI_DB_DATA_VOL=$STREAMER_UI_DB_DATA_VOL"
 echo 
+echo "# volume in which the streamer ui crontab is presented"
+echo "STREAMER_UI_CRON_VOL=$STREAMER_UI_CRON_VOL"
+echo 
 echo "# redis database for streamer jobs"
 echo "REDIS_HOST=$REDIS_HOST"
 echo "REDIS_PORT=$REDIS_PORT"
@@ -35,6 +38,8 @@ echo
 echo "# configuration for streamer ui"
 echo "STREAMER_UI_HOST=$STREAMER_UI_HOST"
 echo "STREAMER_UI_PORT=$STREAMER_UI_PORT"
+echo "STREAMER_UI_PROJECT_DIR=$STREAMER_UI_PROJECT_DIR"
+echo "STREAMER_UI_CRON_DIR=$STREAMER_UI_CRON_DIR"
 echo "STREAMER_UI_BUFFER_DIR=$STREAMER_UI_BUFFER_DIR"
 echo "STREAMER_URL_PREFIX=$STREAMER_URL_PREFIX"
 echo "STREAMER_UI_DB_HOST=$STREAMER_UI_DB_HOST"
@@ -42,7 +47,6 @@ echo "STREAMER_UI_DB_PORT=$STREAMER_UI_DB_PORT"
 echo "STREAMER_UI_DB_USER=$STREAMER_UI_DB_USER"
 echo "STREAMER_UI_DB_PASSWORD=$STREAMER_UI_DB_PASSWORD"
 echo "STREAMER_UI_DB_NAME=$STREAMER_UI_DB_NAME"
-echo "STREAMER_UI_CRON_VOL=$STREAMER_UI_CRON_VOL"
 echo 
 echo "# configuration for streamer ui statistics database"
 echo "STREAMER_UI_DB_EXTERNAL_PORT=$STREAMER_UI_DB_EXTERNAL_PORT"

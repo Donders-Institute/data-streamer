@@ -2,7 +2,7 @@ const path = require("path");
 const fs = require('fs');
 const fetch = require('node-fetch');
 
-const PROJECT_VOL = process.env.PROJECT_VOL || __dirname + '/uploads';
+const STREAMER_UI_PROJECT_DIR = process.env.STREAMER_UI_PROJECT_DIR || __dirname + '/uploads';
 const STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname + '/uploads';
 const STREAMER_URL_PREFIX = process.env.STREAMER_URL_PREFIX || "http://streamer:3001";
 
@@ -23,7 +23,7 @@ var _getProjectStorageDirname = function (projectNumber, subjectLabel, sessionLa
     if (projectNumber && subjectLabel && sessionLabel && dataType) {
         var sub = 'sub-' + subjectLabel;
         var ses = 'ses-' + sessionLabel;
-        projectStorageDirname = path.join(PROJECT_VOL, projectNumber, 'raw', sub, ses, dataType);
+        projectStorageDirname = path.join(STREAMER_UI_PROJECT_DIR, projectNumber, 'raw', sub, ses, dataType);
     }
     return projectStorageDirname;
 }
@@ -31,6 +31,8 @@ var _getProjectStorageDirname = function (projectNumber, subjectLabel, sessionLa
 // Check if the file already exists
 var _fileExists = function (filename, dirname) {
     const targetPath = path.join(dirname, filename);
+    console.log("Check dirname:" + dirname);
+    console.log("Check filename:" + filename);
     console.log("Check if targetPath exists:");
     console.log(targetPath);
     let fileExists = true;
