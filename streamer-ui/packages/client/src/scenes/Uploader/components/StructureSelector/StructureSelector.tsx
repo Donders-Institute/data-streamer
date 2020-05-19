@@ -93,21 +93,21 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
         <Option value={item.dataType} key={key}>{item.dataType}</Option>
     ));
 
-    const validateSubjectLabel = async (rule: any, value: string) => {
+    async function validateSubjectLabel(value: string) {
         let isValid = validateSubjectLabelInput(value);
         if (!isValid) {
             throw new Error("Should be combination of numbers and alphabets with no special characters. Examples: '1', 'mri02'");
         }
     };
 
-    const validateSessionLabel = async (rule: any, value: string) => {
+    async function validateSessionLabel(value: string) {
         let isValid = validateSessionLabelInput(value);
         if (!isValid) {
             throw new Error("Should be combination of numbers and alphabets with no special characters. Examples: '1', 'mri02'");
         }
     };
 
-    const validateDataTypeOther = async (rule: any, value: string) => {
+    async function validateDataTypeOther(value: string) {
         let isValid = validateSelectedDataTypeOtherInput(value);
         if (!isValid) {
             throw new Error("Should be lower case string without special characters. Examples: eyelink', 'test'");
@@ -148,23 +148,29 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         validateStatus={selectedSubjectStatus}
                         help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets without special characters. Example: '009' or 'p02'</span>}
                     >
-                        {getFieldDecorator("subjectlabel", {
-                            initialValue: subjectLabel,
-                            rules: [
-                                { required: true, message: "Please input your subject label" },
-                                { validator: validateSubjectLabel }
-                            ]
-                        })(
-                            <Input
-                                placeholder="subjectlabel"
-                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                    const subjectLabel = event.target.value;
-                                    handleChangeSubjectLabel(subjectLabel);
-                                }}
-                                style={{ width: "400px" }}
-                                disabled={!isSelectedProject}
-                            />,
-                        )}
+                        {
+                            getFieldDecorator("subjectlabel", {
+                                initialValue: subjectLabel,
+                                rules: [
+                                    { required: true, message: "Please input your subject label" },
+                                    {
+                                        validator: (value: any) => {
+                                            const stringValue = value as string;
+                                            validateSubjectLabel(stringValue);
+                                        }
+                                    }
+                                ]
+                            })(
+                                <Input
+                                    placeholder="subjectlabel"
+                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                        const subjectLabel = event.target.value;
+                                        handleChangeSubjectLabel(subjectLabel);
+                                    }}
+                                    style={{ width: "400px" }}
+                                    disabled={!isSelectedProject}
+                                />,
+                            )}
                     </Form.Item>
                 </Col>
                 <Col span={12}></Col>
@@ -178,23 +184,29 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                         validateStatus={selectedSessionStatus}
                         help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets with no special characters. Example: 'mri02' or 'tms01'</span>}
                     >
-                        {getFieldDecorator("sessionlabel", {
-                            initialValue: sessionLabel,
-                            rules: [
-                                { required: true, message: "Please input your session label" },
-                                { validator: validateSessionLabel }
-                            ]
-                        })(
-                            <Input
-                                placeholder="sessionlabel"
-                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                    const sessionLabel = event.target.value;
-                                    handleChangeSessionLabel(sessionLabel);
-                                }}
-                                style={{ width: "400px" }}
-                                disabled={!isSelectedProject}
-                            />,
-                        )}
+                        {
+                            getFieldDecorator("sessionlabel", {
+                                initialValue: sessionLabel,
+                                rules: [
+                                    { required: true, message: "Please input your session label" },
+                                    {
+                                        validator: (value: any) => {
+                                            const stringValue = value as string;
+                                            validateSessionLabel(stringValue);
+                                        }
+                                    }
+                                ]
+                            })(
+                                <Input
+                                    placeholder="sessionlabel"
+                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                        const sessionLabel = event.target.value;
+                                        handleChangeSessionLabel(sessionLabel);
+                                    }}
+                                    style={{ width: "400px" }}
+                                    disabled={!isSelectedProject}
+                                />,
+                            )}
                     </Form.Item>
                 </Col>
                 <Col span={12}></Col>
@@ -234,23 +246,29 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                             validateStatus={selectedDataTypeOtherStatus}
                             help={<span style={{ fontStyle: "italic" }}>Should be lower case string, optionally with numbers, dashes ('-'), and underscores ('_');'. Example: 'eyetracker' or 'audio-left'</span>}
                         >
-                            {getFieldDecorator("datatypeother", {
-                                initialValue: dataType,
-                                rules: [
-                                    { required: true, message: "Please input your other data type" },
-                                    { validator: validateDataTypeOther }
-                                ]
-                            })(
-                                <Input
-                                    placeholder="datatype"
-                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                        const dataTypeOther = event.target.value;
-                                        handleChangeSelectedDataTypeOther(dataTypeOther);
-                                    }}
-                                    style={{ width: "400px" }}
-                                    disabled={!isSelectedProject}
-                                />,
-                            )}
+                            {
+                                getFieldDecorator("datatypeother", {
+                                    initialValue: dataType,
+                                    rules: [
+                                        { required: true, message: "Please input your other data type" },
+                                        {
+                                            validator: (value: any) => {
+                                                const stringValue = value as string;
+                                                validateDataTypeOther(stringValue);
+                                            }
+                                        }
+                                    ]
+                                })(
+                                    <Input
+                                        placeholder="datatype"
+                                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                            const dataTypeOther = event.target.value;
+                                            handleChangeSelectedDataTypeOther(dataTypeOther);
+                                        }}
+                                        style={{ width: "400px" }}
+                                        disabled={!isSelectedProject}
+                                    />,
+                                )}
                         </Form.Item>
                     </Col>
                     <Col span={12}></Col>

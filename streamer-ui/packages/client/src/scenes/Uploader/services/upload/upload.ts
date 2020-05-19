@@ -24,7 +24,7 @@ export const uploadTimeout = 300000; // ms
 
 const uploadNumRetries = 1;
 
-export const detectFile = (file: RcFile) => {
+export function detectFile(file: RcFile) {
     return new Promise((resolve, reject) => {
         let reader = new FileReader();
         reader.onloadstart = () => {
@@ -40,14 +40,14 @@ export const detectFile = (file: RcFile) => {
 };
 
 // Start an upload session. Obtain the upload session id
-const begin = async (
+export async function begin(
     username: string,
     password: string,
     projectNumber: string,
     subjectLabel: string,
     sessionLabel: string,
     dataType: string
-) => {
+) {
     const headers = new Headers(
         {
             'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ const begin = async (
     return uploadSessionId;
 };
 
-export const initiate = async (
+export async function initiate(
     username: string,
     password: string,
     projectNumber: string,
@@ -107,8 +107,7 @@ export const initiate = async (
     sessionLabel: string,
     dataType: string,
     fileList: RcFile[]
-) => {
-
+) {
     // Obtain the upload session id
     let uploadSessionId: number;
     try {
@@ -140,10 +139,10 @@ export const initiate = async (
     } as UploadSession;
 
     return uploadSession;
-}
+};
 
 // Create form data from the upload session data and file
-const getFormData = (uploadSession: UploadSession, file: RcFile, fileFieldName: string) => {
+function getFormData(uploadSession: UploadSession, file: RcFile, fileFieldName: string) {
     let formData = new FormData();
     formData.append("uploadSessionId", uploadSession.uploadSessionId.toString());
     formData.append("projectNumber", uploadSession.projectNumber);
@@ -157,15 +156,15 @@ const getFormData = (uploadSession: UploadSession, file: RcFile, fileFieldName: 
     formData.append(fileFieldName, file);
 
     return formData;
-}
+};
 
 // Validate a single file to be uploaded
-const validateFile = async (
+async function validateFile(
     username: string,
     password: string,
     uploadSession: UploadSession,
     file: RcFile
-) => {
+) {
     // Do not set Content-Type here to make it work
     // (i.e. we do not know boundary for multipart/form-data)
     const headers = new Headers(
@@ -209,12 +208,12 @@ const validateFile = async (
 };
 
 // Check for existing project storage folder and existing files
-export const validate = async (
+export async function validate(
     username: string,
     password: string,
     uploadSession: UploadSession,
     fileList: RcFile[]
-) => {
+) {
     let existingFiles = [] as string[];
     let emptyFiles = [] as string[];
     let validatedFiles = [] as ValidateFileResult[];
@@ -256,12 +255,12 @@ export const validate = async (
 };
 
 // Add a file to be uploaded
-export const addFile = async (
+export async function addFile(
     username: string,
     password: string,
     uploadSession: UploadSession,
     file: RcFile
-) => {
+) {
     // Do not set Content-Type here to make it work 
     // (i.e. we do not know boundary for multipart/form-data)
     const headers = new Headers(
@@ -305,11 +304,11 @@ export const addFile = async (
 };
 
 // Finalize the upload session
-export const finalize = async (
+export async function finalize(
     username: string,
     password: string,
     uploadSession: UploadSession
-) => {
+) {
     const headers = new Headers(
         {
             'Content-Type': 'application/json',
@@ -358,11 +357,11 @@ export const finalize = async (
 };
 
 // Finally, submit a streamer job
-export const submit = async (
+export async function submit(
     username: string,
     password: string,
     uploadSession: UploadSession
-) => {
+) {
     const headers = new Headers(
         {
             'Content-Type': 'application/json',

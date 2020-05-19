@@ -1,4 +1,4 @@
-import * as express from "express";
+import express from 'express';
 import session from "express-session";
 import { join } from "path";
 import cookieParser from "cookie-parser";

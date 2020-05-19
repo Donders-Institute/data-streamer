@@ -26,7 +26,6 @@ import StructureSelector from "../../components/StructureSelector/StructureSelec
 import {
     Project,
     RcFile,
-    SelectOption,
     UploadSession,
     ValidationResult,
     AddFileResult,
@@ -144,7 +143,7 @@ const Uploader: React.FC = () => {
         checkProceed();
     }, [uploaderContext]);
 
-    const handleSignOut = async () => {
+    async function handleSignOut() {
         const username = authContext!.username;
         const password = authContext!.password;
 
@@ -179,8 +178,7 @@ const Uploader: React.FC = () => {
         console.log('Successfully signed out');
     };
 
-    const handleAddFile = async (file: RcFile, uploadSession: UploadSession) => {
-
+    async function handleAddFile(file: RcFile, uploadSession: UploadSession) {
         console.log(`Upload session: ${uploadSession.uploadSessionId}; upload file: ${file.name}`);
         console.dir(uploadSession);
 
@@ -212,7 +210,7 @@ const Uploader: React.FC = () => {
     // 2. Finalize the upload session. 
     // 3. Submit a streamer job to take care of the transfer of files in the background 
     //    (i.e. to the project storage folder and the Donders Repository)
-    const handleApprovedUpload = async (uploadSession: UploadSession) => {
+    async function handleApprovedUpload(uploadSession: UploadSession) {
 
         console.log("Prepare the uploading to the streamer buffer");
         let uploadWork = [] as Promise<AddFileResult>[];
@@ -265,7 +263,7 @@ const Uploader: React.FC = () => {
     // 2. Validate the files to be uploaded
     // 3. Check if user confirmation is needed to overwite an existing project storage folder and files
     // 4. If all green, proceed with the actual upload
-    const handleUpload = async () => {
+    async function handleUpload() {
         setShowFilesExistModal(false);
         setFailed(false);
         setRemainingItems(uploaderContext!.fileList.length);
@@ -360,10 +358,10 @@ const Uploader: React.FC = () => {
                 setIsUploading(false);
                 setFailed(true);
             });
-    }
+    };
 
     // Remove a file from the file list presented in the UI
-    const handleDelete = async (uid: string, filename: string, size: number) => {
+    async function handleDelete(uid: string, filename: string, size: number) {
         const fileListUpdated = uploaderContext!.fileList.filter(
             (item: RcFile) => item.name !== filename && item.uid !== uid
         );
@@ -374,14 +372,14 @@ const Uploader: React.FC = () => {
     };
 
     // Remove the whole file list presented in the UI
-    const handleDeleteList = async () => {
+    async function handleDeleteList() {
         await uploaderContext!.setHasFilesSelected(false);
         await uploaderContext!.setFileList([] as RcFile[]);
         await uploaderContext!.setFileListSummary(0);
     };
 
     // Check if the file already exists in the file list presented in the UI
-    const fileNameExists = (file: RcFile, fileList: RcFile[]) => {
+    function fileNameExists(file: RcFile, fileList: RcFile[]) {
         const duplicates = fileList.filter(
             item => item.name === file.name && item.uid !== file.uid
         );
@@ -393,7 +391,7 @@ const Uploader: React.FC = () => {
     };
 
     // Helper function for file selector
-    const handleBeforeUpload = async (file: RcFile, batch: RcFile[]) => {
+    async function handleBeforeUpload(file: RcFile, batch: RcFile[]) {
         let batchSizeBytes = 0;
         let isValidBatch = true;
         let maxFileSizeExceeded = false;
@@ -466,7 +464,7 @@ const Uploader: React.FC = () => {
     };
 
     // Deal with project selection drop down
-    const handleSelectProject = async (projectNumber: string) => {
+    async function handleSelectProject(projectNumber: string) {
         await uploaderContext!.setSelectedProjectStatus("success");
         await uploaderContext!.setSelectedProjectValue(projectNumber);
         await uploaderContext!.setIsSelectedProject(true);
@@ -482,7 +480,7 @@ const Uploader: React.FC = () => {
     };
 
     // Deal with subject label free text input
-    const handleChangeSubjectLabel = async (subjectLabel: string) => {
+    async function handleChangeSubjectLabel(subjectLabel: string) {
         await uploaderContext!.setSelectedSubjectStatus("validating");
         let isValid = validateSubjectLabelInput(subjectLabel);
         if (isValid) {
@@ -502,7 +500,7 @@ const Uploader: React.FC = () => {
     };
 
     // Deal with session label free text input
-    const handleChangeSessionLabel = async (sessionLabel: string) => {
+    async function handleChangeSessionLabel(sessionLabel: string) {
         await uploaderContext!.setSelectedSessionStatus("validating");
         let isValid = validateSessionLabelInput(sessionLabel);
         if (isValid) {
@@ -522,7 +520,7 @@ const Uploader: React.FC = () => {
     };
 
     // Deal with data type selection drop down and data type other free text input
-    const handleSelectDataType = async (dataType: string) => {
+    async function handleSelectDataType(dataType: string) {
         await uploaderContext!.setSelectedDataTypeStatus("success");
         await uploaderContext!.setSelectedDataTypeValue(dataType);
         await uploaderContext!.setIsSelectedDataType(true);
@@ -536,7 +534,7 @@ const Uploader: React.FC = () => {
     };
 
     // Deal with data type other free text input
-    const handleChangeSelectedDataTypeOther = async (dataTypeOther: string) => {
+    async function handleChangeSelectedDataTypeOther(dataTypeOther: string) {
         await uploaderContext!.setSelectedDataTypeOtherStatus("validating");
         let isValid = validateSelectedDataTypeOtherInput(dataTypeOther);
         if (isValid) {

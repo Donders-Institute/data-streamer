@@ -27,7 +27,7 @@ export async function fetchOnceRedirect({
             setTimeout(() => reject(new Error('timeout')), timeout)
         ).catch((err) => { throw err; })
     ]);
-}
+};
 
 // Fetch once JSON with timeout in milliseconds
 export async function fetchOnce({
@@ -58,7 +58,7 @@ export async function fetchOnce({
             throw err;
         })
     ]);
-}
+};
 
 // Fetch retry JSON with number of retries and timeout in milliseconds
 export async function fetchRetry({
@@ -78,9 +78,9 @@ export async function fetchRetry({
         if (numRetries === 1) throw error;
         return await fetchRetry({ url, options, numRetries: numRetries - 1, timeout });
     }
-}
+};
 
 export function basicAuthString({ username, password }: { username: string; password: string; }): string {
     const b64encoded = btoa(`${username}:${password}`);
     return `Basic ${b64encoded}`;
-}
+};

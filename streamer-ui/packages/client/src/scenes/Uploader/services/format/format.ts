@@ -1,5 +1,7 @@
-export const formatBytes = (bytesAsString: string, decimals = 2) => {
-    let bytes = parseInt(bytesAsString);
+// Convert bytes (as string) into human readable string
+export function formatBytes(bytesAsString: string, decimals = 2) {
+    const bytes = parseInt(bytesAsString);
+
     if (bytes === 0) return "0 B";
 
     const k = 1024;
