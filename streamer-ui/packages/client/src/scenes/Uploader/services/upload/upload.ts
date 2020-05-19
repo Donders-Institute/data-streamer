@@ -215,11 +215,9 @@ export const validate = async (
     uploadSession: UploadSession,
     fileList: RcFile[]
 ) => {
-    let validationResult = {
-        existingFiles: [] as string[],
-        emptyFiles: [] as string[],
-        validatedFiles: [] as ValidateFileResult[]
-    } as ValidationResult;
+    let existingFiles = [] as string[];
+    let emptyFiles = [] as string[];
+    let validatedFiles = [] as ValidateFileResult[];
 
     fileList.forEach(async (file: RcFile) => {
         const filename = file.name as string;
@@ -237,18 +235,23 @@ export const validate = async (
 
         // Gather existing files
         if (validateFileResult.fileExists) {
-            validationResult.existingFiles.push(filename);
+            existingFiles.push(filename);
         }
 
         // Gather empty files
         if (validateFileResult.fileIsEmpty) {
-            validationResult.emptyFiles.push(filename);
+            emptyFiles.push(filename);
         }
 
         // Gather validated files
-        validationResult.validatedFiles.push(validateFileResult);
+        validatedFiles.push(validateFileResult);
     });
 
+    const validationResult = {
+        existingFiles,
+        emptyFiles,
+        validatedFiles
+    } as ValidationResult;
     return validationResult;
 }
 
