@@ -4,9 +4,25 @@ import { BrowserRouter as Router } from "react-router-dom";
 import * as serviceWorker from "./serviceWorker";
 
 import App from "./app/App";
-import { AuthProvider, IAuthContext, handleSignIn, handleSignOut } from "./services/auth/auth";
-import { Project, RcFile, InputValidationStatuses, ServerResponse } from "./types/types";
-import { UploaderProvider, IUploaderContext } from "./services/uploader/UploaderContext";
+
+import {
+    AuthProvider,
+    IAuthContext,
+    handleSignIn,
+    handleSignOut
+} from "./services/auth/auth";
+
+import {
+    Project,
+    RcFile,
+    InputValidationStatuses,
+    ServerResponse
+} from "./types/types";
+
+import {
+    UploaderProvider,
+    IUploaderContext
+} from "./services/uploader/UploaderContext";
 
 import "./index.less";
 
@@ -14,7 +30,7 @@ const Root: React.FC = () => {
 
     // Set auth context
 
-    const signIn = async (username: string, password: string) => {
+    async function signIn(username: string, password: string) {
         let result: ServerResponse;
         try {
             result = await handleSignIn(username, password);
@@ -34,7 +50,7 @@ const Root: React.FC = () => {
         return result;
     };
 
-    const signOut = async (username: string, password: string) => {
+    async function signOut(username: string, password: string) {
         let result: ServerResponse;
         try {
             result = await handleSignOut(username, password);

@@ -37,7 +37,7 @@ const Header: React.FC = () => {
     const LOCATION_HELP = "help";
     const LOCATION_AUTH = "auth";
 
-    const handleSignOut = async () => {
+    async function handleSignOut() {
         const username = authContext!.username;
         const password = authContext!.password;
 
