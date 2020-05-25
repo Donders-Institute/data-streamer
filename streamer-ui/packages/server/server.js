@@ -1,56 +1,85 @@
+const createError = require("http-errors");
 const express = require("express");
-import session from "express-session";
-import { join } from "path";
-import cookieParser from "cookie-parser";
-import logger from "morgan";
-import createError from "http-errors";
+const session = require('express-session');
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const logger = require("morgan");
+const path = require("path");
+require('dotenv').config();
 
-import {
-    isAuthenticated,
-    hasBasicAuthHeader,
-    verifyUser,
-    verifyAdminCredentials,
-    loginUser,
-    logoutUser
-} from "./routes/auth";
+const auth = require("./routes/auth");
+const content = require("./routes/content");
+const pdb = require("./routes/pdb");
+const formData = require("./routes/formData");
+const upload = require("./routes/upload");
+const admin = require("./routes/admin");
 
-import { hasJson } from "./routes/content";
-import { getProjects } from "./routes/pdb";
-import { purge } from "./routes/admin";
+var app = express();
 
-import {
-    processValidateFile,
-    processAddFile
-} from "./routes/formData";
+const ENV = process.env.NODE_ENV;
+app.locals.ENV = ENV;
 
-import {
-    verifyStructure,
-    verifyUploadSessionId,
-    verifyFile,
-    begin,
-    validateFile,
-    addFile,
-    finalize,
-    submit
-} from "./routes/upload";
+// Streamer UI server configuration
+const HOST = process.env.STREAMER_UI_HOST || "localhost";
+const PORT = process.env.PORT && parseInt(process.env.STREAMER_UI_PORT) || 9000;
+app.locals.HOST = HOST;
+app.locals.PORT = PORT;
 
-let app = express();
+// Streamer UI database configuration
+const STREAMER_UI_DB_HOST = process.env.STREAMER_UI_DB_HOST || "ui-db";
+const STREAMER_UI_DB_PORT = process.env.STREAMER_UI_DB_PORT || 5432;
+const STREAMER_UI_DB_USER = process.env.STREAMER_UI_DB_USER || "postgres";
+const STREAMER_UI_DB_PASSWORD = process.env.STREAMER_UI_DB_PASSWORD || "postgres";
+const STREAMER_UI_DB_NAME = process.env.STREAMER_UI_DB_NAME || "postgres";
+app.locals.STREAMER_UI_DB_HOST = STREAMER_UI_DB_HOST;
+app.locals.STREAMER_UI_DB_PORT = STREAMER_UI_DB_PORT;
+app.locals.STREAMER_UI_DB_USER = STREAMER_UI_DB_USER;
+app.locals.STREAMER_UI_DB_PASSWORD = STREAMER_UI_DB_PASSWORD;
+app.locals.STREAMER_UI_DB_NAME = STREAMER_UI_DB_NAME;
+
+// Check mock options (for development)
+const STREAMER_UI_MOCK_AUTH = process.env.STREAMER_UI_MOCK_AUTH ? (process.env.STREAMER_UI_MOCK_AUTH === 'true') : false;
+const STREAMER_UI_MOCK_PROJECT_DATABASE = process.env.STREAMER_UI_MOCK_PROJECT_DATABASE ? (process.env.STREAMER_UI_MOCK_PROJECT_DATABASE === 'true') : false;
+app.locals.STREAMER_UI_MOCK_AUTH = STREAMER_UI_MOCK_AUTH;
+app.locals.STREAMER_UI_MOCK_PROJECT_DATABASE = STREAMER_UI_MOCK_PROJECT_DATABASE;
 
 app.use(logger("dev"));
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static(join(__dirname, 'frontend')));
 
-const STREAMER_UI_HOST = process.env.STREAMER_UI_HOST || "localhost";
-const STREAMER_UI_PORT = process.env.STREAMER_UI_PORT || 9000;
+const isDevelopment = app.locals.ENV === "development";
+if (!isDevelopment) {
+    app.use(express.static(path.join(__dirname, 'frontend')));
+}
 
-/* session property
-   - rolling expiration upon access
-   - save newly initiated session right into the store
-   - delete session from story when unset
-   - cookie age: 4 hours (w/ rolling expiration)
-   - session data store: memory on the server
-*/
+// CORS configuration 
+let whitelist = [];
+if (isDevelopment) {
+    whitelist = [
+        `http://${app.locals.HOST}:${app.locals.PORT}`, // streamer ui server
+        `http://localhost:${app.locals.PORT}`,
+        `http://${app.locals.HOST}:3000`, // streamer ui client
+        "http://localhost:3000"
+    ];
+}
+else {
+    whitelist = [
+        `http://${app.locals.HOST}:${app.locals.PORT}`,
+        "https://uploader.dccn.nl"
+    ];
+}
+const corsOptions = {
+    origin: whitelist,
+    credentials: true
+};
+app.use(cors(corsOptions));
+
+// session property
+//  - rolling expiration upon access
+//  - save newly initiated session right into the store
+//  - delete session from story when unset
+//  - cookie age: 4 hours (w/ rolling expiration)
+//  - session data store: memory on the server
 app.use(session({
     secret: 'somesecret',
     resave: true,
@@ -66,96 +95,93 @@ app.use(session({
 
 // GET Serve frontend home page
 app.get('/',
-    isAuthenticated,
+    auth.isAuthenticated,
     (req, res) => {
-        res.sendFile(join(__dirname + '/./frontend/index.html'));
+        res.sendFile(path.join(__dirname + '/./frontend/index.html'));
     });
 
 // GET Serve login page
 app.get('/login',
     (req, res) => {
-        // Comment out for testing
-        // req.session.user = 'testuser';
-        // req.session.authenticated = true;
-        res.sendFile(join(__dirname + '/./frontend/index.html'));
+        res.sendFile(path.join(__dirname + '/./frontend/index.html'));
     });
 
 // POST Login for regular user
 app.post('/login',
-    hasBasicAuthHeader,
-    hasJson,
-    loginUser);
+    auth.hasBasicAuthHeader,
+    content.hasJson,
+    auth.loginUser);
 
 // POST Logout for regular user
 app.post('/logout',
-    hasBasicAuthHeader,
-    verifyUser,
-    hasJson,
-    logoutUser);
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    content.hasJson,
+    auth.logoutUser);
 
 // GET Obtain list of projects for regular user
 app.get('/projects',
-    isAuthenticated,
-    hasBasicAuthHeader,
-    verifyUser,
-    getProjects);
+    auth.isAuthenticated,
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    pdb.getProjects);
 
 // POST Begin upload session for regular user, obtain an upload session id
 app.post('/upload/begin',
-    isAuthenticated,
-    hasBasicAuthHeader,
-    verifyUser,
-    hasJson,
-    verifyStructure,
-    begin);
+    auth.isAuthenticated,
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    content.hasJson,
+    upload.verifyStructure,
+    upload.begin);
 
 // POST Validate file for upload session for regular user
 app.post('/upload/validatefile',
-    isAuthenticated,
-    hasBasicAuthHeader,
-    verifyUser,
-    processValidateFile,
-    verifyUploadSessionId,
-    verifyStructure,
-    verifyFile,
-    validateFile);
+    auth.isAuthenticated,
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    formData.processValidateFile,
+    upload.verifyUploadSessionId,
+    upload.verifyStructure,
+    upload.verifyFile,
+    upload.validateFile);
 
 // POST Add file to upload session for regular user
 app.post('/upload/addfile',
-    isAuthenticated,
-    hasBasicAuthHeader,
-    verifyUser,
-    processAddFile,
-    verifyUploadSessionId,
-    verifyStructure,
-    verifyFile,
-    addFile);
+    auth.isAuthenticated,
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    formData.processAddFile,
+    upload.verifyUploadSessionId,
+    upload.verifyStructure,
+    upload.verifyFile,
+    upload.addFile);
 
 // POST Finalize upload session for regular user
 app.post('/upload/finalize',
-    isAuthenticated,
-    hasBasicAuthHeader,
-    verifyUser,
-    hasJson,
-    verifyUploadSessionId,
-    finalize);
+    auth.isAuthenticated,
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    content.hasJson,
+    upload.verifyUploadSessionId,
+    upload.finalize);
 
 // POST Submit a streamer job for regular user
-app.post('/upload/submit',
-    isAuthenticated,
-    hasBasicAuthHeader,
-    verifyUser,
-    hasJson,
-    verifyUploadSessionId,
-    verifyStructure,
-    submit);
+    app.post('/upload/submit',
+    auth.isAuthenticated,
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    content.hasJson,
+    upload.verifyUploadSessionId,
+    upload.verifyStructure,
+    upload.submit);
 
 // POST Purge database tables for admin user
 app.post('/purge',
-    hasBasicAuthHeader,
-    verifyAdminCredentials,
-    hasJson,
-    purge);
+    auth.hasBasicAuthHeader,
+    auth.verifyAdminCredentials,
+    content.hasJson,
+    admin.purge);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -172,7 +198,8 @@ app.use(function (err, req, res, next) {
     });
 });
 
-app.listen(STREAMER_UI_PORT, STREAMER_UI_HOST);
-console.log(`Running on http://${STREAMER_UI_HOST}:${STREAMER_UI_PORT}`);
+app.listen(app.locals.PORT, app.locals.HOST);
+console.log(`Server is running in ${app.locals.ENV} mode.`);
+console.log(`Running on http://${app.locals.HOST}:${app.locals.PORT}`);
 
 module.exports = app;

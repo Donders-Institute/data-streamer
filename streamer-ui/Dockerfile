@@ -10,10 +10,15 @@ COPY $pwd/packages/client/*.less ./
 COPY $pwd/packages/client/*.js ./ 
 COPY $pwd/packages/client/src ./src
 COPY $pwd/packages/client/public ./public
+ARG REACT_APP_STREAMER_UI_MOCK_AUTH
+ARG REACT_APP_STREAMER_UI_MOCK_PROJECT_DATABASE
+ARG REACT_APP_STREAMER_UI_INTERNAL_SERVER_API_URL
+ARG REACT_APP_STREAMER_UI_EXTERNAL_SERVER_API_URL
 RUN yarn build
 
 # Create the server
 FROM node:12
+ENV NODE_ENV production
 RUN apt-get update && apt-get install -y cron curl
 WORKDIR /opt/streamer-ui-server
 COPY $pwd/packages/server/package.json ./

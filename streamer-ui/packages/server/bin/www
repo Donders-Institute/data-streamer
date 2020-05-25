@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 
 // Module dependencies.
-import app, { set } from '../server';
+var app = require('../server');
 var debug = require('debug')('backend:server');
-import { createServer } from 'http';
+var http = require('http');
 
 // Get port from environment and store in Express.
 var port = normalizePort(process.env.PORT || '9000');
-set('port', port);
+app.set('port', port);
 
 // Create HTTP server.
-var server = createServer(app);
+var server = http.createServer(app);
 
 // Listen on provided port, on all network interfaces.
 server.listen(port);

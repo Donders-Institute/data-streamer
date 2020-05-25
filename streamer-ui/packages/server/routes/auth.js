@@ -1,20 +1,24 @@
-import { ActiveDirectory } from "activedirectory";
-import createError from "http-errors";
-import { join } from "path";
-import { readFileSync } from "fs";
+const ActiveDirectory = require('activedirectory');
+const createError = require("http-errors");
+const path = require('path');
+const fs = require('fs');
 
-let adconfig = require(join(__dirname + '/../config/streamer-ui-adconfig.json'));
+// Derive active directory configuration
+let adconfig = require(path.join(__dirname + '/../config/streamer-ui-adconfig.json'));
 const tlsOptions = {
-    ca: [readFileSync(join(__dirname + '/../config/streamer-ui-ldapscert.crt'))]
+    ca: [fs.readFileSync(path.join(__dirname + '/../config/streamer-ui-ldapscert.crt'))]
 }
 adconfig.tlsOptions = tlsOptions;
 
-// Admin user credentials
-const STREAMER_UI_DB_USER = process.env.STREAMER_UI_DB_USER || "user";
-const STREAMER_UI_DB_PASSWORD = process.env.STREAMER_UI_DB_PASSWORD || "password";
-
 // Middleware to verify session authentication status
-export function isAuthenticated(req, res, next) {
+var _isAuthenticated = function(req, res, next) {
+
+    // Bypass authentication (for development)
+    const mockAuth = req.app.locals.STREAMER_UI_MOCK_AUTH;
+    if (mockAuth) {
+        return next();
+    }
+
     if (req.session && typeof req.session.user !== 'undefined' && typeof req.session.authenticated !== 'undefined') {
         if (req.session.authenticated == true) {
             return next();
@@ -25,7 +29,7 @@ export function isAuthenticated(req, res, next) {
 }
 
 // Middleware to check for basic auth header
-export function hasBasicAuthHeader(req, res, next) {
+var _hasBasicAuthHeader = function(req, res, next) {
     if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
         return next(createError(401, "Missing Authorization Header"));
     }
@@ -34,7 +38,7 @@ export function hasBasicAuthHeader(req, res, next) {
 }
 
 // Middleware to verify regular user
-export function verifyUser(req, res, next) {
+var _verifyUser = function(req, res, next) {
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
     const username = credentials.split(':')[0];
@@ -47,12 +51,15 @@ export function verifyUser(req, res, next) {
 }
 
 // Middleware to verify admin credentials
-export function verifyAdminCredentials(req, res, next) {
+var _verifyAdminCredentials = function(req, res, next) {
+    const adminUsername = req.app.locals.STREAMER_UI_DB_USER;
+    const adminPassword = req.app.locals.STREAMER_UI_DB_PASSWORD;
+
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
     const [username, password] = credentials.split(':');
 
-    if (username !== STREAMER_UI_DB_USER || password !== STREAMER_UI_DB_PASSWORD) {
+    if (username !== adminUsername || password !== adminPassword) {
         return next(createError(401, "Invalid admin user credentials"));
     }
 
@@ -60,7 +67,7 @@ export function verifyAdminCredentials(req, res, next) {
 }
 
 // Login user: Authenticate user with Active Directory
-export function loginUser(req, res, next) {
+var _loginUser = function(req, res, next) {
     let msg = "";
     let username = "";
     let password = "";
@@ -73,6 +80,15 @@ export function loginUser(req, res, next) {
 
     // Obtain the user agent
     userAgent = req.headers['user-agent'];
+
+    // Bypass authentication (for development)
+    const mockAuth = req.app.locals.STREAMER_UI_MOCK_AUTH;
+    if (mockAuth) {
+        return res.status(200).json({
+            data: "Login successful. You will soon be redirected to the index",
+            error: null
+        });
+    }
 
     // Check whether the user exists. If so, obtain the userPrincipalName and use that to authenticate.
     const ad = new ActiveDirectory(adconfig);
@@ -108,7 +124,7 @@ export function loginUser(req, res, next) {
 }
 
 // Logout user by removing corresponding session data
-export function logoutUser(req, res) {
+var _logoutUser = function(req, res) {
     let sess = req.session;
 
     delete sess.user;
@@ -117,3 +133,11 @@ export function logoutUser(req, res) {
 
     res.redirect('/login');
 }
+
+module.exports.isAuthenticated = _isAuthenticated;
+module.exports.hasBasicAuthHeader = _hasBasicAuthHeader;
+module.exports.verifyUser = _verifyUser;
+module.exports.verifyAdminCredentials = _verifyAdminCredentials;
+
+module.exports.loginUser = _loginUser;
+module.exports.logoutUser = _logoutUser;

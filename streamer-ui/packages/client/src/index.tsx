@@ -26,6 +26,20 @@ import {
 
 import "./index.less";
 
+// Validate the mandatory envrionment variables
+let mandatoryEnvVariables: string[] = [
+    "REACT_APP_MOCK_AUTH",
+    "REACT_APP_MOCK_PROJECT_DATABASE",
+    "REACT_APP_STREAMER_UI_INTERNAL_SERVER_API_URL",
+    "REACT_APP_STREAMER_UI_EXTERNAL_SERVER_API_URL"
+];
+mandatoryEnvVariables.map(name => {
+    const value = process.env[name];
+    if (!value) {
+        throw new Error(`${name} variable not set`);
+    }
+});
+
 const Root: React.FC = () => {
 
     // Set auth context

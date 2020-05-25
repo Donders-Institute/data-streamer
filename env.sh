@@ -33,7 +33,7 @@ REDIS_HOST=db
 REDIS_PORT=6379
 STREAMER_SERVICE_PORT=3001
 
-# configuration for streamer ui
+# configuration for streamer ui server
 STREAMER_UI_HOST=0.0.0.0
 STREAMER_UI_PORT=9000
 STREAMER_UI_PROJECT_DIR=/project
@@ -45,6 +45,12 @@ STREAMER_UI_DB_PORT=5432
 STREAMER_UI_DB_USER=postgres
 STREAMER_UI_DB_PASSWORD=postgres
 STREAMER_UI_DB_NAME=postgres
+STREAMER_UI_MOCK_AUTH=false
+STREAMER_UI_MOCK_PROJECT_DATABASE=false
+
+# configuration for streamer ui client
+STREAMER_UI_INTERNAL_SERVER_API_URL=http://localhost:9000
+STREAMER_UI_EXTERNAL_SERVER_API_URL=http://yourcomputer.example.com:9000
 
 # configuration for streamer ui database
 STREAMER_UI_DB_EXTERNAL_PORT=9001

@@ -1,4 +1,5 @@
 import {
+    baseUrl,
     fetchRetry,
     basicAuthString
 } from "../../../../services/fetch/fetch";
@@ -31,6 +32,8 @@ const fetchNumRetries = 1;
 const fetchTimeout = 2000; // ms
 
 export async function fetchProjectList(username: string, password: string) {
+
+    const url = baseUrl() + "/projects";
     const headers = new Headers(
         {
             'Content-Type': 'application/json',
@@ -41,10 +44,11 @@ export async function fetchProjectList(username: string, password: string) {
     let result: ServerResponse;
     try {
         result = await fetchRetry({
-            url: "/projects",
+            url,
             options: {
                 method: 'GET',
                 credentials: 'include',
+                mode: 'cors',
                 headers
             } as RequestInit,
             numRetries: fetchNumRetries,
