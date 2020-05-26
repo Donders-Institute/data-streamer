@@ -1,18 +1,18 @@
-import { join } from "path";
-import { existsSync } from "fs";
-import { sync } from 'mkdirp';
-import createError from "http-errors";
+const path = require("path");
+const fs = require("fs");
+const mkdirp = require('mkdirp');
+const createError = require("http-errors");
 
-import { insertUploadSession, insertUploadFile, updateUploadSession, getUploadFileList } from './db';
-import { getStreamerUIBufferDirname, getProjectStorageDirname, fileExists as _fileExists, getStreamerUrl, basicAuthString, fetchRetry } from './utils';
+const db = require('./db');
+const utils = require('./utils');
 
-const config = require(join(__dirname + '/../config/streamer-ui-config.json'));
+const config = require(path.join(__dirname + '/../config/streamer-ui-config.json'));
 const SERVICE_ADMIN_USERNAME = config.serviceAdmin.username;
 const SERVICE_ADMIN_PASSWORD = config.serviceAdmin.password;
 
 // Middleware to verify upload structure 
 // (can be in JSON or multipare/form-data after multer middleware)
-export function verifyStructure(req, res, next) {
+var _verifyStructure = function(req, res, next) {
     if (!req.body) {
         return next(createError(400, `No attributes were uploaded: "req.body" is empty`));
     }
@@ -39,7 +39,7 @@ export function verifyStructure(req, res, next) {
 }
 
 // Middleware to verify upload session id (can be in JSON or form data)
-export function verifyUploadSessionId(req, res, next) {
+var _verifyUploadSessionId = function(req, res, next) {
     if (!req.body) {
         return next(createError(400, `No attributes were validated: "req.body" is empty`));
     }
@@ -54,7 +54,7 @@ export function verifyUploadSessionId(req, res, next) {
 }
 
 // Middleware to verify file contents in the multipare/form-data (after multer middleware)
-export function verifyFile(req, res, next) {
+var _verifyFile = function(req, res, next) {
     // Check presence of file
     if (!req.file) {
         return next(createError(400, `No file: "req.file" is empty`));
@@ -80,7 +80,7 @@ export function verifyFile(req, res, next) {
 
 // Begin upload session, obtain upload session id
 // If the streamer UI buffer folder does not exist create it
-export async function begin(req, res, next) {
+var _begin = async function(req, res, next) {
 
     // Obtain the DCCN username
     const base64Credentials = req.headers.authorization.split(' ')[1];
@@ -100,20 +100,32 @@ export async function begin(req, res, next) {
     const dataType = req.body.dataType;
 
     // Create the streamer UI buffer directory if it does not exist
-    var dirname = getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
+    var dirname = utils.getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
     if (!dirname) {
         return next(createError(500, "Error obtaining streamer buffer UI directory name"));
     }
-    if (!existsSync(dirname)) {
-        sync(dirname);
+    if (!fs.existsSync(dirname)) {
+        mkdirp.sync(dirname);
         console.log(`Successfully created streamer buffer UI directory "${dirname}"`);
     }
+
+    // Obtain streamer UI database configuration
+    const STREAMER_UI_DB_HOST = req.app.locals.STREAMER_UI_DB_HOST;
+    const STREAMER_UI_DB_PORT = req.app.locals.STREAMER_UI_DB_PORT;
+    const STREAMER_UI_DB_USER = req.app.locals.STREAMER_UI_DB_USER;
+    const STREAMER_UI_DB_PASSWORD = req.app.locals.STREAMER_UI_DB_PASSWORD;
+    const STREAMER_UI_DB_NAME = req.app.locals.STREAMER_UI_DB_NAME;
 
     // Add an upload session to the streamer UI database
     let insertUploadSessionResult;
     const startTime = new Date();
     try {
-        insertUploadSessionResult = await insertUploadSession(
+        insertUploadSessionResult = await db.insertUploadSession(
+            STREAMER_UI_DB_HOST,
+            STREAMER_UI_DB_PORT,
+            STREAMER_UI_DB_USER,
+            STREAMER_UI_DB_PASSWORD,
+            STREAMER_UI_DB_NAME,
             username,
             ipAddress,
             userAgent,
@@ -137,7 +149,7 @@ export async function begin(req, res, next) {
 
 // Check if the project storage folder and the file to be uploaded exist already
 // (After processed the multipare/form-data with the multer middleware)
-export function validateFile(req, res, next) {
+var _validateFile = function(req, res, next) {
 
     // Obtain structure from form data
     const projectNumber = req.body.projectNumber;
@@ -146,7 +158,7 @@ export function validateFile(req, res, next) {
     const dataType = req.body.dataType;
 
     // Obtain the project storage directory name
-    const projectStorageDirname = getProjectStorageDirname(projectNumber, subjectLabel, sessionLabel, dataType);
+    const projectStorageDirname = utils.getProjectStorageDirname(projectNumber, subjectLabel, sessionLabel, dataType);
     if (!projectStorageDirname) {
         return next(createError(500, "Error obtaining project storage directory name"));
     }
@@ -160,7 +172,7 @@ export function validateFile(req, res, next) {
     const fileIsEmpty = fileSizeBytesInt === 0;
 
     // Check if project storage folder and file exists already
-    const fileExists = _fileExists(filename, projectStorageDirname);
+    const fileExists = utils.fileExists(filename, projectStorageDirname);
 
     const validationResult = {
         filename,
@@ -177,7 +189,7 @@ export function validateFile(req, res, next) {
 
 // Add a file to the upload session
 // (After having stored the file with the multer middleware)
-export async function addFile(req, res, next) {
+var _addFile = async function(req, res, next) {
 
     // Obtain upload session id from form data
     const uploadSessionId = req.body.uploadSessionId;
@@ -186,10 +198,25 @@ export async function addFile(req, res, next) {
     const filename = req.body.filename;
     const fileSizeBytes = req.body.fileSizeBytes;
 
+    // Obtain streamer UI database configuration
+    const STREAMER_UI_DB_HOST = req.app.locals.STREAMER_UI_DB_HOST;
+    const STREAMER_UI_DB_PORT = req.app.locals.STREAMER_UI_DB_PORT;
+    const STREAMER_UI_DB_USER = req.app.locals.STREAMER_UI_DB_USER;
+    const STREAMER_UI_DB_PASSWORD = req.app.locals.STREAMER_UI_DB_PASSWORD;
+    const STREAMER_UI_DB_NAME = req.app.locals.STREAMER_UI_DB_NAME;
+
     // Add an upload file to the streamer UI database
     let insertUploadFileResult;
     try {
-        insertUploadFileResult = await insertUploadFile(uploadSessionId, filename, fileSizeBytes);
+        insertUploadFileResult = await db.insertUploadFile(
+            STREAMER_UI_DB_HOST,
+            STREAMER_UI_DB_PORT,
+            STREAMER_UI_DB_USER,
+            STREAMER_UI_DB_PASSWORD,
+            STREAMER_UI_DB_NAME,
+            uploadSessionId, 
+            filename, 
+            fileSizeBytes);
     } catch (err) {
         return next(createError(500, err.message));
     }
@@ -202,16 +229,30 @@ export async function addFile(req, res, next) {
 }
 
 // Finalize the upload session
-export async function finalize(req, res, next) {
+var _finalize = async function(req, res, next) {
 
     // Obtain upload session id
     const uploadSessionId = req.body.uploadSessionId;
+
+    // Obtain streamer UI database configuration
+    const STREAMER_UI_DB_HOST = req.app.locals.STREAMER_UI_DB_HOST;
+    const STREAMER_UI_DB_PORT = req.app.locals.STREAMER_UI_DB_PORT;
+    const STREAMER_UI_DB_USER = req.app.locals.STREAMER_UI_DB_USER;
+    const STREAMER_UI_DB_PASSWORD = req.app.locals.STREAMER_UI_DB_PASSWORD;
+    const STREAMER_UI_DB_NAME = req.app.locals.STREAMER_UI_DB_NAME;
 
     // Update an upload session in the streamer UI database
     let updateUploadSessionResult;
     const endTime = new Date();
     try {
-        updateUploadSessionResult = await updateUploadSession(uploadSessionId, endTime);
+        updateUploadSessionResult = await db.updateUploadSession(
+            STREAMER_UI_DB_HOST,
+            STREAMER_UI_DB_PORT,
+            STREAMER_UI_DB_USER,
+            STREAMER_UI_DB_PASSWORD,
+            STREAMER_UI_DB_NAME,
+            uploadSessionId, 
+            endTime);
     } catch (err) {
         return next(createError(500, err.message));
     }
@@ -225,8 +266,7 @@ export async function finalize(req, res, next) {
 }
 
 // Submit a streamer job
-export async function submit(req, res, next) {
-
+var _submit = async function(req, res, next) {
     // Obtain user credentials
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
@@ -263,15 +303,28 @@ export async function submit(req, res, next) {
     const dataType = req.body.dataType;
 
     // Construct the streamer URL for a new streamer job POST message
-    const streamerUrl = getStreamerUrl(projectNumber, subjectLabel, sessionLabel, dataType);
+    const streamerUrl = utils.getStreamerUrl(projectNumber, subjectLabel, sessionLabel, dataType);
     if (!streamerUrl) {
         return next(createError(500, "Error creating streamer URL"));
     }
 
+    // Obtain streamer UI database configuration
+    const STREAMER_UI_DB_HOST = req.app.locals.STREAMER_UI_DB_HOST;
+    const STREAMER_UI_DB_PORT = req.app.locals.STREAMER_UI_DB_PORT;
+    const STREAMER_UI_DB_USER = req.app.locals.STREAMER_UI_DB_USER;
+    const STREAMER_UI_DB_PASSWORD = req.app.locals.STREAMER_UI_DB_PASSWORD;
+    const STREAMER_UI_DB_NAME = req.app.locals.STREAMER_UI_DB_NAME;
+
     // Get the list of files to be uploaded
     let submitResult;
     try {
-        submitResult = await getUploadFileList(uploadSessionId);
+        submitResult = await db.getUploadFileList(
+            STREAMER_UI_DB_HOST,
+            STREAMER_UI_DB_PORT,
+            STREAMER_UI_DB_USER,
+            STREAMER_UI_DB_PASSWORD,
+            STREAMER_UI_DB_NAME,
+            uploadSessionId);
     } catch (err) {
         return next(createError(500, err.message));
     }
@@ -279,7 +332,7 @@ export async function submit(req, res, next) {
     // Make a POST call to streamer with basic authentication
     const headers = {
         'Content-Type': 'application/json',
-        'Authorization': basicAuthString(username, password)
+        'Authorization': utils.basicAuthString(username, password)
     };
     const body = JSON.stringify({
         streamerUser: streamerUser,
@@ -291,7 +344,7 @@ export async function submit(req, res, next) {
 
     // Submit the streamer job in the background
     console.log("Submitting streamer job");
-    fetchRetry(
+    utils.fetchRetry(
         streamerUrl,
         {
             method: 'POST',
@@ -314,3 +367,13 @@ export async function submit(req, res, next) {
         return next(createError(500, "Could not connect to streamer service"));
     })
 }
+
+module.exports.verifyStructure = _verifyStructure;
+module.exports.verifyUploadSessionId = _verifyUploadSessionId;
+module.exports.verifyFile = _verifyFile;
+
+module.exports.begin = _begin;
+module.exports.validateFile = _validateFile;
+module.exports.addFile = _addFile;
+module.exports.finalize = _finalize;
+module.exports.submit = _submit;

@@ -1,19 +1,13 @@
-import { Client } from 'pg';
-
-const STREAMER_UI_DB_HOST = process.env.STREAMER_UI_DB_HOST || "ui-db";
-const STREAMER_UI_DB_PORT = process.env.STREAMER_UI_DB_PORT || 5432;
-const STREAMER_UI_DB_USER = process.env.STREAMER_UI_DB_USER || "postgres";
-const STREAMER_UI_DB_PASSWORD = process.env.STREAMER_UI_DB_PASSWORD || "postgres";
-const STREAMER_UI_DB_NAME = process.env.STREAMER_UI_DB_NAME || "postgres";
+const { Client } = require('pg');
 
 // Connect to streamer UI database 
-async function connect() {
+async function connect(dbHost, dbPort, dbUsername, dbPassword, dbName) {
     const client = new Client({
-        user: STREAMER_UI_DB_USER,
-        host: STREAMER_UI_DB_HOST,
-        database: STREAMER_UI_DB_NAME,
-        password: STREAMER_UI_DB_PASSWORD,
-        port: STREAMER_UI_DB_PORT,
+        host: dbHost,
+        port: dbPort,
+        user: dbUsername,
+        password: dbPassword,
+        database: dbName
     })
     try {
         await client.connect();
@@ -24,7 +18,12 @@ async function connect() {
 }
 
 // Start a new upload session: set all columns except end_time
-export async function insertUploadSession(
+var _insertUploadSession = async function(
+    dbHost, 
+    dbPort, 
+    dbUsername, 
+    dbPassword, 
+    dbName,
     username,
     ipAddress,
     userAgent,
@@ -38,7 +37,7 @@ export async function insertUploadSession(
     let uploadSessionId;
 
     try {
-        client = await connect();
+        client = await connect(dbHost, dbPort, dbUsername, dbPassword, dbName);
     } catch (error) {
         throw "Could not connect to database";
     }
@@ -68,10 +67,19 @@ export async function insertUploadSession(
 }
 
 // Add an upload file
-export async function insertUploadFile(uploadSessionId, filename, filesizeBytes) {
+var _insertUploadFile = async function(
+    dbHost, 
+    dbPort, 
+    dbUsername, 
+    dbPassword, 
+    dbName,
+    uploadSessionId, 
+    filename, 
+    filesizeBytes
+) {
     let client;
     try {
-        client = await connect();
+        client = await connect(dbHost, dbPort, dbUsername, dbPassword, dbName);
     } catch (error) {
         throw "Could not connect to database";
     }
@@ -99,10 +107,18 @@ export async function insertUploadFile(uploadSessionId, filename, filesizeBytes)
 }
 
 // End the upload session: set end_time
-export async function updateUploadSession(uploadSessionId, endTime) {
+var _updateUploadSession = async function(
+    dbHost, 
+    dbPort, 
+    dbUsername, 
+    dbPassword, 
+    dbName,
+    uploadSessionId, 
+    endTime
+) {
     let client;
     try {
-        client = await connect();
+        client = await connect(dbHost, dbPort, dbUsername, dbPassword, dbName);
     } catch (error) {
         throw "Could not connect to database";
     }
@@ -130,10 +146,17 @@ export async function updateUploadSession(uploadSessionId, endTime) {
 }
 
 // Obtain the list of upload files
-export async function getUploadFileList(uploadSessionId) {
+var _getUploadFileList = async function(
+    dbHost, 
+    dbPort, 
+    dbUsername, 
+    dbPassword, 
+    dbName,
+    uploadSessionId
+) {
     let client;
     try {
-        client = await connect();
+        client = await connect(dbHost, dbPort, dbUsername, dbPassword, dbName);
     } catch (error) {
         throw "Could not connect to database";
     }
@@ -168,10 +191,16 @@ export async function getUploadFileList(uploadSessionId) {
 }
 
 // Delete all rows in uploadsession table and 
-export async function purgeTables() {
+var _purgeTables = async function(
+    dbHost, 
+    dbPort, 
+    dbUsername, 
+    dbPassword, 
+    dbName
+) {
     let client;
     try {
-        client = await connect();
+        client = await connect(dbHost, dbPort, dbUsername, dbPassword, dbName);
     } catch (error) {
         throw "Could not connect to database";
     }
@@ -193,3 +222,9 @@ export async function purgeTables() {
     }
     return purgeResult;
 }
+
+module.exports.insertUploadSession = _insertUploadSession;
+module.exports.insertUploadFile = _insertUploadFile;
+module.exports.updateUploadSession = _updateUploadSession;
+module.exports.getUploadFileList = _getUploadFileList;
+module.exports.purgeTables = _purgeTables;

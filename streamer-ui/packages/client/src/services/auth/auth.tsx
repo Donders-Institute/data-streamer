@@ -1,6 +1,7 @@
 import React from "react";
 
 import {
+    baseUrl,
     fetchRetry,
     fetchOnceRedirect,
     basicAuthString
@@ -21,21 +22,24 @@ export const AuthProvider = AuthContext.Provider;
 export const AuthConsumer = AuthContext.Consumer;
 
 export async function handleSignIn(username: string, password: string) {
-    let headers = new Headers(
+
+    const url = baseUrl() + "/login";
+    const headers = new Headers(
         {
             'Content-Type': 'application/json',
             'Authorization': basicAuthString({ username, password })
         }
     );
-    let body = JSON.stringify({});
+    const body = JSON.stringify({});
 
     let result: ServerResponse;
     try {
         result = await fetchRetry({
-            url: "/login",
+            url,
             options: {
                 method: 'POST',
                 credentials: 'include',
+                mode: 'cors',
                 headers,
                 body
             } as RequestInit,
@@ -56,20 +60,23 @@ export async function handleSignIn(username: string, password: string) {
 };
 
 export async function handleSignOut(username: string, password: string) {
-    let headers = new Headers(
+
+    const url = baseUrl() + "/logout";
+    const headers = new Headers(
         {
             'Content-Type': 'application/json',
             'Authorization': basicAuthString({ username, password })
         }
     );
-    let body = JSON.stringify({});
+    const body = JSON.stringify({});
 
     try {
         await fetchOnceRedirect({
-            url: "/logout",
+            url,
             options: {
                 method: 'POST',
                 credentials: 'include',
+                mode: 'cors',
                 headers,
                 body
             } as RequestInit,

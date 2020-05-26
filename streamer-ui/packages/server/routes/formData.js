@@ -1,11 +1,11 @@
-import { multer, diskStorage } from "multer";
-import { existsSync } from "fs";
-import createError from "http-errors";
+const multer = require("multer");
+const fs = require("fs");
+const createError = require("http-errors");
 
-import { getStreamerUIBufferDirname } from "./utils";
+const utils = require('./utils');
 
 // Storing file to disk configuration
-const streamerUIBufferStorage = diskStorage({
+const streamerUIBufferStorage = multer.diskStorage({
     destination: (req, file, cb) => {
         const projectNumber = req.body.projectNumber;
         const subjectLabel = req.body.subjectLabel;
@@ -30,14 +30,14 @@ const streamerUIBufferStorage = diskStorage({
         }
 
         // Obtain the destination folder name
-        const dirname = getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
+        const dirname = utils.getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
         if (!dirname) {
             const err = new Error("Error obtaining streamer buffer UI directory name");
             cb(err, null);
         }
 
         // Check if the destination folder exists. Must have been created earlier with upload session begin request.
-        if (!existsSync(dirname)) {
+        if (!fs.existsSync(dirname)) {
             const err = new Error("Destination folder in streamer buffer UI does not exist");
             cb(err, null);
         }
@@ -57,7 +57,7 @@ const streamerUIBufferStorage = diskStorage({
 });
 
 // Handle multipart form data with single file with fieldname validatefile
-export function processValidateFile(req, res, next) {
+var _processValidateFile = function(req, res, next) {
     // Do not store the file to disk
     const upload = multer().single('validatefile');
 
@@ -73,7 +73,7 @@ export function processValidateFile(req, res, next) {
 }
 
 // Handle multipart form data with single file with fieldname addfile
-export function processAddFile(req, res, next) {
+var _processAddFile = function(req, res, next) {
     // Store the file in the streamer buffer UI dir
     const upload = multer({
         storage: streamerUIBufferStorage
@@ -89,3 +89,6 @@ export function processAddFile(req, res, next) {
         next();
     });
 }
+
+module.exports.processValidateFile = _processValidateFile;
+module.exports.processAddFile = _processAddFile;

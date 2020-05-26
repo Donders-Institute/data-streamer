@@ -1,4 +1,8 @@
-import { fetchRetry, basicAuthString } from "../../../../services/fetch/fetch";
+import { 
+    baseUrl,
+    fetchRetry, 
+    basicAuthString 
+} from "../../../../services/fetch/fetch";
 
 import {
     UploadSession,
@@ -48,6 +52,8 @@ export async function begin(
     sessionLabel: string,
     dataType: string
 ) {
+
+    const url = baseUrl() + "/upload/begin";
     const headers = new Headers(
         {
             'Content-Type': 'application/json',
@@ -67,10 +73,11 @@ export async function begin(
     let result: ServerResponse;
     try {
         result = await fetchRetry({
-            url: "/upload/begin",
+            url,
             options: {
                 method: 'POST',
                 credentials: 'include',
+                mode: 'cors',
                 headers,
                 body
             } as RequestInit,
@@ -165,6 +172,8 @@ async function validateFile(
     uploadSession: UploadSession,
     file: RcFile
 ) {
+    const url = baseUrl() + "/upload/validatefile";
+
     // Do not set Content-Type here to make it work
     // (i.e. we do not know boundary for multipart/form-data)
     const headers = new Headers(
@@ -178,10 +187,11 @@ async function validateFile(
     let result: ServerResponse;
     try {
         result = await fetchRetry({
-            url: "/upload/validatefile",
+            url,
             options: {
                 method: 'POST',
                 credentials: 'include',
+                mode: 'cors',
                 headers,
                 body: formData
             } as RequestInit,
@@ -261,6 +271,8 @@ export async function addFile(
     uploadSession: UploadSession,
     file: RcFile
 ) {
+    const url = baseUrl() + "/upload/addfile";
+
     // Do not set Content-Type here to make it work 
     // (i.e. we do not know boundary for multipart/form-data)
     const headers = new Headers(
@@ -274,10 +286,11 @@ export async function addFile(
     let result: ServerResponse;
     try {
         result = await fetchRetry({
-            url: "/upload/addfile",
+            url,
             options: {
                 method: 'POST',
                 credentials: 'include',
+                mode: 'cors',
                 headers,
                 body: formData
             } as RequestInit,
@@ -309,6 +322,7 @@ export async function finalize(
     password: string,
     uploadSession: UploadSession
 ) {
+    const url = baseUrl() + "/upload/finalize";
     const headers = new Headers(
         {
             'Content-Type': 'application/json',
@@ -327,10 +341,11 @@ export async function finalize(
     let result: ServerResponse;
     try {
         result = await fetchRetry({
-            url: "/upload/finalize",
+            url,
             options: {
                 method: 'POST',
                 credentials: 'include',
+                mode: 'cors',
                 headers,
                 body
             } as RequestInit,
@@ -362,6 +377,7 @@ export async function submit(
     password: string,
     uploadSession: UploadSession
 ) {
+    const url = baseUrl() + "/upload/submit";
     const headers = new Headers(
         {
             'Content-Type': 'application/json',
@@ -380,10 +396,11 @@ export async function submit(
     let result: ServerResponse;
     try {
         result = await fetchRetry({
-            url: "/upload/submit",
+            url,
             options: {
                 method: 'POST',
                 credentials: 'include',
+                mode: 'cors',
                 headers,
                 body
             } as RequestInit,
