@@ -1,3 +1,19 @@
+// Possible  login statuses
+export enum LoginStatus {
+    NotLoggedIn = "NotLoggedIn",
+    LoggingIn = "LoggingIn",
+    LoggingOut = "LoggingOut",
+    LoggedIn = "LoggedIn",
+    LoggingError = " LoggingError"
+}
+
+export type UserProfile = {
+    username: string;
+    displayName: string | null;
+    password: string;
+    isAuthenticated: boolean;
+};
+
 // Get projects query element
 export interface ProjectsResultElement {
     project: string;
@@ -59,16 +75,6 @@ export interface Project {
     projectNumber: string;
 }
 
-export interface UploadSession {
-    uploadSessionId: number;
-    username: string;
-    projectNumber: string;
-    subjectLabel: string;
-    sessionLabel: string;
-    dataType: string;
-    totalSizeBytes: number;
-}
-
 export interface Structure {
     projectNumber: string;
     subjectLabel: string;
@@ -78,13 +84,6 @@ export interface Structure {
 
 export type SelectOption = {
     key: string;
-}
-
-export interface UploadWork {
-    newTotalSizeBytes: number;
-    work: Promise<unknown>[];
-    uploadSessionId: number;
-    uploadSession: UploadSession;
 }
 
 export declare const InputValidationStatuses: ["success", "warning", "error", "validating", ""];

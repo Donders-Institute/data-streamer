@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 
 import {
@@ -11,11 +11,9 @@ import {
     Tooltip
 } from "antd";
 
-import { AuthContext, IAuthContext } from "../../services/auth/auth";
-import { ServerResponse } from "../../types/types";
+import { UserProfile, ServerResponse } from "../../types/types";
 
-import "../../App.less";
-
+import "../../app/App.less";
 import logoDCCN from "../../assets/donders-logo.svg";
 
 const { SubMenu } = Menu;
@@ -30,20 +28,21 @@ function modalError(msg: string) {
     });
 }
 
-const Header: React.FC = () => {
-    const authContext: IAuthContext | null = useContext(AuthContext);
+interface HeaderProps {
+    userProfile: UserProfile;
+    signOut: (username: string, password: string) => Promise<ServerResponse>;
+}
+
+const Header: React.FC<HeaderProps> = ({ userProfile, signOut }) => {
 
     const LOCATION_HOME = "home";
     const LOCATION_HELP = "help";
     const LOCATION_AUTH = "auth";
 
     async function handleSignOut() {
-        const username = authContext!.username;
-        const password = authContext!.password;
-
         let result: ServerResponse;
         try {
-            result = await authContext!.signOut(username, password);
+            result = await signOut(userProfile.username, userProfile.password);
         } catch (err) {
             console.error('Sign out failure');
             console.error(err);
@@ -118,7 +117,7 @@ const Header: React.FC = () => {
                                     key="profile"
                                     title={
                                         <span>
-                                            <Icon type="user" style={{ marginRight: "4px" }} /><span>{authContext!.username}</span><Icon type="caret-down" style={{ margin: "0px" }} />
+                                            <Icon type="user" style={{ marginRight: "4px" }} /><span>{userProfile.username}</span><Icon type="caret-down" style={{ margin: "0px" }} />
                                         </span>
                                     }
                                     style={{ float: "right", margin: "0px 0px 0px 0px" }}

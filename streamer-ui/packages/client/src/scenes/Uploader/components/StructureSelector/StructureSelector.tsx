@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
     Select,
     Form,
@@ -6,80 +7,65 @@ import {
     Col,
     Input
 } from "antd";
+
 import { FormComponentProps } from "antd/lib/form";
-import { Project, SelectOption, InputValidationStatuses } from "../../../../types/types";
-import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "../../services/inputValidation/inputValidation";
+
+import {
+    Project,
+    SelectOption,
+    InputValidationStatuses
+} from "../../../../types/types";
+
+import {
+    validateSubjectLabelInput,
+    validateSessionLabelInput,
+    validateSelectedDataTypeOtherInput
+} from "../../../../services/inputValidation/inputValidation";
+
+import { dataTypesList } from "../../../../services/dataTypes/dataTypes";
 
 const { Option } = Select;
 
-interface IProps {
+interface StructureSelectorProps {
     projectList: Project[];
+    projectNumber: string;
     selectedProjectStatus: (typeof InputValidationStatuses)[number];
+    isSelectedProject: boolean;
+    subjectLabel: string;
     selectedSubjectStatus: (typeof InputValidationStatuses)[number];
+    sessionLabel: string;
     selectedSessionStatus: (typeof InputValidationStatuses)[number];
+    dataType: string;
     selectedDataTypeStatus: (typeof InputValidationStatuses)[number];
     selectedDataTypeOtherStatus: (typeof InputValidationStatuses)[number];
-    isSelectedProject: boolean;
-    projectNumber: string;
-    subjectLabel: string;
     isSelectedDataTypeOther: boolean;
-    dataType: string;
-    sessionLabel: string;
-    handleSelectProject: (projectNumber: string) => Promise<void>;
-    handleChangeSubjectLabel: (subjectLabel: string) => Promise<void>;
-    handleChangeSessionLabel: (sessionLabel: string) => Promise<void>;
-    handleSelectDataType: (dataType: string) => Promise<void>;
-    handleChangeSelectedDataTypeOther: (dataTypeOther: string) => Promise<void>;
+    handleSelectProject: (projectNumber: string) => void;
+    handleChangeSubjectLabel: (subjectLabel: string) => void;
+    handleChangeSessionLabel: (sessionLabel: string) => void;
+    handleSelectDataType: (dataType: string) => void;
+    handleChangeDataTypeOther: (dataTypeOther: string) => void;
 }
 
-const dataTypesList = [
-    {
-        id: 1,
-        dataType: "mri"
-    },
-    {
-        id: 2,
-        dataType: "meg"
-    },
-    {
-        id: 3,
-        dataType: "eeg"
-    },
-    {
-        id: 4,
-        dataType: "ieeg"
-    },
-    {
-        id: 5,
-        dataType: "beh"
-    },
-    {
-        id: 6,
-        dataType: "other"
-    }
-];
-
-const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
-    {
-        form,
-        projectList,
-        selectedProjectStatus,
-        selectedSubjectStatus,
-        selectedSessionStatus,
-        selectedDataTypeStatus,
-        selectedDataTypeOtherStatus,
-        isSelectedProject,
-        projectNumber,
-        subjectLabel,
-        isSelectedDataTypeOther,
-        dataType,
-        sessionLabel,
-        handleSelectProject,
-        handleChangeSubjectLabel,
-        handleChangeSessionLabel,
-        handleSelectDataType,
-        handleChangeSelectedDataTypeOther
-    }) => {
+const StructureSelectorForm: React.FC<StructureSelectorProps & FormComponentProps> = ({
+    projectList,
+    projectNumber,
+    selectedProjectStatus,
+    isSelectedProject,
+    subjectLabel,
+    selectedSubjectStatus,
+    sessionLabel,
+    selectedSessionStatus,
+    dataType,
+    selectedDataTypeStatus,
+    selectedDataTypeOtherStatus,
+    isSelectedDataTypeOther,
+    handleSelectProject,
+    handleChangeSubjectLabel,
+    handleChangeSessionLabel,
+    handleSelectDataType,
+    handleChangeDataTypeOther,
+    form
+}) => {
     const { getFieldDecorator } = form;
 
     const projectNumberOption: SelectOption = { key: (projectNumber ? projectNumber : "projectnumber") };
@@ -93,21 +79,21 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
         <Option value={item.dataType} key={key}>{item.dataType}</Option>
     ));
 
-    async function validateSubjectLabel(value: string) {
+    const validateSubjectLabel = (value: string) => {
         let isValid = validateSubjectLabelInput(value);
         if (!isValid) {
             throw new Error("Should be combination of numbers and alphabets with no special characters. Examples: '1', 'mri02'");
         }
     };
 
-    async function validateSessionLabel(value: string) {
+    const validateSessionLabel = (value: string) => {
         let isValid = validateSessionLabelInput(value);
         if (!isValid) {
             throw new Error("Should be combination of numbers and alphabets with no special characters. Examples: '1', 'mri02'");
         }
     };
 
-    async function validateDataTypeOther(value: string) {
+    const validateDataTypeOther = (value: string) => {
         let isValid = validateSelectedDataTypeOtherInput(value);
         if (!isValid) {
             throw new Error("Should be lower case string without special characters. Examples: eyelink', 'test'");
@@ -169,7 +155,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                                     }}
                                     style={{ width: "400px" }}
                                     disabled={!isSelectedProject}
-                                />,
+                                />
                             )}
                     </Form.Item>
                 </Col>
@@ -205,7 +191,7 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                                     }}
                                     style={{ width: "400px" }}
                                     disabled={!isSelectedProject}
-                                />,
+                                />
                             )}
                     </Form.Item>
                 </Col>
@@ -263,11 +249,11 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
                                         placeholder="datatype"
                                         onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
                                             const dataTypeOther = event.target.value;
-                                            handleChangeSelectedDataTypeOther(dataTypeOther);
+                                            handleChangeDataTypeOther(dataTypeOther);
                                         }}
                                         style={{ width: "400px" }}
                                         disabled={!isSelectedProject}
-                                    />,
+                                    />
                                 )}
                         </Form.Item>
                     </Col>
@@ -278,6 +264,5 @@ const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
     );
 };
 
-const StructureSelector = Form.create<IProps & FormComponentProps>()(StructureSelectorForm);
-
+const StructureSelector = Form.create<StructureSelectorProps & FormComponentProps>()(StructureSelectorForm);
 export default StructureSelector;

@@ -2,13 +2,21 @@ import React from "react";
 import { Layout, Card, Icon } from "antd";
 
 import Header from "../../components/Header/Header";
+import { UserProfile, ServerResponse } from "../../types/types";
+
+import "../../app/App.less";
 
 const { Content } = Layout;
 
-const Help: React.FC = () => {
+interface HelpProps {
+    userProfile: UserProfile;
+    signOut: (username: string, password: string) => Promise<ServerResponse>;
+}
+
+const Help: React.FC<HelpProps> = ({ userProfile, signOut }) => {
     return (
         <Content style={{ background: "#f0f2f5" }}>
-            <Header />
+            <Header userProfile={userProfile} signOut={signOut} />
             <div style={{ padding: 10 }}>
                 <Card
                     style={{ borderRadius: 4, boxShadow: "1px 1px 1px #ddd", marginTop: 10 }}

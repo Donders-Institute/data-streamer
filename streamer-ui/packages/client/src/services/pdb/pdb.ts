@@ -2,17 +2,17 @@ import {
     baseUrl,
     fetchRetry,
     basicAuthString
-} from "../../../../services/fetch/fetch";
+} from "../fetch/fetch";
 
 import {
     Project,
     ServerResponse,
     ProjectsResultElement,
     ProjectsResult
-} from "../../../../types/types";
+} from "../../types/types";
 
 // Fake fetcher for testing purposes
-export async function fetchDummyProjectList(username: string, password: string) {
+export async function fetchDummyProjectList(username: string) {
     console.log(`Fetching data for ${username} ...`);
     const timeout = (ms: number) => {
         return new Promise(resolve => setTimeout(resolve, ms));

@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
     Icon,
     Button,
@@ -6,10 +7,10 @@ import {
     Tooltip
 } from "antd";
 
-import { formatBytes } from "../../services/format/format";
+import { formatBytes } from "../../../../services/format/format";
 import { RcFile } from "../../../../types/types";
 
-interface IProps {
+interface FileListProps {
     fileList: RcFile[];
     fileListSummary: number;
     hasFilesSelected: boolean;
@@ -17,7 +18,13 @@ interface IProps {
     handleDeleteList: () => void;
 }
 
-const FileList: React.FC<IProps> = ({ fileList, fileListSummary, hasFilesSelected, handleDelete, handleDeleteList }) => {
+const FileList: React.FC<FileListProps> = ({
+    fileList,
+    fileListSummary,
+    hasFilesSelected,
+    handleDelete,
+    handleDeleteList
+}) => {
 
     const dataSourceFileListSummary = [
         {

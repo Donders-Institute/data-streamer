@@ -2,10 +2,9 @@ import {
     baseUrl,
     fetchRetry, 
     basicAuthString 
-} from "../../../../services/fetch/fetch";
+} from "../fetch/fetch";
 
 import {
-    UploadSession,
     ServerResponse,
     Structure,
     RcFile,
@@ -15,7 +14,7 @@ import {
     AddFileResult,
     FinalizeResult,
     SubmitResult
-} from "../../../../types/types";
+} from "../../types/types";
 
 // 1 GB = 1024 * 1024 * 1024 bytes = 1073741824 bytes
 export const maxSizeLimitBytes = 1073741824;
@@ -41,6 +40,17 @@ export function detectFile(file: RcFile) {
         };
         reader.readAsArrayBuffer(file);
     });
+};
+
+// Check if the file already exists in the file list presented in the UI
+export function fileNameExists(file: RcFile, fileList: RcFile[]) {
+    const duplicates = fileList.filter(
+        item => item.name === file.name && item.uid !== file.uid
+    );
+    if (duplicates.length > 0) {
+        return true;
+    }
+    return false;
 };
 
 // Start an upload session. Obtain the upload session id
@@ -135,33 +145,28 @@ export async function initiate(
         totalSizeBytes += file.size;
     });
 
-    const uploadSession = {
-        uploadSessionId,
-        username,
-        projectNumber,
-        subjectLabel,
-        sessionLabel,
-        dataType,
-        totalSizeBytes
-    } as UploadSession;
-
-    return uploadSession;
+    return [uploadSessionId, totalSizeBytes] as [number, number];
 };
 
 // Create form data from the upload session data and file
-function getFormData(uploadSession: UploadSession, file: RcFile, fileFieldName: string) {
+function getFormData(
+    uploadSessionId: number,
+    projectNumber: string,
+    subjectLabel: string,
+    sessionLabel: string,
+    dataType: string,
+    file: RcFile, 
+    fileFieldName: string
+) {
     let formData = new FormData();
-    formData.append("uploadSessionId", uploadSession.uploadSessionId.toString());
-    formData.append("projectNumber", uploadSession.projectNumber);
-    formData.append("subjectLabel", uploadSession.subjectLabel);
-    formData.append("sessionLabel", uploadSession.sessionLabel);
-    formData.append("dataType", uploadSession.dataType);
-
+    formData.append("uploadSessionId", uploadSessionId.toString());
+    formData.append("projectNumber", projectNumber);
+    formData.append("subjectLabel", subjectLabel);
+    formData.append("sessionLabel", sessionLabel);
+    formData.append("dataType", dataType);
     formData.append("filename", file.name);
     formData.append("fileSizeBytes", file.size.toString());
-
     formData.append(fileFieldName, file);
-
     return formData;
 };
 
@@ -169,7 +174,11 @@ function getFormData(uploadSession: UploadSession, file: RcFile, fileFieldName: 
 async function validateFile(
     username: string,
     password: string,
-    uploadSession: UploadSession,
+    uploadSessionId: number,
+    projectNumber: string,
+    subjectLabel: string,
+    sessionLabel: string,
+    dataType: string,
     file: RcFile
 ) {
     const url = baseUrl() + "/upload/validatefile";
@@ -182,7 +191,14 @@ async function validateFile(
         }
     );
 
-    const formData = getFormData(uploadSession, file, "validatefile");
+    const formData = getFormData(
+        uploadSessionId,
+        projectNumber,
+        subjectLabel,
+        sessionLabel,
+        dataType, 
+        file, 
+        "validatefile");
 
     let result: ServerResponse;
     try {
@@ -221,7 +237,11 @@ async function validateFile(
 export async function validate(
     username: string,
     password: string,
-    uploadSession: UploadSession,
+    uploadSessionId: number,
+    projectNumber: string,
+    subjectLabel: string,
+    sessionLabel: string,
+    dataType: string,
     fileList: RcFile[]
 ) {
     let existingFiles = [] as string[];
@@ -236,7 +256,11 @@ export async function validate(
             validateFileResult = await validateFile(
                 username,
                 password,
-                uploadSession,
+                uploadSessionId,
+                projectNumber,
+                subjectLabel,
+                sessionLabel,
+                dataType,
                 file);
         } catch (err) {
             throw err;
@@ -268,7 +292,11 @@ export async function validate(
 export async function addFile(
     username: string,
     password: string,
-    uploadSession: UploadSession,
+    uploadSessionId: number,
+    projectNumber: string,
+    subjectLabel: string,
+    sessionLabel: string,
+    dataType: string,
     file: RcFile
 ) {
     const url = baseUrl() + "/upload/addfile";
@@ -281,7 +309,14 @@ export async function addFile(
         }
     );
 
-    const formData = getFormData(uploadSession, file, "addfile");
+    const formData = getFormData(
+        uploadSessionId,
+        projectNumber,
+        subjectLabel,
+        sessionLabel,
+        dataType,  
+        file, 
+        "addfile");
 
     let result: ServerResponse;
     try {
@@ -320,7 +355,11 @@ export async function addFile(
 export async function finalize(
     username: string,
     password: string,
-    uploadSession: UploadSession
+    uploadSessionId: number,
+    projectNumber: string,
+    subjectLabel: string,
+    sessionLabel: string,
+    dataType: string
 ) {
     const url = baseUrl() + "/upload/finalize";
     const headers = new Headers(
@@ -331,11 +370,11 @@ export async function finalize(
     );
 
     const body = JSON.stringify({
-        uploadSessionId: uploadSession.uploadSessionId,
-        projectNumber: uploadSession.projectNumber,
-        subjectLabel: uploadSession.subjectLabel,
-        sessionLabel: uploadSession.sessionLabel,
-        dataType: uploadSession.dataType
+        uploadSessionId: uploadSessionId,
+        projectNumber: projectNumber,
+        subjectLabel: subjectLabel,
+        sessionLabel: sessionLabel,
+        dataType: dataType
     });
 
     let result: ServerResponse;
@@ -375,7 +414,11 @@ export async function finalize(
 export async function submit(
     username: string,
     password: string,
-    uploadSession: UploadSession
+    uploadSessionId: number,
+    projectNumber: string,
+    subjectLabel: string,
+    sessionLabel: string,
+    dataType: string
 ) {
     const url = baseUrl() + "/upload/submit";
     const headers = new Headers(
@@ -386,11 +429,11 @@ export async function submit(
     );
 
     const body = JSON.stringify({
-        uploadSessionId: uploadSession.uploadSessionId,
-        projectNumber: uploadSession.projectNumber,
-        subjectLabel: uploadSession.subjectLabel,
-        sessionLabel: uploadSession.sessionLabel,
-        dataType: uploadSession.dataType
+        uploadSessionId: uploadSessionId,
+        projectNumber: projectNumber,
+        subjectLabel: subjectLabel,
+        sessionLabel: sessionLabel,
+        dataType: dataType
     });
 
     let result: ServerResponse;

@@ -5,14 +5,14 @@ import { RcFile } from "../../../../types/types";
 
 const { Dragger } = Upload;
 
-interface IProps {
+interface FileSelectorProps {
     fileList: RcFile[];
     fileListSummary: number;
     hasFilesSelected: boolean;
     handleBeforeUpload: (file: RcFile, fileList: RcFile[]) => boolean | PromiseLike<void>;
 }
 
-const FileSelector: React.FC<IProps> = ({ handleBeforeUpload }) => {
+const FileSelector: React.FC<FileSelectorProps> = ({ handleBeforeUpload }) => {
 
     return (
         <React.Fragment>
