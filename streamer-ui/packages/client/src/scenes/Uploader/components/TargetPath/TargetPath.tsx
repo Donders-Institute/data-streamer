@@ -2,28 +2,19 @@ import React from "react";
 
 import { Tooltip } from "antd";
 
+import { UploadState } from "../../../../types/types";
+
 interface TargetPathProps {
-    isSelectedProject: boolean;
-    isSelectedSubject: boolean;
-    isSelectedSession: boolean;
-    isSelectedDataType: boolean;
-    projectNumber: string;
-    subjectLabel: string;
-    dataType: string;
-    sessionLabel: string;
+    uploadState: UploadState;
 }
 
-const TargetPath: React.FC<TargetPathProps> = (
-    {
-        isSelectedProject,
-        isSelectedSubject,
-        isSelectedSession,
-        isSelectedDataType,
-        projectNumber,
-        subjectLabel,
-        dataType,
-        sessionLabel
-    }) => {
+const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
+
+    const projectNumberInput = uploadState.structureSelection.projectNumberInput;
+    const subjectLabelInput = uploadState.structureSelection.subjectLabelInput;
+    const sessionLabelInput = uploadState.structureSelection.sessionLabelInput;
+    const dataTypeInput = uploadState.structureSelection.dataTypeInput;
+
     let drivePath = (
         <span style={{ fontWeight: "bold", color: "#52c41a" }}>P:</span>
     );
@@ -51,31 +42,33 @@ const TargetPath: React.FC<TargetPathProps> = (
         <span>(sessionlabel)</span>
     );
 
-    if (isSelectedProject) {
+    if (projectNumberInput.isSelected) {
         projectNumberPath = (
             <span style={{ fontWeight: "bold", color: "#52c41a" }}>
-                {projectNumber}
+                {projectNumberInput.value}
             </span>
         );
     }
 
-    if (isSelectedSubject) {
+    if (subjectLabelInput.isSelected) {
         subjectLabelPath = (
             <span style={{ fontWeight: "bold", color: "#52c41a" }}>
-                {subjectLabel}
+                {subjectLabelInput.value}
             </span>
         );
     }
 
-    if (isSelectedSession) {
+    if (sessionLabelInput.isSelected) {
         sessionLabelPath = (
             <span style={{ fontWeight: "bold", color: "#52c41a" }}>
-                {sessionLabel}
+                {sessionLabelInput.value}
             </span>
         );
     }
 
-    if (isSelectedDataType) {
+    if (dataTypeInput.isSelected) {
+        const dataType = dataTypeInput.value;
+
         dataTypePath = (
             <span style={{ fontWeight: "bold", color: "#52c41a" }}>{dataType}</span>
         );

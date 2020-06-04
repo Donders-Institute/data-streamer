@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Dispatch } from "react";
 
 import {
     Layout,
@@ -8,24 +8,27 @@ import {
     Icon,
     Button,
     BackTop,
-    Spin,
     Modal,
-    Progress,
-    Tooltip
+    Progress
 } from "antd";
 
 import Header from "../../../../components/Header/Header";
+import LoadingIcon from "../../../../components/LoadingIcon/LoadingIcon";
 import FileSelector from "../../components/FileSelector/FileSelector";
 import FileList from "../../components/FileList/FileList";
 import TargetPath from "../../components/TargetPath/TargetPath";
 import StructureSelector from "../../components/StructureSelector/StructureSelector";
+import ExistingFilesList from "../../components/ExistingFilesList/ExistingFilesList";
+import UploadButton from "../../components/UploadButton/UploadButton";
 
 import {
     UserProfile,
     Project,
     RcFile,
-    InputValidationStatuses,
-    ServerResponse
+    ServerResponse,
+    UploadState,
+    UploadAction,
+    UploadStatus
 } from "../../../../types/types";
 
 import "../../../../app/App.less";
@@ -38,45 +41,20 @@ interface UploaderProps {
     handleSignOut: (username: string, password: string) => Promise<void>;
     projectList: Project[];
     isLoadingProjectList: boolean;
-    fileList: RcFile[];
-    fileListSummary: number;
-    hasFilesSelected: boolean;
-    handleDelete: (uid: string, filename: string, size: number) => void;
-    handleDeleteList: () => void;
-    handleBeforeUpload: (file: RcFile, batch: RcFile[]) => boolean | PromiseLike<void>;
-    selectedProjectValue: string;
-    selectedProjectStatus: (typeof InputValidationStatuses)[number];
-    isSelectedProject: boolean;
-    selectedSubjectValue: string;
-    selectedSubjectStatus: (typeof InputValidationStatuses)[number];
-    isSelectedSubject: boolean;
-    selectedSessionValue: string;
-    selectedSessionStatus: (typeof InputValidationStatuses)[number];
-    isSelectedSession: boolean;
-    selectedDataTypeValue: string;
-    selectedDataTypeStatus: (typeof InputValidationStatuses)[number];
-    isSelectedDataType: boolean;
-    selectedDataTypeOtherStatus: (typeof InputValidationStatuses)[number];
-    isSelectedDataTypeOther: boolean;
-    handleSelectProject: (projectNumber: string) => void;
-    handleChangeSubjectLabel: (subjectLabel: string) => void;
-    handleChangeSessionLabel: (sessionLabel: string) => void;
-    handleSelectDataType: (dataType: string) => void;
-    handleChangeDataTypeOther: (dataTypeOther: string) => void;
-    proceed: boolean;
-    handleUpload: () => Promise<void>;
+    uploadState: UploadState;
+    uploadDispatch: Dispatch<UploadAction>;
+    handleRemoveSelectedFile: (uid: string, filename: string, size: number) => void;
+    handleResetFileList: () => void;
+    handleFilesSelection: (file: RcFile, batch: RcFile[]) => boolean | PromiseLike<void>;
+    enableUploadButton: boolean;
+    handleInitiateUpload: () => void;
     handleUploadAnotherBatch: () => void;
     showUploadModal: boolean;
-    isUploading: boolean;
-    uploadingPercentage: number;
-    remainingItems: number;
-    failed: boolean;
+    existingFiles: string[];
     showFilesExistModal: boolean;
-    existingFilesList: JSX.Element;
     handleCancelFilesExistModal: () => void;
     handleOkFilesExistModal: () => void;
     showErrorModal: boolean;
-    errorMessage: string;
     handleOkErrorModal: () => void;
 }
 
@@ -86,49 +64,36 @@ const Uploader: React.FC<UploaderProps> = ({
     handleSignOut,
     projectList,
     isLoadingProjectList,
-    fileList,
-    fileListSummary,
-    hasFilesSelected,
-    handleDelete,
-    handleDeleteList,
-    handleBeforeUpload,
-    selectedProjectValue,
-    selectedProjectStatus,
-    isSelectedProject,
-    selectedSubjectValue,
-    selectedSubjectStatus,
-    isSelectedSubject,
-    selectedSessionValue,
-    selectedSessionStatus,
-    isSelectedSession,
-    selectedDataTypeValue,
-    selectedDataTypeStatus,
-    isSelectedDataType,
-    selectedDataTypeOtherStatus,
-    isSelectedDataTypeOther,
-    handleSelectProject,
-    handleChangeSubjectLabel,
-    handleChangeSessionLabel,
-    handleSelectDataType,
-    handleChangeDataTypeOther,
-    proceed,
-    handleUpload,
+    uploadState,
+    uploadDispatch,
+    handleRemoveSelectedFile,
+    handleResetFileList,
+    handleFilesSelection,
+    enableUploadButton,
+    handleInitiateUpload,
     handleUploadAnotherBatch,
     showUploadModal,
-    isUploading,
-    uploadingPercentage,
-    remainingItems,
-    failed,
+    existingFiles,
     showFilesExistModal,
-    existingFilesList,
     handleCancelFilesExistModal,
     handleOkFilesExistModal,
     showErrorModal,
-    errorMessage,
     handleOkErrorModal
 }) => {
+    const filesSelection = uploadState.filesSelection;
 
-    const antIcon = <Icon type="loading" style={{ fontSize: 24, margin: 10 }} spin />;
+    const isUploading = uploadState.status === UploadStatus.Uploading;
+    const remainingFiles = uploadState.remainingFiles;
+    const percentage = uploadState.percentage;
+
+    const hasUploadError = uploadState.status === UploadStatus.Error;
+    const uploadError = uploadState.error;
+    let uploadErrorMessage = "Upload error";
+    if (uploadError) {
+        if (uploadError.message) {
+            uploadErrorMessage = uploadError.message;
+        }
+    }
 
     return (
         <React.Fragment>
@@ -139,19 +104,14 @@ const Uploader: React.FC<UploaderProps> = ({
                         <Col span={12}>
                             <Card className="MainCard" style={{ marginRight: "5px" }}>
                                 <FileSelector
-                                    fileList={fileList}
-                                    fileListSummary={fileListSummary}
-                                    hasFilesSelected={hasFilesSelected}
-                                    handleBeforeUpload={handleBeforeUpload}
+                                    handleFilesSelection={handleFilesSelection}
                                 />
                                 <br />
                                 <br />
                                 <FileList
-                                    fileList={fileList}
-                                    fileListSummary={fileListSummary}
-                                    hasFilesSelected={hasFilesSelected}
-                                    handleDelete={handleDelete}
-                                    handleDeleteList={handleDeleteList}
+                                    filesSelection={filesSelection}
+                                    handleRemoveSelectedFile={handleRemoveSelectedFile}
+                                    handleResetFileList={handleResetFileList}
                                 />
                                 <div>
                                     <BackTop />
@@ -164,84 +124,34 @@ const Uploader: React.FC<UploaderProps> = ({
                                 <Content style={{ marginTop: "10px" }}>
                                     <p style={{ fontWeight: "bold" }}>Destination folder</p>
                                     <TargetPath
-                                        isSelectedProject={isSelectedProject}
-                                        isSelectedSubject={isSelectedSubject}
-                                        isSelectedSession={isSelectedSession}
-                                        isSelectedDataType={isSelectedDataType}
-                                        projectNumber={selectedProjectValue}
-                                        subjectLabel={selectedSubjectValue}
-                                        sessionLabel={selectedSessionValue}
-                                        dataType={selectedDataTypeValue}
+                                        uploadState={uploadState}
                                     />
                                 </Content>
-                                {
-                                    isLoadingProjectList &&
-                                    <Content style={{ marginTop: "20px" }}>
-                                        <div>Loading projects for {userProfile.username} ...</div>
-                                        <Spin indicator={antIcon} />
-                                    </Content>
-                                }
-                                {
-                                    !isLoadingProjectList &&
-                                    <Content style={{ marginTop: "20px" }}>
-                                        <StructureSelector
-                                            projectList={projectList}
-                                            projectNumber={selectedProjectValue}
-                                            selectedProjectStatus={selectedProjectStatus}
-                                            isSelectedProject={isSelectedProject}
-                                            subjectLabel={selectedSubjectValue}
-                                            selectedSubjectStatus={selectedSubjectStatus}
-                                            sessionLabel={selectedSessionValue}
-                                            selectedSessionStatus={selectedSessionStatus}
-                                            dataType={selectedDataTypeValue}
-                                            selectedDataTypeStatus={selectedDataTypeStatus}
-                                            selectedDataTypeOtherStatus={selectedDataTypeOtherStatus}
-                                            isSelectedDataTypeOther={isSelectedDataTypeOther}
-                                            handleSelectProject={handleSelectProject}
-                                            handleChangeSubjectLabel={handleChangeSubjectLabel}
-                                            handleChangeSessionLabel={handleChangeSessionLabel}
-                                            handleSelectDataType={handleSelectDataType}
-                                            handleChangeDataTypeOther={handleChangeDataTypeOther}
-                                        />
-                                    </Content>
-                                }
-                                {
-                                    (!hasFilesSelected || !proceed) && (
+                                <Content style={{ marginTop: "20px" }}>
+                                    {
+                                        isLoadingProjectList &&
                                         <Content style={{ marginTop: "20px" }}>
-                                            <Tooltip
-                                                placement="bottomRight"
-                                                title="Please select one or more files and set the destination folder settings above. When 1) all source files are selected, and 2) the destination settings above are filled in properly, the button becomes green and clickable."
-                                            >
-                                                <Button
-                                                    disabled={true}
-                                                    size="large"
-                                                    style={{ width: "200px", float: "right" }}
-                                                >
-                                                    Upload
-                                                </Button>
-                                            </Tooltip>
+                                            <div>Loading projects for {userProfile.username} ...</div>
+                                            <LoadingIcon />
                                         </Content>
-                                    )}
-                                {
-                                    (hasFilesSelected && proceed) && (
-                                        <Tooltip
-                                            placement="bottomRight"
-                                            title="Press the button to submit a streamer job."
-                                        >
-                                            <Button
-                                                size="large"
-                                                style={{
-                                                    backgroundColor: "#52c41a",
-                                                    color: "#fff",
-                                                    width: "200px",
-                                                    float: "right"
-                                                }}
-                                                onClick={() => { handleUpload(); }}
-                                            >
-                                                Upload
-                                            </Button>
-                                        </Tooltip>
-                                    )}
+                                    }
+                                    {
+                                        !isLoadingProjectList &&
+                                        <Content style={{ marginTop: "20px" }}>
+                                            <StructureSelector
+                                                projectList={projectList}
+                                                uploadState={uploadState}
+                                                uploadDispatch={uploadDispatch}
+                                            />
+                                        </Content>
+                                    }
+                                </Content>
+                                <Content style={{ marginTop: "20px" }}>
+                                    <UploadButton
+                                        enable={enableUploadButton}
+                                        handleInitiateUpload={handleInitiateUpload}
+                                    />
+                                </Content>
                             </Card>
                         </Col>
                     </Row>
@@ -287,32 +197,32 @@ const Uploader: React.FC<UploaderProps> = ({
                     }}
                 >
                     {
-                        !failed && (
-                            <Progress percent={uploadingPercentage} />
+                        !hasUploadError && (
+                            <Progress percent={percentage} />
                         )
                     }
                     {
-                        failed && (
-                            <Progress status="exception" percent={uploadingPercentage} />
+                        hasUploadError && (
+                            <Progress status="exception" percent={percentage} />
                         )
                     }
                     {
                         isUploading && (
                             <div>
-                                <div>Item(s) remaining: {remainingItems}</div>
+                                <div>Item(s) remaining: {remainingFiles}</div>
                                 <p>This may take a while ...</p>
                                 <p style={{ fontWeight: "bold" }}>Do not close the browser</p>
-                                <Spin indicator={antIcon} />
+                                <LoadingIcon />
                             </div>)
                     }
                     {
-                        !isUploading && !failed && (
+                        !isUploading && !hasUploadError && (
                             <div>
                                 <p>Done. Streamer job submitted.</p>
                             </div>)
                     }
                     {
-                        !isUploading && failed && (
+                        !isUploading && hasUploadError && (
                             <div>
                                 <p>Failed</p>
                             </div>)
@@ -358,17 +268,10 @@ const Uploader: React.FC<UploaderProps> = ({
                 >
                     <div>Overwrite the following file(s) in existing destination?</div>
                     <TargetPath
-                        isSelectedProject={isSelectedProject}
-                        isSelectedSubject={isSelectedSubject}
-                        isSelectedSession={isSelectedSession}
-                        isSelectedDataType={isSelectedDataType}
-                        projectNumber={selectedProjectValue}
-                        subjectLabel={selectedSubjectValue}
-                        sessionLabel={selectedSessionValue}
-                        dataType={selectedDataTypeValue}
+                        uploadState={uploadState}
                     />
                     <div style={{ marginTop: "20px" }}>
-                        {existingFilesList}
+                        <ExistingFilesList existingFiles={existingFiles} />
                     </div>
                 </Modal>
                 <Modal
@@ -390,7 +293,7 @@ const Uploader: React.FC<UploaderProps> = ({
                         </div>
                     ]}
                 >
-                    <div>{errorMessage}</div>
+                    <div>{uploadErrorMessage}</div>
                 </Modal>
             </Content>
         </React.Fragment >

@@ -7,32 +7,29 @@ import {
     Tooltip
 } from "antd";
 
+import LoadingIcon from "../../../../components/LoadingIcon/LoadingIcon";
 import { formatBytes } from "../../../../services/format/format";
-import { RcFile } from "../../../../types/types";
+
+import {
+    RcFile,
+    FilesSelection
+} from "../../../../types/types";
 
 interface FileListProps {
-    fileList: RcFile[];
-    fileListSummary: number;
-    hasFilesSelected: boolean;
-    handleDelete: (uid: string, filename: string, size: number) => void;
-    handleDeleteList: () => void;
+    filesSelection: FilesSelection;
+    handleRemoveSelectedFile: (filename: string, uid: string, size: number) => void;
+    handleResetFileList: () => void;
 }
 
 const FileList: React.FC<FileListProps> = ({
-    fileList,
-    fileListSummary,
-    hasFilesSelected,
-    handleDelete,
-    handleDeleteList
+    filesSelection,
+    handleRemoveSelectedFile,
+    handleResetFileList
 }) => {
 
-    const dataSourceFileListSummary = [
-        {
-            id: 1,
-            name: "Total size",
-            total: fileListSummary
-        }
-    ];
+    const fileList = filesSelection.fileList;
+    const totalSizeBytes = filesSelection.totalSizeBytes;
+    const hasFilesSelected = filesSelection.hasFilesSelected;
 
     const columnsFileList = [
         {
@@ -57,16 +54,24 @@ const FileList: React.FC<FileListProps> = ({
             title: "",
             key: "action",
             width: "10%",
-            render: (text: string, record: RcFile) => (
+            render: (file: RcFile) => (
                 <span
                     style={{ float: "right" }}
                     onClick={() => {
-                        handleDelete(record.uid, record.name, record.size);
+                        handleRemoveSelectedFile(file.name, file.uid, file.size);
                     }}
                 >
                     <Icon type="close" /> &nbsp;&nbsp;
                 </span>
             )
+        }
+    ];
+
+    const dataSummary = [
+        {
+            id: 1,
+            name: "Total size",
+            total: totalSizeBytes
         }
     ];
 
@@ -93,12 +98,12 @@ const FileList: React.FC<FileListProps> = ({
             title: "clear all",
             key: "action",
             width: "10%",
-            render: (text: string, record: any) => (
+            render: () => (
                 <Button
                     style={{ float: "right" }}
                     type="link"
                     onClick={() => {
-                        handleDeleteList();
+                        handleResetFileList();
                     }}
                 >
                     Clear all
@@ -111,18 +116,19 @@ const FileList: React.FC<FileListProps> = ({
         <React.Fragment>
             <Tooltip placement="topLeft" title="Shows list of files to be uploaded">
                 <Table
-                    rowKey={(record: RcFile) => record.uid}
+                    rowKey={(file: RcFile) => file.uid}
                     columns={columnsFileList}
                     dataSource={fileList}
                     pagination={false}
                     size={"small"}
                     scroll={{ y: 300 }}
                 />
-                {hasFilesSelected &&
+                {
+                    hasFilesSelected &&
                     <Table
                         rowKey="total"
                         columns={columnsSummary}
-                        dataSource={dataSourceFileListSummary}
+                        dataSource={dataSummary}
                         pagination={false}
                         size={"small"}
                         showHeader={false}
