@@ -2,7 +2,6 @@ const { Client } = require('pg');
 
 // Connect to streamer UI database 
 async function connect(dbHost, dbPort, dbUsername, dbPassword, dbName) {
-    console.log(dbHost, dbPort, dbUsername, dbPassword, dbName);
     const client = new Client({
         host: dbHost,
         port: dbPort,
