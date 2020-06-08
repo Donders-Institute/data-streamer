@@ -3,9 +3,9 @@ import { ServerResponse } from "../../types/types";
 export function baseUrl() {
     const isDevelopment = process.env.NODE_ENV === "development";
     if (isDevelopment) {
-        return process.env.REACT_APP_STREAMER_UI_EXTERNAL_SERVER_API_URL || "http://localhost:9000";
+        return process.env.REACT_APP_STREAMER_UI_EXTERNAL_SERVER_API_URL || "http://localhost:9000/api";
     }
-    return process.env.REACT_APP_STREAMER_UI_INTERNAL_SERVER_API_URL || "http://ui:9000";
+    return process.env.REACT_APP_STREAMER_UI_INTERNAL_SERVER_API_URL || "/api";
 };
 
 // Fetch once text redirect with timeout in milliseconds

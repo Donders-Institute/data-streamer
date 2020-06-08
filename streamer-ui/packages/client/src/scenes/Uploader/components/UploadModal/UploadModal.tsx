@@ -94,6 +94,17 @@ const UploadModal: React.FC<UploadModalProps> = ({
     };
     const disableButtons = getDisableButtons(uploadState.status);
 
+    const getDoneMessage = (uploadStatus: UploadStatus) => {
+        if (uploadStatus === UploadStatus.Success) {
+            return "Done. Streamer job submitted.";
+        }
+        if (uploadStatus === UploadStatus.Error) {
+            return "Upload failed.";
+        }
+        return "";
+    };
+    const doneMessage = getDoneMessage(uploadState.status);
+
     return (
         <Modal
             title={title}
@@ -197,17 +208,9 @@ const UploadModal: React.FC<UploadModalProps> = ({
                 )
             }
             {
-                isDone && !hasError && (
+                isDone && (
                     <div>
-                        <p>Done. Streamer job submitted.</p>
-                    </div>
-                )
-            }
-            {
-                isDone && hasError && (
-                    <div>
-                        <p>Upload failed.</p>
-                        <p>{errorMessage}</p>
+                        <p>{doneMessage}</p>
                     </div>
                 )
             }

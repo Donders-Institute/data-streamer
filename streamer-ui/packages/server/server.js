@@ -65,7 +65,10 @@ if (isDevelopment) {
 else {
     whitelist = [
         `http://ui:${app.locals.PORT}`,
+        `https://ui:${app.locals.PORT}`,
         `http://${app.locals.HOST}:${app.locals.PORT}`,
+        `https://${app.locals.HOST}:${app.locals.PORT}`,
+        "https://streamer-acc.dccn.nl",
         "https://uploader.dccn.nl"
     ];
 }
@@ -108,27 +111,27 @@ app.get('/login',
     });
 
 // POST Login for regular user
-app.post('/login',
+app.post('/api/login',
     auth.hasBasicAuthHeader,
     content.hasJson,
     auth.loginUser);
 
 // POST Logout for regular user
-app.post('/logout',
+app.post('/api/logout',
     auth.hasBasicAuthHeader,
     auth.verifyUser,
     content.hasJson,
     auth.logoutUser);
 
 // GET Obtain list of projects for regular user
-app.get('/projects',
+app.get('/api/projects',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
     pdb.getProjects);
 
 // POST Begin upload session for regular user, obtain an upload session id
-app.post('/upload/begin',
+app.post('/api/upload/begin',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
@@ -137,7 +140,7 @@ app.post('/upload/begin',
     upload.begin);
 
 // POST Validate file for upload session for regular user
-app.post('/upload/validatefile',
+app.post('/api/upload/validatefile',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
@@ -148,7 +151,7 @@ app.post('/upload/validatefile',
     upload.validateFile);
 
 // POST Add file to upload session for regular user
-app.post('/upload/addfile',
+app.post('/api/upload/addfile',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
@@ -159,7 +162,7 @@ app.post('/upload/addfile',
     upload.addFile);
 
 // POST Finalize upload session for regular user
-app.post('/upload/finalize',
+app.post('/api/upload/finalize',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
@@ -168,7 +171,7 @@ app.post('/upload/finalize',
     upload.finalize);
 
 // POST Submit a streamer job for regular user
-    app.post('/upload/submit',
+    app.post('/api/upload/submit',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
@@ -178,7 +181,7 @@ app.post('/upload/finalize',
     upload.submit);
 
 // POST Purge database tables for admin user
-app.post('/purge',
+app.post('/api/purge',
     auth.hasBasicAuthHeader,
     auth.verifyAdminCredentials,
     content.hasJson,
