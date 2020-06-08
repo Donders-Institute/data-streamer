@@ -41,7 +41,7 @@ Create `.env` file in `packages/client`:
 NODE_ENV=development
 
 # Streamer UI client configuration
-REACT_APP_MOCK_AUTH=true
+REACT_APP_MOCK_AUTH=false
 REACT_APP_MOCK_PROJECT_DATABASE=true
 REACT_APP_STREAMER_UI_INTERNAL_SERVER_API_URL=http://ui:9000
 REACT_APP_STREAMER_UI_EXTERNAL_SERVER_API_URL=http://localhost:9000

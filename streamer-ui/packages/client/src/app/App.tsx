@@ -19,7 +19,7 @@ function getEnvBoolean(envVariable: string | undefined) {
 };
 
 // Check skipping of authentication (for development)
-const skipAuth = false; // getEnvBoolean(process.env.REACT_APP_STREAMER_UI_MOCK_AUTH);
+const skipAuth = getEnvBoolean(process.env.REACT_APP_STREAMER_UI_MOCK_AUTH);
 
 // Check mocking of Project Database access (for development)
 const mockPdb = getEnvBoolean(process.env.REACT_APP_STREAMER_UI_MOCK_PROJECT_DATABASE);
