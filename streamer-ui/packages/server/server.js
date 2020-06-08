@@ -64,6 +64,7 @@ if (isDevelopment) {
 }
 else {
     whitelist = [
+        `http://ui:${app.locals.PORT}`,
         `http://${app.locals.HOST}:${app.locals.PORT}`,
         "https://uploader.dccn.nl"
     ];
