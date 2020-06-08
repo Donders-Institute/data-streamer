@@ -23,10 +23,8 @@ import {
     UserProfile,
     Project,
     RcFile,
-    ServerResponse,
     UploadState,
     UploadAction,
-    UploadStatus,
     ErrorState
 } from "../../../../types/types";
 
@@ -36,8 +34,8 @@ const { Content } = Layout;
 
 interface UploaderProps {
     userProfile: UserProfile;
-    signOut: (username: string, password: string) => Promise<ServerResponse>;
-    handleSignOut: (username: string, password: string) => Promise<void>;
+    handleUploadModalSignOut: () => Promise<void>;
+    handleSignOut: () => Promise<void>;
     projectList: Project[];
     isLoadingProjectList: boolean;
     uploadState: UploadState;
@@ -60,7 +58,7 @@ interface UploaderProps {
 
 const Uploader: React.FC<UploaderProps> = ({
     userProfile,
-    signOut,
+    handleUploadModalSignOut,
     handleSignOut,
     projectList,
     isLoadingProjectList,
@@ -86,7 +84,7 @@ const Uploader: React.FC<UploaderProps> = ({
     return (
         <React.Fragment>
             <Content style={{ background: "#f0f2f5" }}>
-                <Header userProfile={userProfile} signOut={signOut} />
+                <Header userProfile={userProfile} handleSignOut={handleSignOut} />
                 <div style={{ padding: "10px" }}>
                     <Row>
                         <Col span={12}>
@@ -145,12 +143,11 @@ const Uploader: React.FC<UploaderProps> = ({
                     </Row>
                 </div>
                 <UploadModal
-                    userProfile={userProfile}
                     uploadState={uploadState}
                     errorState={errorState}
                     showUploadModal={showUploadModal}
                     handleUploadAnotherBatch={handleUploadAnotherBatch}
-                    handleSignOut={handleSignOut}
+                    handleUploadModalSignOut={handleUploadModalSignOut}
                 />
                 <ConfirmModal
                     uploadState={uploadState}

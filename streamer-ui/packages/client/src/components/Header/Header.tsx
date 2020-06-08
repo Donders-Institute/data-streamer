@@ -7,61 +7,26 @@ import {
     Col,
     Icon,
     Menu,
-    Modal,
     Tooltip
 } from "antd";
 
-import { UserProfile, ServerResponse } from "../../types/types";
+import { UserProfile } from "../../types/types";
 
 import "../../app/App.less";
 import logoDCCN from "../../assets/donders-logo.svg";
 
 const { SubMenu } = Menu;
 
-function modalError(msg: string) {
-    Modal.error({
-        title: "Error",
-        content: msg,
-        onOk() {
-            Modal.destroyAll();
-        }
-    });
-}
-
 interface HeaderProps {
     userProfile: UserProfile;
-    signOut: (username: string, password: string) => Promise<ServerResponse>;
+    handleSignOut: () => Promise<void>;
 }
 
-const Header: React.FC<HeaderProps> = ({ userProfile, signOut }) => {
+const Header: React.FC<HeaderProps> = ({ userProfile, handleSignOut }) => {
 
     const LOCATION_HOME = "home";
     const LOCATION_HELP = "help";
     const LOCATION_AUTH = "auth";
-
-    async function handleSignOut() {
-        let result: ServerResponse;
-        try {
-            result = await signOut(userProfile.username, userProfile.password);
-        } catch (err) {
-            console.error('Sign out failure');
-            console.error(err);
-            const errorMessage = JSON.stringify(err);
-            modalError(errorMessage);
-            return; // Abort
-        }
-
-        // Double check result for errors
-        if (result.error && result.error !== "") {
-            console.error('Sign out failure');
-            const errorMessage = result.error as string;
-            console.error(errorMessage);
-            modalError(errorMessage);
-            return; // Abort
-        }
-
-        console.log('Successfully signed out');
-    };
 
     return (
         <React.Fragment>

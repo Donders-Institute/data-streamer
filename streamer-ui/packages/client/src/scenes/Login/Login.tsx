@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import {
     Card,
@@ -8,71 +8,32 @@ import {
     Input,
     Layout,
     Row,
-    Col,
-    Modal
+    Col
 } from "antd";
 
 import { FormComponentProps } from "antd/lib/form";
 
 import HeaderLandingPage from "../../components/HeaderLandingPage/HeaderLandingPage";
-import { UserProfile, ServerResponse } from "../../types/types";
 
 import "../../app/App.less";
 import logoDCCN from "../../assets/dccn-logo.png";
 
 const { Content } = Layout;
 
-function modalError(errorMessage: string) {
-    Modal.error({
-        title: "Error",
-        content: errorMessage,
-        onOk() {
-            Modal.destroyAll();
-        }
-    });
-}
-
 interface LoginProps {
-    userProfile: UserProfile;
-    signIn: (username: string, password: string) => Promise<ServerResponse>;
+    handleChangeUsername: (username: string) => Promise<void>;
+    handleChangePassword: (password: string) => Promise<void>;
+    handleSignIn: () => Promise<void>;
 }
 
-const LoginForm: React.FC<LoginProps & FormComponentProps> = ({ userProfile, signIn, form }) => {
-
-    const [username, setUsername] = useState(userProfile.username);
-    const [password, setPassword] = useState(userProfile.password);
+const LoginForm: React.FC<LoginProps & FormComponentProps> = ({
+    handleChangeUsername,
+    handleChangePassword,
+    handleSignIn,
+    form
+}) => {
 
     const { getFieldDecorator } = form;
-
-    async function handleLogin(username: string, password: string) {
-        let result: ServerResponse;
-        try {
-            result = await signIn(username, password);
-        } catch (err) {
-            console.error('Login failure');
-            console.error(err);
-            modalError(err.message);
-            return; // Abort
-        }
-
-        // Double check result for errors
-        if (result.error && result.error !== "") {
-            console.error('Login failure');
-            const errorMessage = result.error as string;
-            console.error(errorMessage);
-            modalError(errorMessage);
-            return; // Abort
-        }
-
-        console.log('Successfully logged in');
-        setUsername(username);
-        setPassword(password);
-    };
-
-    function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        handleLogin(username, password);
-    };
 
     return (
         <React.Fragment>
@@ -100,35 +61,52 @@ const LoginForm: React.FC<LoginProps & FormComponentProps> = ({ userProfile, sig
                         </div>
                             <Form
                                 className="login-form"
-                                onSubmit={(event: React.FormEvent<HTMLFormElement>) => { handleSubmit(event); }}
+                                onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
+                                    event.preventDefault();
+                                    handleSignIn();
+                                }}
                                 style={{ margin: "0px 0px 0px 0px" }}
                             >
                                 <Form.Item style={{ margin: "0px 0px 0px 0px" }}>
-                                    {getFieldDecorator("username", {
-                                        rules: [{ required: true, message: "Please input your DCCN username" }]
-                                    })(
-                                        <Input
-                                            prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
-                                            placeholder="User name"
-                                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                                setUsername(event.target.value);
-                                            }}
-                                        />,
-                                    )}
+                                    {
+                                        getFieldDecorator("username", {
+                                            rules: [
+                                                {
+                                                    required: true,
+                                                    message: "Please input your DCCN username"
+                                                }
+                                            ]
+                                        })(
+                                            <Input
+                                                prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
+                                                placeholder="User name"
+                                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                                    handleChangeUsername(event.target.value);
+                                                }}
+                                            />
+                                        )
+                                    }
                                 </Form.Item>
                                 <Form.Item style={{ margin: "0px 0px 10px 0px" }}>
-                                    {getFieldDecorator("password", {
-                                        rules: [{ required: true, message: "Please input your password" }]
-                                    })(
-                                        <Input
-                                            prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
-                                            type="password"
-                                            placeholder="Password"
-                                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                                setPassword(event.target.value);
-                                            }}
-                                        />,
-                                    )}
+                                    {
+                                        getFieldDecorator("password", {
+                                            rules: [
+                                                {
+                                                    required: true,
+                                                    message: "Please input your password"
+                                                }
+                                            ]
+                                        })(
+                                            <Input
+                                                prefix={<Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />}
+                                                type="password"
+                                                placeholder="Password"
+                                                onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                                    handleChangePassword(event.target.value);
+                                                }}
+                                            />
+                                        )
+                                    }
                                 </Form.Item>
                                 <Form.Item style={{ margin: "0px 0px 10px 0px" }}>
                                     <Button className="login-form-button" type="primary" htmlType="submit">
@@ -146,4 +124,5 @@ const LoginForm: React.FC<LoginProps & FormComponentProps> = ({ userProfile, sig
 };
 
 const Login = Form.create<LoginProps & FormComponentProps>()(LoginForm);
+
 export default Login;

@@ -1,3 +1,5 @@
+import { useState, useEffect, Dispatch } from "react";
+
 import {
     baseUrl,
     fetchRetry,
@@ -5,9 +7,17 @@ import {
     basicAuthString
 } from "../../services/fetch/fetch";
 
-import { ServerResponse } from "../../types/types";
+import {
+    UserProfile,
+    ServerResponse,
+    LoginStatus,
+    AuthState,
+    AuthAction,
+    AuthActionType,
+    initialAuthState
+} from "../../types/types";
 
-export async function handleSignIn(username: string, password: string) {
+async function signIn(username: string, password: string) {
 
     const url = baseUrl() + "/login";
     const headers = new Headers(
@@ -45,7 +55,7 @@ export async function handleSignIn(username: string, password: string) {
     return result;
 };
 
-export async function handleSignOut(username: string, password: string) {
+async function signOut(username: string, password: string) {
 
     const url = baseUrl() + "/logout";
     const headers = new Headers(
@@ -78,4 +88,117 @@ export async function handleSignOut(username: string, password: string) {
         error: null
     } as ServerResponse;
     return result;
+};
+
+// Custom hook to handle sign in
+export const useSigningIn = ({
+    authState,
+    authDispatch,
+    skipAuth
+}: {
+    authState: AuthState;
+    authDispatch: Dispatch<AuthAction>;
+    skipAuth: boolean;
+}) => {
+    const [error, setError] = useState(null as Error | null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        const initiate = async () => {
+            if (authState.status === LoginStatus.LoggingIn) {
+                setIsLoading(true);
+
+                const username = authState.userProfile.username;
+                const password = authState.userProfile.password;
+                const displayName = null as string | null;
+
+                let result: ServerResponse;
+                try {
+                    if (!skipAuth) {
+                        result = await signIn(username, password);
+
+                        // Double check result for error
+                        if (result.error && result.error !== "") {
+                            throw new Error(result.error);
+                        }
+                    }
+
+                    setIsLoading(false);
+
+                    // Signin successful
+                    return authDispatch({
+                        type: AuthActionType.SignedIn,
+                        payload: {
+                            ...authState,
+                            isAuthenticated: true,
+                            status: LoginStatus.LoggedIn,
+                            userProfile: {
+                                username,
+                                displayName,
+                                password,
+                                isAuthenticated: true
+                            } as UserProfile
+                        } as AuthState
+                    } as AuthAction);
+
+                } catch (err) {
+                    return setError(err);
+                }
+            }
+        };
+        initiate();
+    }, [authState.status]);
+
+    return [error, isLoading] as [Error | null, boolean];
+};
+
+// Custom hook to handle sign out
+export const useSigningOut = ({
+    authState,
+    authDispatch,
+    skipAuth
+}: {
+    authState: AuthState;
+    authDispatch: Dispatch<AuthAction>;
+    skipAuth: boolean;
+}) => {
+    const [error, setError] = useState(null as Error | null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        const initiate = async () => {
+            if (authState.status === LoginStatus.LoggingOut) {
+                setIsLoading(true);
+
+                const username = authState.userProfile.username;
+                const password = authState.userProfile.password;
+
+                let result: ServerResponse;
+                try {
+                    if (!skipAuth) {
+                        result = await signOut(username, password);
+
+                        // Double check result for error
+                        if (result.error && result.error !== "") {
+                            throw new Error(result.error);
+                        }
+                    }
+
+                    setIsLoading(false);
+
+                    // Signout successful
+                    return authDispatch({
+                        type: AuthActionType.NotSignedIn,
+                        payload: { ...initialAuthState }
+                    } as AuthAction);
+
+                } catch (err) {
+                    return setError(err);
+                }
+            }
+        };
+        initiate();
+    }, [authState.status]);
+
+    return [error, isLoading] as [Error | null, boolean];
 };

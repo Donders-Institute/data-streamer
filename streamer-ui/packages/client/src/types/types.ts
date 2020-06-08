@@ -4,8 +4,8 @@ import { WrappedFormUtils } from "antd/lib/form/Form";
 export enum LoginStatus {
     NotLoggedIn = "NotLoggedIn",
     LoggingIn = "LoggingIn",
-    LoggingOut = "LoggingOut",
     LoggedIn = "LoggedIn",
+    LoggingOut = "LoggingOut",
     LoggingError = " LoggingError"
 };
 
@@ -186,7 +186,7 @@ export interface UploadAction {
 
 export const initialUserProfile = {
     username: "",
-    displayName: null,
+    displayName: null as string| null,
     password: "",
     isAuthenticated: false
 }as UserProfile;
@@ -204,17 +204,17 @@ export const initialInputVariable = {
 } as InputVariable;
 
 export const initialStructureSelection = {
-    projectNumberInput: initialInputVariable,
-    subjectLabelInput: initialInputVariable,
-    sessionLabelInput: initialInputVariable,
-    dataTypeInput: initialInputVariable,
-    dataTypeOtherInput: initialInputVariable
+    projectNumberInput: {...initialInputVariable},
+    subjectLabelInput: {...initialInputVariable},
+    sessionLabelInput: {...initialInputVariable},
+    dataTypeInput: {...initialInputVariable},
+    dataTypeOtherInput: {...initialInputVariable}
 } as StructureSelection;
 
 export const initialUploadState = {
     uploadSessionId: -1,
-    filesSelection: initialFilesSelection,
-    structureSelection: initialStructureSelection,
+    filesSelection: { ...initialFilesSelection},
+    structureSelection: {...initialStructureSelection},
     isValidSelection: false,
     numRemainingFiles: 0,
     percentage: 0,
@@ -252,3 +252,29 @@ export const initialErrorState = {
     errorType: ErrorType.NoError,
     errorMessage: ""
 } as ErrorState;
+
+// Auth
+export interface AuthState {
+    userProfile: UserProfile;
+    status: LoginStatus;
+    isAuthenticated: boolean;
+};
+
+export enum AuthActionType {
+    NotSignedIn = "NotSignedIn",
+    SigningIn = "SigningIn",
+    SignedIn = "SignedIn",
+    SigningOut = "SigningOut",
+    Error = "Error"
+};
+
+export interface AuthAction {
+    type: AuthActionType;
+    payload: AuthState;
+};
+
+export const initialAuthState = {
+    userProfile: {...initialUserProfile},
+    status: LoginStatus.NotLoggedIn,
+    isAuthenticated: false
+} as AuthState;
