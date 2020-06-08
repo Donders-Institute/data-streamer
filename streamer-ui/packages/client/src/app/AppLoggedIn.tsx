@@ -232,7 +232,10 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
         uploadDispatch
     });
 
-    // Check approval
+    // Show upload modal
+    const showConfirmModal = UploadStatus.Validating && hasExistingFiles;
+
+    // Silently continue in case of no existing files
     useCheckApproval({
         uploadState,
         uploadDispatch,
@@ -559,7 +562,7 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
                             handleUploadAnotherBatch={handleUploadAnotherBatch}
                             showUploadModal={showUploadModal}
                             existingFiles={existingFiles}
-                            showConfirmModal={hasExistingFiles}
+                            showConfirmModal={showConfirmModal}
                             handleCancelConfirmModal={handleCancelConfirmModal}
                             handleOkConfirmModal={handleOkConfirmModal}
                             showErrorModal={showErrorModal}
