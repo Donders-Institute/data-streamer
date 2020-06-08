@@ -31,7 +31,7 @@ const LoggingIn: React.FC = () => {
                                 Research Data Uploader
                             </h2>
                             <div style={{ margin: "0px 0px 10px 0px" }}>
-                                <Typography.Text type="danger">Redirecting ...</Typography.Text>
+                                <Typography.Text>Redirecting ...</Typography.Text>
                             </div>
                         </Card>
                     </Col>

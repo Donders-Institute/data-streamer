@@ -21,12 +21,7 @@ export async function fetchOnceRedirect({
     return Promise.race([
         // Fetch route
         fetch(url, options).then((response) => {
-            if (!response.ok) {
-                throw new Error(response.statusText);
-            }
-            return response;
-        }).then((response) => {
-            return response.text() as Promise<string>;;
+            return response.text() as Promise<string>;
         }).catch((err) => {
             throw err;
         }),

@@ -48,6 +48,7 @@ export const invalidDataTypeOtherMessage = "Should be lower case string, startin
 export const useValidateSelection = (uploadState: UploadState) => {
     const uploadStatus = uploadState.status;
     const [isValid, setIsValid] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null as Error | null);
  
     useEffect(() => {
@@ -73,6 +74,7 @@ export const useValidateSelection = (uploadState: UploadState) => {
             }
 
             const validate = async () => {
+                setIsLoading(true);
                 try {
                     // Validate files selection
                     if (!isValidFilesSelection) {
@@ -96,16 +98,17 @@ export const useValidateSelection = (uploadState: UploadState) => {
                         throw new Error(invalidDataTypeOtherMessage);
                     }
                      
-                    setIsValid(true);
-
+                    setIsLoading(false);
+                    setError(null as Error | null);
+                    return setIsValid(true);
                 } catch (err) {
-                    setError(err as Error | null);
+                    setIsValid(false);
+                    return setError(err as Error | null);
                 }
             };
             validate();
         }
     }, [uploadState]);
 
-    return [isValid, error] as [boolean, Error | null];
+    return [isValid, error, isLoading] as [boolean, Error | null, boolean];
 };
-

@@ -52,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({ userProfile, signOut }) => {
         }
 
         // Double check result for errors
-        if (result.error) {
+        if (result.error && result.error !== "") {
             console.error('Sign out failure');
             const errorMessage = result.error as string;
             console.error(errorMessage);

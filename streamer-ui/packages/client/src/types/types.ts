@@ -139,7 +139,6 @@ export interface StructureSelection {
     sessionLabelInput: InputVariable;
     dataTypeInput: InputVariable;
     dataTypeOtherInput: InputVariable;
-    isValid: boolean;
 };
 
 // Possible upload statuses
@@ -150,6 +149,8 @@ export enum UploadStatus {
     Validating = "Validating",
     Confirming = "Confirming",
     Uploading = "Uploading",
+    Finalizing = "Finalizing",
+    Submitting = "Submitting",
     Success = "Success",
     Error = " Error"
 };
@@ -160,10 +161,9 @@ export interface UploadState {
     structureSelection: StructureSelection,
     filesSelection: FilesSelection,
     isValidSelection: boolean,
-    remainingFiles: number;
+    numRemainingFiles: number;
     percentage: number,
     status: UploadStatus;
-    error: Error | null;
 };
 
 export enum UploadActionType {
@@ -173,6 +173,8 @@ export enum UploadActionType {
     Validate = "Validate",
     Confirm = "Confirm",
     Upload = "Upload",
+    Finalize = "Finalize",
+    Submit = "Submit",
     Finish = "Finish",
     Error = "Error"
 };
@@ -206,8 +208,7 @@ export const initialStructureSelection = {
     subjectLabelInput: initialInputVariable,
     sessionLabelInput: initialInputVariable,
     dataTypeInput: initialInputVariable,
-    dataTypeOtherInput: initialInputVariable,
-    isValid: false
+    dataTypeOtherInput: initialInputVariable
 } as StructureSelection;
 
 export const initialUploadState = {
@@ -215,8 +216,39 @@ export const initialUploadState = {
     filesSelection: initialFilesSelection,
     structureSelection: initialStructureSelection,
     isValidSelection: false,
-    remainingFiles: 0,
+    numRemainingFiles: 0,
     percentage: 0,
-    status: UploadStatus.NotUploading,
-    error: null
+    status: UploadStatus.NotUploading
 } as UploadState;
+
+// Possible error types
+export enum ErrorType {
+    NoError = "NoError",
+    ErrorSignIn = "ErrorSignIn",
+    ErrorSignOut = "ErrorSignOut",
+    ErrorLoadingProjectList = "ErrorLoadingProjectList",
+    ErrorSelect = "ErrorSelect",
+    ErrorInitiateUpload = "ErrorInitiateUpload",
+    ErrorValidateUpload = "ErrorValidateUpload",
+    ErrorConfirmUpload = "ErrorConfirmUpload",
+    ErrorUpload = "ErrorUpload",
+    ErrorFinalizeUpload = "ErrorFinalizeUpload",
+    ErrorSubmit = "ErrorSubmit",
+    ErrorFinish = "ErrorFinish",
+    ErrorUnknown = "ErrorUnknown"
+};
+
+export interface ErrorState {
+    errorType: ErrorType;
+    errorMessage: string;
+};
+
+export interface ErrorAction {
+    type: ErrorType;
+    payload: ErrorState;
+};
+
+export const initialErrorState = {
+    errorType: ErrorType.NoError,
+    errorMessage: ""
+} as ErrorState;

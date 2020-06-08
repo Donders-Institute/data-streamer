@@ -16,7 +16,11 @@ import {
     UploadActionType,
     UploadAction,
     initialUploadState,
-    initialFilesSelection
+    initialFilesSelection,
+    ErrorState,
+    ErrorAction,
+    ErrorType,
+    initialErrorState
 } from "../types/types";
 
 import { useFetchProjects } from "../services/pdb/pdb";
@@ -28,16 +32,18 @@ import {
     fileNameExists,
     useInitiateUpload,
     useValidateUpload,
-    useUpload
+    useCheckApproval,
+    useUpload,
+    useFinalize,
+    useSubmit
 } from "../services/upload/upload";
 
 import { useValidateSelection } from "../services/inputValidation/inputValidation";
 
 import {
-    useCheckErrorSignOut,
-    useCheckErrorLoadingProjectList,
-    useCheckErrorUpload
-} from "../services/checkError/checkError";
+    resetError,
+    useUpdateError
+} from "../services/error/error";
 
 import "./App.less";
 
@@ -70,6 +76,16 @@ function uploadReducer(state: UploadState, action: UploadAction) {
                 ...(action.payload),
                 status: UploadStatus.Uploading
             };
+        case UploadActionType.Finalize:
+            return {
+                ...(action.payload),
+                status: UploadStatus.Finalizing
+            };
+        case UploadActionType.Submit:
+            return {
+                ...(action.payload),
+                status: UploadStatus.Submitting
+            };
         case UploadActionType.Finish:
             return {
                 ...(action.payload),
@@ -81,6 +97,16 @@ function uploadReducer(state: UploadState, action: UploadAction) {
                 status: UploadStatus.Error
             };
     }
+};
+
+function errorReducer(state: ErrorState, action: ErrorAction) {
+    if (action.type === ErrorType.NoError) {
+        return initialErrorState;
+    }
+    return {
+        errorType: action.type,
+        errorMessage: action.payload.errorMessage
+    };
 };
 
 interface AppLoggedInProps {
@@ -96,70 +122,194 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     signOut,
     mockPdb
 }) => {
-    // Sign out error
+    // Book keeping of sign out
+    const [isSigningOut, setIsSigningOut] = useState(false);
     const [errorSignOut, setErrorSignOut] = useState(null as Error | null);
-
-    // List of available projects for user
-    const [projectList, errorLoadingProjectList, isLoadingProjectList] = useFetchProjects(userProfile, mockPdb);
 
     // Book keeping of upload state
     const [uploadState, uploadDispatch] = useReducer(uploadReducer, initialUploadState);
 
-    // Validation of selection. If hasValidSelection is true, make the upload button green
-    const [hasValidSelection, errorSelection] = useValidateSelection(uploadState);
+    // Book keeping of error state
+    const [errorState, errorDispatch] = useReducer(errorReducer, initialErrorState);
+
+    // Check for sign out error
+    useUpdateError({
+        isLoading: isSigningOut,
+        error: errorSignOut,
+        errorType: ErrorType.ErrorSignOut,
+        errorDispatch,
+        uploadState,
+        uploadDispatch
+    });
+
+    // List of available projects for user
+    const [projectList, errorLoadingProjectList, isLoadingProjectList] = useFetchProjects(userProfile, mockPdb);
+
+    useUpdateError({
+        isLoading: isLoadingProjectList,
+        error: errorLoadingProjectList,
+        errorType: ErrorType.ErrorLoadingProjectList,
+        errorDispatch,
+        uploadState,
+        uploadDispatch
+    });
+
+    // Book keeping of validation of selected files batch
+    const [errorFilesSelect, setErrorFilesSelect] = useState(null as Error | null);
+    const [isLoadingValidateFilesSelect, setIsLoadingValidateFilesSelect] = useState(false);
+
+    useUpdateError({
+        isLoading: isLoadingValidateFilesSelect,
+        error: errorFilesSelect,
+        errorType: ErrorType.ErrorSelect,
+        errorDispatch,
+        uploadState,
+        uploadDispatch
+    });
+
+    // Validation of whole selection. If valid, make the upload button green
+    const [isValidSelection, errorSelect, isLoadingValidateSelection] = useValidateSelection(uploadState);
+
+    useEffect(() => {
+        const checkSelection = (isValid: boolean) => {
+            if (uploadState.status === UploadStatus.Selecting) {
+                return uploadDispatch({
+                    type: UploadActionType.Select,
+                    payload: {
+                        ...uploadState,
+                        isValidSelection: isValid
+                    } as UploadState
+                } as UploadAction);
+            }
+        };
+        checkSelection(isValidSelection);
+    }, [uploadState.status, isValidSelection]);
+
+    useUpdateError({
+        isLoading: isLoadingValidateSelection,
+        error: errorSelect,
+        errorType: ErrorType.ErrorSelect,
+        errorDispatch,
+        uploadState,
+        uploadDispatch
+    });
+
+    // Show green upload button
+    const enableUploadButton = isValidSelection;
 
     // Show upload modal
     const showUploadModal = uploadState.status !== UploadStatus.NotUploading && uploadState.status !== UploadStatus.Selecting;
 
     // Initiate upload
-    const [errorInitiateUpload, isLoadingInitiateUpload] = useInitiateUpload(userProfile, uploadState, uploadDispatch);
+    const [errorInitiateUpload, isLoadingInitiateUpload] = useInitiateUpload({
+        userProfile,
+        uploadState,
+        uploadDispatch
+    });
+
+    useUpdateError({
+        isLoading: isLoadingInitiateUpload,
+        error: errorInitiateUpload,
+        errorType: ErrorType.ErrorInitiateUpload,
+        errorDispatch,
+        uploadState,
+        uploadDispatch
+    });
 
     // Validate upload
-    const [hasExistingFiles, existingFiles, errorValidateUpload, isLoadingValidateUpload] = useValidateUpload(userProfile, uploadState, uploadDispatch);
+    const [hasExistingFiles, existingFiles, errorValidateUpload, isLoadingValidateUpload] = useValidateUpload({
+        userProfile,
+        uploadState,
+        uploadDispatch
+    });
+
+    useUpdateError({
+        isLoading: isLoadingValidateUpload,
+        error: errorValidateUpload,
+        errorType: ErrorType.ErrorValidateUpload,
+        errorDispatch,
+        uploadState,
+        uploadDispatch
+    });
+
+    // Check approval
+    useCheckApproval({
+        uploadState,
+        uploadDispatch,
+        hasExistingFiles
+    });
 
     // Handle approved upload
-    const [uploadedFiles, errorUpload, isLoadingUpload] = useUpload(userProfile, uploadState, uploadDispatch);
-
-    // Check for error
-    const hasErrorLoadingProjectList = useCheckErrorLoadingProjectList({
-        errorLoadingProjectList,
+    const [percentage, numRemainingFiles, errorUpload, isLoadingUpload] = useUpload({
+        userProfile,
         uploadState,
         uploadDispatch
     });
-
-    const hasErrorSignOut = useCheckErrorSignOut({
-        errorSignOut,
-        uploadState,
-        uploadDispatch
-    });
-
-    const hasErrorUpload = useCheckErrorUpload({
-        errorInitiateUpload,
-        errorValidateUpload,
-        errorUpload,
-        uploadState,
-        uploadDispatch
-    });
-
-    // Show error modal when needed
-    const [showErrorModal, setShowErrorModal] = useState(false);
 
     useEffect(() => {
-        const show = async (
-            hasErrorLoadingProjectList: boolean,
-            hasSignOutError: boolean,
-            hasUploadError: boolean
-        ) => {
-            if (hasErrorLoadingProjectList || hasSignOutError || hasUploadError) {
-                return setShowErrorModal(true);
+        const updateProgress = (p: number, n: number) => {
+            if (uploadState.status === UploadStatus.Uploading) {
+                return uploadDispatch({
+                    type: UploadActionType.Upload,
+                    payload: {
+                        ...uploadState,
+                        percentage: p,
+                        numRemainingFiles: n
+                    } as UploadState
+                } as UploadAction);
             }
-            return setShowErrorModal(false);
         };
-        show(hasErrorLoadingProjectList, hasErrorSignOut, hasErrorUpload);
-    }, [hasErrorLoadingProjectList, hasErrorSignOut, hasErrorUpload]);
+        updateProgress(percentage, numRemainingFiles);
+    }, [uploadState.status, percentage, numRemainingFiles]);
+
+    useUpdateError({
+        isLoading: isLoadingUpload,
+        error: errorUpload,
+        errorType: ErrorType.ErrorUpload,
+        errorDispatch,
+        uploadState,
+        uploadDispatch
+    });
+
+    // Handle finalize
+    const [errorFinalize, isLoadingFinalize] = useFinalize({
+        userProfile,
+        uploadState,
+        uploadDispatch
+    });
+
+    useUpdateError({
+        isLoading: isLoadingFinalize,
+        error: errorFinalize,
+        errorType: ErrorType.ErrorFinalizeUpload,
+        errorDispatch,
+        uploadState,
+        uploadDispatch
+    });
+
+    // Handle submit
+    const [done, uploadedFiles, errorSubmit, isLoadingSubmit] = useSubmit({
+        userProfile,
+        uploadState,
+        uploadDispatch
+    });
+
+    useUpdateError({
+        isLoading: isLoadingSubmit,
+        error: errorSubmit,
+        errorType: ErrorType.ErrorSubmit,
+        errorDispatch,
+        uploadState,
+        uploadDispatch
+    });
+
+    // Do not show error modal during selection and when no error.
+    const showErrorModal = errorState.errorType !== ErrorType.ErrorSelect && errorState.errorType !== ErrorType.NoError;
 
     // Handle sign out in header and upload modal
     const handleSignOut = async () => {
+        setIsSigningOut(true);
+
         const username = userProfile.username;
         const password = userProfile.password;
 
@@ -168,18 +318,22 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
             result = await signOut(username, password);
 
             // Double check result for error
-            if (result.error) {
+            if (result.error && result.error !== "") {
                 throw new Error(result.error);
             }
 
-            // Success, reset all
+            // Done
+            setIsSigningOut(false);
+
+            // Success, reset error and upload state
+            await resetError(errorDispatch);
             return uploadDispatch({
                 type: UploadActionType.Reset,
                 payload: { ...initialUploadState }
             } as UploadAction);
 
-        } catch (err) {
-            return setErrorSignOut(err);
+        } catch (error) {
+            return setErrorSignOut(error);
         }
     };
 
@@ -207,7 +361,7 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
         } as UploadAction);
     };
 
-    // Clear the file list
+    // Clear the file list. Set stage to select.
     const handleResetFileList = () => {
         return uploadDispatch({
             type: UploadActionType.Select,
@@ -220,6 +374,8 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
 
     // Helper function for file selector
     const handleFilesSelection = async (file: RcFile, batch: RcFile[]) => {
+        setIsLoadingValidateFilesSelect(true);
+
         const fileList = uploadState.filesSelection.fileList;
         const totalSizeBytes = uploadState.filesSelection.totalSizeBytes;
 
@@ -258,12 +414,18 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
             }
         }
 
+        // Done
+        setIsLoadingValidateFilesSelect(false);
+
         if (isValidBatch) {
-            // Success
+            // Update files selection
+            const newNumRemainingFiles = fileList.length + batch.length;
             return uploadDispatch({
                 type: UploadActionType.Select,
                 payload: {
                     ...uploadState,
+                    percentage: 0,
+                    numRemainingFiles: newNumRemainingFiles,
                     filesSelection: {
                         fileList: [...fileList, ...batch],
                         totalSizeBytes: totalSizeBytes + batchSizeBytes,
@@ -300,16 +462,22 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
             }
         }
 
+        // Set the error
+        setErrorFilesSelect(new Error(errorMessage));
+
+        // Keep the original files selection (i.e. without the batch).
+        // Do not set uploadStatus to Error in select stage.
         return uploadDispatch({
             type: UploadActionType.Select,
             payload: {
                 ...uploadState,
+                percentage: 0,
+                numRemainingFiles: fileList.length,
                 filesSelection: {
                     fileList: [...fileList],
                     totalSizeBytes,
                     hasFilesSelected: fileList.length > 0
-                } as FilesSelection,
-                error: new Error(errorMessage)
+                } as FilesSelection
             } as UploadState
         } as UploadAction);
     };
@@ -323,21 +491,28 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     };
 
     // Start from scratch
-    const handleUploadAnotherBatch = () => {
+    const handleUploadAnotherBatch = async () => {
+        // Reset the error state
+        await resetError(errorDispatch);
         // Keep projectList, projectNumber, subject, session, dataType, etc.
-        // but refresh the filelist
+        // but refresh the filelist.
+        // Set stage to select.
         return handleResetFileList();
     };
 
-    // Cancel upload
-    const handleCancelFilesExistModal = () => {
+    // Cancel upload in confirmation modal
+    const handleCancelConfirmModal = async () => {
+        // Reset the error state
+        await resetError(errorDispatch);
         // Keep projectList, projectNumber, subject, session, dataType, etc.
-        // but refresh the filelist
+        // but refresh the filelist.
+        // Set stage to select.
         return handleResetFileList();
     };
 
-    // No user confirmation needed, proceed
-    const handleOkFilesExistModal = () => {
+    // Handle Ok button in confirmation modal
+    const handleOkConfirmModal = () => {
+        // Proceed. Set stage to actual upload.
         return uploadDispatch({
             type: UploadActionType.Upload,
             payload: { ...uploadState } as UploadState
@@ -346,7 +521,8 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
 
     // Handle Ok button in error modal
     const handleOkErrorModal = () => {
-        return setShowErrorModal(false);
+        // Reset the error state
+        return resetError(errorDispatch);
     };
 
     return (
@@ -374,17 +550,18 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
                             isLoadingProjectList={isLoadingProjectList}
                             uploadState={uploadState}
                             uploadDispatch={uploadDispatch}
+                            errorState={errorState}
                             handleRemoveSelectedFile={handleRemoveSelectedFile}
                             handleResetFileList={handleResetFileList}
                             handleFilesSelection={handleFilesSelection}
-                            enableUploadButton={hasValidSelection}
+                            enableUploadButton={enableUploadButton}
                             handleInitiateUpload={handleInitiateUpload}
                             handleUploadAnotherBatch={handleUploadAnotherBatch}
                             showUploadModal={showUploadModal}
                             existingFiles={existingFiles}
-                            showFilesExistModal={hasExistingFiles}
-                            handleCancelFilesExistModal={handleCancelFilesExistModal}
-                            handleOkFilesExistModal={handleOkFilesExistModal}
+                            showConfirmModal={hasExistingFiles}
+                            handleCancelConfirmModal={handleCancelConfirmModal}
+                            handleOkConfirmModal={handleOkConfirmModal}
                             showErrorModal={showErrorModal}
                             handleOkErrorModal={handleOkErrorModal}
                         />;

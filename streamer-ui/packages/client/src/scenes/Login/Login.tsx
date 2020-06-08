@@ -56,7 +56,7 @@ const LoginForm: React.FC<LoginProps & FormComponentProps> = ({ userProfile, sig
         }
 
         // Double check result for errors
-        if (result.error) {
+        if (result.error && result.error !== "") {
             console.error('Login failure');
             const errorMessage = result.error as string;
             console.error(errorMessage);

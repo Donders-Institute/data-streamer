@@ -31,7 +31,7 @@ const LoggingOut: React.FC = () => {
                                 Research Data Uploader
                             </h2>
                             <div style={{ margin: "0px 0px 10px 0px" }}>
-                                <Typography.Text type="danger">Logging out ...</Typography.Text>
+                                <Typography.Text>Logging out ...</Typography.Text>
                             </div>
                         </Card>
                     </Col>

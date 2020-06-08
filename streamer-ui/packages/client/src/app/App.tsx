@@ -48,20 +48,25 @@ const App: React.FC<AppProps> = () => {
             try {
                 result = await handleSignIn(username, password);
             } catch (err) {
-                setErrorMessage(err.errorMessage);
+                setErrorMessage(err.message as string);
                 setLoginStatus(LoginStatus.LoggingError);
                 throw err;
             }
+
+            // Double check result for error
+            if (result.error && result.error !== "") {
+                setErrorMessage(result.error);
+                setLoginStatus(LoginStatus.LoggingError);
+                throw new Error(result.error);
+            }
         }
 
-        setUserProfile(userProfile => (
-            {
-                username,
-                displayName: null,
-                password,
-                isAuthenticated: true
-            } as UserProfile
-        ));
+        setUserProfile({
+            username,
+            displayName: null,
+            password,
+            isAuthenticated: true
+        } as UserProfile);
         setLoginStatus(LoginStatus.LoggedIn);
 
         return result;
@@ -74,19 +79,24 @@ const App: React.FC<AppProps> = () => {
         try {
             result = await handleSignOut(username, password);
         } catch (err) {
-            setErrorMessage(err.errorMessage);
+            setErrorMessage(err.message as string);
             setLoginStatus(LoginStatus.LoggingError);
             throw err;
         }
 
-        setUserProfile(userProfile => (
-            {
-                username: "",
-                displayName: null,
-                password: "",
-                isAuthenticated: false
-            } as UserProfile
-        ));
+        // Double check result for error
+        if (result.error && result.error !== "") {
+            setErrorMessage(result.error);
+            setLoginStatus(LoginStatus.LoggingError);
+            throw new Error(result.error);
+        }
+
+        setUserProfile({
+            username: "",
+            displayName: null,
+            password: "",
+            isAuthenticated: false
+        } as UserProfile);
         setLoginStatus(LoginStatus.NotLoggedIn);
 
         return result;

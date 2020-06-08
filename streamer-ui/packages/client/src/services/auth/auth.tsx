@@ -37,7 +37,7 @@ export async function handleSignIn(username: string, password: string) {
     }
 
     // Double check result for errors
-    if (result.error) {
+    if (result.error && result.error !== "") {
         const errorMessage = result.error as string;
         throw new Error(errorMessage);
     }
@@ -69,6 +69,7 @@ export async function handleSignOut(username: string, password: string) {
             timeout: 2000
         });
     } catch (err) {
+        console.log(JSON.stringify(err));
         throw err;
     }
 

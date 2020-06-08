@@ -20,7 +20,6 @@ import {
     UploadState,
     UploadAction,
     UploadActionType,
-    StructureSelection,
     FilesSelection
 } from "../../types/types";
 
@@ -105,7 +104,7 @@ export async function begin(
     }
 
     // Double check result for errors
-    if (result.error) {
+    if (result.error && result.error !== "") {
         const errorMessage = result.error as string;
         throw new Error(errorMessage);
     }
@@ -224,7 +223,7 @@ async function validateFile(
     }
 
     // Double check result for errors
-    if (result.error) {
+    if (result.error && result.error !== "") {
         const errorMessage = result.error as string;
         throw new Error(errorMessage);
     }
@@ -344,7 +343,7 @@ export async function addFile(
     }
 
     // Double check result for errors
-    if (result.error) {
+    if (result.error && result.error !== "") {
         const errorMessage = result.error as string;
         throw new Error(errorMessage);
     }
@@ -403,7 +402,7 @@ export async function finalize(
     }
 
     // Double check result for errors
-    if (result.error) {
+    if (result.error && result.error !== "") {
         const errorMessage = result.error as string;
         throw new Error(errorMessage);
     }
@@ -462,7 +461,7 @@ export async function submit(
     }
 
     // Double check result for errors
-    if (result.error) {
+    if (result.error && result.error !== "") {
         const errorMessage = result.error as string;
         throw new Error(errorMessage);
     }
@@ -477,27 +476,34 @@ export async function submit(
 };
 
 // Custom hook to initiate upload
-export const useInitiateUpload = (userProfile: UserProfile, uploadState: UploadState, uploadDispatch: Dispatch<UploadAction>) => {
-    const uploadStatus = uploadState.status;
-
+export const useInitiateUpload = ({
+    userProfile,
+    uploadState,
+    uploadDispatch
+} : {
+    userProfile: UserProfile;
+    uploadState: UploadState;
+    uploadDispatch: Dispatch<UploadAction>;
+}) => {
     const [error, setError] = useState(null as Error | null);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        console.log(uploadStatus);
-        if (uploadStatus === UploadStatus.Initiating) {
-            const username = userProfile.username;
-            const password = userProfile.password;
-        
-            const projectNumber = uploadState.structureSelection.projectNumberInput.value;
-            const subjectLabel = uploadState.structureSelection.subjectLabelInput.value;
-            const sessionLabel = uploadState.structureSelection.sessionLabelInput.value;
-            const dataType = uploadState.structureSelection.dataTypeInput.value;
-        
-            const fileList = uploadState.filesSelection.fileList;
+        const initiateUpload = async () => {
+            if (uploadState.status === UploadStatus.Initiating) {
 
-            const initiateUpload = async () => {
                 setIsLoading(true);
+
+                const username = userProfile.username;
+                const password = userProfile.password;
+            
+                const projectNumber = uploadState.structureSelection.projectNumberInput.value;
+                const subjectLabel = uploadState.structureSelection.subjectLabelInput.value;
+                const sessionLabel = uploadState.structureSelection.sessionLabelInput.value;
+                const dataType = uploadState.structureSelection.dataTypeInput.value;
+            
+                const fileList = uploadState.filesSelection.fileList;
+
                 try {
                     const [newUploadSessionId, newTotalSizeBytes] = await initiate(
                         username, 
@@ -511,57 +517,65 @@ export const useInitiateUpload = (userProfile: UserProfile, uploadState: UploadS
                     setIsLoading(false);
 
                     // Initiation successful
-                    uploadDispatch({
+                    return uploadDispatch({
                         type: UploadActionType.Validate,
                         payload: {
                             ...uploadState,
+                            uploadSessionId: newUploadSessionId,
                             filesSelection: {
                                 ...(uploadState.filesSelection),
                                 totalSizeBytes: newTotalSizeBytes
-                            } as FilesSelection,
-                            structureSelection: {
-                                ...(uploadState.structureSelection),
-                                uploadSessionId: newUploadSessionId
-                            } as StructureSelection
+                            } as FilesSelection
                         } as UploadState
                     } as UploadAction);
 
                 } catch (err) {
-                    setError(err);
+                    return setError(err);
                 }
-            };
-            initiateUpload();
-        }
-    }, [uploadState]);
+            }
+        };
+        initiateUpload();
+    }, [uploadState.status]);
 
     return [error, isLoading] as [Error | null, boolean];
 };
 
 // Custom hook to validate upload
-export const useValidateUpload = (userProfile: UserProfile, uploadState: UploadState, uploadDispatch: Dispatch<UploadAction>) => {
-    const uploadStatus = uploadState.status;
-
+export const useValidateUpload = ({
+    userProfile,
+    uploadState, 
+    uploadDispatch
+} : {
+    userProfile: UserProfile;
+    uploadState: UploadState;
+    uploadDispatch: Dispatch<UploadAction>;
+}) => {
     const [hasExistingFiles, setHasExistingFiles] = useState(false);
     const [existingFiles, setExistingFiles] = useState([] as string[]);
     const [error, setError] = useState(null as Error | null);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if (uploadStatus === UploadStatus.Validating) {
-            const username = userProfile.username;
-            const password = userProfile.password;
-        
-            const uploadSessionId = uploadState.uploadSessionId;
-
-            const projectNumber = uploadState.structureSelection.projectNumberInput.value;
-            const subjectLabel = uploadState.structureSelection.subjectLabelInput.value;
-            const sessionLabel = uploadState.structureSelection.sessionLabelInput.value;
-            const dataType = uploadState.structureSelection.dataTypeInput.value;
-        
-            const fileList = uploadState.filesSelection.fileList;
-
-            const validateUpload = async () => {
+        const validateUpload = async () => {
+            if (uploadState.status === UploadStatus.Validating) {
                 setIsLoading(true);
+
+                const username = userProfile.username;
+                const password = userProfile.password;
+            
+                const uploadSessionId = uploadState.uploadSessionId;
+
+                const projectNumber = uploadState.structureSelection.projectNumberInput.value;
+                const subjectLabel = uploadState.structureSelection.subjectLabelInput.value;
+                const sessionLabel = uploadState.structureSelection.sessionLabelInput.value;
+                const dataType = uploadState.structureSelection.dataTypeInput.value;
+            
+                const fileList = uploadState.filesSelection.fileList;
+
+                if (uploadSessionId < 0) {
+                    console.log("Invalid upload session id");
+                }
+
                 try {
                     const validationResult = await validate(
                         username,
@@ -578,100 +592,194 @@ export const useValidateUpload = (userProfile: UserProfile, uploadState: UploadS
                     setIsLoading(false);
 
                     // Validation successful
-                    uploadDispatch({
+                    return uploadDispatch({
                         type: UploadActionType.Confirm,
                         payload: { ...uploadState } as UploadState
                     } as UploadAction);
 
                 } catch (err) {
-                    setError(err);
+                    return setError(err);
                 }
-            };
-            validateUpload();
-        }
-    }, [uploadState]);
+            }
+        };
+        validateUpload();
+    }, [uploadState.status]);
 
     return [hasExistingFiles, existingFiles, error, isLoading] as [boolean, string[], Error | null, boolean];
 };
 
-// Custom hook to handle actual upload
-export const useUpload = (userProfile: UserProfile, uploadState: UploadState, uploadDispatch: Dispatch<UploadAction>) => {
-    const uploadStatus = uploadState.status;
+// Custom hook to check approval
+export const useCheckApproval = ({
+    uploadState,
+    uploadDispatch, 
+    hasExistingFiles
+} : {
+    uploadState: UploadState;
+    uploadDispatch: Dispatch<UploadAction>;
+    hasExistingFiles: boolean;
+}) => {
+    return useEffect(() => {
+        const check = async () => {
+            if (uploadState.status === UploadStatus.Confirming) {
+                if (!hasExistingFiles) {
+                    // When the destination folder and files do not already exist,
+                    // silently proceed with the actual upload
+                    return uploadDispatch({
+                        type: UploadActionType.Upload,
+                        payload: { ...uploadState } as UploadState
+                    } as UploadAction);
+                }
+                // Otherwise wait for user input (handled elsewhere)
+            }
+        };
+        check();
+    }, [uploadState.status]);
+};
 
-    const [uploadedFiles, setUploadedFiles] = useState([]  as string[]);
+// Custom hook to handle actual upload
+export const useUpload = ({
+    userProfile, 
+    uploadState, 
+    uploadDispatch
+} : {
+    userProfile: UserProfile;
+    uploadState: UploadState;
+    uploadDispatch: Dispatch<UploadAction>;
+}) => {
+    const [numRemainingFiles, setNumRemainingFiles] = useState(uploadState.numRemainingFiles);
+    const [percentage, setPercentage] = useState(uploadState.percentage);
+
     const [error, setError] = useState(null as Error | null);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if (uploadStatus === UploadStatus.Uploading) {
-            const username = userProfile.username;
-            const password =  userProfile.password;
+        const upload = async () => {
+            if (uploadState.status === UploadStatus.Uploading) {
 
-            const uploadSessionId = uploadState.uploadSessionId;
-        
-            const projectNumber =  uploadState.structureSelection.projectNumberInput.value;
-            const subjectLabel =  uploadState.structureSelection.subjectLabelInput.value;
-            const sessionLabel =  uploadState.structureSelection.sessionLabelInput.value;
-            const dataType =  uploadState.structureSelection.dataTypeInput.value;
-        
-            const fileList =  uploadState.filesSelection.fileList;
-            const totalSizeBytes = uploadState.filesSelection.totalSizeBytes; 
-
-            const remainingFiles = uploadState.remainingFiles;
-            const percentage = uploadState.percentage;
-
-            // Upload single file to streamer buffer
-            const uploadFile = async (
-                file: RcFile, 
-                uploadSessionId: number, 
-                totalSizeBytes: number, 
-                remainingFiles: number) => {
-                try {
-                    await addFile(
-                        username,
-                        password,
-                        uploadSessionId,
-                        projectNumber,
-                        subjectLabel,
-                        sessionLabel,
-                        dataType,
-                        file);
-
-                    // Derive percentage done and remaining files
-                    let newPercentage = 100;
-                    if (totalSizeBytes > 0) {
-                        const fileSizeBytes = file.size;
-                        newPercentage = percentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes)
-                    }
-                    const newRemainingFiles = remainingFiles - 1;
-
-                    // Upload single file successful.
-                    // Update progress (i.e. percentage and remaining items).
-                    uploadDispatch({
-                        type: UploadActionType.Upload,
-                        payload: {
-                            ...uploadState,
-                            percentage: newPercentage,
-                            remainingFiles: newRemainingFiles
-                        } as UploadState
-                    } as UploadAction);
-
-                } catch (err) {
-                    throw err;
-                }
-            };
-    
-            const upload = async () => {
                 setIsLoading(true);
+
+                const username = userProfile.username;
+                const password =  userProfile.password;
+
+                const uploadSessionId = uploadState.uploadSessionId;
+            
+                const projectNumber =  uploadState.structureSelection.projectNumberInput.value;
+                const subjectLabel =  uploadState.structureSelection.subjectLabelInput.value;
+                const sessionLabel =  uploadState.structureSelection.sessionLabelInput.value;
+                const dataType =  uploadState.structureSelection.dataTypeInput.value;
+            
+                const fileList =  uploadState.filesSelection.fileList;
+                const totalSizeBytes = uploadState.filesSelection.totalSizeBytes; 
+
+                const numFiles = fileList.length;
+                const numRemainingFiles = uploadState.numRemainingFiles;
+                const percentage = uploadState.percentage;
+
+                // Function to upload single file to streamer buffer
+                const uploadFile = async ({ 
+                    file, 
+                    uploadSessionId, 
+                    totalSizeBytes, 
+                    numRemainingFiles 
+                }: { 
+                    file: RcFile; 
+                    uploadSessionId: number; 
+                    totalSizeBytes: number; 
+                    numRemainingFiles: number; 
+                }) => {
+                    try {
+                        await addFile(
+                            username,
+                            password,
+                            uploadSessionId,
+                            projectNumber,
+                            subjectLabel,
+                            sessionLabel,
+                            dataType,
+                            file);
+
+                        // Derive percentage done
+                        let newPercentage = 100;
+                        if (totalSizeBytes > 0) {
+                            const fileSizeBytes = file.size;
+                            newPercentage = percentage + Math.floor(100.0 * fileSizeBytes / totalSizeBytes);
+                        }
+                        if (newPercentage < 0) newPercentage = 0;
+                        if (newPercentage > 100) newPercentage = 100;
+                        setPercentage(newPercentage);
+
+                        // Derive the remaining number of files
+                        let newNumRemainingFiles = numRemainingFiles - 1;
+                        if (newNumRemainingFiles < 0) newNumRemainingFiles = 0;
+                        if (newNumRemainingFiles > numFiles) newNumRemainingFiles = numFiles;
+                        setNumRemainingFiles(newNumRemainingFiles);
+                    } catch (err) {
+                        throw err;
+                    }
+                };
+    
                 try {
-                    // Upload files to streamer buffer in parallel
+                    // Upload files in parallel to streamer buffer
                     let uploadWork = [] as Promise<void>[];
                     fileList.forEach((file: RcFile) => {
-                        uploadWork.push(uploadFile(file, uploadSessionId, totalSizeBytes, remainingFiles));
+                        uploadWork.push(uploadFile({ 
+                            file, 
+                            uploadSessionId, 
+                            totalSizeBytes, 
+                            numRemainingFiles 
+                        }));
                     });
                     await Promise.all(uploadWork);
 
-                    // Finalize upload session (e.g. add end time timestamp)
+                    // Upload successful
+                    return uploadDispatch({
+                        type: UploadActionType.Finalize,
+                        payload: {
+                            ...uploadState,
+                            percentage: 100,
+                            numRemainingFiles: 0
+                        } as UploadState
+                    } as UploadAction);
+                } catch (err) {
+                    return setError(err);
+                }
+            };
+        }
+        upload();
+    }, [uploadState.status]);
+
+    return [numRemainingFiles, percentage, error, isLoading] as [number, number, Error | null, boolean];
+};
+
+// Custom hook to handle finalizing upload (e.g. add end time timestamp)
+export const useFinalize = ({
+    userProfile, 
+    uploadState, 
+    uploadDispatch
+} : {
+    userProfile: UserProfile;
+    uploadState: UploadState;
+    uploadDispatch: Dispatch<UploadAction>;
+}) => {
+    const [error, setError] = useState(null as Error | null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        const endUploadSession = async () => {
+            if (uploadState.status === UploadStatus.Finalizing) {
+                setIsLoading(true);
+
+                const username = userProfile.username;
+                const password =  userProfile.password;
+
+                const uploadSessionId = uploadState.uploadSessionId;
+            
+                const projectNumber =  uploadState.structureSelection.projectNumberInput.value;
+                const subjectLabel =  uploadState.structureSelection.subjectLabelInput.value;
+                const sessionLabel =  uploadState.structureSelection.sessionLabelInput.value;
+                const dataType =  uploadState.structureSelection.dataTypeInput.value;
+            
+                try {
                     await finalize(
                         username,
                         password,
@@ -681,6 +789,53 @@ export const useUpload = (userProfile: UserProfile, uploadState: UploadState, up
                         sessionLabel,
                         dataType);
 
+                    // Finalize successful
+                    return uploadDispatch({
+                        type: UploadActionType.Submit,
+                        payload: { ...uploadState } as UploadState
+                    } as UploadAction);
+                } catch (err) {
+                    setError(err);
+                }
+            }
+        };
+        endUploadSession();
+    }, [uploadState.status]);
+
+    return [error, isLoading] as [Error | null, boolean];
+};
+
+// Custom hook to handle submit of streamer job
+export const useSubmit = ({
+    userProfile, 
+    uploadState, 
+    uploadDispatch
+} : {
+    userProfile: UserProfile;
+    uploadState: UploadState;
+    uploadDispatch: Dispatch<UploadAction>;
+}) => {
+    const [done, setDone] = useState(false);
+    const [uploadedFiles, setUploadedFiles] = useState([]  as string[]);
+    const [error, setError] = useState(null as Error | null);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        const submitJob = async () => {
+            if (uploadState.status === UploadStatus.Submitting) {
+                setIsLoading(true);
+            
+                const username = userProfile.username;
+                const password =  userProfile.password;
+
+                const uploadSessionId = uploadState.uploadSessionId;
+            
+                const projectNumber =  uploadState.structureSelection.projectNumberInput.value;
+                const subjectLabel =  uploadState.structureSelection.subjectLabelInput.value;
+                const sessionLabel =  uploadState.structureSelection.sessionLabelInput.value;
+                const dataType =  uploadState.structureSelection.dataTypeInput.value;
+            
+                try {
                     // Submit a streamer job
                     const submitResult = await submit(
                         username,
@@ -695,23 +850,26 @@ export const useUpload = (userProfile: UserProfile, uploadState: UploadState, up
                     setUploadedFiles(newUploadedFiles);         
                     setIsLoading(false);
 
-                    // Upload successful
-                    uploadDispatch({
+                    // Submit successful
+                    setDone(true);
+                    return uploadDispatch({
                         type: UploadActionType.Finish,
-                        payload: {
-                            ...uploadState,
-                            percentage: 100,
-                            remaingFiles: 0
-                        } as UploadState
+                        payload: { ...uploadState } as UploadState
                     } as UploadAction);
 
                 } catch (err) {
+                    // Submit failed
+                    setDone(true);
                     setError(err);
+                    return uploadDispatch({
+                        type: UploadActionType.Error,
+                        payload: { ...uploadState } as UploadState
+                    } as UploadAction);
                 }
-            };
-            upload();
-        }
-    }, [uploadState]);
+            }
+        };
+        submitJob();
+    }, [uploadState.status]);
 
-    return [uploadedFiles, error, isLoading] as [string[], Error | null, boolean];
+    return [done, uploadedFiles, error, isLoading] as [boolean, string[], Error | null, boolean];
 };
