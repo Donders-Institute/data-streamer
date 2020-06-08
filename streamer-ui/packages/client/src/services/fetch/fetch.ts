@@ -2,10 +2,6 @@ import { ServerResponse } from "../../types/types";
 
 export function baseUrl() {
     const isDevelopment = process.env.NODE_ENV === "development";
-    console.log(isDevelopment);
-    console.log(process.env.NODE_ENV);
-    console.log(process.env.REACT_APP_STREAMER_UI_EXTERNAL_SERVER_API_URL);
-    console.log(process.env.REACT_APP_STREAMER_UI_INTERNAL_SERVER_API_URL);
     if (isDevelopment) {
         return process.env.REACT_APP_STREAMER_UI_EXTERNAL_SERVER_API_URL || "http://localhost:9000";
     }

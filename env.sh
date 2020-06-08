@@ -49,8 +49,8 @@ STREAMER_UI_MOCK_AUTH=false
 STREAMER_UI_MOCK_PROJECT_DATABASE=false
 
 # configuration for streamer ui client
-STREAMER_UI_INTERNAL_SERVER_API_URL=http://localhost:9000
-STREAMER_UI_EXTERNAL_SERVER_API_URL=http://yourcomputer.example.com:9000
+STREAMER_UI_INTERNAL_SERVER_API_URL=http://ui:9000
+STREAMER_UI_EXTERNAL_SERVER_API_URL=http://localhost:9000
 
 # configuration for streamer ui database
 STREAMER_UI_DB_EXTERNAL_PORT=9001
