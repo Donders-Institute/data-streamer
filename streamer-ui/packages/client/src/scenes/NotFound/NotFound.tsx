@@ -10,13 +10,13 @@ const { Content } = Layout;
 
 interface NotFoundProps {
     userProfile: UserProfile;
-    signOut: (username: string, password: string) => Promise<ServerResponse>;
+    handleSignOut: () => Promise<void>;
 }
 
-const NotFound: React.FC<NotFoundProps> = ({ userProfile, signOut }) => {
+const NotFound: React.FC<NotFoundProps> = ({ userProfile, handleSignOut }) => {
     return (
         <Content style={{ background: "#f0f2f5" }}>
-            <Header userProfile={userProfile} signOut={signOut} />
+            <Header userProfile={userProfile} handleSignOut={handleSignOut} />
             <div style={{ padding: 10 }}>
                 <Card
                     style={{ borderRadius: 4, boxShadow: "1px 1px 1px #ddd", marginTop: 10 }}

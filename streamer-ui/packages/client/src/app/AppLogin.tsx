@@ -1,17 +1,27 @@
 import React from "react";
 
 import Login from "../scenes/Login/Login";
-import { UserProfile, ServerResponse } from "../types/types";
 
 import "./App.less";
 
 interface AppLoginProps {
-    userProfile: UserProfile;
-    signIn: (username: string, password: string) => Promise<ServerResponse>;
+    handleChangeUsername: (username: string) => Promise<void>;
+    handleChangePassword: (password: string) => Promise<void>;
+    handleSignIn: () => Promise<void>;
 }
 
-const AppLogin: React.FC<AppLoginProps> = ({ userProfile, signIn }) => {
-    return <Login userProfile={userProfile} signIn={signIn} />;
+const AppLogin: React.FC<AppLoginProps> = ({
+    handleChangeUsername,
+    handleChangePassword,
+    handleSignIn,
+}) => {
+    return (
+        <Login
+            handleChangeUsername={handleChangeUsername}
+            handleChangePassword={handleChangePassword}
+            handleSignIn={handleSignIn}
+        />
+    );
 }
 
 export default AppLogin;

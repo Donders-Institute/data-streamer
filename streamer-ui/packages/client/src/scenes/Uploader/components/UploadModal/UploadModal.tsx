@@ -12,7 +12,6 @@ import {
 import LoadingIcon from "../../../../components/LoadingIcon/LoadingIcon";
 
 import {
-    UserProfile,
     UploadState,
     UploadStatus,
     ErrorState,
@@ -20,21 +19,19 @@ import {
 } from "../../../../types/types";
 
 interface UploadModalProps {
-    userProfile: UserProfile;
     uploadState: UploadState;
     errorState: ErrorState;
     showUploadModal: boolean;
     handleUploadAnotherBatch: () => void;
-    handleSignOut: (username: string, password: string) => Promise<void>;
+    handleUploadModalSignOut: () => Promise<void>;
 };
 
 const UploadModal: React.FC<UploadModalProps> = ({
-    userProfile,
     uploadState,
     errorState,
     showUploadModal,
     handleUploadAnotherBatch,
-    handleSignOut
+    handleUploadModalSignOut
 }) => {
 
     const isInitiating = uploadState.status === UploadStatus.Initiating;
@@ -56,8 +53,6 @@ const UploadModal: React.FC<UploadModalProps> = ({
             errorState.errorType !== ErrorType.NoError &&
             uploadState.status === UploadStatus.Error)
     );
-
-    const errorMessage = errorState.errorMessage;
 
     const getTitle = (uploadStatus: UploadStatus) => {
         switch (uploadStatus) {
@@ -123,15 +118,13 @@ const UploadModal: React.FC<UploadModalProps> = ({
                             </Button>
                             <Button
                                 disabled={disableButtons}
-                                onClick={() => {
-                                    handleSignOut(userProfile.username, userProfile.password);
-                                }}
+                                onClick={() => { handleUploadModalSignOut(); }}
                             >
                                 <Icon type="logout" /> Sign out
                             </Button>
                         </Col>
                     </Row>
-                </div>
+                </div >
             ]}
             width={"80%"}
             style={{
@@ -214,7 +207,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
                     </div>
                 )
             }
-        </Modal>
+        </Modal >
     );
 };
 

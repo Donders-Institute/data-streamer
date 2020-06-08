@@ -1,4 +1,4 @@
-import React, { useReducer, useState, useEffect } from "react";
+import React, { useReducer, useState, useEffect, Dispatch } from "react";
 import { Switch, Route } from "react-router-dom";
 
 import Login from "../scenes/Login/Login";
@@ -8,7 +8,6 @@ import NotFound from "../scenes/NotFound/NotFound";
 
 import {
     UserProfile,
-    ServerResponse,
     RcFile,
     FilesSelection,
     UploadStatus,
@@ -111,15 +110,19 @@ function errorReducer(state: ErrorState, action: ErrorAction) {
 
 interface AppLoggedInProps {
     userProfile: UserProfile;
-    signIn: (username: string, password: string) => Promise<ServerResponse>;
-    signOut: (username: string, password: string) => Promise<ServerResponse>;
+    handleChangeUsername: (username: string) => Promise<void>;
+    handleChangePassword: (password: string) => Promise<void>;
+    handleSignIn: () => Promise<void>;
+    handleSignOut: () => Promise<void>;
     mockPdb: boolean;
 };
 
 const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     userProfile,
-    signIn,
-    signOut,
+    handleChangeUsername,
+    handleChangePassword,
+    handleSignIn,
+    handleSignOut,
     mockPdb
 }) => {
     // Book keeping of sign out
@@ -310,20 +313,11 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     const showErrorModal = errorState.errorType !== ErrorType.ErrorSelect && errorState.errorType !== ErrorType.NoError;
 
     // Handle sign out in header and upload modal
-    const handleSignOut = async () => {
+    const handleUploadModalSignOut = async () => {
         setIsSigningOut(true);
 
-        const username = userProfile.username;
-        const password = userProfile.password;
-
-        let result: ServerResponse;
         try {
-            result = await signOut(username, password);
-
-            // Double check result for error
-            if (result.error && result.error !== "") {
-                throw new Error(result.error);
-            }
+            await handleSignOut();
 
             // Done
             setIsSigningOut(false);
@@ -535,8 +529,9 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
                 exact={true}
                 render={() => {
                     return <Login
-                        userProfile={userProfile}
-                        signIn={signIn}
+                        handleChangeUsername={handleChangeUsername}
+                        handleChangePassword={handleChangePassword}
+                        handleSignIn={handleSignIn}
                     />;
                 }}
             />
@@ -547,8 +542,8 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
                     if (userProfile.isAuthenticated) {
                         return <Uploader
                             userProfile={userProfile}
-                            signOut={signOut}
                             handleSignOut={handleSignOut}
+                            handleUploadModalSignOut={handleUploadModalSignOut}
                             projectList={projectList}
                             isLoadingProjectList={isLoadingProjectList}
                             uploadState={uploadState}
@@ -570,8 +565,9 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
                         />;
                     }
                     return <Login
-                        userProfile={userProfile}
-                        signIn={signIn}
+                        handleChangeUsername={handleChangeUsername}
+                        handleChangePassword={handleChangePassword}
+                        handleSignIn={handleSignIn}
                     />;
                 }}
             />
@@ -582,12 +578,13 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
                     if (userProfile.isAuthenticated) {
                         return <Help
                             userProfile={userProfile}
-                            signOut={signOut}
+                            handleSignOut={handleSignOut}
                         />;
                     }
                     return <Login
-                        userProfile={userProfile}
-                        signIn={signIn}
+                        handleChangeUsername={handleChangeUsername}
+                        handleChangePassword={handleChangePassword}
+                        handleSignIn={handleSignIn}
                     />;
                 }}
             />
@@ -596,12 +593,13 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
                     if (userProfile.isAuthenticated) {
                         return <NotFound
                             userProfile={userProfile}
-                            signOut={signOut}
+                            handleSignOut={handleSignOut}
                         />;
                     }
                     return <Login
-                        userProfile={userProfile}
-                        signIn={signIn}
+                        handleChangeUsername={handleChangeUsername}
+                        handleChangePassword={handleChangePassword}
+                        handleSignIn={handleSignIn}
                     />;
                 }}
             />

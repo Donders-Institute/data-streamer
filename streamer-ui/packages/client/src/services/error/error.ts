@@ -8,7 +8,10 @@ import {
     UploadState,
     UploadAction,
     UploadActionType,
-    UploadStatus
+    UploadStatus,
+    AuthState,
+    AuthAction,
+    AuthActionType
 } from "../../types/types";
 
 // Set error state to no error
@@ -53,6 +56,45 @@ const updateError = async ({
     // Otherwise reset the error to no error
     return resetError(errorDispatch);
 };
+
+// Custom hook to update error state and auth state
+export const useUpdateAuthError = ({
+    isLoading,
+    error,
+    errorType,
+    errorDispatch,
+    authState,
+    authDispatch
+} : {
+    isLoading: boolean;
+    error: Error | null;
+    errorType: ErrorType;
+    errorDispatch: Dispatch<ErrorAction>;
+    authState: AuthState;
+    authDispatch: Dispatch<AuthAction>;
+}) => {
+    useEffect(() => {
+        // Check for error
+        const check = async (error: Error | null) => {
+            if (error) {
+                // Update the error state
+                await updateError({
+                    error,
+                    errorType,
+                    errorDispatch
+                });
+
+                // Update the auth state
+                return authDispatch({
+                    type: AuthActionType.Error,
+                    payload: { ...authState }
+                });
+            }
+        };
+        check(error);
+    }, [authState.status, isLoading, error, errorType]);
+};
+
 
 // Custom hook to update error state and upload state
 export const useUpdateError = ({

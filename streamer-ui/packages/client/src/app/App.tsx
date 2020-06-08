@@ -1,14 +1,32 @@
-import React, { useState } from "react";
+import React, { useReducer } from "react";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 
-import { UserProfile, LoginStatus, ServerResponse } from "../types/types";
-import { handleSignIn, handleSignOut } from "../services/auth/auth";
+import {
+    LoginStatus,
+    AuthState,
+    AuthAction,
+    AuthActionType,
+    ErrorState,
+    ErrorType,
+    ErrorAction,
+    initialAuthState,
+    initialErrorState
+} from "../types/types";
+
+import {
+    useSigningIn,
+    useSigningOut
+} from "../services/auth/auth";
 
 import AppLoggingIn from "./AppLoggingIn";
 import AppLogin from "./AppLogin";
 import AppLoggedIn from "./AppLoggedIn";
 import AppLoggingOut from "./AppLoggingOut";
 import AppLoginError from "./AppLoginError";
+
+import {
+    useUpdateAuthError
+} from "../services/error/error";
 
 import "./App.less";
 
@@ -24,104 +42,159 @@ const skipAuth = getEnvBoolean(process.env.REACT_APP_STREAMER_UI_MOCK_AUTH);
 // Check mocking of Project Database access (for development)
 const mockPdb = getEnvBoolean(process.env.REACT_APP_STREAMER_UI_MOCK_PROJECT_DATABASE);
 
+function authReducer(state: AuthState, action: AuthAction) {
+    switch (action.type) {
+        case AuthActionType.NotSignedIn:
+            return initialAuthState;
+        case AuthActionType.SigningIn:
+            return {
+                ...(action.payload),
+                status: LoginStatus.LoggingIn
+            };
+        case AuthActionType.SignedIn:
+            return {
+                ...(action.payload),
+                status: LoginStatus.LoggedIn
+            };
+        case AuthActionType.SigningOut:
+            return {
+                ...(action.payload),
+                status: LoginStatus.LoggingOut
+            };
+        case AuthActionType.Error:
+            return {
+                ...(action.payload),
+                status: LoginStatus.LoggingError
+            };
+    }
+};
+
+function authErrorReducer(state: ErrorState, action: ErrorAction) {
+    if (action.type === ErrorType.NoError) {
+        return initialErrorState;
+    }
+    return {
+        errorType: action.type,
+        errorMessage: action.payload.errorMessage
+    };
+};
+
 const App: React.FC<AppProps> = () => {
 
-    const [userProfile, setUserProfile] = useState({
-        username: "",
-        displayName: null,
-        password: "",
-        isAuthenticated: false
-    } as UserProfile);
+    // Book keeping of auth state
+    const [authState, authDispatch] = useReducer(authReducer, initialAuthState);
 
-    const [loginStatus, setLoginStatus] = useState(LoginStatus.NotLoggedIn);
-    const [errorMessage, setErrorMessage] = useState("");
+    // Book keeping of error state
+    const [authErrorState, authErrorDispatch] = useReducer(authErrorReducer, initialErrorState);
 
-    const signIn = async (username: string, password: string) => {
-        setLoginStatus(LoginStatus.LoggingIn);
+    // Sign in
+    const [errorSigningIn, isLoadingSigningIn] = useSigningIn({
+        authState,
+        authDispatch,
+        skipAuth
+    });
 
-        let result: ServerResponse = {
-            error: null,
-            data: ""
-        };
+    useUpdateAuthError({
+        isLoading: isLoadingSigningIn,
+        error: errorSigningIn,
+        errorType: ErrorType.ErrorSignIn,
+        errorDispatch: authErrorDispatch,
+        authState,
+        authDispatch
+    });
 
-        if (!skipAuth) {
-            try {
-                result = await handleSignIn(username, password);
-            } catch (err) {
-                setErrorMessage(err.message as string);
-                setLoginStatus(LoginStatus.LoggingError);
-                throw err;
+    // Sign out
+    const [errorSigningOut, isLoadingSigningOut] = useSigningOut({
+        authState,
+        authDispatch,
+        skipAuth
+    });
+
+    useUpdateAuthError({
+        isLoading: isLoadingSigningOut,
+        error: errorSigningOut,
+        errorType: ErrorType.ErrorSignOut,
+        errorDispatch: authErrorDispatch,
+        authState,
+        authDispatch
+    });
+
+    // Handle user input
+    const handleChangeUsername = async (username: string) => {
+        return authDispatch({
+            type: AuthActionType.NotSignedIn,
+            payload: {
+                ...authState,
+                userProfile: {
+                    ...authState.userProfile,
+                    username
+                }
             }
-
-            // Double check result for error
-            if (result.error && result.error !== "") {
-                setErrorMessage(result.error);
-                setLoginStatus(LoginStatus.LoggingError);
-                throw new Error(result.error);
-            }
-        }
-
-        setUserProfile({
-            username,
-            displayName: null,
-            password,
-            isAuthenticated: true
-        } as UserProfile);
-        setLoginStatus(LoginStatus.LoggedIn);
-
-        return result;
+        } as AuthAction);
     };
 
-    const signOut = async (username: string, password: string) => {
-        setLoginStatus(LoginStatus.LoggingOut);
-
-        let result: ServerResponse;
-        try {
-            result = await handleSignOut(username, password);
-        } catch (err) {
-            setErrorMessage(err.message as string);
-            setLoginStatus(LoginStatus.LoggingError);
-            throw err;
-        }
-
-        // Double check result for error
-        if (result.error && result.error !== "") {
-            setErrorMessage(result.error);
-            setLoginStatus(LoginStatus.LoggingError);
-            throw new Error(result.error);
-        }
-
-        setUserProfile({
-            username: "",
-            displayName: null,
-            password: "",
-            isAuthenticated: false
-        } as UserProfile);
-        setLoginStatus(LoginStatus.NotLoggedIn);
-
-        return result;
+    const handleChangePassword = async (password: string) => {
+        return authDispatch({
+            type: AuthActionType.NotSignedIn,
+            payload: {
+                ...authState,
+                userProfile: {
+                    ...authState.userProfile,
+                    password
+                }
+            }
+        } as AuthAction);
     };
 
-    switch (loginStatus) {
+    // Trigger sign in
+    const handleSignIn = async () => {
+        return authDispatch({
+            type: AuthActionType.SigningIn,
+            payload: {
+                ...authState,
+                userProfile: {
+                    ...authState.userProfile
+                }
+            }
+        } as AuthAction);
+    };
+
+    // Trigger sign out
+    const handleSignOut = async () => {
+        return authDispatch({
+            type: AuthActionType.SigningOut,
+            payload: {
+                ...authState,
+                userProfile: {
+                    ...authState.userProfile
+                }
+            }
+        } as AuthAction);
+    };
+
+    switch (authState.status) {
         case LoginStatus.NotLoggedIn:
             return <AppLogin
-                userProfile={userProfile}
-                signIn={signIn}
+                handleChangeUsername={handleChangeUsername}
+                handleChangePassword={handleChangePassword}
+                handleSignIn={handleSignIn}
             />;
         case LoginStatus.LoggingIn:
             return <AppLoggingIn />;
         case LoginStatus.LoggedIn:
             return <AppLoggedIn
-                userProfile={userProfile}
-                signIn={signIn}
-                signOut={signOut}
+                userProfile={authState.userProfile}
+                handleChangeUsername={handleChangeUsername}
+                handleChangePassword={handleChangePassword}
+                handleSignIn={handleSignIn}
+                handleSignOut={handleSignOut}
                 mockPdb={mockPdb}
             />;
         case LoginStatus.LoggingOut:
             return <AppLoggingOut />;
         case LoginStatus.LoggingError:
             return <AppLoginError
-                errorMessage={errorMessage}
+                errorMessage={authErrorState.errorMessage}
             />;
     }
 };

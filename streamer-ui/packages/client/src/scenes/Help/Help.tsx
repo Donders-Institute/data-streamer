@@ -2,7 +2,7 @@ import React from "react";
 import { Layout, Card, Icon } from "antd";
 
 import Header from "../../components/Header/Header";
-import { UserProfile, ServerResponse } from "../../types/types";
+import { UserProfile } from "../../types/types";
 
 import "../../app/App.less";
 
@@ -10,13 +10,13 @@ const { Content } = Layout;
 
 interface HelpProps {
     userProfile: UserProfile;
-    signOut: (username: string, password: string) => Promise<ServerResponse>;
+    handleSignOut: () => Promise<void>;
 }
 
-const Help: React.FC<HelpProps> = ({ userProfile, signOut }) => {
+const Help: React.FC<HelpProps> = ({ userProfile, handleSignOut }) => {
     return (
         <Content style={{ background: "#f0f2f5" }}>
-            <Header userProfile={userProfile} signOut={signOut} />
+            <Header userProfile={userProfile} handleSignOut={handleSignOut} />
             <div style={{ padding: 10 }}>
                 <Card
                     style={{ borderRadius: 4, boxShadow: "1px 1px 1px #ddd", marginTop: 10 }}
