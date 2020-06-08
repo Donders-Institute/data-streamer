@@ -2,6 +2,7 @@ const { Client } = require('pg');
 
 // Connect to streamer UI database 
 async function connect(dbHost, dbPort, dbUsername, dbPassword, dbName) {
+    console.log(dbHost, dbPort, dbUsername, dbPassword, dbName);
     const client = new Client({
         host: dbHost,
         port: dbPort,
@@ -35,6 +36,22 @@ var _insertUploadSession = async function(
 ) {
     let client;
     let uploadSessionId;
+
+    console.log("insertUploadSession");
+    console.log(
+        dbHost, 
+        dbPort, 
+        dbUsername, 
+        dbPassword, 
+        dbName,
+        username,
+        ipAddress,
+        userAgent,
+        projectNumber,
+        subjectLabel,
+        sessionLabel,
+        dataType,
+        startTime);
 
     try {
         client = await connect(dbHost, dbPort, dbUsername, dbPassword, dbName);

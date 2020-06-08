@@ -84,6 +84,9 @@ var _loginUser = function(req, res, next) {
     // Bypass authentication (for development)
     const mockAuth = req.app.locals.STREAMER_UI_MOCK_AUTH;
     if (mockAuth) {
+        req.session.user = username;
+        req.session.authenticated = true;
+        console.log(username, userAgent);
         return res.status(200).json({
             data: "Login successful. You will soon be redirected to the index",
             error: null

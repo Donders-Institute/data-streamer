@@ -1,283 +1,129 @@
-import React from "react";
-import {
-    Select,
-    Form,
-    Row,
-    Col,
-    Input
-} from "antd";
+import React, { useEffect, Dispatch } from "react";
+
+import { Row, Col, Form } from "antd";
 import { FormComponentProps } from "antd/lib/form";
-import { Project, SelectOption, InputValidationStatuses } from "../../../../types/types";
-import { validateSubjectLabelInput, validateSessionLabelInput, validateSelectedDataTypeOtherInput } from "../../services/inputValidation/inputValidation";
 
-const { Option } = Select;
+import {
+    Project,
+    UploadState,
+    UploadAction,
+    FormSelectConfig,
+    FormInputConfig
+} from "../../../../types/types";
 
-interface IProps {
+import configureSelectProject from "../../../../services/configureFormFields/configureSelectProject";
+import configureInputSubjectLabel from "../../../../services/configureFormFields/configureInputSubjectLabel";
+import configureInputSessionLabel from "../../../../services/configureFormFields/configureInputSessionLabel";
+import configureSelectDataType from "../../../../services/configureFormFields/configureSelectDataType";
+import configureInputDataTypeOther from "../../../../services/configureFormFields/configureInputDataTypeOther";
+
+import FormSelect from "../../../../components/FormSelect/FormSelect";
+import FormInput from "../../../../components/FormInput/FormInput";
+
+interface StructureSelectorProps {
     projectList: Project[];
-    selectedProjectStatus: (typeof InputValidationStatuses)[number];
-    selectedSubjectStatus: (typeof InputValidationStatuses)[number];
-    selectedSessionStatus: (typeof InputValidationStatuses)[number];
-    selectedDataTypeStatus: (typeof InputValidationStatuses)[number];
-    selectedDataTypeOtherStatus: (typeof InputValidationStatuses)[number];
-    isSelectedProject: boolean;
-    projectNumber: string;
-    subjectLabel: string;
-    isSelectedDataTypeOther: boolean;
-    dataType: string;
-    sessionLabel: string;
-    handleSelectProject: (projectNumber: string) => Promise<void>;
-    handleChangeSubjectLabel: (subjectLabel: string) => Promise<void>;
-    handleChangeSessionLabel: (sessionLabel: string) => Promise<void>;
-    handleSelectDataType: (dataType: string) => Promise<void>;
-    handleChangeSelectedDataTypeOther: (dataTypeOther: string) => Promise<void>;
+    uploadState: UploadState;
+    uploadDispatch: Dispatch<UploadAction>;
 }
 
-const dataTypesList = [
-    {
-        id: 1,
-        dataType: "mri"
-    },
-    {
-        id: 2,
-        dataType: "meg"
-    },
-    {
-        id: 3,
-        dataType: "eeg"
-    },
-    {
-        id: 4,
-        dataType: "ieeg"
-    },
-    {
-        id: 5,
-        dataType: "beh"
-    },
-    {
-        id: 6,
-        dataType: "other"
-    }
-];
+const StructureSelectorForm: React.FC<StructureSelectorProps & FormComponentProps> = ({
+    projectList,
+    uploadState,
+    uploadDispatch,
+    form
+}) => {
+    // Some styling
+    const selectStyle = { width: "400px" } as React.CSSProperties | undefined;
+    const inputStyle = { width: "400px" } as React.CSSProperties | undefined;
+    const labelStyle = { fontWeight: "bold" } as React.CSSProperties | undefined;
+    const labelStyleDataTypeOther = {} as React.CSSProperties | undefined;
+    const helpStyle = { fontStyle: "italic" } as React.CSSProperties | undefined;
 
-const StructureSelectorForm: React.FC<IProps & FormComponentProps> = (
-    {
-        form,
+    let configSelectProject: FormSelectConfig;
+    let configInputSubjectLabel: FormInputConfig;
+    let configInputSessionLabel: FormInputConfig;
+    let configSelectDataType: FormSelectConfig;
+    let configInputDataTypeOther: FormInputConfig;
+
+    configSelectProject = configureSelectProject({
         projectList,
-        selectedProjectStatus,
-        selectedSubjectStatus,
-        selectedSessionStatus,
-        selectedDataTypeStatus,
-        selectedDataTypeOtherStatus,
-        isSelectedProject,
-        projectNumber,
-        subjectLabel,
-        isSelectedDataTypeOther,
-        dataType,
-        sessionLabel,
-        handleSelectProject,
-        handleChangeSubjectLabel,
-        handleChangeSessionLabel,
-        handleSelectDataType,
-        handleChangeSelectedDataTypeOther
-    }) => {
-    const { getFieldDecorator } = form;
+        selectStyle,
+        labelStyle,
+        helpStyle,
+        uploadState,
+        uploadDispatch
+    });
 
-    const projectNumberOption: SelectOption = { key: (projectNumber ? projectNumber : "projectnumber") };
-    const dataTypeOption: SelectOption = { key: (dataType ? dataType : "datatype") };
+    configInputSubjectLabel = configureInputSubjectLabel({
+        inputStyle,
+        labelStyle,
+        helpStyle,
+        uploadState,
+        uploadDispatch,
+        form
+    });
 
-    const optionsProjects = projectList!.map((project, key) => (
-        <Option value={project.projectNumber} key={key}>{project.projectNumber}</Option>
-    ));
+    configInputSessionLabel = configureInputSessionLabel({
+        inputStyle,
+        labelStyle,
+        helpStyle,
+        uploadState,
+        uploadDispatch,
+        form
+    });
 
-    const optionsDataTypes = dataTypesList.map((item, key) => (
-        <Option value={item.dataType} key={key}>{item.dataType}</Option>
-    ));
+    configSelectDataType = configureSelectDataType({
+        selectStyle,
+        labelStyle,
+        helpStyle,
+        uploadState,
+        uploadDispatch
+    });
 
-    async function validateSubjectLabel(value: string) {
-        let isValid = validateSubjectLabelInput(value);
-        if (!isValid) {
-            throw new Error("Should be combination of numbers and alphabets with no special characters. Examples: '1', 'mri02'");
-        }
-    };
-
-    async function validateSessionLabel(value: string) {
-        let isValid = validateSessionLabelInput(value);
-        if (!isValid) {
-            throw new Error("Should be combination of numbers and alphabets with no special characters. Examples: '1', 'mri02'");
-        }
-    };
-
-    async function validateDataTypeOther(value: string) {
-        let isValid = validateSelectedDataTypeOtherInput(value);
-        if (!isValid) {
-            throw new Error("Should be lower case string without special characters. Examples: eyelink', 'test'");
-        }
-    };
+    configInputDataTypeOther = configureInputDataTypeOther({
+        inputStyle,
+        labelStyle: labelStyleDataTypeOther,
+        helpStyle,
+        uploadState,
+        uploadDispatch,
+        form
+    });
 
     return (
         <Form layout="vertical" hideRequiredMark>
             <Row gutter={16}>
                 <Col span={12}>
-                    <Form.Item
-                        label={<span style={{ fontWeight: "bold" }}>Select project</span>}
-                        hasFeedback
-                        validateStatus={selectedProjectStatus}
-                        help={<span style={{ fontStyle: "italic" }}>Projects for which you are entitled to upload data to</span>}
-                    >
-                        <Select
-                            labelInValue
-                            defaultValue={projectNumberOption}
-                            onSelect={(value: SelectOption) => {
-                                const projectNumber = value.key;
-                                handleSelectProject(projectNumber);
-                            }}
-                            style={{ width: "400px" }}
-                        >
-                            {optionsProjects}
-                        </Select>
-                    </Form.Item>
+                    <FormSelect config={configSelectProject} />
                 </Col>
                 <Col span={12}></Col>
             </Row>
-
             <Row gutter={16}>
                 <Col span={12}>
-                    <Form.Item
-                        label={<span style={{ fontWeight: "bold" }}>Set subject label</span>}
-                        hasFeedback
-                        validateStatus={selectedSubjectStatus}
-                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets without special characters. Example: '009' or 'p02'</span>}
-                    >
-                        {
-                            getFieldDecorator("subjectlabel", {
-                                initialValue: subjectLabel,
-                                rules: [
-                                    { required: true, message: "Please input your subject label" },
-                                    {
-                                        validator: (value: any) => {
-                                            const stringValue = value as string;
-                                            validateSubjectLabel(stringValue);
-                                        }
-                                    }
-                                ]
-                            })(
-                                <Input
-                                    placeholder="subjectlabel"
-                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                        const subjectLabel = event.target.value;
-                                        handleChangeSubjectLabel(subjectLabel);
-                                    }}
-                                    style={{ width: "400px" }}
-                                    disabled={!isSelectedProject}
-                                />,
-                            )}
-                    </Form.Item>
+                    <FormInput config={configInputSubjectLabel} />
                 </Col>
                 <Col span={12}></Col>
             </Row>
-
             <Row gutter={16}>
                 <Col span={12}>
-                    <Form.Item
-                        label={<span style={{ fontWeight: "bold" }}>Set session label</span>}
-                        hasFeedback
-                        validateStatus={selectedSessionStatus}
-                        help={<span style={{ fontStyle: "italic" }}>Should be combination of numbers and alphabets with no special characters. Example: 'mri02' or 'tms01'</span>}
-                    >
-                        {
-                            getFieldDecorator("sessionlabel", {
-                                initialValue: sessionLabel,
-                                rules: [
-                                    { required: true, message: "Please input your session label" },
-                                    {
-                                        validator: (value: any) => {
-                                            const stringValue = value as string;
-                                            validateSessionLabel(stringValue);
-                                        }
-                                    }
-                                ]
-                            })(
-                                <Input
-                                    placeholder="sessionlabel"
-                                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                        const sessionLabel = event.target.value;
-                                        handleChangeSessionLabel(sessionLabel);
-                                    }}
-                                    style={{ width: "400px" }}
-                                    disabled={!isSelectedProject}
-                                />,
-                            )}
-                    </Form.Item>
+                    <FormInput config={configInputSessionLabel} />
                 </Col>
                 <Col span={12}></Col>
             </Row>
-
             <Row gutter={16}>
                 <Col span={12}>
-                    <Form.Item
-                        label={<span style={{ fontWeight: "bold" }}>Select data type</span>}
-                        hasFeedback
-                        validateStatus={selectedDataTypeStatus}
-                        help={<span style={{ fontStyle: "italic" }}>Modality subfolder in which the data will be stored</span>}
-                    >
-                        <Select
-                            labelInValue
-                            defaultValue={dataTypeOption}
-                            onSelect={(value: SelectOption) => {
-                                const dataType = value.key;
-                                handleSelectDataType(dataType);
-                            }}
-                            style={{ width: "400px" }}
-                            disabled={!isSelectedProject}
-                        >
-                            {optionsDataTypes}
-                        </Select>
-                    </Form.Item>
+                    <FormSelect config={configSelectDataType} />
                 </Col>
                 <Col span={12}></Col>
             </Row>
-
-            {isSelectedDataTypeOther && (
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <Form.Item
-                            label="Set data type other"
-                            hasFeedback
-                            validateStatus={selectedDataTypeOtherStatus}
-                            help={<span style={{ fontStyle: "italic" }}>Should be lower case string, optionally with numbers, dashes ('-'), and underscores ('_');'. Example: 'eyetracker' or 'audio-left'</span>}
-                        >
-                            {
-                                getFieldDecorator("datatypeother", {
-                                    initialValue: dataType,
-                                    rules: [
-                                        { required: true, message: "Please input your other data type" },
-                                        {
-                                            validator: (value: any) => {
-                                                const stringValue = value as string;
-                                                validateDataTypeOther(stringValue);
-                                            }
-                                        }
-                                    ]
-                                })(
-                                    <Input
-                                        placeholder="datatype"
-                                        onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                            const dataTypeOther = event.target.value;
-                                            handleChangeSelectedDataTypeOther(dataTypeOther);
-                                        }}
-                                        style={{ width: "400px" }}
-                                        disabled={!isSelectedProject}
-                                    />,
-                                )}
-                        </Form.Item>
-                    </Col>
-                    <Col span={12}></Col>
-                </Row>
-            )}
+            <Row gutter={16}>
+                <Col span={12}>
+                    <FormInput config={configInputDataTypeOther} />
+                </Col>
+                <Col span={12}></Col>
+            </Row>
         </Form>
     );
 };
 
-const StructureSelector = Form.create<IProps & FormComponentProps>()(StructureSelectorForm);
-
+const StructureSelector = Form.create<StructureSelectorProps & FormComponentProps>()(StructureSelectorForm);
 export default StructureSelector;

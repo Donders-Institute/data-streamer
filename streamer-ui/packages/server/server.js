@@ -97,13 +97,13 @@ app.use(session({
 app.get('/',
     auth.isAuthenticated,
     (req, res) => {
-        res.sendFile(path.join(__dirname + '/./frontend/index.html'));
+        res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
     });
 
 // GET Serve login page
 app.get('/login',
     (req, res) => {
-        res.sendFile(path.join(__dirname + '/./frontend/index.html'));
+        res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
     });
 
 // POST Login for regular user

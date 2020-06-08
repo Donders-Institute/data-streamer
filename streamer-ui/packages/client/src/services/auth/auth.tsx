@@ -1,5 +1,3 @@
-import React from "react";
-
 import {
     baseUrl,
     fetchRetry,
@@ -8,18 +6,6 @@ import {
 } from "../../services/fetch/fetch";
 
 import { ServerResponse } from "../../types/types";
-
-export interface IAuthContext {
-    isAuthenticated: boolean,
-    username: string,
-    password: string,
-    signIn: (username: string, password: string) => Promise<ServerResponse>,
-    signOut: (username: string, password: string) => Promise<ServerResponse>
-}
-
-export const AuthContext = React.createContext<IAuthContext | null>(null);
-export const AuthProvider = AuthContext.Provider;
-export const AuthConsumer = AuthContext.Consumer;
 
 export async function handleSignIn(username: string, password: string) {
 
@@ -51,7 +37,7 @@ export async function handleSignIn(username: string, password: string) {
     }
 
     // Double check result for errors
-    if (result.error) {
+    if (result.error && result.error !== "") {
         const errorMessage = result.error as string;
         throw new Error(errorMessage);
     }
@@ -83,6 +69,7 @@ export async function handleSignOut(username: string, password: string) {
             timeout: 2000
         });
     } catch (err) {
+        console.log(JSON.stringify(err));
         throw err;
     }
 

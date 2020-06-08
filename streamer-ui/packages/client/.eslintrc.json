@@ -2,7 +2,8 @@
   "root": true,
   "plugins": [
     "@typescript-eslint/eslint-plugin",
-    "react"
+    "react",
+    "react-hooks"
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -14,9 +15,10 @@
   },
   "extends": [
     "eslint:recommended",
-    //"plugin:react/recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/base"
+    //"plugin:react/recommended"
+    // "plugin:react-hooks/recommended"
     //"plugin:@typescript-eslint/recommended"
     // "react-app"
   ],
@@ -38,7 +40,9 @@
       "warn",
       4
     ],
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
     // "@typescript-eslint/no-non-null-assertion": "off",
     // "@typescript-eslint/camelcase": [
     //     "warn",
