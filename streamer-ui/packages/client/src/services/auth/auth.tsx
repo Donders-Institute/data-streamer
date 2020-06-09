@@ -104,9 +104,13 @@ export const useSigningIn = ({
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
+        let mounted = true;
+
         const initiate = async () => {
             if (authState.status === LoginStatus.LoggingIn) {
-                setIsLoading(true);
+                if (mounted) {
+                    setIsLoading(true);
+                }
 
                 const username = authState.userProfile.username;
                 const password = authState.userProfile.password;
@@ -123,30 +127,37 @@ export const useSigningIn = ({
                         }
                     }
 
-                    setIsLoading(false);
+                    if (mounted) {
+                        setIsLoading(false);
 
-                    // Signin successful
-                    return authDispatch({
-                        type: AuthActionType.SignedIn,
-                        payload: {
-                            ...authState,
-                            isAuthenticated: true,
-                            status: LoginStatus.LoggedIn,
-                            userProfile: {
-                                username,
-                                displayName,
-                                password,
-                                isAuthenticated: true
-                            } as UserProfile
-                        } as AuthState
-                    } as AuthAction);
-
+                        // Signin successful
+                        authDispatch({
+                            type: AuthActionType.SignedIn,
+                            payload: {
+                                ...authState,
+                                isAuthenticated: true,
+                                status: LoginStatus.LoggedIn,
+                                userProfile: {
+                                    username,
+                                    displayName,
+                                    password,
+                                    isAuthenticated: true
+                                } as UserProfile
+                            } as AuthState
+                        } as AuthAction);
+                    }
                 } catch (err) {
-                    return setError(err);
+                    if (mounted) {
+                        setError(err);
+                    }
                 }
             }
         };
         initiate();
+
+        return function cleanup() {
+            mounted = false;
+        };
     }, [authState.status]);
 
     return [error, isLoading] as [Error | null, boolean];
@@ -166,9 +177,14 @@ export const useSigningOut = ({
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
+        let mounted = true;
+
         const initiate = async () => {
             if (authState.status === LoginStatus.LoggingOut) {
-                setIsLoading(true);
+
+                if (mounted) {
+                    setIsLoading(true);
+                }
 
                 const username = authState.userProfile.username;
                 const password = authState.userProfile.password;
@@ -184,20 +200,28 @@ export const useSigningOut = ({
                         }
                     }
 
-                    setIsLoading(false);
+                    if (mounted) {
+                        setIsLoading(false);
 
-                    // Signout successful
-                    return authDispatch({
-                        type: AuthActionType.NotSignedIn,
-                        payload: { ...initialAuthState }
-                    } as AuthAction);
+                        // Signout successful
+                        authDispatch({
+                            type: AuthActionType.NotSignedIn,
+                            payload: { ...initialAuthState }
+                        } as AuthAction);
+                    }
 
                 } catch (err) {
-                    return setError(err);
+                    if (mounted) {
+                        setError(err);
+                    }
                 }
             }
         };
         initiate();
+
+        return function cleanup() {
+            mounted = false;
+        };
     }, [authState.status]);
 
     return [error, isLoading] as [Error | null, boolean];

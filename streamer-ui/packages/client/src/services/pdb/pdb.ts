@@ -15,8 +15,7 @@ import {
 } from "../../types/types";
 
 // Fake fetcher for testing purposes
-async function fetchDummyProjectList(username: string) {
-    console.log(`Fetching data for ${username} ...`);
+async function fetchDummyProjectList() {
     const timeout = (ms: number) => {
         return new Promise(resolve => setTimeout(resolve, ms));
     };
@@ -84,31 +83,45 @@ async function fetchProjectList(username: string, password: string) {
 
 // Custom hook to fetch projects from the Project Database
 export const useFetchProjects = (userProfile: UserProfile, mockPdb: boolean) => {
-    const username = userProfile.username;
-    const password = userProfile.password;
-
     const [projectList, setProjectList] = useState([] as Project[]);
     const [error, setError] = useState(null as Error | null);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
+        let mounted = true;
+
         const fetchProjects = async () => {
-            setIsLoading(true);
+            if (mounted) {
+                setIsLoading(true);
+            }
+
+            const username = userProfile.username;
+            const password = userProfile.password;
+
             try {
                 let newProjectList: Project[];
                 if (mockPdb) {
-                    newProjectList = await fetchDummyProjectList(username); 
+                    newProjectList = await fetchDummyProjectList(); 
                 } else {
                     newProjectList = await fetchProjectList(username, password);
                 }
-                setProjectList(newProjectList);
-                setIsLoading(false);
+
+                if (mounted) {
+                    setProjectList(newProjectList);
+                    setIsLoading(false);
+                }
             } catch (err) {
-                setError(err);
+                if (mounted) {
+                    setError(err);
+                }
             }
         };
         fetchProjects();
-    }, []);
+
+        return function cleanup() {
+            mounted = false;
+        };
+    }, [userProfile]);
 
     return [projectList, error, isLoading] as [Project[], Error | null, boolean];
 }

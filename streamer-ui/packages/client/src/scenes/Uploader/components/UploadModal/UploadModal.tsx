@@ -23,7 +23,7 @@ interface UploadModalProps {
     errorState: ErrorState;
     showUploadModal: boolean;
     handleUploadAnotherBatch: () => void;
-    handleUploadModalSignOut: () => Promise<void>;
+    handleSignOut: () => Promise<void>;
 };
 
 const UploadModal: React.FC<UploadModalProps> = ({
@@ -31,7 +31,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
     errorState,
     showUploadModal,
     handleUploadAnotherBatch,
-    handleUploadModalSignOut
+    handleSignOut
 }) => {
 
     const isInitiating = uploadState.status === UploadStatus.Initiating;
@@ -118,7 +118,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
                             </Button>
                             <Button
                                 disabled={disableButtons}
-                                onClick={() => { handleUploadModalSignOut(); }}
+                                onClick={() => { handleSignOut(); }}
                             >
                                 <Icon type="logout" /> Sign out
                             </Button>
