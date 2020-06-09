@@ -489,10 +489,14 @@ export const useInitiateUpload = ({
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
+        let mounted = true;
+
         const initiateUpload = async () => {
             if (uploadState.status === UploadStatus.Initiating) {
 
-                setIsLoading(true);
+                if (mounted) {
+                    setIsLoading(true);
+                }
 
                 const username = userProfile.username;
                 const password = userProfile.password;
@@ -514,27 +518,35 @@ export const useInitiateUpload = ({
                         dataType,
                         fileList);
 
-                    setIsLoading(false);
+                    if (mounted) {
+                        setIsLoading(false);
 
-                    // Initiation successful
-                    return uploadDispatch({
-                        type: UploadActionType.Validate,
-                        payload: {
-                            ...uploadState,
-                            uploadSessionId: newUploadSessionId,
-                            filesSelection: {
-                                ...(uploadState.filesSelection),
-                                totalSizeBytes: newTotalSizeBytes
-                            } as FilesSelection
-                        } as UploadState
-                    } as UploadAction);
+                        // Initiation successful
+                        uploadDispatch({
+                            type: UploadActionType.Validate,
+                            payload: {
+                                ...uploadState,
+                                uploadSessionId: newUploadSessionId,
+                                filesSelection: {
+                                    ...(uploadState.filesSelection),
+                                    totalSizeBytes: newTotalSizeBytes
+                                } as FilesSelection
+                            } as UploadState
+                        } as UploadAction);
+                    }
 
                 } catch (err) {
-                    return setError(err);
+                    if (mounted) {
+                        setError(err);
+                    }
                 }
             }
         };
         initiateUpload();
+
+        return function cleanup() {
+            mounted = false;
+        };
     }, [uploadState.status]);
 
     return [error, isLoading] as [Error | null, boolean];
@@ -556,9 +568,14 @@ export const useValidateUpload = ({
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
+        let mounted = true;
+
         const validateUpload = async () => {
             if (uploadState.status === UploadStatus.Validating) {
-                setIsLoading(true);
+
+                if (mounted) {
+                    setIsLoading(true);
+                }
 
                 const username = userProfile.username;
                 const password = userProfile.password;
@@ -586,23 +603,32 @@ export const useValidateUpload = ({
                         sessionLabel,
                         dataType,
                         fileList);
-                    const newExistingFiles = [...(validationResult.existingFiles)];
-                    setHasExistingFiles(newExistingFiles.length > 0);
-                    setExistingFiles(newExistingFiles);
-                    setIsLoading(false);
 
-                    // Validation successful
-                    return uploadDispatch({
-                        type: UploadActionType.Confirm,
-                        payload: { ...uploadState } as UploadState
-                    } as UploadAction);
+                    if (mounted) {
+                        const newExistingFiles = [...(validationResult.existingFiles)];
+                        setHasExistingFiles(newExistingFiles.length > 0);
+                        setExistingFiles(newExistingFiles);
+                        setIsLoading(false);
+                    
+                        // Validation successful
+                        uploadDispatch({
+                            type: UploadActionType.Confirm,
+                            payload: { ...uploadState } as UploadState
+                        } as UploadAction);
+                    }
 
                 } catch (err) {
-                    return setError(err);
+                    if (mounted) {
+                        setError(err);
+                    }
                 }
             }
         };
         validateUpload();
+
+        return function cleanup() {
+            mounted = false;
+        };
     }, [uploadState.status]);
 
     return [hasExistingFiles, existingFiles, error, isLoading] as [boolean, string[], Error | null, boolean];
@@ -618,21 +644,29 @@ export const useCheckApproval = ({
     uploadDispatch: Dispatch<UploadAction>;
     hasExistingFiles: boolean;
 }) => {
-    return useEffect(() => {
+    useEffect(() => {
+        let mounted = true;
+
         const check = async () => {
             if (uploadState.status === UploadStatus.Confirming) {
                 if (!hasExistingFiles) {
-                    // When the destination folder and files do not already exist,
-                    // silently proceed with the actual upload
-                    return uploadDispatch({
-                        type: UploadActionType.Upload,
-                        payload: { ...uploadState } as UploadState
-                    } as UploadAction);
+                    if (mounted) {
+                        // When the destination folder and files do not already exist,
+                        // silently proceed with the actual upload
+                        uploadDispatch({
+                            type: UploadActionType.Upload,
+                            payload: { ...uploadState } as UploadState
+                        } as UploadAction);
+                    }
                 }
                 // Otherwise wait for user input (handled elsewhere)
             }
         };
         check();
+
+        return function cleanup() {
+            mounted = false;
+        };
     }, [uploadState.status]);
 };
 
@@ -653,10 +687,14 @@ export const useUpload = ({
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
+        let mounted = true;
+
         const upload = async () => {
             if (uploadState.status === UploadStatus.Uploading) {
 
-                setIsLoading(true);
+                if (mounted) {
+                    setIsLoading(true);
+                }
 
                 const username = userProfile.username;
                 const password =  userProfile.password;
@@ -706,13 +744,19 @@ export const useUpload = ({
                         }
                         if (newPercentage < 0) newPercentage = 0;
                         if (newPercentage > 100) newPercentage = 100;
-                        setPercentage(newPercentage);
+
+                        if (mounted) {
+                            setPercentage(newPercentage);
+                        }
 
                         // Derive the remaining number of files
                         let newNumRemainingFiles = numRemainingFiles - 1;
                         if (newNumRemainingFiles < 0) newNumRemainingFiles = 0;
                         if (newNumRemainingFiles > numFiles) newNumRemainingFiles = numFiles;
-                        setNumRemainingFiles(newNumRemainingFiles);
+
+                        if (mounted) {
+                            setNumRemainingFiles(newNumRemainingFiles);
+                        }
                     } catch (err) {
                         throw err;
                     }
@@ -731,21 +775,31 @@ export const useUpload = ({
                     });
                     await Promise.all(uploadWork);
 
-                    // Upload successful
-                    return uploadDispatch({
-                        type: UploadActionType.Finalize,
-                        payload: {
-                            ...uploadState,
-                            percentage: 100,
-                            numRemainingFiles: 0
-                        } as UploadState
-                    } as UploadAction);
+                    if (mounted) {
+                        setIsLoading(false);
+
+                        // Upload successful
+                        uploadDispatch({
+                            type: UploadActionType.Finalize,
+                            payload: {
+                                ...uploadState,
+                                percentage: 100,
+                                numRemainingFiles: 0
+                            } as UploadState
+                        } as UploadAction);
+                    }
                 } catch (err) {
-                    return setError(err);
+                    if (mounted) {
+                        return setError(err);
+                    }
                 }
             };
         }
         upload();
+
+        return function cleanup() {
+            mounted = false;
+        };
     }, [uploadState.status]);
 
     return [numRemainingFiles, percentage, error, isLoading] as [number, number, Error | null, boolean];
@@ -765,9 +819,13 @@ export const useFinalize = ({
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
+        let mounted = true;
+
         const endUploadSession = async () => {
             if (uploadState.status === UploadStatus.Finalizing) {
-                setIsLoading(true);
+                if (mounted) {
+                    setIsLoading(true);
+                }
 
                 const username = userProfile.username;
                 const password =  userProfile.password;
@@ -789,17 +847,27 @@ export const useFinalize = ({
                         sessionLabel,
                         dataType);
 
-                    // Finalize successful
-                    return uploadDispatch({
-                        type: UploadActionType.Submit,
-                        payload: { ...uploadState } as UploadState
-                    } as UploadAction);
+                    if (mounted) {
+                        setIsLoading(false);
+
+                        // Finalize successful
+                        uploadDispatch({
+                            type: UploadActionType.Submit,
+                            payload: { ...uploadState } as UploadState
+                        } as UploadAction);
+                    }
                 } catch (err) {
-                    setError(err);
+                    if (mounted) {
+                        setError(err);
+                    }
                 }
             }
         };
         endUploadSession();
+
+        return function cleanup() {
+            mounted = false;
+        };
     }, [uploadState.status]);
 
     return [error, isLoading] as [Error | null, boolean];
@@ -821,9 +889,13 @@ export const useSubmit = ({
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
+        let mounted = true;
+
         const submitJob = async () => {
             if (uploadState.status === UploadStatus.Submitting) {
-                setIsLoading(true);
+                if (mounted) {
+                    setIsLoading(true);
+                }
             
                 const username = userProfile.username;
                 const password =  userProfile.password;
@@ -846,29 +918,38 @@ export const useSubmit = ({
                         sessionLabel,
                         dataType
                     );
-                    const newUploadedFiles = [...(submitResult.fileNames)];
-                    setUploadedFiles(newUploadedFiles);         
-                    setIsLoading(false);
 
-                    // Submit successful
-                    setDone(true);
-                    return uploadDispatch({
-                        type: UploadActionType.Finish,
-                        payload: { ...uploadState } as UploadState
-                    } as UploadAction);
+                    if (mounted) {
+                        const newUploadedFiles = [...(submitResult.fileNames)];
+                        setUploadedFiles(newUploadedFiles);         
+                        setIsLoading(false);
+                        setDone(true);
+                    
+                        // Submit successful
+                        uploadDispatch({
+                            type: UploadActionType.Finish,
+                            payload: { ...uploadState } as UploadState
+                        } as UploadAction);
+                    }
 
                 } catch (err) {
-                    // Submit failed
-                    setDone(true);
-                    setError(err);
-                    return uploadDispatch({
-                        type: UploadActionType.Error,
-                        payload: { ...uploadState } as UploadState
-                    } as UploadAction);
+                    if (mounted) {
+                        // Submit failed
+                        setDone(true);
+                        setError(err);
+                        uploadDispatch({
+                            type: UploadActionType.Error,
+                            payload: { ...uploadState } as UploadState
+                        } as UploadAction);
+                    }
                 }
             }
         };
         submitJob();
+
+        return function cleanup() {
+            mounted = false;
+        };
     }, [uploadState.status]);
 
     return [done, uploadedFiles, error, isLoading] as [boolean, string[], Error | null, boolean];

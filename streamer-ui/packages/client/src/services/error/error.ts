@@ -74,6 +74,8 @@ export const useUpdateAuthError = ({
     authDispatch: Dispatch<AuthAction>;
 }) => {
     useEffect(() => {
+        let mounted = true;
+
         // Check for error
         const check = async (error: Error | null) => {
             if (error) {
@@ -84,14 +86,20 @@ export const useUpdateAuthError = ({
                     errorDispatch
                 });
 
-                // Update the auth state
-                return authDispatch({
-                    type: AuthActionType.Error,
-                    payload: { ...authState }
-                });
+                if (mounted) {
+                    // Update the auth state
+                    authDispatch({
+                        type: AuthActionType.Error,
+                        payload: { ...authState }
+                    });
+                }
             }
         };
         check(error);
+
+        return function cleanup() {
+            mounted = false;
+        };
     }, [authState.status, isLoading, error, errorType]);
 };
 
@@ -113,6 +121,8 @@ export const useUpdateError = ({
     uploadDispatch: Dispatch<UploadAction>;
 }) => {
     useEffect(() => {
+        let mounted = true;
+
         // Check for error
         const check = async (error: Error | null) => {
             if (error) {
@@ -126,13 +136,19 @@ export const useUpdateError = ({
                 // Update the upload state
                 // Skip selection errors
                 if (uploadState.status !== UploadStatus.Selecting) {
-                    return uploadDispatch({
-                        type: UploadActionType.Error,
-                        payload: { ...uploadState }
-                    });
+                    if (mounted) {
+                        uploadDispatch({
+                            type: UploadActionType.Error,
+                            payload: { ...uploadState }
+                        });
+                    }
                 }
             }
         };
         check(error);
+
+        return function cleanup() {
+            mounted = false;
+        };
     }, [uploadState.status, isLoading, error, errorType]);
 };

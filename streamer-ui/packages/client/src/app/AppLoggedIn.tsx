@@ -125,25 +125,11 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     handleSignOut,
     mockPdb
 }) => {
-    // Book keeping of sign out
-    const [isSigningOut, setIsSigningOut] = useState(false);
-    const [errorSignOut, setErrorSignOut] = useState(null as Error | null);
-
     // Book keeping of upload state
     const [uploadState, uploadDispatch] = useReducer(uploadReducer, initialUploadState);
 
     // Book keeping of error state
     const [errorState, errorDispatch] = useReducer(errorReducer, initialErrorState);
-
-    // Check for sign out error
-    useUpdateError({
-        isLoading: isSigningOut,
-        error: errorSignOut,
-        errorType: ErrorType.ErrorSignOut,
-        errorDispatch,
-        uploadState,
-        uploadDispatch
-    });
 
     // List of available projects for user
     const [projectList, errorLoadingProjectList, isLoadingProjectList] = useFetchProjects(userProfile, mockPdb);
@@ -174,18 +160,26 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     const [isValidSelection, errorSelect, isLoadingValidateSelection] = useValidateSelection(uploadState);
 
     useEffect(() => {
+        let mounted = true;
+
         const checkSelection = (isValid: boolean) => {
             if (uploadState.status === UploadStatus.Selecting) {
-                return uploadDispatch({
-                    type: UploadActionType.Select,
-                    payload: {
-                        ...uploadState,
-                        isValidSelection: isValid
-                    } as UploadState
-                } as UploadAction);
+                if (mounted) {
+                    uploadDispatch({
+                        type: UploadActionType.Select,
+                        payload: {
+                            ...uploadState,
+                            isValidSelection: isValid
+                        } as UploadState
+                    } as UploadAction);
+                }
             }
         };
         checkSelection(isValidSelection);
+
+        return function cleanup() {
+            mounted = false;
+        };
     }, [uploadState.status, isValidSelection]);
 
     useUpdateError({
@@ -253,19 +247,27 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     });
 
     useEffect(() => {
+        let mounted = true;
+
         const updateProgress = (p: number, n: number) => {
             if (uploadState.status === UploadStatus.Uploading) {
-                return uploadDispatch({
-                    type: UploadActionType.Upload,
-                    payload: {
-                        ...uploadState,
-                        percentage: p,
-                        numRemainingFiles: n
-                    } as UploadState
-                } as UploadAction);
+                if (mounted) {
+                    uploadDispatch({
+                        type: UploadActionType.Upload,
+                        payload: {
+                            ...uploadState,
+                            percentage: p,
+                            numRemainingFiles: n
+                        } as UploadState
+                    } as UploadAction);
+                }
             }
         };
         updateProgress(percentage, numRemainingFiles);
+
+        return function cleanup() {
+            mounted = false;
+        };
     }, [uploadState.status, percentage, numRemainingFiles]);
 
     useUpdateError({
@@ -311,28 +313,6 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
 
     // Do not show error modal during selection and when no error.
     const showErrorModal = errorState.errorType !== ErrorType.ErrorSelect && errorState.errorType !== ErrorType.NoError;
-
-    // Handle sign out in header and upload modal
-    const handleUploadModalSignOut = async () => {
-        setIsSigningOut(true);
-
-        try {
-            await handleSignOut();
-
-            // Done
-            setIsSigningOut(false);
-
-            // Success, reset error and upload state
-            await resetError(errorDispatch);
-            return uploadDispatch({
-                type: UploadActionType.Reset,
-                payload: { ...initialUploadState }
-            } as UploadAction);
-
-        } catch (error) {
-            return setErrorSignOut(error);
-        }
-    };
 
     // Remove a selected file from the list
     const handleRemoveSelectedFile = (filename: string, uid: string, size: number) => {
@@ -543,7 +523,6 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
                         return <Uploader
                             userProfile={userProfile}
                             handleSignOut={handleSignOut}
-                            handleUploadModalSignOut={handleUploadModalSignOut}
                             projectList={projectList}
                             isLoadingProjectList={isLoadingProjectList}
                             uploadState={uploadState}

@@ -34,7 +34,6 @@ const { Content } = Layout;
 
 interface UploaderProps {
     userProfile: UserProfile;
-    handleUploadModalSignOut: () => Promise<void>;
     handleSignOut: () => Promise<void>;
     projectList: Project[];
     isLoadingProjectList: boolean;
@@ -58,7 +57,6 @@ interface UploaderProps {
 
 const Uploader: React.FC<UploaderProps> = ({
     userProfile,
-    handleUploadModalSignOut,
     handleSignOut,
     projectList,
     isLoadingProjectList,
@@ -147,7 +145,7 @@ const Uploader: React.FC<UploaderProps> = ({
                     errorState={errorState}
                     showUploadModal={showUploadModal}
                     handleUploadAnotherBatch={handleUploadAnotherBatch}
-                    handleUploadModalSignOut={handleUploadModalSignOut}
+                    handleSignOut={handleSignOut}
                 />
                 <ConfirmModal
                     uploadState={uploadState}

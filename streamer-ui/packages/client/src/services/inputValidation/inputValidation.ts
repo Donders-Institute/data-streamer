@@ -46,35 +46,39 @@ export const invalidDataTypeOtherMessage = "Should be lower case string, startin
 
 // Custom hook to validate user selected structure
 export const useValidateSelection = (uploadState: UploadState) => {
-    const uploadStatus = uploadState.status;
     const [isValid, setIsValid] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null as Error | null);
  
     useEffect(() => {
-        if (uploadStatus === UploadStatus.Selecting) {
-            const numFiles = uploadState.filesSelection.fileList.length;
-            const hasFilesSelected = uploadState.filesSelection.hasFilesSelected;
+        let mounted = true;
 
-            const projectNumberInput = uploadState.structureSelection.projectNumberInput;
-            const subjectLabelInput = uploadState.structureSelection.subjectLabelInput;
-            const sessionLabelInput = uploadState.structureSelection.sessionLabelInput;
-            const dataTypeInput = uploadState.structureSelection.dataTypeInput;
-            const dataTypeOtherInput = uploadState.structureSelection.dataTypeOtherInput;
+        const validate = async () => {
+            if (uploadState.status === UploadStatus.Selecting) {
+                const numFiles = uploadState.filesSelection.fileList.length;
+                const hasFilesSelected = uploadState.filesSelection.hasFilesSelected;
 
-            const isValidFilesSelection = numFiles && numFiles > 0 && hasFilesSelected;
-            const isValidProjectSelection = projectNumberInput.status === "success" && isValidProjectNumber(projectNumberInput.value);
-            const isValidSubjectLabelSelection = subjectLabelInput.status === "success" && isValidSubjectLabel(subjectLabelInput.value);
-            const isValidSessionLabelSelection = sessionLabelInput.status === "success" && isValidSessionLabel(sessionLabelInput.value);
-            const isValidDataTypeSelection = dataTypeInput.status === "success" && isValidDataType(dataTypeInput.value);
+                const projectNumberInput = uploadState.structureSelection.projectNumberInput;
+                const subjectLabelInput = uploadState.structureSelection.subjectLabelInput;
+                const sessionLabelInput = uploadState.structureSelection.sessionLabelInput;
+                const dataTypeInput = uploadState.structureSelection.dataTypeInput;
+                const dataTypeOtherInput = uploadState.structureSelection.dataTypeOtherInput;
 
-            let isValidDataTypeOtherSelection = true;
-            if (isValidDataTypeSelection && dataTypeInput.value === "other") {
-                isValidDataTypeOtherSelection = dataTypeOtherInput.status === "success" && isValidDataTypeOther(dataTypeOtherInput.value);
-            }
+                const isValidFilesSelection = numFiles && numFiles > 0 && hasFilesSelected;
+                const isValidProjectSelection = projectNumberInput.status === "success" && isValidProjectNumber(projectNumberInput.value);
+                const isValidSubjectLabelSelection = subjectLabelInput.status === "success" && isValidSubjectLabel(subjectLabelInput.value);
+                const isValidSessionLabelSelection = sessionLabelInput.status === "success" && isValidSessionLabel(sessionLabelInput.value);
+                const isValidDataTypeSelection = dataTypeInput.status === "success" && isValidDataType(dataTypeInput.value);
 
-            const validate = async () => {
-                setIsLoading(true);
+                let isValidDataTypeOtherSelection = true;
+                if (isValidDataTypeSelection && dataTypeInput.value === "other") {
+                    isValidDataTypeOtherSelection = dataTypeOtherInput.status === "success" && isValidDataTypeOther(dataTypeOtherInput.value);
+                }
+
+                if (mounted) {
+                    setIsLoading(true);
+                }
+
                 try {
                     // Validate files selection
                     if (!isValidFilesSelection) {
@@ -97,17 +101,25 @@ export const useValidateSelection = (uploadState: UploadState) => {
                         !isValidDataTypeOtherSelection) {
                         throw new Error(invalidDataTypeOtherMessage);
                     }
-                     
-                    setIsLoading(false);
-                    setError(null as Error | null);
-                    return setIsValid(true);
+                    
+                    if (mounted) {
+                        setIsLoading(false);
+                        setError(null as Error | null);
+                        setIsValid(true);
+                    }
                 } catch (err) {
-                    setIsValid(false);
-                    return setError(err as Error | null);
+                    if (mounted) {
+                        setIsValid(false);
+                        setError(err as Error | null);
+                    }
                 }
-            };
-            validate();
-        }
+            }
+        };
+        validate();
+
+        return function cleanup() {
+            mounted = false;
+        };
     }, [uploadState]);
 
     return [isValid, error, isLoading] as [boolean, Error | null, boolean];
