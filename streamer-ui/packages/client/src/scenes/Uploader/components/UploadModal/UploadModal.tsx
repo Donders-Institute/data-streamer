@@ -49,7 +49,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
         errorState.errorType === ErrorType.ErrorFinalizeUpload ||
         errorState.errorType === ErrorType.ErrorSubmit ||
         errorState.errorType === ErrorType.ErrorFinish ||
-        (errorState.errorType !== ErrorType.ErrorSelect &&
+        (errorState.errorType !== ErrorType.ErrorSelectUpload &&
             errorState.errorType !== ErrorType.NoError &&
             uploadState.status === UploadStatus.Error)
     );

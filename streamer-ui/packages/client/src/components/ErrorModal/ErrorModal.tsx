@@ -7,7 +7,7 @@ import {
     Modal
 } from "antd";
 
-import { ErrorState } from "../../../../types/types";
+import { ErrorState } from "../../types/types";
 
 interface ErrorModalProps {
     errorState: ErrorState;

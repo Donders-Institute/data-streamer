@@ -1,12 +1,13 @@
 import { WrappedFormUtils } from "antd/lib/form/Form";
 
 // Possible login statuses
-export enum LoginStatus {
+export enum AuthStatus {
     NotLoggedIn = "NotLoggedIn",
+    Selecting = "Selecting",
     LoggingIn = "LoggingIn",
     LoggedIn = "LoggedIn",
     LoggingOut = "LoggingOut",
-    LoggingError = " LoggingError"
+    LoggingError = "LoggingError"
 };
 
 export type UserProfile = {
@@ -152,7 +153,7 @@ export enum UploadStatus {
     Finalizing = "Finalizing",
     Submitting = "Submitting",
     Success = "Success",
-    Error = " Error"
+    Error = "Error"
 };
 
 export interface UploadState {
@@ -224,10 +225,11 @@ export const initialUploadState = {
 // Possible error types
 export enum ErrorType {
     NoError = "NoError",
+    ErrorSelectAuth = "ErrorSelectAuth",
     ErrorSignIn = "ErrorSignIn",
     ErrorSignOut = "ErrorSignOut",
     ErrorLoadingProjectList = "ErrorLoadingProjectList",
-    ErrorSelect = "ErrorSelect",
+    ErrorSelectUpload = "ErrorSelectUpload",
     ErrorInitiateUpload = "ErrorInitiateUpload",
     ErrorValidateUpload = "ErrorValidateUpload",
     ErrorConfirmUpload = "ErrorConfirmUpload",
@@ -256,12 +258,14 @@ export const initialErrorState = {
 // Auth
 export interface AuthState {
     userProfile: UserProfile;
-    status: LoginStatus;
+    status: AuthStatus;
+    isValidSelection: boolean;
     isAuthenticated: boolean;
 };
 
 export enum AuthActionType {
     NotSignedIn = "NotSignedIn",
+    Selecting = "Selecting",
     SigningIn = "SigningIn",
     SignedIn = "SignedIn",
     SigningOut = "SigningOut",
@@ -275,6 +279,7 @@ export interface AuthAction {
 
 export const initialAuthState = {
     userProfile: {...initialUserProfile},
-    status: LoginStatus.NotLoggedIn,
+    status: AuthStatus.NotLoggedIn,
+    isValidSelection: false,
     isAuthenticated: false
 } as AuthState;

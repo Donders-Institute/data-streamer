@@ -17,7 +17,7 @@ import StructureSelector from "../../components/StructureSelector/StructureSelec
 import UploadButton from "../../components/UploadButton/UploadButton";
 import UploadModal from "../../components/UploadModal/UploadModal";
 import ConfirmModal from "../../components/ConfirmModal/ConfirmModal";
-import ErrorModal from "../../components/ErrorModal/ErrorModal";
+import ErrorModal from "../../../../components/ErrorModal/ErrorModal";
 
 import {
     UserProfile,
