@@ -15,8 +15,12 @@ import { FormComponentProps } from "antd/lib/form";
 
 import HeaderLandingPage from "../../components/HeaderLandingPage/HeaderLandingPage";
 
+import ErrorModal from "../../components/ErrorModal/ErrorModal";
+
 import "../../app/App.less";
 import logoDCCN from "../../assets/dccn-logo.png";
+
+import { ErrorState } from "../../types/types";
 
 const { Content } = Layout;
 
@@ -24,16 +28,26 @@ interface LoginProps {
     handleChangeUsername: (username: string) => Promise<void>;
     handleChangePassword: (password: string) => Promise<void>;
     handleSignIn: () => Promise<void>;
+    enableLoginButton: boolean;
+    showAuthErrorModal: boolean;
+    handleOkAuthErrorModal: () => Promise<void>;
+    authErrorState: ErrorState
 }
 
 const LoginForm: React.FC<LoginProps & FormComponentProps> = ({
     handleChangeUsername,
     handleChangePassword,
     handleSignIn,
+    enableLoginButton,
+    showAuthErrorModal,
+    handleOkAuthErrorModal,
+    authErrorState,
     form
 }) => {
 
     const { getFieldDecorator } = form;
+
+    const disableLoginButton = !enableLoginButton;
 
     return (
         <React.Fragment>
@@ -109,7 +123,12 @@ const LoginForm: React.FC<LoginProps & FormComponentProps> = ({
                                     }
                                 </Form.Item>
                                 <Form.Item style={{ margin: "0px 0px 10px 0px" }}>
-                                    <Button className="login-form-button" type="primary" htmlType="submit">
+                                    <Button
+                                        className="login-form-button"
+                                        type="primary"
+                                        disabled={disableLoginButton}
+                                        htmlType="submit"
+                                    >
                                         Log in
                                 </Button>
                                 </Form.Item>
@@ -119,6 +138,11 @@ const LoginForm: React.FC<LoginProps & FormComponentProps> = ({
                     <Col span={2}></Col>
                 </Row>
             </Content>
+            <ErrorModal
+                errorState={authErrorState}
+                showErrorModal={showAuthErrorModal}
+                handleOkErrorModal={handleOkAuthErrorModal}
+            />
         </React.Fragment>
     );
 };

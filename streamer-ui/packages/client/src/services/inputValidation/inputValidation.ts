@@ -104,7 +104,7 @@ export const useValidateSelection = (uploadState: UploadState) => {
                     
                     if (mounted) {
                         setIsLoading(false);
-                        setError(null as Error | null);
+                        setError(null);
                         setIsValid(true);
                     }
                 } catch (err) {

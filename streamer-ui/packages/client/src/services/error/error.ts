@@ -1,4 +1,4 @@
-import { useState, useEffect, Dispatch } from "react";
+import { useEffect, Dispatch } from "react";
 
 import {
     ErrorType,
@@ -11,8 +11,10 @@ import {
     UploadStatus,
     AuthState,
     AuthAction,
-    AuthActionType
+    AuthActionType,
+    AuthStatus
 } from "../../types/types";
+import { Z_STREAM_ERROR } from "zlib";
 
 // Set error state to no error
 export const resetError = async (errorDispatch: Dispatch<ErrorAction>) => {
@@ -86,14 +88,17 @@ export const useUpdateAuthError = ({
                     errorDispatch
                 });
 
-                if (mounted) {
-                    // Update the auth state
-                    authDispatch({
-                        type: AuthActionType.Error,
-                        payload: { ...authState }
-                    });
+                // Skip selection errors
+                if (authState.status !== AuthStatus.Selecting) {
+                    if (mounted) {
+                        // Update the auth state
+                        authDispatch({
+                            type: AuthActionType.Error,
+                            payload: { ...authState }
+                        });
+                    }
                 }
-            }
+            } 
         };
         check(error);
 

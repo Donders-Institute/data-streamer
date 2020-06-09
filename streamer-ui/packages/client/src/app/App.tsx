@@ -1,8 +1,8 @@
-import React, { useReducer } from "react";
+import React, { useReducer, useEffect, useState } from "react";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 
 import {
-    LoginStatus,
+    AuthStatus,
     AuthState,
     AuthAction,
     AuthActionType,
@@ -14,6 +14,7 @@ import {
 } from "../types/types";
 
 import {
+    useValidateAuthSelection,
     useSigningIn,
     useSigningOut
 } from "../services/auth/auth";
@@ -22,9 +23,9 @@ import AppLoggingIn from "./AppLoggingIn";
 import AppLogin from "./AppLogin";
 import AppLoggedIn from "./AppLoggedIn";
 import AppLoggingOut from "./AppLoggingOut";
-import AppLoginError from "./AppLoginError";
 
 import {
+    resetError,
     useUpdateAuthError
 } from "../services/error/error";
 
@@ -46,25 +47,30 @@ function authReducer(state: AuthState, action: AuthAction) {
     switch (action.type) {
         case AuthActionType.NotSignedIn:
             return initialAuthState;
+        case AuthActionType.Selecting:
+            return {
+                ...(action.payload),
+                status: AuthStatus.Selecting
+            };
         case AuthActionType.SigningIn:
             return {
                 ...(action.payload),
-                status: LoginStatus.LoggingIn
+                status: AuthStatus.LoggingIn
             };
         case AuthActionType.SignedIn:
             return {
                 ...(action.payload),
-                status: LoginStatus.LoggedIn
+                status: AuthStatus.LoggedIn
             };
         case AuthActionType.SigningOut:
             return {
                 ...(action.payload),
-                status: LoginStatus.LoggingOut
+                status: AuthStatus.LoggingOut
             };
         case AuthActionType.Error:
             return {
                 ...(action.payload),
-                status: LoginStatus.LoggingError
+                status: AuthStatus.LoggingError
             };
     }
 };
@@ -86,6 +92,43 @@ const App: React.FC<AppProps> = () => {
 
     // Book keeping of error state
     const [authErrorState, authErrorDispatch] = useReducer(authErrorReducer, initialErrorState);
+
+    // Validation of user input. If valid, enable the login button.
+    const [isValidAuthSelection, errorAuthSelect, isLoadingValidateAuthSelection] = useValidateAuthSelection(authState);
+
+    useEffect(() => {
+        let mounted = true;
+
+        const checkAuthSelection = (isValid: boolean) => {
+            if (authState.status === AuthStatus.Selecting) {
+                if (mounted) {
+                    authDispatch({
+                        type: AuthActionType.Selecting,
+                        payload: {
+                            ...authState,
+                            isValidSelection: isValid
+                        }
+                    } as AuthAction);
+                }
+            }
+        };
+        checkAuthSelection(isValidAuthSelection);
+
+        return function cleanup() {
+            mounted = false;
+        };
+    }, [authState.status, isValidAuthSelection]);
+
+    useUpdateAuthError({
+        isLoading: isLoadingValidateAuthSelection,
+        error: errorAuthSelect,
+        errorType: ErrorType.ErrorSelectAuth,
+        errorDispatch: authErrorDispatch,
+        authState,
+        authDispatch
+    });
+
+    const enableLoginButton = isValidAuthSelection;
 
     // Sign in
     const [errorSigningIn, isLoadingSigningIn] = useSigningIn({
@@ -119,10 +162,17 @@ const App: React.FC<AppProps> = () => {
         authDispatch
     });
 
+    const showAuthErrorModal = (
+        (authState.status === AuthStatus.LoggingError && authErrorState.errorType === ErrorType.ErrorSignIn) ||
+        (authState.status === AuthStatus.LoggingError && authErrorState.errorType === ErrorType.ErrorSignOut) ||
+        (authState.status === AuthStatus.LoggingIn && authErrorState.errorType === ErrorType.ErrorSignIn) ||
+        (authState.status === AuthStatus.LoggingOut && authErrorState.errorType === ErrorType.ErrorSignOut)
+    );
+
     // Handle user input
     const handleChangeUsername = async (username: string) => {
         return authDispatch({
-            type: AuthActionType.NotSignedIn,
+            type: AuthActionType.Selecting,
             payload: {
                 ...authState,
                 userProfile: {
@@ -135,7 +185,7 @@ const App: React.FC<AppProps> = () => {
 
     const handleChangePassword = async (password: string) => {
         return authDispatch({
-            type: AuthActionType.NotSignedIn,
+            type: AuthActionType.Selecting,
             payload: {
                 ...authState,
                 userProfile: {
@@ -143,6 +193,15 @@ const App: React.FC<AppProps> = () => {
                     password
                 }
             }
+        } as AuthAction);
+    };
+
+    // Deal with eror modal OK
+    const handleOkAuthErrorModal = async () => {
+        await resetError(authErrorDispatch);
+        return authDispatch({
+            type: AuthActionType.NotSignedIn,
+            payload: { ...authState }
         } as AuthAction);
     };
 
@@ -172,30 +231,33 @@ const App: React.FC<AppProps> = () => {
         } as AuthAction);
     };
 
-    switch (authState.status) {
-        case LoginStatus.NotLoggedIn:
-            return <AppLogin
-                handleChangeUsername={handleChangeUsername}
-                handleChangePassword={handleChangePassword}
-                handleSignIn={handleSignIn}
-            />;
-        case LoginStatus.LoggingIn:
-            return <AppLoggingIn />;
-        case LoginStatus.LoggedIn:
-            return <AppLoggedIn
-                userProfile={authState.userProfile}
-                handleChangeUsername={handleChangeUsername}
-                handleChangePassword={handleChangePassword}
-                handleSignIn={handleSignIn}
-                handleSignOut={handleSignOut}
-                mockPdb={mockPdb}
-            />;
-        case LoginStatus.LoggingOut:
-            return <AppLoggingOut />;
-        case LoginStatus.LoggingError:
-            return <AppLoginError
-                errorMessage={authErrorState.errorMessage}
-            />;
+    if (authState.status === AuthStatus.LoggedIn) {
+        return <AppLoggedIn
+            userProfile={authState.userProfile}
+            handleChangeUsername={handleChangeUsername}
+            handleChangePassword={handleChangePassword}
+            handleSignIn={handleSignIn}
+            handleSignOut={handleSignOut}
+            enableLoginButton={enableLoginButton}
+            showAuthErrorModal={showAuthErrorModal}
+            handleOkAuthErrorModal={handleOkAuthErrorModal}
+            authErrorState={authErrorState}
+            mockPdb={mockPdb}
+        />;
+    } else if (authState.status === AuthStatus.LoggingIn) {
+        return <AppLoggingIn />;
+    } else if (authState.status === AuthStatus.LoggingOut) {
+        return <AppLoggingOut />;
+    } else {
+        return <AppLogin
+            handleChangeUsername={handleChangeUsername}
+            handleChangePassword={handleChangePassword}
+            handleSignIn={handleSignIn}
+            enableLoginButton={enableLoginButton}
+            showAuthErrorModal={showAuthErrorModal}
+            handleOkAuthErrorModal={handleOkAuthErrorModal}
+            authErrorState={authErrorState}
+        />;
     }
 };
 

@@ -10,12 +10,16 @@ import {
 import {
     UserProfile,
     ServerResponse,
-    LoginStatus,
+    AuthStatus,
     AuthState,
     AuthAction,
     AuthActionType,
     initialAuthState
 } from "../../types/types";
+
+function isNotEmpty(value: string) {
+    return (value && value !== "");
+};
 
 async function signIn(username: string, password: string) {
 
@@ -107,7 +111,7 @@ export const useSigningIn = ({
         let mounted = true;
 
         const initiate = async () => {
-            if (authState.status === LoginStatus.LoggingIn) {
+            if (authState.status === AuthStatus.LoggingIn) {
                 if (mounted) {
                     setIsLoading(true);
                 }
@@ -136,7 +140,7 @@ export const useSigningIn = ({
                             payload: {
                                 ...authState,
                                 isAuthenticated: true,
-                                status: LoginStatus.LoggedIn,
+                                status: AuthStatus.LoggedIn,
                                 userProfile: {
                                     username,
                                     displayName,
@@ -145,11 +149,17 @@ export const useSigningIn = ({
                                 } as UserProfile
                             } as AuthState
                         } as AuthAction);
+
+                        setError(null);
                     }
                 } catch (err) {
                     if (mounted) {
                         setError(err);
                     }
+                }
+            } else {
+                if (mounted) {
+                    setError(null);
                 }
             }
         };
@@ -180,7 +190,7 @@ export const useSigningOut = ({
         let mounted = true;
 
         const initiate = async () => {
-            if (authState.status === LoginStatus.LoggingOut) {
+            if (authState.status === AuthStatus.LoggingOut) {
 
                 if (mounted) {
                     setIsLoading(true);
@@ -208,12 +218,18 @@ export const useSigningOut = ({
                             type: AuthActionType.NotSignedIn,
                             payload: { ...initialAuthState }
                         } as AuthAction);
+
+                        setError(null);
                     }
 
                 } catch (err) {
                     if (mounted) {
                         setError(err);
                     }
+                }
+            } else {
+                if (mounted) {
+                    setError(null);
                 }
             }
         };
@@ -226,3 +242,56 @@ export const useSigningOut = ({
 
     return [error, isLoading] as [Error | null, boolean];
 };
+
+// Custom hook to validate user input
+export const useValidateAuthSelection = (authState: AuthState) => {
+    const [isValid, setIsValid] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null as Error | null);
+
+    useEffect(() => {
+        let mounted = true;
+
+        const validate = async () => {
+            if (authState.status === AuthStatus.Selecting) {
+
+                // Validate userrname and password
+                const username = authState.userProfile.username;
+                const password = authState.userProfile.password;
+
+                const isValidUsername = isNotEmpty(username);
+                const isValidPassword = isNotEmpty(password);
+
+                if (mounted) {
+                    setIsLoading(true);
+                }
+
+                try {
+                    // Validate files selection
+                    if (!isValidUsername || !isValidPassword) {
+                        throw new Error("Invalid username and password");
+                    }
+
+                    if (mounted) {
+                        setIsLoading(false);
+                        setError(null);
+                        setIsValid(true);
+                    }
+                } catch (err) {
+                    if (mounted) {
+                        setIsValid(false);
+                        setError(err as Error | null);
+                    }
+                }
+            }
+        };
+        validate();
+
+        return function cleanup() {
+            mounted = false;
+        };
+    }, [authState]);
+
+    return [isValid, error, isLoading] as [boolean, Error | null, boolean];
+};
+

@@ -533,11 +533,13 @@ export const useInitiateUpload = ({
                                 } as FilesSelection
                             } as UploadState
                         } as UploadAction);
+
+                        setError(null);
                     }
 
                 } catch (err) {
                     if (mounted) {
-                        setError(err);
+                        setError(err as Error | null);
                     }
                 }
             }
@@ -615,11 +617,13 @@ export const useValidateUpload = ({
                             type: UploadActionType.Confirm,
                             payload: { ...uploadState } as UploadState
                         } as UploadAction);
+
+                        setError(null);
                     }
 
                 } catch (err) {
                     if (mounted) {
-                        setError(err);
+                        setError(err as Error | null);
                     }
                 }
             }
@@ -787,10 +791,12 @@ export const useUpload = ({
                                 numRemainingFiles: 0
                             } as UploadState
                         } as UploadAction);
+
+                        setError(null);
                     }
                 } catch (err) {
                     if (mounted) {
-                        return setError(err);
+                        return setError(err as Error | null);
                     }
                 }
             };
@@ -855,10 +861,12 @@ export const useFinalize = ({
                             type: UploadActionType.Submit,
                             payload: { ...uploadState } as UploadState
                         } as UploadAction);
+
+                        setError(null);
                     }
                 } catch (err) {
                     if (mounted) {
-                        setError(err);
+                        setError(err as Error | null);
                     }
                 }
             }
@@ -930,17 +938,21 @@ export const useSubmit = ({
                             type: UploadActionType.Finish,
                             payload: { ...uploadState } as UploadState
                         } as UploadAction);
+
+                        setError(null);
                     }
 
                 } catch (err) {
                     if (mounted) {
                         // Submit failed
                         setDone(true);
-                        setError(err);
+                        
                         uploadDispatch({
                             type: UploadActionType.Error,
                             payload: { ...uploadState } as UploadState
                         } as UploadAction);
+
+                        setError(err as Error | null);
                     }
                 }
             }

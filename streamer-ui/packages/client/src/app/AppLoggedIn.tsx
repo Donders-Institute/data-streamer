@@ -1,4 +1,4 @@
-import React, { useReducer, useState, useEffect, Dispatch } from "react";
+import React, { useReducer, useState, useEffect } from "react";
 import { Switch, Route } from "react-router-dom";
 
 import Login from "../scenes/Login/Login";
@@ -114,6 +114,10 @@ interface AppLoggedInProps {
     handleChangePassword: (password: string) => Promise<void>;
     handleSignIn: () => Promise<void>;
     handleSignOut: () => Promise<void>;
+    enableLoginButton: boolean;
+    showAuthErrorModal: boolean;
+    handleOkAuthErrorModal: () => Promise<void>;
+    authErrorState: ErrorState
     mockPdb: boolean;
 };
 
@@ -123,6 +127,10 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     handleChangePassword,
     handleSignIn,
     handleSignOut,
+    enableLoginButton,
+    showAuthErrorModal,
+    handleOkAuthErrorModal,
+    authErrorState,
     mockPdb
 }) => {
     // Book keeping of upload state
@@ -150,7 +158,7 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     useUpdateError({
         isLoading: isLoadingValidateFilesSelect,
         error: errorFilesSelect,
-        errorType: ErrorType.ErrorSelect,
+        errorType: ErrorType.ErrorSelectUpload,
         errorDispatch,
         uploadState,
         uploadDispatch
@@ -185,7 +193,7 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     useUpdateError({
         isLoading: isLoadingValidateSelection,
         error: errorSelect,
-        errorType: ErrorType.ErrorSelect,
+        errorType: ErrorType.ErrorSelectUpload,
         errorDispatch,
         uploadState,
         uploadDispatch
@@ -312,7 +320,7 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     });
 
     // Do not show error modal during selection and when no error.
-    const showErrorModal = errorState.errorType !== ErrorType.ErrorSelect && errorState.errorType !== ErrorType.NoError;
+    const showErrorModal = errorState.errorType !== ErrorType.ErrorSelectUpload && errorState.errorType !== ErrorType.NoError;
 
     // Remove a selected file from the list
     const handleRemoveSelectedFile = (filename: string, uid: string, size: number) => {
@@ -512,6 +520,10 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
                         handleChangeUsername={handleChangeUsername}
                         handleChangePassword={handleChangePassword}
                         handleSignIn={handleSignIn}
+                        enableLoginButton={enableLoginButton}
+                        showAuthErrorModal={showAuthErrorModal}
+                        handleOkAuthErrorModal={handleOkAuthErrorModal}
+                        authErrorState={authErrorState}
                     />;
                 }}
             />
@@ -547,6 +559,10 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
                         handleChangeUsername={handleChangeUsername}
                         handleChangePassword={handleChangePassword}
                         handleSignIn={handleSignIn}
+                        enableLoginButton={enableLoginButton}
+                        showAuthErrorModal={showAuthErrorModal}
+                        handleOkAuthErrorModal={handleOkAuthErrorModal}
+                        authErrorState={authErrorState}
                     />;
                 }}
             />
@@ -564,6 +580,10 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
                         handleChangeUsername={handleChangeUsername}
                         handleChangePassword={handleChangePassword}
                         handleSignIn={handleSignIn}
+                        enableLoginButton={enableLoginButton}
+                        showAuthErrorModal={showAuthErrorModal}
+                        handleOkAuthErrorModal={handleOkAuthErrorModal}
+                        authErrorState={authErrorState}
                     />;
                 }}
             />
@@ -579,6 +599,10 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
                         handleChangeUsername={handleChangeUsername}
                         handleChangePassword={handleChangePassword}
                         handleSignIn={handleSignIn}
+                        enableLoginButton={enableLoginButton}
+                        showAuthErrorModal={showAuthErrorModal}
+                        handleOkAuthErrorModal={handleOkAuthErrorModal}
+                        authErrorState={authErrorState}
                     />;
                 }}
             />
