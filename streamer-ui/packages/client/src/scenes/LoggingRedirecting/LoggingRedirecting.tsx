@@ -9,13 +9,28 @@ import {
 } from "antd";
 
 import HeaderLandingPage from "../../components/HeaderLandingPage/HeaderLandingPage";
+import ErrorModal from "../../components/ErrorModal/ErrorModal";
 
 import "../../app/App.less";
 import logoDCCN from "../../assets/dccn-logo.png";
 
+import { ErrorState } from "../../types/types";
+
 const { Content } = Layout;
 
-const LoggingIn: React.FC = () => {
+interface LoggingRedirectingProps {
+    text: string;
+    showAuthErrorModal: boolean;
+    handleOkAuthErrorModal: () => Promise<void>;
+    authErrorState: ErrorState
+}
+
+const LoggingIn: React.FC<LoggingRedirectingProps> = ({
+    text,
+    showAuthErrorModal,
+    handleOkAuthErrorModal,
+    authErrorState
+}) => {
     return (
         <React.Fragment>
             <HeaderLandingPage />
@@ -31,13 +46,18 @@ const LoggingIn: React.FC = () => {
                                 Research Data Uploader
                             </h2>
                             <div style={{ margin: "0px 0px 10px 0px" }}>
-                                <Typography.Text>Redirecting ...</Typography.Text>
+                                <Typography.Text>{text}</Typography.Text>
                             </div>
                         </Card>
                     </Col>
                     <Col span={2}></Col>
                 </Row>
             </Content>
+            <ErrorModal
+                errorState={authErrorState}
+                showErrorModal={showAuthErrorModal}
+                handleOkErrorModal={handleOkAuthErrorModal}
+            />
         </React.Fragment>
     );
 };

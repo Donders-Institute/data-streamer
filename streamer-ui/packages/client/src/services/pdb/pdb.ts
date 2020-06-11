@@ -11,7 +11,9 @@ import {
     ServerResponse,
     ProjectsResultElement,
     ProjectsResult,
-    UserProfile
+    UserProfile,
+    UploadState,
+    UploadStatus
 } from "../../types/types";
 
 // Fake fetcher for testing purposes
@@ -82,7 +84,17 @@ async function fetchProjectList(username: string, password: string) {
 };
 
 // Custom hook to fetch projects from the Project Database
-export const useFetchProjects = (userProfile: UserProfile, mockPdb: boolean) => {
+export const useFetchProjects = ({
+    checkUploadStatus,
+    userProfile,
+    uploadState,
+    mockPdb
+} : {
+    checkUploadStatus: UploadStatus;
+    userProfile: UserProfile;
+    uploadState: UploadState;
+    mockPdb: boolean;
+}) => {
     const [projectList, setProjectList] = useState([] as Project[]);
     const [error, setError] = useState(null as Error | null);
     const [isLoading, setIsLoading] = useState(false);
@@ -91,28 +103,33 @@ export const useFetchProjects = (userProfile: UserProfile, mockPdb: boolean) => 
         let mounted = true;
 
         const fetchProjects = async () => {
-            if (mounted) {
-                setIsLoading(true);
-            }
-
-            const username = userProfile.username;
-            const password = userProfile.password;
-
-            try {
-                let newProjectList: Project[];
-                if (mockPdb) {
-                    newProjectList = await fetchDummyProjectList(); 
-                } else {
-                    newProjectList = await fetchProjectList(username, password);
-                }
+            if (uploadState.status === checkUploadStatus) {
+                console.log("Fetching projects");
 
                 if (mounted) {
-                    setProjectList(newProjectList);
-                    setIsLoading(false);
+                    setIsLoading(true);
                 }
-            } catch (err) {
-                if (mounted) {
-                    setError(err);
+
+                const username = userProfile.username;
+                const password = userProfile.password;
+
+                try {
+                    let newProjectList: Project[];
+                    if (mockPdb) {
+                        newProjectList = await fetchDummyProjectList(); 
+                    } else {
+                        newProjectList = await fetchProjectList(username, password);
+                    }
+
+                    if (mounted) {
+                        setProjectList(newProjectList);
+                        setIsLoading(false);
+                        setError(null);
+                    }
+                } catch (err) {
+                    if (mounted) {
+                        setError(err);
+                    }
                 }
             }
         };

@@ -494,6 +494,8 @@ export const useInitiateUpload = ({
         const initiateUpload = async () => {
             if (uploadState.status === UploadStatus.Initiating) {
 
+                console.log("Initiating");
+
                 if (mounted) {
                     setIsLoading(true);
                 }
@@ -536,7 +538,6 @@ export const useInitiateUpload = ({
 
                         setError(null);
                     }
-
                 } catch (err) {
                     if (mounted) {
                         setError(err as Error | null);
@@ -574,6 +575,8 @@ export const useValidateUpload = ({
 
         const validateUpload = async () => {
             if (uploadState.status === UploadStatus.Validating) {
+
+                console.log("Validating");
 
                 if (mounted) {
                     setIsLoading(true);
@@ -652,18 +655,35 @@ export const useCheckApproval = ({
         let mounted = true;
 
         const check = async () => {
-            if (uploadState.status === UploadStatus.Confirming) {
+            if (uploadState.isApproved && uploadState.status === UploadStatus.Confirming) {
+                console.log("Approving");
+
+                // Proceed with upload stage
+                if (mounted) {
+                    uploadDispatch({
+                        type: UploadActionType.Upload,
+                        payload: { 
+                            ...uploadState,
+                            isApproved: true
+                        } as UploadState
+                    } as UploadAction);
+                }
+            } else if (!uploadState.isApproved && uploadState.status === UploadStatus.Confirming){
+                console.log("Checking approval");
+
                 if (!hasExistingFiles) {
+                    // In case of no existing files, silently approve
                     if (mounted) {
-                        // When the destination folder and files do not already exist,
-                        // silently proceed with the actual upload
                         uploadDispatch({
-                            type: UploadActionType.Upload,
-                            payload: { ...uploadState } as UploadState
+                            type: UploadActionType.Confirm,
+                            payload: { 
+                                ...uploadState,
+                                isApproved: true
+                            } as UploadState
                         } as UploadAction);
                     }
                 }
-                // Otherwise wait for user input (handled elsewhere)
+                // Otherwise wait for user input in confirm modal
             }
         };
         check();
@@ -671,7 +691,7 @@ export const useCheckApproval = ({
         return function cleanup() {
             mounted = false;
         };
-    }, [uploadState.status]);
+    }, [uploadState.status, uploadState.isApproved, hasExistingFiles]);
 };
 
 // Custom hook to handle actual upload
@@ -694,7 +714,9 @@ export const useUpload = ({
         let mounted = true;
 
         const upload = async () => {
-            if (uploadState.status === UploadStatus.Uploading) {
+            if (uploadState.isApproved && uploadState.status === UploadStatus.Uploading) {
+
+                console.log("Uploading");
 
                 if (mounted) {
                     setIsLoading(true);
@@ -828,7 +850,10 @@ export const useFinalize = ({
         let mounted = true;
 
         const endUploadSession = async () => {
-            if (uploadState.status === UploadStatus.Finalizing) {
+            if (uploadState.isApproved && uploadState.status === UploadStatus.Finalizing) {
+
+                console.log("Finalizing");
+
                 if (mounted) {
                     setIsLoading(true);
                 }
@@ -900,7 +925,10 @@ export const useSubmit = ({
         let mounted = true;
 
         const submitJob = async () => {
-            if (uploadState.status === UploadStatus.Submitting) {
+            if (uploadState.isApproved && uploadState.status === UploadStatus.Submitting) {
+
+                console.log("Submitting");
+
                 if (mounted) {
                     setIsLoading(true);
                 }
@@ -946,12 +974,6 @@ export const useSubmit = ({
                     if (mounted) {
                         // Submit failed
                         setDone(true);
-                        
-                        uploadDispatch({
-                            type: UploadActionType.Error,
-                            payload: { ...uploadState } as UploadState
-                        } as UploadAction);
-
                         setError(err as Error | null);
                     }
                 }

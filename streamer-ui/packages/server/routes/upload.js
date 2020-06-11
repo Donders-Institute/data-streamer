@@ -102,7 +102,7 @@ var _begin = async function(req, res, next) {
     console.log("test1");
 
     // Create the streamer UI buffer directory if it does not exist
-    var dirname = utils.getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
+    const dirname = utils.getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
     if (!dirname) {
         return next(createError(500, "Error obtaining streamer buffer UI directory name"));
     }
@@ -160,10 +160,31 @@ var _validateFile = function(req, res, next) {
     const sessionLabel = req.body.sessionLabel;
     const dataType = req.body.dataType;
 
-    // Obtain the project storage directory name
-    const projectStorageDirname = utils.getProjectStorageDirname(projectNumber, subjectLabel, sessionLabel, dataType);
-    if (!projectStorageDirname) {
-        return next(createError(500, "Error obtaining project storage directory name"));
+    let isDevelopment = false;
+    if (req.app && req.app.locals && req.app.locals.ENV === "development") {
+        isDevelopment = true;
+    }
+
+    let projectStorageDirname = null;
+    if (isDevelopment) {
+        // In development mode, use the streamer UI buffer dir instead
+        const streamerBufferUiDirname = utils.getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
+        if (!streamerBufferUiDirname) {
+            return next(createError(500, "Error obtaining streamer UI buffer directory name"));
+        }
+        if (!utils.streamerUIBufferDirExists()) {
+            return next(createError(500, "Streamer UI buffer directory not found"));
+        }
+        projectStorageDirname = streamerBufferUiDirname;
+    } else {
+        // Obtain the project storage directory name
+        projectStorageDirname = utils.getProjectStorageDirname(projectNumber, subjectLabel, sessionLabel, dataType);
+        if (!projectStorageDirname) {
+            return next(createError(500, "Error obtaining project storage directory name"));
+        }
+        if (!utils.projectDirExists()) {
+            return next(createError(500, "Project storage directory not found"));
+        }
     }
 
     // Obtain file attributes

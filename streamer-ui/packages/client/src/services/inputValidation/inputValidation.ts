@@ -55,6 +55,9 @@ export const useValidateSelection = (uploadState: UploadState) => {
 
         const validate = async () => {
             if (uploadState.status === UploadStatus.Selecting) {
+
+                console.log("Validating selection");
+
                 const numFiles = uploadState.filesSelection.fileList.length;
                 const hasFilesSelected = uploadState.filesSelection.hasFilesSelected;
 
@@ -106,6 +109,8 @@ export const useValidateSelection = (uploadState: UploadState) => {
                         setIsLoading(false);
                         setError(null);
                         setIsValid(true);
+
+                        setError(null);
                     }
                 } catch (err) {
                     if (mounted) {

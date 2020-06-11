@@ -14,7 +14,6 @@ import {
 import { FormComponentProps } from "antd/lib/form";
 
 import HeaderLandingPage from "../../components/HeaderLandingPage/HeaderLandingPage";
-
 import ErrorModal from "../../components/ErrorModal/ErrorModal";
 
 import "../../app/App.less";

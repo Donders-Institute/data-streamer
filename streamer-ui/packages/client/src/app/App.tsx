@@ -67,11 +67,6 @@ function authReducer(state: AuthState, action: AuthAction) {
                 ...(action.payload),
                 status: AuthStatus.LoggingOut
             };
-        case AuthActionType.Error:
-            return {
-                ...(action.payload),
-                status: AuthStatus.LoggingError
-            };
     }
 };
 
@@ -120,12 +115,10 @@ const App: React.FC<AppProps> = () => {
     }, [authState.status, isValidAuthSelection]);
 
     useUpdateAuthError({
-        isLoading: isLoadingValidateAuthSelection,
         error: errorAuthSelect,
         errorType: ErrorType.ErrorSelectAuth,
         errorDispatch: authErrorDispatch,
-        authState,
-        authDispatch
+        authStatus: authState.status
     });
 
     const enableLoginButton = isValidAuthSelection;
@@ -138,12 +131,10 @@ const App: React.FC<AppProps> = () => {
     });
 
     useUpdateAuthError({
-        isLoading: isLoadingSigningIn,
         error: errorSigningIn,
         errorType: ErrorType.ErrorSignIn,
         errorDispatch: authErrorDispatch,
-        authState,
-        authDispatch
+        authStatus: authState.status
     });
 
     // Sign out
@@ -154,19 +145,16 @@ const App: React.FC<AppProps> = () => {
     });
 
     useUpdateAuthError({
-        isLoading: isLoadingSigningOut,
         error: errorSigningOut,
         errorType: ErrorType.ErrorSignOut,
         errorDispatch: authErrorDispatch,
-        authState,
-        authDispatch
+        authStatus: authState.status
     });
 
     const showAuthErrorModal = (
-        (authState.status === AuthStatus.LoggingError && authErrorState.errorType === ErrorType.ErrorSignIn) ||
-        (authState.status === AuthStatus.LoggingError && authErrorState.errorType === ErrorType.ErrorSignOut) ||
-        (authState.status === AuthStatus.LoggingIn && authErrorState.errorType === ErrorType.ErrorSignIn) ||
-        (authState.status === AuthStatus.LoggingOut && authErrorState.errorType === ErrorType.ErrorSignOut)
+        authState.status !== AuthStatus.NotLoggedIn &&
+        authState.status !== AuthStatus.Selecting &&
+        authErrorState.errorType !== ErrorType.NoError
     );
 
     // Handle user input
@@ -245,9 +233,17 @@ const App: React.FC<AppProps> = () => {
             mockPdb={mockPdb}
         />;
     } else if (authState.status === AuthStatus.LoggingIn) {
-        return <AppLoggingIn />;
+        return <AppLoggingIn
+            showAuthErrorModal={showAuthErrorModal}
+            handleOkAuthErrorModal={handleOkAuthErrorModal}
+            authErrorState={authErrorState}
+        />;
     } else if (authState.status === AuthStatus.LoggingOut) {
-        return <AppLoggingOut />;
+        return <AppLoggingOut
+            showAuthErrorModal={showAuthErrorModal}
+            handleOkAuthErrorModal={handleOkAuthErrorModal}
+            authErrorState={authErrorState}
+        />;
     } else {
         return <AppLogin
             handleChangeUsername={handleChangeUsername}
