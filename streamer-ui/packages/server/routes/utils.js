@@ -28,7 +28,7 @@ var _getProjectStorageDirname = function(projectNumber, subjectLabel, sessionLab
     return projectStorageDirname;
 }
 
-// Check if the file already exists
+// Check if the file exists
 var _fileExists = function(filename, dirname) {
     const targetPath = path.join(dirname, filename);
     console.log("Check dirname:" + dirname);
@@ -42,6 +42,28 @@ var _fileExists = function(filename, dirname) {
         fileExists = false;
     }
     return fileExists;
+}
+
+// Check if the directory exists
+var _dirExists = function(dirname) {
+    console.log("Check if directory exists: " + dirname);
+    let dirExists = true;
+    try {
+        fs.accessSync(dirname, fs.F_OK);
+    } catch (err) {
+        dirExists = false;
+    }
+    return dirExists;
+}
+
+// Check if the project directory exists
+var _projectDirExists = function() {
+    return _dirExists(STREAMER_UI_PROJECT_DIR);
+}
+
+// Check if the project directory exists
+var _streamerUIBufferDirExists = function() {
+    return _dirExists(STREAMER_UI_BUFFER_DIR);
 }
 
 // Get the streamer URL
@@ -98,6 +120,8 @@ module.exports.getStreamerUIBufferDirname = _getStreamerUIBufferDirname;
 module.exports.getProjectStorageDirname = _getProjectStorageDirname;
 module.exports.getStreamerUrl = _getStreamerUrl;
 module.exports.fileExists = _fileExists;
+module.exports.projectDirExists = _projectDirExists;
+module.exports.streamerUIBufferDirExists = _streamerUIBufferDirExists;
 module.exports.fetchOnce = _fetchOnce;
 module.exports.fetchRetry = _fetchRetry;
 module.exports.basicAuthString = _basicAuthString;

@@ -47,7 +47,6 @@ var _getProjects = function(req, res, next) {
             } else {
                 con.end();
                 // Success
-                console.log(JSON.stringify(results));
                 return res.status(200).json({
                     data: results,
                     error: null

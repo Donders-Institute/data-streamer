@@ -1,20 +1,13 @@
-import { useEffect, Dispatch } from "react";
+import { useEffect, useState, Dispatch } from "react";
 
 import {
     ErrorType,
     ErrorState, 
     ErrorAction,
     initialErrorState,
-    UploadState,
-    UploadAction,
-    UploadActionType,
     UploadStatus,
-    AuthState,
-    AuthAction,
-    AuthActionType,
     AuthStatus
 } from "../../types/types";
-import { Z_STREAM_ERROR } from "zlib";
 
 // Set error state to no error
 export const resetError = async (errorDispatch: Dispatch<ErrorAction>) => {
@@ -61,93 +54,43 @@ const updateError = async ({
 
 // Custom hook to update error state and auth state
 export const useUpdateAuthError = ({
-    isLoading,
     error,
     errorType,
     errorDispatch,
-    authState,
-    authDispatch
+    authStatus
 } : {
-    isLoading: boolean;
     error: Error | null;
     errorType: ErrorType;
     errorDispatch: Dispatch<ErrorAction>;
-    authState: AuthState;
-    authDispatch: Dispatch<AuthAction>;
+    authStatus: AuthStatus;
 }) => {
+    const [busy, setBusy] = useState(false);
+
     useEffect(() => {
         let mounted = true;
 
         // Check for error
         const check = async (error: Error | null) => {
-            if (error) {
-                // Update the error state
-                await updateError({
-                    error,
-                    errorType,
-                    errorDispatch
-                });
+            if (mounted) {
+                setBusy(true);
+            }
 
+            if (error) {
                 // Skip selection errors
-                if (authState.status !== AuthStatus.Selecting) {
+                if (authStatus !== AuthStatus.Selecting) {
                     if (mounted) {
-                        // Update the auth state
-                        authDispatch({
-                            type: AuthActionType.Error,
-                            payload: { ...authState }
+                        // Update the error state
+                        await updateError({
+                            error,
+                            errorType,
+                            errorDispatch
                         });
                     }
                 }
             } 
-        };
-        check(error);
 
-        return function cleanup() {
-            mounted = false;
-        };
-    }, [authState.status, isLoading, error, errorType]);
-};
-
-
-// Custom hook to update error state and upload state
-export const useUpdateError = ({
-    isLoading,
-    error,
-    errorType,
-    errorDispatch,
-    uploadState,
-    uploadDispatch
-} : {
-    isLoading: boolean;
-    error: Error | null;
-    errorType: ErrorType;
-    errorDispatch: Dispatch<ErrorAction>;
-    uploadState: UploadState;
-    uploadDispatch: Dispatch<UploadAction>;
-}) => {
-    useEffect(() => {
-        let mounted = true;
-
-        // Check for error
-        const check = async (error: Error | null) => {
-            if (error) {
-                // Update the error state
-                await updateError({
-                    error,
-                    errorType,
-                    errorDispatch
-                });
-
-                // Update the upload state
-                // Skip selection errors
-                if (uploadState.status !== UploadStatus.Selecting) {
-                    if (mounted) {
-                        uploadDispatch({
-                            type: UploadActionType.Error,
-                            payload: { ...uploadState }
-                        });
-                    }
-                }
+            if (mounted) {
+                setBusy(false);
             }
         };
         check(error);
@@ -155,5 +98,59 @@ export const useUpdateError = ({
         return function cleanup() {
             mounted = false;
         };
-    }, [uploadState.status, isLoading, error, errorType]);
+    }, [authStatus, error, errorType]);
+
+    return busy;
+};
+
+// Custom hook to update error state and upload state
+export const useUpdateError = ({
+    error,
+    errorType,
+    errorDispatch,
+    uploadStatus
+} : {
+    error: Error | null;
+    errorType: ErrorType;
+    errorDispatch: Dispatch<ErrorAction>;
+    uploadStatus: UploadStatus;
+}) => {
+    const [busy, setBusy] = useState(false);
+
+    useEffect(() => {
+        let mounted = true;
+
+        // Check for error
+        const check = async (error: Error | null) => {
+
+            if (mounted) {
+                setBusy(true);
+            }
+
+            if (error) {
+                // Skip selection errors
+                if (uploadStatus !== UploadStatus.Selecting) {
+                    if (mounted) {
+                         // Update the error state
+                        await updateError({
+                            error,
+                            errorType,
+                            errorDispatch
+                        });
+                    }
+                }
+            } 
+
+            if (mounted) {
+                setBusy(false);
+            }
+        };
+        check(error);
+
+        return function cleanup() {
+            mounted = false;
+        };
+    }, [uploadStatus, error, errorType]);
+
+    return busy;
 };

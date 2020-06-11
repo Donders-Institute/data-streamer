@@ -6,8 +6,7 @@ export enum AuthStatus {
     Selecting = "Selecting",
     LoggingIn = "LoggingIn",
     LoggedIn = "LoggedIn",
-    LoggingOut = "LoggingOut",
-    LoggingError = "LoggingError"
+    LoggingOut = "LoggingOut"
 };
 
 export type UserProfile = {
@@ -152,8 +151,7 @@ export enum UploadStatus {
     Uploading = "Uploading",
     Finalizing = "Finalizing",
     Submitting = "Submitting",
-    Success = "Success",
-    Error = "Error"
+    Success = "Success"
 };
 
 export interface UploadState {
@@ -162,6 +160,7 @@ export interface UploadState {
     structureSelection: StructureSelection,
     filesSelection: FilesSelection,
     isValidSelection: boolean,
+    isApproved: boolean,
     numRemainingFiles: number;
     percentage: number,
     status: UploadStatus;
@@ -176,8 +175,7 @@ export enum UploadActionType {
     Upload = "Upload",
     Finalize = "Finalize",
     Submit = "Submit",
-    Finish = "Finish",
-    Error = "Error"
+    Finish = "Finish"
 };
 
 export interface UploadAction {
@@ -217,6 +215,7 @@ export const initialUploadState = {
     filesSelection: { ...initialFilesSelection},
     structureSelection: {...initialStructureSelection},
     isValidSelection: false,
+    isApproved: false,
     numRemainingFiles: 0,
     percentage: 0,
     status: UploadStatus.NotUploading
@@ -268,8 +267,7 @@ export enum AuthActionType {
     Selecting = "Selecting",
     SigningIn = "SigningIn",
     SignedIn = "SignedIn",
-    SigningOut = "SigningOut",
-    Error = "Error"
+    SigningOut = "SigningOut"
 };
 
 export interface AuthAction {

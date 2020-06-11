@@ -33,6 +33,16 @@ const UploadModal: React.FC<UploadModalProps> = ({
     handleUploadAnotherBatch,
     handleSignOut
 }) => {
+    const hasUploadError = (
+        errorState.errorType === ErrorType.ErrorInitiateUpload ||
+        errorState.errorType === ErrorType.ErrorValidateUpload ||
+        errorState.errorType === ErrorType.ErrorConfirmUpload ||
+        errorState.errorType === ErrorType.ErrorUpload ||
+        errorState.errorType === ErrorType.ErrorFinalizeUpload ||
+        errorState.errorType === ErrorType.ErrorSubmit ||
+        errorState.errorType === ErrorType.ErrorFinish ||
+        errorState.errorType === ErrorType.ErrorUnknown
+    );
 
     const isInitiating = uploadState.status === UploadStatus.Initiating;
     const isValidating = uploadState.status === UploadStatus.Validating;
@@ -40,19 +50,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
     const isUploading = uploadState.status === UploadStatus.Uploading;
     const isFinalizing = uploadState.status === UploadStatus.Finalizing;
     const isSubmitting = uploadState.status === UploadStatus.Submitting;
-    const isDone = uploadState.status === UploadStatus.Success || uploadState.status === UploadStatus.Error;
-
-    const hasError = (
-        errorState.errorType === ErrorType.ErrorInitiateUpload ||
-        errorState.errorType === ErrorType.ErrorValidateUpload ||
-        errorState.errorType === ErrorType.ErrorUpload ||
-        errorState.errorType === ErrorType.ErrorFinalizeUpload ||
-        errorState.errorType === ErrorType.ErrorSubmit ||
-        errorState.errorType === ErrorType.ErrorFinish ||
-        (errorState.errorType !== ErrorType.ErrorSelectUpload &&
-            errorState.errorType !== ErrorType.NoError &&
-            uploadState.status === UploadStatus.Error)
-    );
+    const isDone = uploadState.status === UploadStatus.Success || hasUploadError;
 
     const getTitle = (uploadStatus: UploadStatus) => {
         switch (uploadStatus) {
@@ -70,8 +68,6 @@ const UploadModal: React.FC<UploadModalProps> = ({
                 return "Submitting streamer job";
             case UploadStatus.Success:
                 return "Upload summary";
-            case UploadStatus.Error:
-                return "Upload error";
         }
     };
     const title = getTitle(uploadState.status);
@@ -79,26 +75,19 @@ const UploadModal: React.FC<UploadModalProps> = ({
     const numRemainingFiles = uploadState.numRemainingFiles;
     const percentage = uploadState.percentage;
 
-    const getDisableButtons = (uploadStatus: UploadStatus) => {
-        if (uploadStatus === UploadStatus.Success ||
-            uploadStatus === UploadStatus.Error) {
-            // Enable buttons when done    
-            return false;
-        }
-        return true;
-    };
-    const disableButtons = getDisableButtons(uploadState.status);
+    // Enable buttons when done    
+    const disableButtons = isDone ? false : true;
 
-    const getDoneMessage = (uploadStatus: UploadStatus) => {
+    const getDoneMessage = (uploadStatus: UploadStatus, hasUploadError: boolean) => {
+        if (hasUploadError) {
+            return "Upload failed.";
+        }
         if (uploadStatus === UploadStatus.Success) {
             return "Done. Streamer job submitted.";
         }
-        if (uploadStatus === UploadStatus.Error) {
-            return "Upload failed.";
-        }
         return "";
     };
-    const doneMessage = getDoneMessage(uploadState.status);
+    const doneMessage = getDoneMessage(uploadState.status, hasUploadError);
 
     return (
         <Modal
@@ -140,7 +129,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
             }}
         >
             {
-                isInitiating && !hasError && (
+                isInitiating && !hasUploadError && (
                     <div>
                         <div>Initiating upload ...</div>
                         <p>This may take a while ...</p>
@@ -150,7 +139,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
                 )
             }
             {
-                isValidating && !hasError && (
+                isValidating && !hasUploadError && (
                     <div>
                         <div>Validating upload ...</div>
                         <p>This may take a while ...</p>
@@ -160,7 +149,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
                 )
             }
             {
-                isConfirming && !hasError && (
+                isConfirming && !hasUploadError && (
                     <div>
                         <div>Validating upload ...</div>
                         <p>This may take a while ...</p>
@@ -169,7 +158,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
                 )
             }
             {
-                isUploading && !hasError && (
+                isUploading && !hasUploadError && (
                     <div>
                         <Progress percent={percentage} />
                         <div>Uploading ...</div>
@@ -181,7 +170,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
                 )
             }
             {
-                isFinalizing && !hasError && (
+                isFinalizing && !hasUploadError && (
                     <div>
                         <div>Finalizing upload ...</div>
                         <p>This may take a while ...</p>
@@ -191,7 +180,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
                 )
             }
             {
-                isSubmitting && !hasError && (
+                isSubmitting && !hasUploadError && (
                     <div>
                         <div>Submitting streamer job ...</div>
                         <p>This may take a while ...</p>
