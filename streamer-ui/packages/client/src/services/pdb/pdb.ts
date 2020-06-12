@@ -37,8 +37,16 @@ async function fetchDummyProjectList() {
 const fetchNumRetries = 1;
 const fetchTimeout = 2000; // ms
 
-async function fetchProjectList(username: string, password: string) {
-
+async function fetchProjectList({
+    username, 
+    password, 
+    signal
+} : {
+    username: string; 
+    password: string; 
+    signal: AbortSignal;
+}) {
+    
     const url = baseUrl() + "/projects";
     const headers = new Headers(
         {
@@ -55,7 +63,8 @@ async function fetchProjectList(username: string, password: string) {
                 method: 'GET',
                 credentials: 'include',
                 mode: 'cors',
-                headers
+                headers,
+                signal
             } as RequestInit,
             numRetries: fetchNumRetries,
             timeout: fetchTimeout
@@ -101,6 +110,8 @@ export const useFetchProjects = ({
 
     useEffect(() => {
         let mounted = true;
+        const abortController = new AbortController();
+        const signal = abortController.signal;
 
         const fetchProjects = async () => {
             if (uploadState.status === checkUploadStatus) {
@@ -118,7 +129,11 @@ export const useFetchProjects = ({
                     if (mockPdb) {
                         newProjectList = await fetchDummyProjectList(); 
                     } else {
-                        newProjectList = await fetchProjectList(username, password);
+                        newProjectList = await fetchProjectList({
+                            username, 
+                            password, 
+                            signal
+                        });
                     }
 
                     if (mounted) {
@@ -136,6 +151,7 @@ export const useFetchProjects = ({
         fetchProjects();
 
         return function cleanup() {
+            abortController.abort();
             mounted = false;
         };
     }, [userProfile]);

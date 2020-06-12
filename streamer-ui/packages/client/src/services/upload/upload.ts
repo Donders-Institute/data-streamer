@@ -61,15 +61,23 @@ export function fileNameExists(file: RcFile, fileList: RcFile[]) {
 };
 
 // Start an upload session. Obtain the upload session id
-export async function begin(
-    username: string,
-    password: string,
-    projectNumber: string,
-    subjectLabel: string,
-    sessionLabel: string,
-    dataType: string
-) {
-
+async function begin({
+    username,
+    password,
+    projectNumber,
+    subjectLabel,
+    sessionLabel,
+    dataType,
+    signal
+} : {
+    username: string;
+    password: string;
+    projectNumber: string;
+    subjectLabel: string;
+    sessionLabel: string;
+    dataType: string;
+    signal: AbortSignal;
+}) {
     const url = baseUrl() + "/upload/begin";
     const headers = new Headers(
         {
@@ -94,7 +102,8 @@ export async function begin(
                 credentials: 'include',
                 mode: 'cors',
                 headers,
-                body
+                body,
+                signal
             } as RequestInit,
             numRetries: uploadNumRetries,
             timeout: shortTimeout
@@ -120,25 +129,37 @@ export async function begin(
     return uploadSessionId;
 };
 
-export async function initiate(
-    username: string,
-    password: string,
-    projectNumber: string,
-    subjectLabel: string,
-    sessionLabel: string,
-    dataType: string,
-    fileList: RcFile[]
-) {
+async function initiate({
+    username,
+    password,
+    projectNumber,
+    subjectLabel,
+    sessionLabel,
+    dataType,
+    fileList,
+    signal
+} : {
+    username: string;
+    password: string;
+    projectNumber: string;
+    subjectLabel: string;
+    sessionLabel: string;
+    dataType: string;
+    fileList: RcFile[];
+    signal: AbortSignal;
+}) {
     // Obtain the upload session id
     let uploadSessionId: number = -1;
     try {
-        uploadSessionId = await begin(
+        uploadSessionId = await begin({
             username,
             password,
             projectNumber,
             subjectLabel,
             sessionLabel,
-            dataType);
+            dataType,
+            signal
+        });
     } catch (err) {
         throw err;
     }
@@ -153,15 +174,23 @@ export async function initiate(
 };
 
 // Create form data from the upload session data and file
-function getFormData(
-    uploadSessionId: number,
-    projectNumber: string,
-    subjectLabel: string,
-    sessionLabel: string,
-    dataType: string,
-    file: RcFile, 
-    fileFieldName: string
-) {
+function getFormData({
+    uploadSessionId,
+    projectNumber,
+    subjectLabel,
+    sessionLabel,
+    dataType,
+    file,
+    fileFieldName
+} : {
+    uploadSessionId: number;
+    projectNumber: string;
+    subjectLabel: string;
+    sessionLabel: string;
+    dataType: string;
+    file: RcFile;
+    fileFieldName: string;
+}) {
     let formData = new FormData();
     formData.append("uploadSessionId", uploadSessionId.toString());
     formData.append("projectNumber", projectNumber);
@@ -175,16 +204,27 @@ function getFormData(
 };
 
 // Validate a single file to be uploaded
-async function validateFile(
-    username: string,
-    password: string,
-    uploadSessionId: number,
-    projectNumber: string,
-    subjectLabel: string,
-    sessionLabel: string,
-    dataType: string,
-    file: RcFile
-) {
+async function validateFile({
+    username,
+    password,
+    uploadSessionId,
+    projectNumber,
+    subjectLabel,
+    sessionLabel,
+    dataType,
+    file,
+    signal
+} : {
+    username: string;
+    password: string;
+    uploadSessionId: number;
+    projectNumber: string;
+    subjectLabel: string;
+    sessionLabel: string;
+    dataType: string;
+    file: RcFile;
+    signal: AbortSignal
+}) {
     const url = baseUrl() + "/upload/validatefile";
 
     // Do not set Content-Type here to make it work
@@ -195,14 +235,15 @@ async function validateFile(
         }
     );
 
-    const formData = getFormData(
+    const formData = getFormData({
         uploadSessionId,
         projectNumber,
         subjectLabel,
         sessionLabel,
         dataType, 
         file, 
-        "validatefile");
+        fileFieldName: "validatefile"
+    });
 
     let result: ServerResponse;
     try {
@@ -213,7 +254,8 @@ async function validateFile(
                 credentials: 'include',
                 mode: 'cors',
                 headers,
-                body: formData
+                body: formData,
+                signal
             } as RequestInit,
             numRetries: uploadNumRetries,
             timeout: uploadTimeout
@@ -238,16 +280,27 @@ async function validateFile(
 };
 
 // Check for existing project storage folder and existing files
-export async function validate(
-    username: string,
-    password: string,
-    uploadSessionId: number,
-    projectNumber: string,
-    subjectLabel: string,
-    sessionLabel: string,
-    dataType: string,
-    fileList: RcFile[]
-): Promise<ValidationResult> {
+async function validate({
+    username,
+    password,
+    uploadSessionId,
+    projectNumber,
+    subjectLabel,
+    sessionLabel,
+    dataType,
+    fileList,
+    signal
+} : {
+    username: string;
+    password: string;
+    uploadSessionId: number;
+    projectNumber: string;
+    subjectLabel: string;
+    sessionLabel: string;
+    dataType: string;
+    fileList: RcFile[];
+    signal: AbortSignal;
+}): Promise<ValidationResult> {
 
     let existingFiles = [] as string[];
     let emptyFiles = [] as string[];
@@ -258,7 +311,7 @@ export async function validate(
 
         let validateFileResult: ValidateFileResult;
         try {
-            validateFileResult = await validateFile(
+            validateFileResult = await validateFile({
                 username,
                 password,
                 uploadSessionId,
@@ -266,7 +319,9 @@ export async function validate(
                 subjectLabel,
                 sessionLabel,
                 dataType,
-                file);
+                file,
+                signal
+            });
         } catch (err) {
             throw err;
         }
@@ -295,16 +350,27 @@ export async function validate(
 };
 
 // Add a file to be uploaded
-export async function addFile(
-    username: string,
-    password: string,
-    uploadSessionId: number,
-    projectNumber: string,
-    subjectLabel: string,
-    sessionLabel: string,
-    dataType: string,
-    file: RcFile
-) {
+async function addFile({
+    username,
+    password,
+    uploadSessionId,
+    projectNumber,
+    subjectLabel,
+    sessionLabel,
+    dataType,
+    file,
+    signal
+} : {
+    username: string;
+    password: string;
+    uploadSessionId: number;
+    projectNumber: string;
+    subjectLabel: string;
+    sessionLabel: string;
+    dataType: string;
+    file: RcFile;
+    signal: AbortSignal;
+}) {
     const url = baseUrl() + "/upload/addfile";
 
     // Do not set Content-Type here to make it work 
@@ -315,14 +381,15 @@ export async function addFile(
         }
     );
 
-    const formData = getFormData(
+    const formData = getFormData({
         uploadSessionId,
         projectNumber,
         subjectLabel,
         sessionLabel,
         dataType,  
         file, 
-        "addfile");
+        fileFieldName: "addfile"
+    });
 
     let result: ServerResponse;
     try {
@@ -333,7 +400,8 @@ export async function addFile(
                 credentials: 'include',
                 mode: 'cors',
                 headers,
-                body: formData
+                body: formData,
+                signal
             } as RequestInit,
             numRetries: uploadNumRetries,
             timeout: uploadTimeout
@@ -358,15 +426,25 @@ export async function addFile(
 };
 
 // Finalize the upload session
-export async function finalize(
-    username: string,
-    password: string,
-    uploadSessionId: number,
-    projectNumber: string,
-    subjectLabel: string,
-    sessionLabel: string,
-    dataType: string
-) {
+async function finalize({
+    username,
+    password,
+    uploadSessionId,
+    projectNumber,
+    subjectLabel,
+    sessionLabel,
+    dataType,
+    signal
+} : {
+    username: string;
+    password: string;
+    uploadSessionId: number;
+    projectNumber: string;
+    subjectLabel: string;
+    sessionLabel: string;
+    dataType: string;
+    signal: AbortSignal;
+}) {
     const url = baseUrl() + "/upload/finalize";
     const headers = new Headers(
         {
@@ -392,7 +470,8 @@ export async function finalize(
                 credentials: 'include',
                 mode: 'cors',
                 headers,
-                body
+                body,
+                signal
             } as RequestInit,
             numRetries: uploadNumRetries,
             timeout: shortTimeout
@@ -417,15 +496,25 @@ export async function finalize(
 };
 
 // Finally, submit a streamer job
-export async function submit(
-    username: string,
-    password: string,
-    uploadSessionId: number,
-    projectNumber: string,
-    subjectLabel: string,
-    sessionLabel: string,
-    dataType: string
-) {
+async function submit({
+    username,
+    password,
+    uploadSessionId,
+    projectNumber,
+    subjectLabel,
+    sessionLabel,
+    dataType,
+    signal
+} : {
+    username: string;
+    password: string;
+    uploadSessionId: number;
+    projectNumber: string;
+    subjectLabel: string;
+    sessionLabel: string;
+    dataType: string;
+    signal: AbortSignal;
+}) {
     const url = baseUrl() + "/upload/submit";
     const headers = new Headers(
         {
@@ -451,7 +540,8 @@ export async function submit(
                 credentials: 'include',
                 mode: 'cors',
                 headers,
-                body
+                body,
+                signal
             } as RequestInit,
             numRetries: uploadNumRetries,
             timeout: uploadTimeout
@@ -490,6 +580,8 @@ export const useInitiateUpload = ({
 
     useEffect(() => {
         let mounted = true;
+        const abortController = new AbortController();
+        const signal = abortController.signal;
 
         const initiateUpload = async () => {
             if (uploadState.status === UploadStatus.Initiating) {
@@ -511,14 +603,16 @@ export const useInitiateUpload = ({
                 const fileList = uploadState.filesSelection.fileList;
 
                 try {
-                    const [newUploadSessionId, newTotalSizeBytes] = await initiate(
+                    const [newUploadSessionId, newTotalSizeBytes] = await initiate({
                         username, 
                         password,
                         projectNumber,
                         subjectLabel,
                         sessionLabel,
                         dataType,
-                        fileList);
+                        fileList,
+                        signal
+                    });
 
                     if (mounted) {
                         setIsLoading(false);
@@ -548,6 +642,7 @@ export const useInitiateUpload = ({
         initiateUpload();
 
         return function cleanup() {
+            abortController.abort();
             mounted = false;
         };
     }, [uploadState.status]);
@@ -572,6 +667,8 @@ export const useValidateUpload = ({
 
     useEffect(() => {
         let mounted = true;
+        const abortController = new AbortController();
+        const signal = abortController.signal;
 
         const validateUpload = async () => {
             if (uploadState.status === UploadStatus.Validating) {
@@ -599,7 +696,7 @@ export const useValidateUpload = ({
                 }
 
                 try {
-                    const validationResult = await validate(
+                    const validationResult = await validate({
                         username,
                         password,
                         uploadSessionId,
@@ -607,7 +704,9 @@ export const useValidateUpload = ({
                         subjectLabel,
                         sessionLabel,
                         dataType,
-                        fileList);
+                        fileList,
+                        signal
+                    });
 
                     if (mounted) {
                         const newExistingFiles = [...(validationResult.existingFiles)];
@@ -634,6 +733,7 @@ export const useValidateUpload = ({
         validateUpload();
 
         return function cleanup() {
+            abortController.abort();
             mounted = false;
         };
     }, [uploadState.status]);
@@ -712,6 +812,8 @@ export const useUpload = ({
 
     useEffect(() => {
         let mounted = true;
+        const abortController = new AbortController();
+        const signal = abortController.signal;
 
         const upload = async () => {
             if (uploadState.isApproved && uploadState.status === UploadStatus.Uploading) {
@@ -744,15 +846,17 @@ export const useUpload = ({
                     file, 
                     uploadSessionId, 
                     totalSizeBytes, 
-                    numRemainingFiles 
+                    numRemainingFiles,
+                    signal
                 }: { 
                     file: RcFile; 
                     uploadSessionId: number; 
                     totalSizeBytes: number; 
                     numRemainingFiles: number; 
+                    signal: AbortSignal;
                 }) => {
                     try {
-                        await addFile(
+                        await addFile({
                             username,
                             password,
                             uploadSessionId,
@@ -760,7 +864,9 @@ export const useUpload = ({
                             subjectLabel,
                             sessionLabel,
                             dataType,
-                            file);
+                            file,
+                            signal
+                        });
 
                         // Derive percentage done
                         let newPercentage = 100;
@@ -796,7 +902,8 @@ export const useUpload = ({
                             file, 
                             uploadSessionId, 
                             totalSizeBytes, 
-                            numRemainingFiles 
+                            numRemainingFiles,
+                            signal 
                         }));
                     });
                     await Promise.all(uploadWork);
@@ -826,6 +933,7 @@ export const useUpload = ({
         upload();
 
         return function cleanup() {
+            abortController.abort();
             mounted = false;
         };
     }, [uploadState.status]);
@@ -848,6 +956,8 @@ export const useFinalize = ({
 
     useEffect(() => {
         let mounted = true;
+        const abortController = new AbortController();
+        const signal = abortController.signal;
 
         const endUploadSession = async () => {
             if (uploadState.isApproved && uploadState.status === UploadStatus.Finalizing) {
@@ -869,14 +979,16 @@ export const useFinalize = ({
                 const dataType =  uploadState.structureSelection.dataTypeInput.value;
             
                 try {
-                    await finalize(
+                    await finalize({
                         username,
                         password,
                         uploadSessionId,
                         projectNumber,
                         subjectLabel,
                         sessionLabel,
-                        dataType);
+                        dataType,
+                        signal
+                    });
 
                     if (mounted) {
                         setIsLoading(false);
@@ -899,6 +1011,7 @@ export const useFinalize = ({
         endUploadSession();
 
         return function cleanup() {
+            abortController.abort();
             mounted = false;
         };
     }, [uploadState.status]);
@@ -923,6 +1036,8 @@ export const useSubmit = ({
 
     useEffect(() => {
         let mounted = true;
+        const abortController = new AbortController();
+        const signal = abortController.signal;
 
         const submitJob = async () => {
             if (uploadState.isApproved && uploadState.status === UploadStatus.Submitting) {
@@ -945,15 +1060,16 @@ export const useSubmit = ({
             
                 try {
                     // Submit a streamer job
-                    const submitResult = await submit(
+                    const submitResult = await submit({
                         username,
                         password,
                         uploadSessionId,
                         projectNumber,
                         subjectLabel,
                         sessionLabel,
-                        dataType
-                    );
+                        dataType,
+                        signal
+                    });
 
                     if (mounted) {
                         const newUploadedFiles = [...(submitResult.fileNames)];
@@ -982,6 +1098,7 @@ export const useSubmit = ({
         submitJob();
 
         return function cleanup() {
+            abortController.abort();
             mounted = false;
         };
     }, [uploadState.status]);
