@@ -111,7 +111,7 @@ var _loginUser = function(req, res, next) {
         ad.authenticate(user.userPrincipalName, password, function (err, auth) {
             if (!auth) {
                 // Authentication failed
-                console.error(username, userAgent);
+                console.log(username, userAgent);
                 return next(createError(401, "Wrong username or password"));
             }
             // Authentication successful

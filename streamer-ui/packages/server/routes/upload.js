@@ -348,6 +348,7 @@ var _submit = async function(req, res, next) {
             STREAMER_UI_DB_NAME,
             uploadSessionId);
     } catch (err) {
+        console.log(err.message);
         return next(createError(500, err.message));
     }
 
@@ -388,7 +389,7 @@ var _submit = async function(req, res, next) {
             error: null
         });
     }).catch((err) => {
-        console.error(err);
+        console.log(err.message);
         return next(createError(500, "Could not connect to streamer service"));
     })
 }
