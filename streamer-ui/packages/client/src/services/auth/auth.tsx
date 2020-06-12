@@ -21,8 +21,15 @@ function isNotEmpty(value: string) {
     return (value && value !== "");
 };
 
-async function signIn(username: string, password: string) {
-
+async function signIn({
+    username,
+    password,
+    signal
+}: {
+    username: string;
+    password: string;
+    signal: AbortSignal;
+}) {
     const url = baseUrl() + "/login";
     const headers = new Headers(
         {
@@ -41,7 +48,8 @@ async function signIn(username: string, password: string) {
                 credentials: 'include',
                 mode: 'cors',
                 headers,
-                body
+                body,
+                signal
             } as RequestInit,
             numRetries: 1,
             timeout: 2000
@@ -59,8 +67,15 @@ async function signIn(username: string, password: string) {
     return result;
 };
 
-async function signOut(username: string, password: string) {
-
+async function signOut({
+    username,
+    password,
+    signal
+}: {
+    username: string;
+    password: string;
+    signal: AbortSignal;
+}) {
     const url = baseUrl() + "/logout";
     const headers = new Headers(
         {
@@ -78,7 +93,8 @@ async function signOut(username: string, password: string) {
                 credentials: 'include',
                 mode: 'cors',
                 headers,
-                body
+                body,
+                signal
             } as RequestInit,
             timeout: 2000
         });
@@ -109,6 +125,8 @@ export const useSigningIn = ({
 
     useEffect(() => {
         let mounted = true;
+        const abortController = new AbortController();
+        const signal = abortController.signal;
 
         const initiate = async () => {
             if (authState.status === AuthStatus.LoggingIn) {
@@ -123,7 +141,11 @@ export const useSigningIn = ({
                 let result: ServerResponse;
                 try {
                     if (!skipAuth) {
-                        result = await signIn(username, password);
+                        result = await signIn({
+                            username,
+                            password,
+                            signal
+                        });
 
                         // Double check result for error
                         if (result.error && result.error !== "") {
@@ -166,6 +188,7 @@ export const useSigningIn = ({
         initiate();
 
         return function cleanup() {
+            abortController.abort();
             mounted = false;
         };
     }, [authState.status]);
@@ -188,6 +211,8 @@ export const useSigningOut = ({
 
     useEffect(() => {
         let mounted = true;
+        const abortController = new AbortController();
+        const signal = abortController.signal;
 
         const initiate = async () => {
             if (authState.status === AuthStatus.LoggingOut) {
@@ -202,7 +227,11 @@ export const useSigningOut = ({
                 let result: ServerResponse;
                 try {
                     if (!skipAuth) {
-                        result = await signOut(username, password);
+                        result = await signOut({
+                            username,
+                            password,
+                            signal
+                        });
 
                         // Double check result for error
                         if (result.error && result.error !== "") {
@@ -236,6 +265,7 @@ export const useSigningOut = ({
         initiate();
 
         return function cleanup() {
+            abortController.abort();
             mounted = false;
         };
     }, [authState.status]);
