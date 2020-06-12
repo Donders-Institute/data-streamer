@@ -31,10 +31,7 @@ var _getProjectStorageDirname = function(projectNumber, subjectLabel, sessionLab
 // Check if the file exists
 var _fileExists = function(filename, dirname) {
     const targetPath = path.join(dirname, filename);
-    console.log("Check dirname:" + dirname);
-    console.log("Check filename:" + filename);
-    console.log("Check if targetPath exists:");
-    console.log(targetPath);
+    console.log("Check if file exists: " + targetPath);
     let fileExists = true;
     try {
         fs.accessSync(targetPath, fs.F_OK);
@@ -91,7 +88,7 @@ var _fetchOnce = async function(url, options, timeout) {
         }),
         // Timer route
         new Promise((resolve, reject) =>
-            setTimeout(() => reject(new Error('timeout')), timeout)
+            setTimeout(() => reject(new Error(`timeout of ${timeout.toString()} ms exceeded`)), timeout)
         ).catch((err) => {
             throw err;
         })

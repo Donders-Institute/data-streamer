@@ -27,7 +27,7 @@ export async function fetchOnceRedirect({
         }),
         // Timer route
         new Promise<string>((_, reject) =>
-            setTimeout(() => reject(new Error('timeout')), timeout)
+            setTimeout(() => reject(new Error(`timeout of ${timeout.toString()} ms exceeded`)), timeout)
         ).catch((err) => { throw err; })
     ]);
 };
@@ -53,7 +53,7 @@ export async function fetchOnce({
         new Promise<ServerResponse>((_, reject) => {
             const result = {
                 data: null,
-                error: "timeout"
+                error: `timeout of ${timeout.toString()} ms exceeded`
             } as ServerResponse;
             setTimeout(() => reject(result), timeout);
         }
