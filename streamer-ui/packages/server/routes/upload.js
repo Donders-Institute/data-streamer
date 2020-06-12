@@ -116,6 +116,10 @@ var _begin = async function(req, res, next) {
     const STREAMER_UI_DB_PASSWORD = req.app.locals.STREAMER_UI_DB_PASSWORD;
     const STREAMER_UI_DB_NAME = req.app.locals.STREAMER_UI_DB_NAME;
 
+    // Add an upload session to the streamer UI database
+    let insertUploadSessionResult;
+    const startTime = new Date();
+    
     console.log(STREAMER_UI_DB_HOST,
         STREAMER_UI_DB_PORT,
         STREAMER_UI_DB_USER,
@@ -130,9 +134,6 @@ var _begin = async function(req, res, next) {
         dataType,
         startTime);
 
-    // Add an upload session to the streamer UI database
-    let insertUploadSessionResult;
-    const startTime = new Date();
     try {
         insertUploadSessionResult = await db.insertUploadSession(
             STREAMER_UI_DB_HOST,
