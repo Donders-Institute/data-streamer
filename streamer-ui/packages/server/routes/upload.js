@@ -367,6 +367,9 @@ var _submit = async function(req, res, next) {
 
     // Submit the streamer job in the background
     console.log("Submitting streamer job");
+    console.log(streamerUrl);
+    console.log(JSON.stringify(headers));
+    console.log(body);
     utils.fetchRetry(
         streamerUrl,
         {
@@ -384,8 +387,7 @@ var _submit = async function(req, res, next) {
             data: submitResult,
             error: null
         });
-    }
-    ).catch((err) => {
+    }).catch((err) => {
         console.error(err);
         return next(createError(500, "Could not connect to streamer service"));
     })
