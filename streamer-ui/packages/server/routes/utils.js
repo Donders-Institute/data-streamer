@@ -88,7 +88,7 @@ var _fetchOnce = async function(url, options, timeout) {
         }),
         // Timer route
         new Promise((resolve, reject) =>
-            setTimeout(() => reject(new Error(`timeout of ${timeout.toString()} ms exceeded`)), timeout)
+            setTimeout(() => reject(new Error("timeout exceeded")), timeout)
         ).catch((err) => {
             throw err;
         })
