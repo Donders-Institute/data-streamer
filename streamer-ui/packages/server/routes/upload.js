@@ -99,8 +99,6 @@ var _begin = async function(req, res, next) {
     const sessionLabel = req.body.sessionLabel;
     const dataType = req.body.dataType;
 
-    console.log("test1");
-
     // Create the streamer UI buffer directory if it does not exist
     const dirname = utils.getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
     if (!dirname) {
