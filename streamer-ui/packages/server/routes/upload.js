@@ -119,21 +119,6 @@ var _begin = async function(req, res, next) {
     // Add an upload session to the streamer UI database
     let insertUploadSessionResult;
     const startTime = new Date();
-    
-    console.log(STREAMER_UI_DB_HOST,
-        STREAMER_UI_DB_PORT,
-        STREAMER_UI_DB_USER,
-        STREAMER_UI_DB_PASSWORD,
-        STREAMER_UI_DB_NAME,
-        username,
-        ipAddress,
-        userAgent,
-        projectNumber,
-        subjectLabel,
-        sessionLabel,
-        dataType,
-        startTime);
-
     try {
         insertUploadSessionResult = await db.insertUploadSession(
             STREAMER_UI_DB_HOST,
