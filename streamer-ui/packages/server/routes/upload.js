@@ -364,7 +364,7 @@ var _submit = async function(req, res, next) {
     });
     const numRetries = 1;
 
-    const timeout = 5000; // ms
+    const timeout = 30000; // ms
 
     // Submit the streamer job in the background
     console.log("Submitting streamer job");
