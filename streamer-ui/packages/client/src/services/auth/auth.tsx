@@ -17,6 +17,9 @@ import {
     initialAuthState
 } from "../../types/types";
 
+// 10 seconds
+const authTimeout = 10000; // ms
+
 function isNotEmpty(value: string) {
     return (value && value !== "");
 };
@@ -52,7 +55,7 @@ async function signIn({
                 signal
             } as RequestInit,
             numRetries: 1,
-            timeout: 2000
+            timeout: authTimeout
         });
     } catch (err) {
         throw err;
@@ -96,7 +99,7 @@ async function signOut({
                 body,
                 signal
             } as RequestInit,
-            timeout: 2000
+            timeout: authTimeout
         });
     } catch (err) {
         console.log(JSON.stringify(err));

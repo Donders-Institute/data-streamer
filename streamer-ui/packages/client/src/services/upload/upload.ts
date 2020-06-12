@@ -27,7 +27,8 @@ import {
 export const maxFileSizeLimitBytes = 1073741824;
 export const maxFileSizeLimitAsString = "1 GB";
 
-export const shortTimeout = 2000; // ms
+// 10 seconds
+export const shortTimeout = 10000; // ms
 
 // 5 minutes = 5 * 60 * 1000 ms = 300000 ms
 export const uploadTimeout = 300000; // ms

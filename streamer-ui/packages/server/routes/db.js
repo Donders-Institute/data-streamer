@@ -36,22 +36,6 @@ var _insertUploadSession = async function(
     let client;
     let uploadSessionId;
 
-    console.log("insertUploadSession");
-    console.log(
-        dbHost, 
-        dbPort, 
-        dbUsername, 
-        dbPassword, 
-        dbName,
-        username,
-        ipAddress,
-        userAgent,
-        projectNumber,
-        subjectLabel,
-        sessionLabel,
-        dataType,
-        startTime);
-
     try {
         client = await connect(dbHost, dbPort, dbUsername, dbPassword, dbName);
     } catch (error) {

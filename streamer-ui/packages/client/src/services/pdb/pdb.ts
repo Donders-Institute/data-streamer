@@ -35,7 +35,7 @@ async function fetchDummyProjectList() {
 
 // Actual fetching from project database
 const fetchNumRetries = 1;
-const fetchTimeout = 2000; // ms
+const fetchTimeout = 10000; // ms
 
 async function fetchProjectList({
     username, 
