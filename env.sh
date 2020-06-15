@@ -28,6 +28,13 @@ STREAMER_UI_DB_DATA_VOL=./testdata/ui-db/data
 # volume in which the streamer ui crontab is presented
 STREAMER_UI_CRON_VOL=./testdata/ui/cron-ui
 
+# Configuration files
+SERVICE_CONFIG=./streamer/config/streamer-service-config.json
+MAILER_CONFIG=./streamer/config/streamer-mailer-config.json
+UI_CONFIG=./streamer/config/streamer-ui-config.json
+UI_ADCONFIG=./streamer/config/streamer_ui_adconfig.json
+UI_LDAPSCERT=./streamer/config/streamer-ui-ldapscert.crt
+
 # redis database for streamer jobs
 REDIS_HOST=db
 REDIS_PORT=6379

@@ -29,6 +29,13 @@ echo "STREAMER_UI_DB_DATA_VOL=$STREAMER_UI_DB_DATA_VOL"
 echo 
 echo "# volume in which the streamer ui crontab is presented"
 echo "STREAMER_UI_CRON_VOL=$STREAMER_UI_CRON_VOL"
+echo
+echo "# Configuration files"
+echo "SERVICE_CONFIG=$SERVICE_CONFIG"
+echo "MAILER_CONFIG=$MAILER_CONFIG"
+echo "UI_CONFIG=$UI_CONFIG"
+echo "UI_ADCONFIG=$UI_ADCONFIG"
+echo "UI_LDAPSCERT=$UI_LDAPSCERT"
 echo 
 echo "# redis database for streamer jobs"
 echo "REDIS_HOST=$REDIS_HOST"
