@@ -59,27 +59,27 @@ pipeline {
                 sleep(30)
 
                 // Streamer secrets
-                configFileProvider([configFile(fileId: 'streamer_service_config.json', variable: 'SERVICE_CONFIG')]) {
+                configFileProvider([configFile(fileId: 'streamer_service_config.json', variable: 'STREAMER_SERVICE_CONFIG')]) {
                     sh 'docker secret rm streamer-service-config.json || true'
-                    sh 'docker secret create streamer-service-config.json $SERVICE_CONFIG'
+                    sh 'docker secret create streamer-service-config.json $STREAMER_SERVICE_CONFIG'
                 }
-                configFileProvider([configFile(fileId: 'streamer_mailer_config.json', variable: 'MAILER_CONFIG')]) {
+                configFileProvider([configFile(fileId: 'streamer_mailer_config.json', variable: 'STREAMER_MAILER_CONFIG')]) {
                     sh 'docker secret rm streamer-mailer-config.json || true'
-                    sh 'docker secret create streamer-mailer-config.json $MAILER_CONFIG'
+                    sh 'docker secret create streamer-mailer-config.json $STREAMER_MAILER_CONFIG'
                 }
 
                 // Streamer UI secrets
-                configFileProvider([configFile(fileId: 'streamer_ui_config.json', variable: 'UI_CONFIG')]) {
+                configFileProvider([configFile(fileId: 'streamer_ui_config.json', variable: 'STREAMER_UI_CONFIG')]) {
                     sh 'docker secret rm streamer-ui-config.json || true'
-                    sh 'docker secret create streamer-ui-config.json $UI_CONFIG'
+                    sh 'docker secret create streamer-ui-config.json $STREAMER_UI_CONFIG'
                 }
-                configFileProvider([configFile(fileId: 'streamer_ui_adconfig.json', variable: 'UI_ADCONFIG')]) {
+                configFileProvider([configFile(fileId: 'streamer_ui_adconfig.json', variable: 'STREAMER_UI_ADCONFIG')]) {
                     sh 'docker secret rm streamer-ui-adconfig.json || true'
-                    sh 'docker secret create streamer-ui-adconfig.json $UI_ADCONFIG'
+                    sh 'docker secret create streamer-ui-adconfig.json $STREAMER_UI_ADCONFIG'
                 }
-                configFileProvider([configFile(fileId: 'streamer_ui_ldapscert.crt', variable: 'UI_LDAPSCERT')]) {
+                configFileProvider([configFile(fileId: 'streamer_ui_ldapscert.crt', variable: 'STREAMER_UI_LDAPSCERT')]) {
                     sh 'docker secret rm streamer-ui-ldapscert.crt || true'
-                    sh 'docker secret create streamer-ui-ldapscert.crt $UI_LDAPSCERT'
+                    sh 'docker secret create streamer-ui-ldapscert.crt $STREAMER_UI_LDAPSCERT'
                 }
 
                 withCredentials([
@@ -107,7 +107,7 @@ pipeline {
 
                     // Use the same approach as for production
                     script {
-                        def statusCode = sh(script: "bash ./docker-deploy-development.sh", returnStatus: true)
+                        def statusCode = sh(script: "bash ./docker-deploy-acceptance.sh", returnStatus: true)
                         echo "statusCode: ${statusCode}"
                     }
                 }
