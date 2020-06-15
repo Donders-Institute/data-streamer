@@ -130,7 +130,7 @@ pipeline {
                         script: 'dockerize \
                             -timeout 120s \
                             -wait tcp://service:3001 \
-                            -wait http://ui-db:5432 \
+                            -wait tcp://ui-db:5432 \
                             -wait http://ui:9000'
                     )
                 }
