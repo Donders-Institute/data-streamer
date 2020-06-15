@@ -24,6 +24,11 @@ STREAMER_UI_DB_PASSWORD=postgres
 STREAMER_UI_DB_NAME=postgres
 STREAMER_UI_MOCK_AUTH=true
 STREAMER_UI_MOCK_PROJECT_DATABASE=true
+STREAMER_UI_MOCK_SERVICE=true
+
+# configuration for streamer ui client
+STREAMER_UI_INTERNAL_SERVER_API_URL=/api
+STREAMER_UI_EXTERNAL_SERVER_API_URL=http://localhost:9000/api
 
 # configuration for streamer ui database
 STREAMER_UI_DB_EXTERNAL_PORT=9001
