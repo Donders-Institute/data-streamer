@@ -371,6 +371,18 @@ var _submit = async function(req, res, next) {
     console.log(streamerUrl);
     console.log(JSON.stringify(headers));
     console.log(body);
+
+    // Mock service (for development)
+    const mockService = req.app.locals.STREAMER_UI_MOCK_SERVICE;
+    if (mockService) {
+        console.log("Successfully submitted streamer job");
+        console.log(JSON.stringify(submitResult));
+        return res.status(200).json({
+            data: submitResult,
+            error: null
+        });
+    }
+
     utils.fetchRetry(
         streamerUrl,
         {

@@ -47,8 +47,10 @@ app.locals.STREAMER_UI_DB_NAME = STREAMER_UI_DB_NAME;
 // Check mock options (for development)
 const STREAMER_UI_MOCK_AUTH = process.env.STREAMER_UI_MOCK_AUTH ? (process.env.STREAMER_UI_MOCK_AUTH === 'true') : false;
 const STREAMER_UI_MOCK_PROJECT_DATABASE = process.env.STREAMER_UI_MOCK_PROJECT_DATABASE ? (process.env.STREAMER_UI_MOCK_PROJECT_DATABASE === 'true') : false;
+const STREAMER_UI_MOCK_SERVICE = process.env.STREAMER_UI_MOCK_SERVICE ? (process.env.STREAMER_UI_MOCK_SERVICE === 'true') : false;
 app.locals.STREAMER_UI_MOCK_AUTH = STREAMER_UI_MOCK_AUTH;
 app.locals.STREAMER_UI_MOCK_PROJECT_DATABASE = STREAMER_UI_MOCK_PROJECT_DATABASE;
+app.locals.STREAMER_UI_MOCK_SERVICE = STREAMER_UI_MOCK_SERVICE;
 
 app.use(logger("dev"));
 app.use(express.json());
