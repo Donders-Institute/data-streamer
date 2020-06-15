@@ -29,11 +29,12 @@ STREAMER_UI_DB_DATA_VOL=./testdata/ui-db/data
 STREAMER_UI_CRON_VOL=./testdata/ui/cron-ui
 
 # Configuration files
-SERVICE_CONFIG=./streamer/config/streamer-service-config.json
-MAILER_CONFIG=./streamer/config/streamer-mailer-config.json
-UI_CONFIG=./streamer/config/streamer-ui-config.json
-UI_ADCONFIG=./streamer/config/streamer_ui_adconfig.json
-UI_LDAPSCERT=./streamer/config/streamer-ui-ldapscert.crt
+STREAMER_SECRETS_DIR=./streamer/config
+STREAMER_SERVICE_CONFIG=./streamer/config/streamer-service-config.json
+STREAMER_MAILER_CONFIG=./streamer/config/streamer-mailer-config.json
+STREAMER_UI_CONFIG=./streamer/config/streamer-ui-config.json
+STREAMER_UI_ADCONFIG=./streamer/config/streamer_ui_adconfig.json
+STREAMER_UI_LDAPSCERT=./streamer/config/streamer-ui-ldapscert.crt
 
 # redis database for streamer jobs
 REDIS_HOST=db
