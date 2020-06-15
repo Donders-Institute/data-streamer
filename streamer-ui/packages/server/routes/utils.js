@@ -4,7 +4,7 @@ const fetch = require('node-fetch');
 
 const STREAMER_UI_PROJECT_DIR = process.env.STREAMER_UI_PROJECT_DIR || __dirname + '/uploads';
 const STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname + '/uploads';
-const STREAMER_URL_PREFIX = process.env.STREAMER_URL_PREFIX || "http://streamer:3001";
+const STREAMER_URL_PREFIX = process.env.STREAMER_URL_PREFIX || "http://service:3001";
 
 // Get the streamer UI buffer directory name
 var _getStreamerUIBufferDirname = function(projectNumber, subjectLabel, sessionLabel, dataType) {

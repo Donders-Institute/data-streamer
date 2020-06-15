@@ -25,6 +25,13 @@ const PORT = process.env.PORT && parseInt(process.env.STREAMER_UI_PORT) || 9000;
 app.locals.HOST = HOST;
 app.locals.PORT = PORT;
 
+const STREAMER_UI_PROJECT_DIR = process.env.STREAMER_UI_PROJECT_DIR || __dirname + '/uploads';
+const STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname + '/uploads';
+const STREAMER_URL_PREFIX = process.env.STREAMER_URL_PREFIX || "http://service:3001";
+app.locals.STREAMER_UI_PROJECT_DIR = STREAMER_UI_PROJECT_DIR;
+app.locals.STREAMER_UI_BUFFER_DIR = STREAMER_UI_BUFFER_DIR;
+app.locals.STREAMER_URL_PREFIX = STREAMER_URL_PREFIX;
+
 // Streamer UI database configuration
 const STREAMER_UI_DB_HOST = process.env.STREAMER_UI_DB_HOST || "ui-db";
 const STREAMER_UI_DB_PORT = process.env.STREAMER_UI_DB_PORT || 5432;
@@ -56,6 +63,7 @@ if (!isDevelopment) {
 let whitelist = [];
 if (isDevelopment) {
     whitelist = [
+        `http://${app.locals.STREAMER_URL_PREFIX}`,
         `http://${app.locals.HOST}:${app.locals.PORT}`, // streamer ui server
         `http://localhost:${app.locals.PORT}`,
         `http://${app.locals.HOST}:3000`, // streamer ui client
@@ -64,6 +72,7 @@ if (isDevelopment) {
 }
 else {
     whitelist = [
+        `http://${app.locals.STREAMER_URL_PREFIX}`,
         `http://ui:${app.locals.PORT}`,
         `https://ui:${app.locals.PORT}`,
         `http://${app.locals.HOST}:${app.locals.PORT}`,
