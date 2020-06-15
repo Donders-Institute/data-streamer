@@ -4,7 +4,7 @@
 set -a && source env.sh && set +a
 
 # list secrets, secrets will be set via Jenkinsfile in acceptance
-for f in "ls $STREAMER_SECRETS_DIR"; do
+for f in `ls $STREAMER_SECRETS_DIR`; do
     echo $f
 done
 
