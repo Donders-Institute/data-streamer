@@ -4,7 +4,7 @@
 set -a && source env.sh && set +a
 
 # add secrets, file and secret name will be identical
-for f in "ls $STREAMER_SECRETS_DIR"; do
+for f in `ls $STREAMER_SECRETS_DIR`; do
     docker secret ls -f name=$f --format "{{.Name}}" | grep $f >/dev/null 2>&1
     if [ $? -eq 0 ]; then
         # secret with the same name exists, remove it
