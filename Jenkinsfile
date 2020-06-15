@@ -124,7 +124,7 @@ pipeline {
                 label 'swarm-manager'
             }
             steps {
-                withDockerContainer(image: 'jwilder/dockerize', args: '--network streamer4user_default') {
+                withDockerContainer(image: 'jwilder/dockerize', args: '--network streamer4user-net') {
                     sh (
                         label: 'Waiting for services to become available',
                         script: 'dockerize \

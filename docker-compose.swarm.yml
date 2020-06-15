@@ -47,6 +47,7 @@ services:
 
 networks:
   default:
+    name: streamer4user-net
     attachable: true
   proxynet:
     external: true
