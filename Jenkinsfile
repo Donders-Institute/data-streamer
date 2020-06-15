@@ -43,12 +43,6 @@ pipeline {
             }
         }
 
-        // stage('Unit test') {
-        //     steps {
-        //         echo 'hi'
-        //     }
-        // }
-
         stage('Staging') {
              when {
                 expression {
@@ -121,33 +115,39 @@ pipeline {
         }
 
         stage('Health check') {
-             when {
+            when {
                 expression {
                     return !params.PRODUCTION
                 }
             }
             agent {
-                docker {
-                    image 'jwilder/dockerize'
-                    args '--network streamer4user_default'
-                }
+                label 'swarm-manager'
             }
             steps {
-                sh (
-                    label: 'Waiting for services to become available',
-                    script: 'dockerize \
-                        -timeout 120s \
-                        -wait tcp://service:3001 \
-                        -wait http://ui:9000'
-                )
+                withDockerContainer(image: 'jwilder/dockerize', args: '--network streamer4user_default') {
+                    sh (
+                        label: 'Waiting for services to become available',
+                        script: 'dockerize \
+                            -timeout 120s \
+                            -wait tcp://service:3001 \
+                            -wait http://ui-db:5432 \
+                            -wait http://ui:9000'
+                    )
+                }
+            }
+            post {
+                failure {
+                    sh (
+                        label: 'Displaying service status',
+                        script: 'docker stack ps streamer4user'
+                    )
+                    sh (
+                        label: 'Displaying service logs',
+                        script: 'docker stack services --format \'{{.Name}}\' streamer4user | xargs -n 1 docker service logs'
+                    )
+                }
             }
         }
-
-        // stage('Integration test') {
-        //     steps {
-        //         echo 'hi'
-        //     }
-        // }
 
         stage('Tag and push (PRODUCTION)') {
             when {
