@@ -1,4 +1,4 @@
-# Data streamer UI
+# Streamer UI
 
 The data streamer UI is better known as the Research Data Uploader.
 
