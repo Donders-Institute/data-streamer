@@ -21,7 +21,7 @@ app.locals.ENV = ENV;
 
 // Streamer UI server configuration
 const HOST = process.env.STREAMER_UI_HOST || "localhost";
-const PORT = process.env.PORT && parseInt(process.env.STREAMER_UI_PORT) || 9000;
+const PORT = process.env.PORT && parseInt(process.env.STREAMER_UI_PORT) || 3900;
 app.locals.HOST = HOST;
 app.locals.PORT = PORT;
 
