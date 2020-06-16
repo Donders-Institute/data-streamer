@@ -7,7 +7,7 @@ It is a web interface to upload files from a (lab) PC to both:
 1. your project folder on central storage, and
 2. the Donders Repository
 
-The purpose of the Research Data Upload is to enforce a standardized destination folder structure with project number, subject, session, and data type specified (e.g. `/project/3010123.01/raw/sub-1/ses-1/mri/` on central storage) with restrictions on the possible subject and session labels, and possible data types.
+The purpose of the Research Data Uploader is to enforce a standardized destination folder structure with project number, subject, session, and data type specified (e.g. `/project/3010123.01/raw/sub-1/ses-1/mri/` on central storage) with restrictions on the possible subject and session labels, and possible data types.
 
 The Research Data Uploader is implemented as a React web app that is served by the streamer UI server. The React javascript code runs in the user's web browser and communicates to the streamer UI server via an API thats handles authentication requests and upload sessions. The streamer UI database is used to facilitate this. 
 
