@@ -35,13 +35,13 @@ services:
       - streamer-ui-adconfig.json
       - streamer-ui-ldapscert.crt
     ports:
-      - ${STREAMER_UI_PORT:-3900}:${STREAMER_UI_PORT:-3900}
+      - ${STREAMER_UI_EXTERNAL_PORT:-9000}:${STREAMER_UI_PORT:-9000}
     volumes:
       - ${PROJECT_VOL}:${STREAMER_UI_PROJECT_DIR}
       - ${STREAMER_UI_CRON_VOL}:${STREAMER_UI_CRON_DIR}
   ui-db:
     ports:
-      - ${STREAMER_UI_DB_EXTERNAL_PORT:-3901}:${STREAMER_UI_DB_PORT:-5432}
+      - ${STREAMER_UI_DB_EXTERNAL_PORT:-9001}:${STREAMER_UI_DB_PORT:-5432}
     volumes:
       - ${STREAMER_UI_DB_DATA_VOL}:/var/lib/postgresql/data
 
