@@ -1,6 +1,6 @@
 # Streamer UI
 
-The data streamer UI is better known as the Research Data Uploader.
+The streamer UI is better known as the Research Data Uploader.
 
 It is a web interface to upload files from a (lab) PC to both:
 
