@@ -80,6 +80,7 @@ else {
         `http://${app.locals.HOST}:${app.locals.PORT}`,
         `https://${app.locals.HOST}:${app.locals.PORT}`,
         "https://streamer-acc.dccn.nl",
+        "https://uploader-acc.dccn.nl",
         "https://uploader.dccn.nl"
     ];
 }
