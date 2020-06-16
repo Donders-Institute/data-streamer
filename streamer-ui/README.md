@@ -1,8 +1,6 @@
 # Streamer UI
 
-The streamer UI is better known as the Research Data Uploader.
-
-It is a web interface to upload files from a (lab) PC to both:
+The streamer UI is better known as the Research Data Uploader. It is a web interface to upload files from a (lab) PC to both:
 
 1. your project folder on central storage, and
 2. the Donders Repository
