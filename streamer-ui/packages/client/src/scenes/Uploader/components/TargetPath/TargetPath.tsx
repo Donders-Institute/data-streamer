@@ -14,6 +14,7 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
     const subjectLabelInput = uploadState.structureSelection.subjectLabelInput;
     const sessionLabelInput = uploadState.structureSelection.sessionLabelInput;
     const dataTypeInput = uploadState.structureSelection.dataTypeInput;
+    const dataTypeOtherInput = uploadState.structureSelection.dataTypeOtherInput;
 
     let drivePath = (
         <span style={{ fontWeight: "bold", color: "#52c41a" }}>P:</span>
@@ -37,7 +38,9 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
     let subjectLabelPath = (
         <span>(subjectlabel)</span>
     );
-    let dataTypePath = <span >(datatype)</span>;
+    let dataTypePath = (
+        <span>(datatype)</span>
+    );
     let sessionLabelPath = (
         <span>(sessionlabel)</span>
     );
@@ -66,6 +69,7 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
         );
     }
 
+    // Display the effective dataType value
     if (dataTypeInput.isSelected) {
         const dataType = dataTypeInput.value;
 
@@ -73,12 +77,11 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
             <span style={{ fontWeight: "bold", color: "#52c41a" }}>{dataType}</span>
         );
 
-        if (dataType === "other" || dataType === "") {
-            dataTypePath = <span>(datatype)</span>;
-        } else {
+        // Show dataTypeOther when "other" is selected
+        if (dataType === "other" && dataTypeOtherInput.isSelected) {
             dataTypePath = (
                 <span style={{ fontWeight: "bold", color: "#52c41a" }}>
-                    {dataType}
+                    {dataTypeOtherInput.value}
                 </span>
             );
         }

@@ -566,6 +566,17 @@ async function submit({
     return submitResult;
 };
 
+// Obtain the effective dataType value
+function getDataType(uploadState: UploadState) {
+    const dataType =  uploadState.structureSelection.dataTypeInput.value;
+    if (dataType === "other") {
+        // Return the dataTypeOther value when selected
+        const dataTypeOther = uploadState.structureSelection.dataTypeOtherInput.value;
+        return dataTypeOther;
+    }
+    return dataType;
+};
+
 // Custom hook to initiate upload
 export const useInitiateUpload = ({
     userProfile,
@@ -599,7 +610,7 @@ export const useInitiateUpload = ({
                 const projectNumber = uploadState.structureSelection.projectNumberInput.value;
                 const subjectLabel = uploadState.structureSelection.subjectLabelInput.value;
                 const sessionLabel = uploadState.structureSelection.sessionLabelInput.value;
-                const dataType = uploadState.structureSelection.dataTypeInput.value;
+                const dataType = getDataType(uploadState);
             
                 const fileList = uploadState.filesSelection.fileList;
 
@@ -688,7 +699,7 @@ export const useValidateUpload = ({
                 const projectNumber = uploadState.structureSelection.projectNumberInput.value;
                 const subjectLabel = uploadState.structureSelection.subjectLabelInput.value;
                 const sessionLabel = uploadState.structureSelection.sessionLabelInput.value;
-                const dataType = uploadState.structureSelection.dataTypeInput.value;
+                const dataType = getDataType(uploadState);
             
                 const fileList = uploadState.filesSelection.fileList;
 
@@ -833,7 +844,7 @@ export const useUpload = ({
                 const projectNumber =  uploadState.structureSelection.projectNumberInput.value;
                 const subjectLabel =  uploadState.structureSelection.subjectLabelInput.value;
                 const sessionLabel =  uploadState.structureSelection.sessionLabelInput.value;
-                const dataType =  uploadState.structureSelection.dataTypeInput.value;
+                const dataType = getDataType(uploadState);
             
                 const fileList =  uploadState.filesSelection.fileList;
                 const totalSizeBytes = uploadState.filesSelection.totalSizeBytes; 
@@ -977,7 +988,7 @@ export const useFinalize = ({
                 const projectNumber =  uploadState.structureSelection.projectNumberInput.value;
                 const subjectLabel =  uploadState.structureSelection.subjectLabelInput.value;
                 const sessionLabel =  uploadState.structureSelection.sessionLabelInput.value;
-                const dataType =  uploadState.structureSelection.dataTypeInput.value;
+                const dataType = getDataType(uploadState);
             
                 try {
                     await finalize({
@@ -1057,7 +1068,7 @@ export const useSubmit = ({
                 const projectNumber =  uploadState.structureSelection.projectNumberInput.value;
                 const subjectLabel =  uploadState.structureSelection.subjectLabelInput.value;
                 const sessionLabel =  uploadState.structureSelection.sessionLabelInput.value;
-                const dataType =  uploadState.structureSelection.dataTypeInput.value;
+                const dataType = getDataType(uploadState);
             
                 try {
                     // Submit a streamer job
