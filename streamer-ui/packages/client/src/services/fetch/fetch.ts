@@ -3,7 +3,7 @@ import { ServerResponse } from "../../types/types";
 export function baseUrl() {
     const isDevelopment = process.env.NODE_ENV === "development";
     if (isDevelopment) {
-        return process.env.REACT_APP_STREAMER_UI_EXTERNAL_SERVER_API_URL || "http://localhost:3900/api";
+        return process.env.REACT_APP_STREAMER_UI_EXTERNAL_SERVER_API_URL || "http://localhost:9000/api";
     }
     return process.env.REACT_APP_STREAMER_UI_INTERNAL_SERVER_API_URL || "/api";
 };
