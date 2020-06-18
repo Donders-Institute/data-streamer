@@ -19,11 +19,12 @@ RUN yarn build
 # Create the server
 FROM node:12
 ENV NODE_ENV production
-RUN apt-get update && apt-get install -y cron curl
+RUN apt-get update && apt-get install -y cron curl supervisor
 WORKDIR /opt/streamer-ui-server
 COPY $pwd/packages/server/package.json ./
 COPY $pwd/packages/server/yarn.lock ./
 RUN yarn install
+COPY $pwd/packages/server/supervisord.conf ./
 COPY $pwd/packages/server/purge-db.sh ./
 COPY $pwd/packages/server/start-server.sh ./
 COPY $pwd/packages/server/*.js ./
@@ -33,4 +34,4 @@ COPY $pwd/packages/server/config ./config
 RUN ( chmod +x purge-db.sh )
 RUN ( chmod +x start-server.sh )
 COPY --from=build /opt/streamer-ui-client/build /opt/streamer-ui-server/frontend
-CMD [ "/opt/streamer-ui-server/start-server.sh" ]
+CMD [ "/usr/bin/supervisord", "-c", "/opt/streamer-ui-server/supervisord.conf" ]
