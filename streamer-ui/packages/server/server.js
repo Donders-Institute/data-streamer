@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const logger = require("morgan");
 const path = require("path");
+require('log-timestamp');
 require('dotenv').config();
 
 const auth = require("./routes/auth");
@@ -52,7 +53,7 @@ app.locals.STREAMER_UI_MOCK_AUTH = STREAMER_UI_MOCK_AUTH;
 app.locals.STREAMER_UI_MOCK_PROJECT_DATABASE = STREAMER_UI_MOCK_PROJECT_DATABASE;
 app.locals.STREAMER_UI_MOCK_SERVICE = STREAMER_UI_MOCK_SERVICE;
 
-app.use(logger("dev"));
+app.use(logger('[:date[iso]] :method :url'));
 app.use(express.json());
 app.use(cookieParser());
 
