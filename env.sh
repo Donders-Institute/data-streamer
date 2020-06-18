@@ -26,7 +26,10 @@ STREAMER_UI_DB_INIT_VOL=./streamer-ui/ui-db/init
 STREAMER_UI_DB_DATA_VOL=./testdata/ui-db/data
 
 # volume in which the streamer ui crontab is presented
-STREAMER_UI_CRON_VOL=./testdata/ui/cron-ui
+STREAMER_UI_CRON_VOL=./testdata/ui/cron
+
+# volume for streamer ui log
+STREAMER_UI_LOG_VOL=./testdata/ui/log
 
 # Configuration files
 STREAMER_SECRETS_DIR=./streamer/config
@@ -46,7 +49,8 @@ STREAMER_UI_HOST=0.0.0.0
 STREAMER_UI_PORT=9000
 STREAMER_UI_EXTERNAL_PORT=9000
 STREAMER_UI_PROJECT_DIR=/project
-STREAMER_UI_CRON_DIR=/cron-ui
+STREAMER_UI_CRON_DIR=/var/spool/cron/crontabs/root
+STREAMER_UI_LOG_DIR=/opt/streamer-ui-server/log
 STREAMER_UI_BUFFER_DIR=./testdata/project/3055000.01/raw
 STREAMER_URL_PREFIX=http://service:3001
 STREAMER_UI_DB_HOST=localhost

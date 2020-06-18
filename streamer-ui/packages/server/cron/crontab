@@ -1,0 +1,1 @@
+0 23 * * 0 /opt/streamer-ui-server/purge-db.sh >/dev/null 2>&1
