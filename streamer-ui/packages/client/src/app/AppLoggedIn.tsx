@@ -239,7 +239,7 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     });
 
     // Show confirmation modal
-    const showConfirmModal = (uploadState.status === UploadStatus.Confirming);
+    const showConfirmModal = (uploadState.status === UploadStatus.Confirming && hasExistingFiles);
 
     // Handle approved upload
     const [percentage, numRemainingFiles, errorUpload, isLoadingUpload] = useUpload({
