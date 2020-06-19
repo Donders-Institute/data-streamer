@@ -311,11 +311,17 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
     */
     var compressSeriesData = function(src, projectNumber, minProgress, maxProgress, cb_async) {
 
-        // resolve the destination path of the tarball
+        // destination path of the tarball
         var f_tgz = src + '.tar.gz';
 
-        // compress directory into single tarball
-        tar.c( { gzip: true, file: f_tgz }, [src], function(err) {
+        // get the tar working directory (i.e. the parent of the `src`)
+        var wdir = path.dirname(src)
+
+        // get a list of files relative to the `wdir` to be passed to tar
+        var files = fs.readdirSync(src).map(p => path.basename(src) + '/' + p)
+
+        // compress files into single tarball
+        tar.c( { gzip: true, file: f_tgz, C: wdir }, files, function(err) {
             if (err) {
                 return cb_async(err, null, projectNumber);
             }
@@ -450,7 +456,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
     // here are logical steps run in sequencial order
     async.waterfall([
         function(cb) {
-            // get all instances of a the series to catch-all project storage
+            // get all instances of a the series to MRI service project storage
             // it returns a directory on central storage, and the
             // project number.
             // The project number can be null if the subject naming
@@ -459,26 +465,26 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
         },
         function(dataPath, projectNumber, cb) {
             // compress series data
-            compressSeriesData(dataPath, projectNumber, 30, 40, cb);
+            compressSeriesData(dataPath, projectNumber, 30, 50, cb);
         },
-        function(dataPath, projectNumber, cb) {
-            // archive DICOM images given by dataPath
-            // to a catch-all collection in RDM.
-            if ( dataPath ) {
-                submitStagerJob(dataPath, projectNumber, true, 40, 50, cb);
-            } else {
-                // it should never happen that the dataDir of catch-all storage is 'null' or 'undefined'
-                // this call terminates the rest async process immediately
-                cb('dataPath not found: ' + dataPath, dataPath);
-            }
-        },
+        // function(dataPath, projectNumber, cb) {
+        //     // archive DICOM images given by dataPath
+        //     // to a catch-all collection in RDM.
+        //     if ( dataPath ) {
+        //         submitStagerJob(dataPath, projectNumber, true, 40, 50, cb);
+        //     } else {
+        //         // it should never happen that the dataDir of catch-all storage is 'null' or 'undefined'
+        //         // this call terminates the rest async process immediately
+        //         cb('dataPath not found: ' + dataPath, dataPath);
+        //     }
+        // },
         function( dataPath, projectNumber, cb) {
             // just convert dataPath back to the directory in which
             // the instances of the series is stored
             cb(null, dataPath.replace(new RegExp('\.tar\.gz$'), ''), projectNumber);
         },
         function(dataPath, projectNumber, cb) {
-            // archive DICOM images in dataPath
+            // upload DICOM images in dataPath
             // to the project-specific collection in RDM.
             submitStagerJob(dataPath, projectNumber, false, 50, 60, cb);
         },
