@@ -193,12 +193,19 @@ app.post('/api/upload/finalize',
     upload.verifyStructure,
     upload.submit);
 
-// POST Purge database tables for admin user
+// POST Purge old data in the database tables for admin user
 app.post('/api/purge',
     auth.hasBasicAuthHeader,
     auth.verifyAdminCredentials,
     content.hasJson,
-    admin.purge);
+    admin.purgeOld);
+
+// POST Purge all data in the database tables for admin user
+app.post('/api/purge/all',
+    auth.hasBasicAuthHeader,
+    auth.verifyAdminCredentials,
+    content.hasJson,
+    admin.purgeAll);
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -190,8 +190,42 @@ var _getUploadFileList = async function(
     return getUploadFileListResult;
 }
 
-// Delete all rows in uploadsession table and 
-var _purgeTables = async function(
+// Delete old rows in uploadsession table and uploadfile table
+var _purgeOld = async function(
+    dbHost, 
+    dbPort, 
+    dbUsername, 
+    dbPassword, 
+    dbName
+) {
+    let client;
+    try {
+        client = await connect(dbHost, dbPort, dbUsername, dbPassword, dbName);
+    } catch (error) {
+        throw "Could not connect to database";
+    }
+
+    // Delete rows older than 1 week
+    try {
+       await client.query(`DELETE FROM uploadsession WHERE DATE_TRUNC('day', start_time) = CURRENT_DATE - interval '7 days'; DELETE FROM uploadfile WHERE upload_session_id NOT IN (SELECT id FROM uploadsession);`);
+    } catch (error) {
+        throw "Could not delete old rows in tables uploadsession and/or uploadfile";
+    }
+    try {
+        await client.end();
+    } catch (error) {
+        throw "Could not disconnect database";
+    }
+
+    const status = "purgedOld";
+    const purgeResult = {
+        status
+    }
+    return purgeResult;
+}
+
+// Delete all rows in uploadsession table and uploadfile table
+var _purgeAll = async function(
     dbHost, 
     dbPort, 
     dbUsername, 
@@ -216,7 +250,7 @@ var _purgeTables = async function(
         throw "Could not disconnect database";
     }
 
-    const status = "purged";
+    const status = "purgedAll";
     const purgeResult = {
         status
     }
@@ -227,4 +261,5 @@ module.exports.insertUploadSession = _insertUploadSession;
 module.exports.insertUploadFile = _insertUploadFile;
 module.exports.updateUploadSession = _updateUploadSession;
 module.exports.getUploadFileList = _getUploadFileList;
-module.exports.purgeTables = _purgeTables;
+module.exports.purgeOld = _purgeOld;
+module.exports.purgeAll = _purgeAll;
