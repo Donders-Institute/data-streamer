@@ -92,7 +92,7 @@ yarn start
 
 ### 2.1 Code Organization
 
-The `explorer-client` code is structured into the following folders:
+The `client` code is structured into the following folders:
 
 * `app` (the root level component, e.g. `AppLoggedIn`)
 * `scenes` (presentational parts, web pages, e.g. `Uploader`, `Help`)
