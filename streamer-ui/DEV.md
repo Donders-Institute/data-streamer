@@ -83,3 +83,48 @@ Start the streamer UI client
 cd streamer-ui/packages/client
 yarn start
 ```
+
+## Implementation Details
+
+### Signing in and signing out
+
+Before the user can start uploading files, he/she is prompted with a login screen. 
+The user needs to fill in his/her DCCN user credentials.
+We use `authState` and `authErrorState` to keep track of the login stage. 
+
+The following stages exist:
+```
+NotLoggedIn (initial state)
+Selecting (user changes tsername and password)
+LoggingIn (attempt to redirect to upload page)
+LoggedIn (success)
+LoggingOut (redirect to login page)
+```
+The enum `AuthStatus` is used for this purpose. React hooks are used to update the `authState` when appropriate.
+If an exception occurs the `authErrorState` is set accordingly. An error modal is shown to the user.
+
+If `LoggedIn`, the upload page is shown.
+
+### Uploading
+
+The following upload stages exist:
+```
+NotUploading (initial state)
+Selecting (user changes form input fields and file selection)
+Initiating (start with upload session; request an upload session id)
+Validating (validate files to be uploaded; check if they already exist in project storage folder)
+Confirming (ask the user for confirmation if destination folder and file(s) already exist)
+Uploading (copy files to streamer UI buffer directory)
+Finalizing (wrap up upload session)
+Submitting (submitting streamer job)
+Success (done)
+```
+The enum `UploadStatus` is used for this purpose. React hooks are used to update the `uploadState` when appropriate.
+In addition, `errorState` is used to capture any exception that might occur. An error modal is shown to the user in case an exception occurs. 
+
+After the user has selected files, he/she selects the appropriate project, sets the subject label and session label, and selects the data type. If the data type is not in the list of allowed data types, the user can select "other" and set this value.
+
+When satisfied, the upload button can be pressed and an upload session is inititated. The upload modal is shown with the upload progress. After the initiating stage, each file that is to be uploaded is validated. Might any of the files already exist in the destination folder, then the user is prompted with a confirmation modal. If the user approves and presses the OK button, the actual upload is started. The files are transferred to the streamer UI buffer directory. When this operation was succesful, the upload session is finalized.
+
+A submit request is sent to the `service` which queues a streamer job. After some delay, an e-mail will be sent to the user with the result.
+
