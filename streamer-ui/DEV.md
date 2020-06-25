@@ -1,6 +1,8 @@
 # Developer Guide
 
-## Configuration for Local Development
+## 1. Local Development
+
+### 1.1 Configuration
 
 Create `.env` file in `packages/server`:
 ```
@@ -62,6 +64,8 @@ REACT_APP_STREAMER_UI_INTERNAL_SERVER_API_URL=/api
 REACT_APP_STREAMER_UI_EXTERNAL_SERVER_API_URL=http://localhost:9000/api
 ```
 
+### 1.2 Building and Running the Stack
+
 Build the stack
 ```
 docker-compose build
@@ -84,9 +88,9 @@ cd streamer-ui/packages/client
 yarn start
 ```
 
-## Implementation Details
+## 2. Implementation Details
 
-### Signing in and signing out
+### 2.1 Signing in and signing out
 
 Before the user can start uploading files, he/she is prompted with a login screen. 
 The user needs to fill in his/her DCCN user credentials.
@@ -105,7 +109,7 @@ If an exception occurs the `authErrorState` is set accordingly. An error modal i
 
 If `LoggedIn`, the upload page is shown.
 
-### Uploading
+### 2.2 Uploading
 
 The following upload stages exist:
 ```
@@ -127,4 +131,3 @@ After the user has selected files, he/she selects the appropriate project, sets 
 When satisfied, the upload button can be pressed and an upload session is inititated. The upload modal is shown with the upload progress. After the initiating stage, each file that is to be uploaded is validated. Might any of the files already exist in the destination folder, then the user is prompted with a confirmation modal. If the user approves and presses the OK button, the actual upload is started. The files are transferred to the streamer UI buffer directory. When this operation was succesful, the upload session is finalized.
 
 A submit request is sent to the `service` which queues a streamer job. After some delay, an e-mail will be sent to the user with the result.
-
