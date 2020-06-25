@@ -90,7 +90,19 @@ yarn start
 
 ## 2. Implementation Details
 
-### 2.1 Signing In and Signing Out
+### 2.1 Code Organization
+
+The `explorer-client` code is structured into the following folders:
+
+* `app` (the root level component, e.g. `AppLoggedIn`)
+* `scenes` (presentational parts, web pages, e.g. `Uploader`, `Help`)
+* `components` (reusable, logical parts, e.g. `Header`)
+* `services` (infrastructure parts, e,g `inputValidation`)
+* `types` (reusable constructs, e.g. `AuthStatus`)
+
+In turn, each scene can have its own `components`, `services`, and `types`.
+
+### 2.2 Signing In and Signing Out
 
 Before the user can start uploading files, he/she is prompted with a login screen. 
 The user needs to fill in his/her DCCN user credentials.
@@ -109,7 +121,7 @@ If an exception occurs the `authErrorState` is set accordingly. An error modal i
 
 If `LoggedIn`, the upload page is shown.
 
-### 2.2 Uploading
+### 2.3 Uploading
 
 The following upload stages exist:
 ```
