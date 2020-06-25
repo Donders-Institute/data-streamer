@@ -15,8 +15,8 @@ See the [Developer Guide](DEV.md) for installation instructions and implementati
 
 A screenshot of the Research Data Uploader can be found below:
 
-![Screenshot](./docs/screenshot-data-streamer-ui.png "Screenshot")
+![Screenshot](./figures/screenshot-data-streamer-ui.png "Screenshot")
 
 ## System Architecture
 
-![Architecture](./docs/architecture.png "Architecture")
+![Architecture](./figures/architecture.png "Architecture")
