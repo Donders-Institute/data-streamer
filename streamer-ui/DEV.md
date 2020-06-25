@@ -90,7 +90,7 @@ yarn start
 
 ## 2. Implementation Details
 
-### 2.1 Signing in and signing out
+### 2.1 Signing In and Signing Out
 
 Before the user can start uploading files, he/she is prompted with a login screen. 
 The user needs to fill in his/her DCCN user credentials.
