@@ -1,4 +1,4 @@
-# Developer instructions
+# Developer Guide
 
 Create `.env` file in `packages/server`:
 ```
