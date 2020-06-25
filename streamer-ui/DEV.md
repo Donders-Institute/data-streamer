@@ -1,5 +1,7 @@
 # Developer Guide
 
+## Configuration for Local Development
+
 Create `.env` file in `packages/server`:
 ```
 NODE_ENV=development
