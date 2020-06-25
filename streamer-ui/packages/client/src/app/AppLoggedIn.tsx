@@ -112,7 +112,7 @@ interface AppLoggedInProps {
     enableLoginButton: boolean;
     showAuthErrorModal: boolean;
     handleOkAuthErrorModal: () => Promise<void>;
-    authErrorState: ErrorState
+    authErrorState: ErrorState;
     mockPdb: boolean;
 };
 
