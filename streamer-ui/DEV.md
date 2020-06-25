@@ -1,5 +1,8 @@
 # Developer Guide
 
+1. [Local Development](#1-local-development)
+2. [Implementation Details](#2-implementation-details)
+
 ## 1. Local Development
 
 ### 1.1 Configuration
