@@ -102,6 +102,8 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 utility.printErr(job.id + ':USER:execStreamerJob:checkWritePermission', errmsg);
                 return cb_async(errmsg, false);
             } else {
+		// remove the touched .streamer file
+		fs.unlinkSync(path.join(dir,'.streamer'));
                 // set job progress to maxProgress
                 job.progress(maxProgress, 100);
                 return cb_async(null, true);
