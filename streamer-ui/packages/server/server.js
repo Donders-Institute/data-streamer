@@ -101,7 +101,7 @@ app.use(cors(corsOptions));
 //  - session data store: postgresql database
 app.use(session({
     store: new pgSession({
-        pool : new pg.Pool({
+        pool: new pg.Pool({
             host: STREAMER_UI_DB_HOST,
             port: STREAMER_UI_DB_PORT,
             user: STREAMER_UI_DB_USER,
@@ -112,7 +112,7 @@ app.use(session({
             idleTimeoutMillis: 30000,
             connectionTimeoutMillis: 2000
         }),
-        tableName : 'usersession'
+        tableName: 'usersession'
     }),
     secret: 'somesecret',
     resave: true,
@@ -120,10 +120,10 @@ app.use(session({
     saveUninitialized: true,
     unset: 'destroy',
     name: 'streamer-ui.sid',
-    cookie: { 
+    cookie: {
         httpOnly: false,
         maxAge: 4 * 3600 * 1000  // 4 hours
-    } 
+    }
 }));
 
 // GET Serve frontend home page
@@ -200,7 +200,7 @@ app.post('/api/upload/finalize',
     upload.finalize);
 
 // POST Submit a streamer job for regular user
-    app.post('/api/upload/submit',
+app.post('/api/upload/submit',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
