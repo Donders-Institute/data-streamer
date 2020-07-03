@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "activedirectory": "^0.7.2",
+    "connect-pg-simple": "^6.1.0",
     "cookie-parser": "~1.4.4",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",

@@ -1,6 +1,8 @@
 const createError = require("http-errors");
 const express = require("express");
 const session = require('express-session');
+const pg = require('pg');
+const pgSession = require('connect-pg-simple')(session);
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const logger = require("morgan");
@@ -53,14 +55,9 @@ app.locals.STREAMER_UI_MOCK_AUTH = STREAMER_UI_MOCK_AUTH;
 app.locals.STREAMER_UI_MOCK_PROJECT_DATABASE = STREAMER_UI_MOCK_PROJECT_DATABASE;
 app.locals.STREAMER_UI_MOCK_SERVICE = STREAMER_UI_MOCK_SERVICE;
 
-app.use(logger('[:date[iso]] :method :url'));
-app.use(express.json());
-app.use(cookieParser());
-
 const isDevelopment = app.locals.ENV === "development";
-if (!isDevelopment) {
-    app.use(express.static(path.join(__dirname, 'frontend')));
-}
+
+app.use(logger('[:date[iso]] :method :url'));
 
 // CORS configuration 
 let whitelist = [];
@@ -94,10 +91,24 @@ app.use(cors(corsOptions));
 // session property
 //  - rolling expiration upon access
 //  - save newly initiated session right into the store
-//  - delete session from story when unset
+//  - delete session from store when unset
 //  - cookie age: 4 hours (w/ rolling expiration)
-//  - session data store: memory on the server
+//  - session data store: postgresql database
 app.use(session({
+    store: new pgSession({
+        pool: new pg.Pool({
+            host: STREAMER_UI_DB_HOST,
+            port: STREAMER_UI_DB_PORT,
+            user: STREAMER_UI_DB_USER,
+            password: STREAMER_UI_DB_PASSWORD,
+            database: STREAMER_UI_DB_NAME,
+            keepAlive: true,
+            max: 20,
+            idleTimeoutMillis: 30000,
+            connectionTimeoutMillis: 2000
+        }),
+        tableName: 'usersession'
+    }),
     secret: 'somesecret',
     resave: true,
     rolling: true,
@@ -106,9 +117,16 @@ app.use(session({
     name: 'streamer-ui.sid',
     cookie: {
         httpOnly: false,
-        maxAge: 4 * 3600 * 1000
+        maxAge: 4 * 3600 * 1000  // 4 hours
     }
 }));
+
+app.use(express.json());
+app.use(cookieParser());
+
+if (!isDevelopment) {
+    app.use(express.static(path.join(__dirname, 'frontend')));
+}
 
 // GET Serve frontend home page
 app.get('/',
@@ -184,7 +202,7 @@ app.post('/api/upload/finalize',
     upload.finalize);
 
 // POST Submit a streamer job for regular user
-    app.post('/api/upload/submit',
+app.post('/api/upload/submit',
     auth.isAuthenticated,
     auth.hasBasicAuthHeader,
     auth.verifyUser,
