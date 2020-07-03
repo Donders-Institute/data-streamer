@@ -1,6 +1,8 @@
 const createError = require("http-errors");
 const express = require("express");
 const session = require('express-session');
+const pg = require('pg');
+const pgSession = require('connect-pg-simple')(session);
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const logger = require("morgan");
@@ -94,20 +96,34 @@ app.use(cors(corsOptions));
 // session property
 //  - rolling expiration upon access
 //  - save newly initiated session right into the store
-//  - delete session from story when unset
+//  - delete session from store when unset
 //  - cookie age: 4 hours (w/ rolling expiration)
-//  - session data store: memory on the server
+//  - session data store: postgresql database
 app.use(session({
+    store: new pgSession({
+        pool : new pg.Pool({
+            host: STREAMER_UI_DB_HOST,
+            port: STREAMER_UI_DB_PORT,
+            user: STREAMER_UI_DB_USER,
+            password: STREAMER_UI_DB_PASSWORD,
+            database: STREAMER_UI_DB_NAME,
+            keepAlive: true,
+            max: 20,
+            idleTimeoutMillis: 30000,
+            connectionTimeoutMillis: 2000
+        }),
+        tableName : 'usersession'
+    }),
     secret: 'somesecret',
     resave: true,
     rolling: true,
     saveUninitialized: true,
     unset: 'destroy',
     name: 'streamer-ui.sid',
-    cookie: {
+    cookie: { 
         httpOnly: false,
-        maxAge: 4 * 3600 * 1000
-    }
+        maxAge: 4 * 3600 * 1000  // 4 hours
+    } 
 }));
 
 // GET Serve frontend home page
