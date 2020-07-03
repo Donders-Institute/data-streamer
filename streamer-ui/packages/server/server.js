@@ -55,14 +55,9 @@ app.locals.STREAMER_UI_MOCK_AUTH = STREAMER_UI_MOCK_AUTH;
 app.locals.STREAMER_UI_MOCK_PROJECT_DATABASE = STREAMER_UI_MOCK_PROJECT_DATABASE;
 app.locals.STREAMER_UI_MOCK_SERVICE = STREAMER_UI_MOCK_SERVICE;
 
-app.use(logger('[:date[iso]] :method :url'));
-app.use(express.json());
-app.use(cookieParser());
-
 const isDevelopment = app.locals.ENV === "development";
-if (!isDevelopment) {
-    app.use(express.static(path.join(__dirname, 'frontend')));
-}
+
+app.use(logger('[:date[iso]] :method :url'));
 
 // CORS configuration 
 let whitelist = [];
@@ -125,6 +120,13 @@ app.use(session({
         maxAge: 4 * 3600 * 1000  // 4 hours
     }
 }));
+
+app.use(express.json());
+app.use(cookieParser());
+
+if (!isDevelopment) {
+    app.use(express.static(path.join(__dirname, 'frontend')));
+}
 
 // GET Serve frontend home page
 app.get('/',

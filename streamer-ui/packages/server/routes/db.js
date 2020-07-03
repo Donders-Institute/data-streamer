@@ -18,11 +18,11 @@ async function connect(dbHost, dbPort, dbUsername, dbPassword, dbName) {
 }
 
 // Start a new upload session: set all columns except end_time
-var _insertUploadSession = async function(
-    dbHost, 
-    dbPort, 
-    dbUsername, 
-    dbPassword, 
+var _insertUploadSession = async function (
+    dbHost,
+    dbPort,
+    dbUsername,
+    dbPassword,
     dbName,
     username,
     ipAddress,
@@ -67,14 +67,14 @@ var _insertUploadSession = async function(
 }
 
 // Add an upload file
-var _insertUploadFile = async function(
-    dbHost, 
-    dbPort, 
-    dbUsername, 
-    dbPassword, 
+var _insertUploadFile = async function (
+    dbHost,
+    dbPort,
+    dbUsername,
+    dbPassword,
     dbName,
-    uploadSessionId, 
-    filename, 
+    uploadSessionId,
+    filename,
     filesizeBytes
 ) {
     let client;
@@ -107,13 +107,13 @@ var _insertUploadFile = async function(
 }
 
 // End the upload session: set end_time
-var _updateUploadSession = async function(
-    dbHost, 
-    dbPort, 
-    dbUsername, 
-    dbPassword, 
+var _updateUploadSession = async function (
+    dbHost,
+    dbPort,
+    dbUsername,
+    dbPassword,
     dbName,
-    uploadSessionId, 
+    uploadSessionId,
     endTime
 ) {
     let client;
@@ -146,11 +146,11 @@ var _updateUploadSession = async function(
 }
 
 // Obtain the list of upload files
-var _getUploadFileList = async function(
-    dbHost, 
-    dbPort, 
-    dbUsername, 
-    dbPassword, 
+var _getUploadFileList = async function (
+    dbHost,
+    dbPort,
+    dbUsername,
+    dbPassword,
     dbName,
     uploadSessionId
 ) {
@@ -191,11 +191,11 @@ var _getUploadFileList = async function(
 }
 
 // Delete old rows in uploadsession table and uploadfile table
-var _purgeOld = async function(
-    dbHost, 
-    dbPort, 
-    dbUsername, 
-    dbPassword, 
+var _purgeOld = async function (
+    dbHost,
+    dbPort,
+    dbUsername,
+    dbPassword,
     dbName
 ) {
     let client;
@@ -207,7 +207,7 @@ var _purgeOld = async function(
 
     // Delete rows older than 1 week
     try {
-       await client.query(`DELETE FROM uploadsession WHERE DATE_TRUNC('day', start_time) = CURRENT_DATE - interval '7 days'; DELETE FROM uploadfile WHERE upload_session_id NOT IN (SELECT id FROM uploadsession);`);
+        await client.query(`DELETE FROM uploadsession WHERE DATE_TRUNC('day', start_time) = CURRENT_DATE - interval '7 days'; DELETE FROM uploadfile WHERE upload_session_id NOT IN (SELECT id FROM uploadsession);`);
     } catch (error) {
         throw "Could not delete old rows in tables uploadsession and/or uploadfile";
     }
@@ -225,11 +225,11 @@ var _purgeOld = async function(
 }
 
 // Delete all rows in uploadsession table and uploadfile table
-var _purgeAll = async function(
-    dbHost, 
-    dbPort, 
-    dbUsername, 
-    dbPassword, 
+var _purgeAll = async function (
+    dbHost,
+    dbPort,
+    dbUsername,
+    dbPassword,
     dbName
 ) {
     let client;
@@ -240,9 +240,9 @@ var _purgeAll = async function(
     }
 
     try {
-        await client.query(`TRUNCATE TABLE uploadsession, uploadfile`);
+        await client.query(`TRUNCATE TABLE uploadsession, uploadfile, usersession`);
     } catch (error) {
-        throw "Could not truncate tables uploadsession and/or uploadfile";
+        throw "Could not truncate tables uploadsession, uploadfile, usersession";
     }
     try {
         await client.end();
