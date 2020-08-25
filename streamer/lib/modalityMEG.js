@@ -399,9 +399,9 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 // construct destination collection
                 var dst_list = [];
                 if ( toCatchall ) {
-                    // for catchall, simply replace the path prefix with collection prefix
+                    // for catchall, simply replace the project path prefix with collection prefix
                     src_list.forEach( function(src) {
-                        dst_list.push('irods:' + src.replace(config.streamerDataDirRoot + '/', rdata.collName + '/'));
+                        dst_list.push('irods:' + rdata.collName + '/' + src.replace(new RegExp(config.projectStorageRegex), ""));
                     });
                 } else {
                     // for individual project, try resolve sub-ses subtree structure if available
