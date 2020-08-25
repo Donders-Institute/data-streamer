@@ -142,9 +142,10 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                     baseDir = config.streamerDataDirRoot + '/';
                     if (m) {
                         // directory structure for an expected patientId convention
-                        baseDir += sinfo['studyDate'] + '/' + m[1] + '/' + m[2] + '/' + sinfo['studyId'] + '/' +
-                                  ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
-                                  sinfo['seriesDescription'];
+                        baseDir += sinfo['studyDate'].substring(0,4) + '/' +
+                                   sinfo['studyDate'] + '/' + m[1] + '/' + m[2] + '/' + sinfo['studyId'] + '/' +
+                                   ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
+                                   sinfo['seriesDescription'];
 
                         projectNumber = m[1];
                     } else {
@@ -154,7 +155,8 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                         var sdir_pre = (sinfo['studyDescription']) ?
                                         sinfo['studyDescription'].replace(/\s/g,'^'):'unknown';
 
-                        baseDir += sinfo['studyDate'] + '/' +
+                        baseDir += sinfo['studyDate'].substring(0,4) + '/' +
+                                   sinfo['studyDate'] + '/' +
                                    sdir_pre + '_' + sinfo['studyTime'] + '/' +
                                    ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
                                    sinfo['seriesDescription'];
@@ -312,7 +314,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
     var compressSeriesData = function(src, projectNumber, minProgress, maxProgress, cb_async) {
 
         // destination path of the tarball
-        var f_tgz = src + '.tar.gz';
+        var f_tgz = src.replace(/\/+$/,"") + '.tar.gz';
 
         // get the tar working directory (i.e. the parent of the `src`)
         var wdir = path.dirname(src)
@@ -365,14 +367,9 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
             // 2. - for project-specific collection, remove the date and project number
             //      after the '/raw/' directory, as the project number has been
             //      presented as part of the collection namespace.
-            //    - for catchall collection, insert year sub directory after '/raw/' directory.
             if ( ! toCatchall ) {
-                // e.g. transform '/raw/20170201/3010010.01/sub-01/ses-mri02/...' to '/raw/sub-01/ses-mri02/...'
-                _dst = _dst.replace(new RegExp('\/raw\/[2-9][0-9]{7}\/' + projectNumber + '\/'), '/raw/');
-            } else {
-                var year_reg = new RegExp('^\/raw\/([2-9][0-9]{3})[0-9]{4}\/.*');
-                var dst_ydir = ( m = year_reg.exec(_dst) ) ? m[1]:(new Date()).getFullYear().toString();
-                _dst = _dst.replace(new RegExp('\/raw\/'), '/raw/' + dst_ydir + '/');
+                // e.g. transform '/raw/2017/20170201/3010010.01/sub-01/ses-mri02/...' to '/raw/sub-01/ses-mri02/...'
+                _dst = _dst.replace(new RegExp('\/raw\/[2-9][0-9]{3}\/[2-9][0-9]{7}\/' + projectNumber + '\/'), '/raw/');
             }
             return _dst;
         }
@@ -465,19 +462,19 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
         },
         function(dataPath, projectNumber, cb) {
             // compress series data
-            compressSeriesData(dataPath, projectNumber, 30, 50, cb);
+            compressSeriesData(dataPath, projectNumber, 30, 40, cb);
         },
-        // function(dataPath, projectNumber, cb) {
-        //     // archive DICOM images given by dataPath
-        //     // to a catch-all collection in RDM.
-        //     if ( dataPath ) {
-        //         submitStagerJob(dataPath, projectNumber, true, 40, 50, cb);
-        //     } else {
-        //         // it should never happen that the dataDir of catch-all storage is 'null' or 'undefined'
-        //         // this call terminates the rest async process immediately
-        //         cb('dataPath not found: ' + dataPath, dataPath);
-        //     }
-        // },
+        function(dataPath, projectNumber, cb) {
+            // archive DICOM images given by dataPath
+            // to a catch-all collection in RDM.
+            if ( dataPath ) {
+                submitStagerJob(dataPath, projectNumber, true, 40, 50, cb);
+            } else {
+                // it should never happen that the dataDir of catch-all storage is 'null' or 'undefined'
+                // this call terminates the rest async process immediately
+                cb('dataPath not found: ' + dataPath, dataPath);
+            }
+        },
         function( dataPath, projectNumber, cb) {
             // just convert dataPath back to the directory in which
             // the instances of the series is stored
