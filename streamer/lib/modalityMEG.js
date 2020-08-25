@@ -400,13 +400,8 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 var dst_list = [];
                 if ( toCatchall ) {
                     // for catchall, simply replace the path prefix with collection prefix
-                    var year_reg = new RegExp('^\/([2-9][0-9]{3})[0-9]{4}\/.*');
-                    var today = new Date();
                     src_list.forEach( function(src) {
-                        var dst_sdir = src.replace(config.streamerDataDirRoot + '/', '');
-                        var dst_ydir = (m = year_reg.exec(dst_sdir)) ? m[1]:today.getFullYear().toString();
-                        dst_list.push('irods:' + rdata.collName + '/raw/' +
-                                      dst_ydir + '/' + dst_sdir);
+                        dst_list.push('irods:' + src.replace(config.streamerDataDirRoot + '/', rdata.collName + '/'));
                     });
                 } else {
                     // for individual project, try resolve sub-ses subtree structure if available
@@ -482,20 +477,25 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
             // step 1: rsync from MEG console to the MEG service project
             var src = config.consoleHostname + ':' +
                       config.consoleDataDirRoot + '/' + job.data.srcDir;
-            var dst = config.streamerDataDirRoot + '/' + job.data.srcDir;
+
+            // parse job.data.srcDir to extract year element.
+            var year_reg = new RegExp('^\/{0,1}([2-9][0-9]{3})[0-9]{4}\/{0,1}.*');
+            var today = new Date();
+            var dst_ydir = (m = year_reg.exec(job.data.srcDir)) ? m[1]:today.getFullYear().toString();
+            var dst = config.streamerDataDirRoot + '/' + dst_ydir + '/' + job.data.srcDir;
             rsyncToCatchall(src, dst, true, 0, 40, cb);
         },
         function(src, cb) {
             // step 2: resolve recently updated datasets by project number
             resolveUpdatedDatasets(src, cb);
         },
-        // function(prj_ds, cb) {
-        //     // step 3: archive data to the catch-all collection
-        //     submitStagerJob(prj_ds, true, 40, 50, cb);
-        // },
+        function(prj_ds, cb) {
+            // step 3: archive data to the catch-all collection
+            submitStagerJob(prj_ds, true, 40, 50, cb);
+        },
         function(prj_ds, cb) {
             // step 4: archive data to individual project collection
-            submitStagerJob(prj_ds, false, 40, 60, cb);
+            submitStagerJob(prj_ds, false, 50, 60, cb);
         },
         function(prj_ds, cb) {
             // step 5: rsync data from catchall to individual projects
