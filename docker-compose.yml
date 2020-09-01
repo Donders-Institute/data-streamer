@@ -21,6 +21,7 @@ services:
       - ${STREAMER_SERVICE_CRON_VOL}:/cron
       - ${HOME_VOL}:/home:ro
       - ${PROJECT_VOL}:/project
+      - ${PROJECT_CEPHFS_VOL}:/project_cephfs
     depends_on:
       - db
   ui:
