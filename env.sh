@@ -10,6 +10,9 @@ HOME_VOL=./testdata/home
 # volume for project directory
 PROJECT_VOL=./testdata/project
 
+# volume for project directory on CephFS
+PROJECT_CEPHFS_VOL=./testdata/project_cephfs
+
 # volume for streamer job
 STREAMER_DB_DATA_VOL=./testdata/redis
 
