@@ -11,6 +11,9 @@ echo "HOME_VOL=$HOME_VOL"
 echo
 echo "# volume for project directory"
 echo "PROJECT_VOL=$PROJECT_VOL"
+echo
+echo "# volume for project directory on CephFS"
+echo "PROJECT_CEPHFS_VOL=$PROJECT_CEPHFS_VOL"
 echo 
 echo "# volume for streamer job"
 echo "STREAMER_DB_DATA_VOL=$STREAMER_DB_DATA_VOL"
