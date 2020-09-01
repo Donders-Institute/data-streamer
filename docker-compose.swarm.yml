@@ -37,6 +37,7 @@ services:
     ports:
       - ${STREAMER_UI_EXTERNAL_PORT:-9000}:${STREAMER_UI_PORT:-9000}
     volumes:
+      - ${PROJECT_CEPHFS_VOL}:/project_cephfs
       - ${PROJECT_VOL}:${STREAMER_UI_PROJECT_DIR}
       - ${STREAMER_UI_CRON_VOL}:${STREAMER_UI_CRON_DIR}
       - ${STREAMER_UI_LOG_VOL}:${STREAMER_UI_LOG_DIR}
