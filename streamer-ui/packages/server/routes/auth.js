@@ -76,6 +76,7 @@ var _loginUser = function(req, res, next) {
     // Obtain auth credentials
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+    console.log(base64Credentials, credentials);
     [username, password] = credentials.split(':');
 
     // Obtain the user agent
@@ -111,7 +112,7 @@ var _loginUser = function(req, res, next) {
         ad.authenticate(user.userPrincipalName, password, function (err, auth) {
             if (!auth) {
                 // Authentication failed
-                console.log(username, userAgent);
+                console.log(username, user.userPrincipalName, userAgent);
                 return next(createError(401, "Wrong username or password"));
             }
             // Authentication successful
