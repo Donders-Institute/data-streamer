@@ -55,6 +55,10 @@ app.locals.STREAMER_UI_MOCK_AUTH = STREAMER_UI_MOCK_AUTH;
 app.locals.STREAMER_UI_MOCK_PROJECT_DATABASE = STREAMER_UI_MOCK_PROJECT_DATABASE;
 app.locals.STREAMER_UI_MOCK_SERVICE = STREAMER_UI_MOCK_SERVICE;
 
+// debug option
+const STREAMER_UI_DEBUG = process.env.STREAMER_UI_DEBUG ? (process.env.STREAMER_UI_DEBUG === 'true') : false;
+app.locals.STREAMER_UI_DEBUG = STREAMER_UI_DEBUG;
+
 const isDevelopment = app.locals.ENV === "development";
 
 app.use(logger('[:date[iso]] :method :url'));
