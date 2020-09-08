@@ -76,7 +76,12 @@ var _loginUser = function(req, res, next) {
     // Obtain auth credentials
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-    console.log(base64Credentials, credentials);
+    
+    // debug auth credential received from the header.
+    if (req.app.locals.STREAMER_UI_DEBUG) {
+        console.log(base64Credentials, credentials);
+    }
+    
     [username, password] = credentials.split(':');
 
     // Obtain the user agent
