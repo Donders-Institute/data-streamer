@@ -57,7 +57,9 @@ var _verifyAdminCredentials = function(req, res, next) {
 
     const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-    const [username, password] = credentials.split(':');
+    idx = credentials.indexOf(':');
+    const username = credentials.substring(0,idx);
+    const password = credentials.substring(idx+1, credentials.length);
 
     if (username !== adminUsername || password !== adminPassword) {
         return next(createError(401, "Invalid admin user credentials"));
@@ -82,7 +84,9 @@ var _loginUser = function(req, res, next) {
         console.log(base64Credentials, credentials);
     }
     
-    [username, password] = credentials.split(':');
+    idx = credentials.indexOf(':');
+    username = credentials.substring(0,idx);
+    password = credentials.substring(idx+1, credentials.length);
 
     // Obtain the user agent
     userAgent = req.headers['user-agent'];
