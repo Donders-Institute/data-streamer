@@ -458,27 +458,33 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
             // project number.
             // The project number can be null if the subject naming
             // convention is not followed.
-            getInstanceFiles(true, true, 0, 30, cb);
+            getInstanceFiles(true, true, 0, 40, cb);
         },
         function(dataPath, projectNumber, cb) {
             // compress series data
-            compressSeriesData(dataPath, projectNumber, 30, 40, cb);
+            compressSeriesData(dataPath, projectNumber, 40, 50, cb);
         },
-        function(dataPath, projectNumber, cb) {
-            // archive DICOM images given by dataPath
-            // to a catch-all collection in RDM.
+        // function(dataPath, projectNumber, cb) {
+        //     // archive DICOM images given by dataPath
+        //     // to a catch-all collection in RDM.
+        //     if ( dataPath ) {
+        //         submitStagerJob(dataPath, projectNumber, true, 40, 50, cb);
+        //     } else {
+        //         // it should never happen that the dataDir of catch-all storage is 'null' or 'undefined'
+        //         // this call terminates the rest async process immediately
+        //         cb('dataPath not found: ' + dataPath, dataPath);
+        //     }
+        // },
+        function( dataPath, projectNumber, cb) {
             if ( dataPath ) {
-                submitStagerJob(dataPath, projectNumber, true, 40, 50, cb);
+                // just convert dataPath back to the directory in which
+                // the instances of the series is stored
+                cb(null, dataPath.replace(new RegExp('\.tar\.gz$'), ''), projectNumber);
             } else {
                 // it should never happen that the dataDir of catch-all storage is 'null' or 'undefined'
                 // this call terminates the rest async process immediately
                 cb('dataPath not found: ' + dataPath, dataPath);
             }
-        },
-        function( dataPath, projectNumber, cb) {
-            // just convert dataPath back to the directory in which
-            // the instances of the series is stored
-            cb(null, dataPath.replace(new RegExp('\.tar\.gz$'), ''), projectNumber);
         },
         function(dataPath, projectNumber, cb) {
             // upload DICOM images in dataPath

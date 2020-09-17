@@ -358,13 +358,13 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
             // step 2: rsync data from UI buffer to the catch-all project
             syncPath(pathBuffer, pathCatchall, true, 10, 40, cb);
         },
-        function(out, cb) {
-            // step 3: archive data to the catch-all collection
-            submitStagerJob(pathCatchall, true, 40, 50, cb);
-        },
+        // function(out, cb) {
+        //     // step 3: archive data to the catch-all collection
+        //     submitStagerJob(pathCatchall, true, 40, 50, cb);
+        // },
         function(out, cb) {
             // step 4: archive data to individual project collection
-            submitStagerJob(pathCatchall, false, 50, 60, cb);
+            submitStagerJob(pathCatchall, false, 40, 60, cb);
         },
         function(out, cb) {
             // step 5: rsync data from catchall to individual projects

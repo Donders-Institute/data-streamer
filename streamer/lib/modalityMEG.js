@@ -489,13 +489,13 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
             // step 2: resolve recently updated datasets by project number
             resolveUpdatedDatasets(src, cb);
         },
-        function(prj_ds, cb) {
-            // step 3: archive data to the catch-all collection
-            submitStagerJob(prj_ds, true, 40, 50, cb);
-        },
+        // function(prj_ds, cb) {
+        //     // step 3: archive data to the catch-all collection
+        //     submitStagerJob(prj_ds, true, 40, 50, cb);
+        // },
         function(prj_ds, cb) {
             // step 4: archive data to individual project collection
-            submitStagerJob(prj_ds, false, 50, 60, cb);
+            submitStagerJob(prj_ds, false, 40, 60, cb);
         },
         function(prj_ds, cb) {
             // step 5: rsync data from catchall to individual projects
