@@ -90,7 +90,9 @@ queue.on( 'error', function(err) {
 
                 // send job complete email notification to job owner
                 if (typeof job.data.streamerUser !== 'undefined' &&  job.data.streamerUser && job.data.streamerUser != 'admin' && job.data.streamerUser != 'root') {
+                    mailer.sendToAddresses(job.data.streamerUser + '@localhost', false, msgSubject, null, msgHtml, null);
                     // get user profile
+		    /*
                     utility_ad.findUser(job.data.streamerUser, function(err, uprofile) {
                         if ( ! uprofile ) {
                             console.error('[' + new Date().toISOString() + '] cannot retrieve profile of user: ' + job.data.streamerUser);
@@ -98,6 +100,7 @@ queue.on( 'error', function(err) {
                         }
                         mailer.sendToAddresses(uprofile.mail, false, msgSubject, null, msgHtml, null);
                     });
+		    */
                 }
             });
         });
