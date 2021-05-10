@@ -155,6 +155,9 @@ pipeline {
                     return params.PRODUCTION
                 }
             }
+            agent {
+                label 'swarm-manager'
+            }
             steps {
                 echo "production: true"
                 echo "production github tag: ${params.PRODUCTION_GITHUB_TAG}"
