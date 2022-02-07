@@ -16,6 +16,7 @@ const pdb = require("./routes/pdb");
 const formData = require("./routes/formData");
 const upload = require("./routes/upload");
 const admin = require("./routes/admin");
+const stager = require("./routes/stager");
 
 var app = express();
 
@@ -164,6 +165,13 @@ app.get('/api/projects',
     auth.hasBasicAuthHeader,
     auth.verifyUser,
     pdb.getProjects);
+
+// GET Obtain the destinating DAC namespace in the Repository through the Stager's API: /rdm/DAC/project/{projectId}.
+app.get('/api/stager/dac/:projectId',
+    auth.isAuthenticated,
+    auth.hasBasicAuthHeader,
+    auth.verifyUser,
+    stager.getDac);
 
 // POST Begin upload session for regular user, obtain an upload session id
 app.post('/api/upload/begin',
