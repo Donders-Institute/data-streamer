@@ -162,8 +162,8 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
                 style={{marginTop: "10px"}}>
                 {
                     ( dacIdentifier === "" ) &&
-                        <Tooltip placement="bottomLeft" title={"No DAC linked to project" + projectNumber}>
-                            <Text type="secondary">destination not available in the Donders Repository</Text>
+                        <Tooltip placement="bottomLeft" title={"No DAC linked to project " + projectNumber}>
+                            <Text type="secondary">no available destination in the Donders Repository</Text>
                         </Tooltip> ||
                         <Tooltip placement="bottomLeft" title="Upload destination in the Donders Repository">
                             <span style={{ fontWeight: "bold", color: "#52c41a" }}>{dacIdentifier}</span>
