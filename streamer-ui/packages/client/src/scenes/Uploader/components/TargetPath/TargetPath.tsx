@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 
-import { Tooltip } from "antd";
+import { Spin, Tooltip, Typography } from "antd";
 
 import { StagerResult, UploadState } from "../../../../types/types";
 import { baseUrl, fetchOnce } from "../../../../services/fetch/fetch";
+
+const { Text } = Typography;
 
 interface TargetPathProps {
     uploadState: UploadState;
@@ -20,6 +22,8 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
     const [projectNumber, setProjectNumber] = useState("");
     const [dacIdentifier, setDacIdentifier] = useState("");
 
+    const [loading, setLoading] = useState(false);
+
     // call out to resolve the identifier of the associated DAC in the repository 
     useEffect(() => {
 
@@ -30,6 +34,7 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
             }
         );
 
+        setLoading(true);
         fetchOnce(
             {
                 url: url,
@@ -42,12 +47,14 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
             const collName = response.data && (response.data as StagerResult).collName;
             if (collName) {
                 // converting collName to collectionIdentifier: /nl.ru.donders/di/dccn/DAC_3055000.01_123 --> di.dccn.DAC_3055000.01_123
-                setDacIdentifier(collName.split("/").slice(1).join("."));
+                setDacIdentifier(collName.split("/").slice(2).join("."));
             }
         }).catch((reason) => {
             // log error silently, and reset the DAC identifier
             console.warn("fail to get DAC for project ", projectNumber, " :", reason);
             setDacIdentifier("");
+        }).finally(() => {
+            setLoading(false);
         });
     }, [projectNumber]);
 
@@ -56,6 +63,9 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
     );
     let backwardSlashPath = (
         <span style={{ fontWeight: "bold", color: "#52c41a" }}>\</span>
+    );
+    let forwardSlashPath = (
+        <span style={{ fontWeight: "bold", color: "#52c41a" }}>/</span>
     );
     let rawPath = (
         <span style={{ fontWeight: "bold", color: "#52c41a" }}>raw</span>
@@ -126,37 +136,49 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
 
     return (
         <>
-            <Tooltip placement="bottomLeft" title="Upload destination in the project storage">
-                {drivePath}
-                {backwardSlashPath}
-                {projectNumberPath}
-                {backwardSlashPath}
-                {rawPath}
-                {backwardSlashPath}
-                {subjectPath}
-                {subjectLabelPath}
-                {backwardSlashPath}
-                {sessionPath}
-                {sessionLabelPath}
-                {backwardSlashPath}
-                {dataTypePath}
-                {backwardSlashPath}
-            </Tooltip>
-            <br/>
-            <Tooltip placement="bottomLeft" title="Upload destination in the Donders Repository">
-                {dacIdentifier}
-                {backwardSlashPath}
-                {rawPath}
-                {backwardSlashPath}
-                {subjectPath}
-                {subjectLabelPath}
-                {backwardSlashPath}
-                {sessionPath}
-                {sessionLabelPath}
-                {backwardSlashPath}
-                {dataTypePath}
-                {backwardSlashPath}
-            </Tooltip>            
+            <div>
+                <Tooltip placement="bottomLeft" title="Upload destination in the project storage">
+                    {drivePath}
+                    {backwardSlashPath}
+                    {projectNumberPath}
+                    {backwardSlashPath}
+                    {rawPath}
+                    {backwardSlashPath}
+                    {subjectPath}
+                    {subjectLabelPath}
+                    {backwardSlashPath}
+                    {sessionPath}
+                    {sessionLabelPath}
+                    {backwardSlashPath}
+                    {dataTypePath}
+                    {backwardSlashPath}
+                </Tooltip>
+            </div>
+            <Spin
+                tip="resolving destination in the Donders Repoitory"
+                spinning={loading}
+                style={{marginTop: "10px"}}>
+                {
+                    ( dacIdentifier === "" ) &&
+                        <Tooltip placement="bottomLeft" title={"No DAC linked to project" + projectNumber}>
+                            <Text type="secondary">No transfer to the Donders Repository</Text>
+                        </Tooltip> ||
+                        <Tooltip placement="bottomLeft" title="Upload destination in the Donders Repository">
+                            <span style={{ fontWeight: "bold", color: "#52c41a" }}>{dacIdentifier}</span>
+                            {forwardSlashPath}
+                            {rawPath}
+                            {forwardSlashPath}
+                            {subjectPath}
+                            {subjectLabelPath}
+                            {forwardSlashPath}
+                            {sessionPath}
+                            {sessionLabelPath}
+                            {forwardSlashPath}
+                            {dataTypePath}
+                            {forwardSlashPath}
+                        </Tooltip>
+                }
+            </Spin>
         </>
     );
 };
