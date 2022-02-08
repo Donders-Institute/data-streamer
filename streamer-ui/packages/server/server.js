@@ -168,9 +168,9 @@ app.get('/api/projects',
 
 // GET Obtain the destinating DAC namespace in the Repository through the Stager's API: /rdm/DAC/project/{projectId}.
 app.get('/api/stager/dac/:projectId',
-    auth.isAuthenticated,
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
+    // auth.isAuthenticated,
+    // auth.hasBasicAuthHeader,
+    // auth.verifyUser,
     stager.getDac);
 
 // POST Begin upload session for regular user, obtain an upload session id
