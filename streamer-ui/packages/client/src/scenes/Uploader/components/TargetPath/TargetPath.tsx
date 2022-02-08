@@ -48,6 +48,8 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
             if (collName) {
                 // converting collName to collectionIdentifier: /nl.ru.donders/di/dccn/DAC_3055000.01_123 --> di.dccn.DAC_3055000.01_123
                 setDacIdentifier(collName.split("/").slice(2).join("."));
+            } else {
+                throw new Error(JSON.stringify(response));
             }
         }).catch((reason) => {
             // log error silently, and reset the DAC identifier
@@ -161,7 +163,7 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
                 {
                     ( dacIdentifier === "" ) &&
                         <Tooltip placement="bottomLeft" title={"No DAC linked to project" + projectNumber}>
-                            <Text type="secondary">No transfer to the Donders Repository</Text>
+                            <Text type="secondary">destination not available in the Donders Repository</Text>
                         </Tooltip> ||
                         <Tooltip placement="bottomLeft" title="Upload destination in the Donders Repository">
                             <span style={{ fontWeight: "bold", color: "#52c41a" }}>{dacIdentifier}</span>
