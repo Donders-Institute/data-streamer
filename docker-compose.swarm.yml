@@ -24,6 +24,7 @@ services:
       - STREAMER_UI_CONFIG=/run/secrets/streamer-ui-config.json
       - STREAMER_UI_ADCONFIG=/run/secrets/streamer-ui-adconfig.json
       - STREAMER_UI_LDAPSCERT=/run/secrets/streamer-ui-ldapscert.crt
+      - STREAMER_SERVICE_CONFIG=/run/secrets/streamer-service-config.json
     networks:
       default:
       # join the proxynet with hostname alias
@@ -31,6 +32,7 @@ services:
         aliases:
           - streamer-ui
     secrets:
+      - streamer-service-config.json
       - streamer-ui-config.json
       - streamer-ui-adconfig.json
       - streamer-ui-ldapscert.crt
