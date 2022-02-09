@@ -46,8 +46,8 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
         ).then((response) => {
             const collName = response.data && (response.data as StagerResult).collName;
             if (collName) {
-                // converting collName to collectionIdentifier: /nl.ru.donders/di/dccn/DAC_3055000.01_123 --> di.dccn.DAC_3055000.01_123
-                setDacIdentifier(collName.split("/").slice(2).join("."));
+                // converting collName to the webdav path: /nl.ru.donders/di/dccn/DAC_3055000.01_123 --> /dccn/DAC_3055000.01_123
+                setDacIdentifier("/" + collName.split("/").slice(3).join("/"));
             } else {
                 throw new Error(JSON.stringify(response));
             }
@@ -139,7 +139,7 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
     return (
         <>
             <div>
-                <Tooltip placement="bottomLeft" title="Upload destination in the project storage">
+                <Tooltip placement="bottomLeft" title="destination in the project storage">
                     {drivePath}
                     {backwardSlashPath}
                     {projectNumberPath}
@@ -162,10 +162,10 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
                 style={{marginTop: "10px"}}>
                 {
                     ( dacIdentifier === "" ) &&
-                        <Tooltip placement="bottomLeft" title={"No DAC linked to project " + projectNumber}>
+                        <Tooltip placement="bottomLeft" title={"no data-acquisition collection for project " + projectNumber}>
                             <Text type="secondary">no available destination in the Donders Repository</Text>
                         </Tooltip> ||
-                        <Tooltip placement="bottomLeft" title="Upload destination in the Donders Repository">
+                        <Tooltip placement="bottomLeft" title="destination in the Donders Repository">
                             <span style={{ fontWeight: "bold", color: "#52c41a" }}>{dacIdentifier}</span>
                             {forwardSlashPath}
                             {rawPath}
