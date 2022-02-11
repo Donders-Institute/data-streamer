@@ -106,7 +106,7 @@ const Uploader: React.FC<UploaderProps> = ({
                             <Card className="MainCard" style={{ marginLeft: "5px" }}>
                                 <h2>Set destination properties</h2>
                                 <Content style={{ marginTop: "10px" }}>
-                                    <p style={{ fontWeight: "bold" }}>Destination folder</p>
+                                    <p style={{ fontWeight: "bold" }}>Destination(s)</p>
                                     <TargetPath
                                         uploadState={uploadState}
                                     />

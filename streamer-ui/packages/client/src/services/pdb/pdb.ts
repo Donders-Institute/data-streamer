@@ -143,7 +143,7 @@ export const useFetchProjects = ({
                     }
                 } catch (err) {
                     if (mounted) {
-                        setError(err);
+                        setError(err as Error);
                     }
                 }
             }

@@ -61,9 +61,13 @@ export interface SubmitResult {
     fileNames: string[];
 };
 
+export interface StagerResult {
+    collName: string;
+};
+
 export interface ServerResponse {
     error: string | null;
-    data: string | BeginResult | ProjectsResult | ValidateFileResult | AddFileResult | FinalizeResult | SubmitResult | null;
+    data: string | BeginResult | ProjectsResult | ValidateFileResult | AddFileResult | FinalizeResult | SubmitResult | StagerResult | null;
 };
 
 export interface ValidationResult {
