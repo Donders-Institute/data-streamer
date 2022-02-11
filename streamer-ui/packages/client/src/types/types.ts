@@ -17,12 +17,13 @@ export type UserProfile = {
 };
 
 // Get projects query element
-export interface ProjectsResultElement {
-    project: string;
+export interface Project {
+    projectNumber: string,
+    title: string,
 };
 
 // Get projects query result
-export type ProjectsResult = ProjectsResultElement[];
+export type ProjectsResult = Project[];
 
 export interface FilesSelection {
     fileList: RcFile[];
@@ -80,10 +81,6 @@ export interface RcFile extends File {
     uid: string;
     readonly lastModifiedDate: Date;
     readonly webkitRelativePath: string;
-};
-
-export interface Project {
-    projectNumber: string;
 };
 
 export type SelectOption = {
