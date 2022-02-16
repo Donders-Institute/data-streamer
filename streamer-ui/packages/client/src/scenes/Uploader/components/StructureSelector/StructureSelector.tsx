@@ -95,7 +95,6 @@ const StructureSelectorForm: React.FC<StructureSelectorProps & FormComponentProp
                         help={<span style={helpStyle}>Projects for which you are entitled to upload data to</span>}
                         validateStatus={uploadState.structureSelection.projectNumberInput.status}>
                         <Select
-                            labelInValue
                             defaultValue={uploadState.structureSelection.projectNumberInput.value}
                             onSelect={(value: string) => {
                                 
