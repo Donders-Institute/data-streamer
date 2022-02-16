@@ -97,7 +97,10 @@ const StructureSelectorForm: React.FC<StructureSelectorProps & FormComponentProp
                         <Select
                             labelInValue
                             defaultValue={uploadState.structureSelection.projectNumberInput.value}
-                            onSelect={(value: string) => {                        
+                            onSelect={(value: string) => {
+                                
+                                console.log("selected: ", value);
+                                
                                 uploadDispatch({
                                     type: UploadActionType.Select,
                                     payload: {
@@ -124,12 +127,7 @@ const StructureSelectorForm: React.FC<StructureSelectorProps & FormComponentProp
                             {
                                 projectList.map((p, idx) => 
                                     <Option key={idx} value={p.projectNumber}>
-                                    {
-                                        p.projectNumber
-                                    }
-                                    {
-                                        <Text ellipsis>{p.title}</Text>
-                                    }
+                                        <Text ellipsis>{`${p.projectNumber}: ${p.title}`}</Text>
                                     </Option>
                                 )
                             }
