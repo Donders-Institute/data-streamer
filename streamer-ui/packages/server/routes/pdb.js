@@ -26,8 +26,7 @@ var _getProjects = function(req, res, next) {
     }
 
     // Create SQL statement
-    const sql = `SELECT project FROM acls WHERE user="${username}" AND projectRole IN ('contributor', 'manager');`
-
+    const sql = `SELECT id AS projectNumber, projectName AS title FROM projects WHERE id in (SELECT project FROM acls WHERE user = "${username}" AND projectRole IN ("contributor", "manager"));`;
     var con = mysql.createConnection({
         host: PROJECT_DATABASE_HOST,
         port: PROJECT_DATABASE_PORT,

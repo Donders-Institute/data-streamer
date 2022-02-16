@@ -1,6 +1,6 @@
-import React, { useEffect, Dispatch } from "react";
+import React, { Dispatch } from "react";
 
-import { Row, Col, Form } from "antd";
+import { Row, Col, Form, Select, Typography } from "antd";
 import { FormComponentProps } from "antd/lib/form";
 
 import {
@@ -8,10 +8,12 @@ import {
     UploadState,
     UploadAction,
     FormSelectConfig,
-    FormInputConfig
+    FormInputConfig,
+    InputValidationStatuses,
+    UploadActionType,
+    StructureSelection
 } from "../../../../types/types";
 
-import configureSelectProject from "../../../../services/configureFormFields/configureSelectProject";
 import configureInputSubjectLabel from "../../../../services/configureFormFields/configureInputSubjectLabel";
 import configureInputSessionLabel from "../../../../services/configureFormFields/configureInputSessionLabel";
 import configureSelectDataType from "../../../../services/configureFormFields/configureSelectDataType";
@@ -19,6 +21,10 @@ import configureInputDataTypeOther from "../../../../services/configureFormField
 
 import FormSelect from "../../../../components/FormSelect/FormSelect";
 import FormInput from "../../../../components/FormInput/FormInput";
+
+const { Item } = Form;
+const { Option } = Select;
+const { Text } = Typography;
 
 interface StructureSelectorProps {
     projectList: Project[];
@@ -39,20 +45,10 @@ const StructureSelectorForm: React.FC<StructureSelectorProps & FormComponentProp
     const labelStyleDataTypeOther = {} as React.CSSProperties | undefined;
     const helpStyle = { fontStyle: "italic" } as React.CSSProperties | undefined;
 
-    let configSelectProject: FormSelectConfig;
     let configInputSubjectLabel: FormInputConfig;
     let configInputSessionLabel: FormInputConfig;
     let configSelectDataType: FormSelectConfig;
     let configInputDataTypeOther: FormInputConfig;
-
-    configSelectProject = configureSelectProject({
-        projectList,
-        selectStyle,
-        labelStyle,
-        helpStyle,
-        uploadState,
-        uploadDispatch
-    });
 
     configInputSubjectLabel = configureInputSubjectLabel({
         inputStyle,
@@ -93,7 +89,46 @@ const StructureSelectorForm: React.FC<StructureSelectorProps & FormComponentProp
         <Form layout="vertical" hideRequiredMark>
             <Row gutter={16}>
                 <Col span={12}>
-                    <FormSelect config={configSelectProject} />
+                    <Item
+                        hasFeedback
+                        label={<span style={labelStyle}>Select project</span>}
+                        help={<span style={helpStyle}>Projects for which you are entitled to upload data to</span>}
+                        validateStatus={uploadState.structureSelection.projectNumberInput.status}>
+                        <Select
+                            defaultValue={uploadState.structureSelection.projectNumberInput.value || "projectnumber"}
+                            onSelect={(value: string) => {
+                                uploadDispatch({
+                                    type: UploadActionType.Select,
+                                    payload: {
+                                        ...uploadState,
+                                        structureSelection: {
+                                            ...uploadState.structureSelection,
+                                            projectNumberInput: (value !== "") ?
+                                            {
+                                                value,
+                                                status: "success" as (typeof InputValidationStatuses)[number],
+                                                isSelected: true
+                                            }:
+                                            {
+                                                ...(uploadState.structureSelection.projectNumberInput),
+                                                status: "error" as (typeof InputValidationStatuses)[number],
+                                                isSelected: false
+                                            },
+                                        } as StructureSelection
+                                    } as UploadState
+                                } as UploadAction);
+                            }}
+                            style={selectStyle}
+                            disabled={false}>
+                            {
+                                projectList.map((p) => 
+                                    <Option value={p.projectNumber}>
+                                        <Text ellipsis>{`${p.projectNumber}: ${p.title}`}</Text>
+                                    </Option>
+                                )
+                            }
+                        </Select>
+                    </Item>
                 </Col>
                 <Col span={12}></Col>
             </Row>
