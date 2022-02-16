@@ -14,7 +14,6 @@ import {
     StructureSelection
 } from "../../../../types/types";
 
-import configureSelectProject from "../../../../services/configureFormFields/configureSelectProject";
 import configureInputSubjectLabel from "../../../../services/configureFormFields/configureInputSubjectLabel";
 import configureInputSessionLabel from "../../../../services/configureFormFields/configureInputSessionLabel";
 import configureSelectDataType from "../../../../services/configureFormFields/configureSelectDataType";
