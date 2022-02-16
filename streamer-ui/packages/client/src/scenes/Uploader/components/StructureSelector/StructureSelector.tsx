@@ -122,7 +122,7 @@ const StructureSelectorForm: React.FC<StructureSelectorProps & FormComponentProp
                             style={selectStyle}
                             disabled={false}>
                             {
-                                projectList.map((p, idx) => {
+                                projectList.map((p, idx) => 
                                     <Option key={idx} value={p.projectNumber}>
                                     {
                                         p.projectNumber
@@ -131,7 +131,7 @@ const StructureSelectorForm: React.FC<StructureSelectorProps & FormComponentProp
                                         <Text ellipsis>{p.title}</Text>
                                     }
                                     </Option>
-                                })
+                                )
                             }
                         </Select>
                     </Item>
