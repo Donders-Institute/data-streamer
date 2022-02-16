@@ -91,8 +91,8 @@ const StructureSelectorForm: React.FC<StructureSelectorProps & FormComponentProp
                 <Col span={12}>
                     <Item
                         hasFeedback
-                        label="Select project"
-                        help="Projects for which you are entitled to upload data to"
+                        label={<span style={labelStyle}>Select project</span>}
+                        help={<span style={helpStyle}>Projects for which you are entitled to upload data to</span>}
                         validateStatus={uploadState.structureSelection.projectNumberInput.status}>
                         <Select
                             labelInValue
@@ -125,8 +125,8 @@ const StructureSelectorForm: React.FC<StructureSelectorProps & FormComponentProp
                             style={selectStyle}
                             disabled={false}>
                             {
-                                projectList.map((p, idx) => 
-                                    <Option key={idx} value={p.projectNumber}>
+                                projectList.map((p) => 
+                                    <Option value={p.projectNumber}>
                                         <Text ellipsis>{`${p.projectNumber}: ${p.title}`}</Text>
                                     </Option>
                                 )
