@@ -58,8 +58,6 @@ async function fetchProjectList({
         throw new Error("Empty data in result");
     }
 
-    console.log("fetched projects: ", result);
-
     return result.data as Project[];
 };
 
