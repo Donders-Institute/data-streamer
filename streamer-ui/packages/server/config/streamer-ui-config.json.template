@@ -4,11 +4,19 @@
         "password": ""    
     },
     "projectDatabase": {
-        "host": "db.example.com",
-        "port": "3306",
-        "username": "user",
-        "password": "password",
-        "databaseName": "database"
+        "v1" : {
+            "host": "db.example.com",
+            "port": "3306",
+            "username": "user",
+            "password": "password",
+            "databaseName": "database"
+        },
+        "v2": {
+            "authServerUrl": "https://authserver",
+            "authClientId": "id",
+            "authClientSecret": "secret",
+            "coreApiUrl": "https://coreapi"
+        }
     },
     "projectStorage": {
         "displayName": "DCCN project storage",

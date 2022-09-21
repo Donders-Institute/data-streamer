@@ -1,5 +1,5 @@
 # Build the static files
-FROM node:12 as BUILD
+FROM node:16 as BUILD
 WORKDIR /opt/streamer-ui-client
 COPY $pwd/packages/client/package.json ./ 
 COPY $pwd/packages/client/yarn.lock ./
@@ -17,7 +17,7 @@ ARG REACT_APP_STREAMER_UI_EXTERNAL_SERVER_API_URL
 RUN yarn build
 
 # Create the server
-FROM node:12
+FROM node:16
 ENV NODE_ENV production
 RUN apt-get update && apt-get install -y cron curl supervisor
 WORKDIR /opt/streamer-ui-server
