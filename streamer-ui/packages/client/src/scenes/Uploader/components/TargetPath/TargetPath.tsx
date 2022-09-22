@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Spin, Tooltip, Typography } from "antd";
 
 import { StagerResult, UploadState } from "../../../../types/types";
-import { baseUrl, fetchOnce } from "../../../../services/fetch/fetch";
+import { baseURL, fetchOnce } from "../../../../services/fetch/fetch";
 
 const { Text } = Typography;
 
@@ -27,7 +27,7 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
     // call out to resolve the identifier of the associated DAC in the repository 
     useEffect(() => {
 
-        const url = baseUrl() + "/stager/dac/" + projectNumber;
+        const url = baseURL + "/stager/dac/" + projectNumber;
         const headers = new Headers(
             {
                 'Content-Type': 'application/json',

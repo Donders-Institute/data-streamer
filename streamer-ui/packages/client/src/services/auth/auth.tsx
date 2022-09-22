@@ -1,7 +1,7 @@
 import { useState, useEffect, Dispatch } from "react";
 
 import {
-    baseUrl,
+    baseURL,
     fetchRetry,
     fetchOnceRedirect,
     basicAuthString
@@ -33,7 +33,7 @@ async function signIn({
     password: string;
     signal: AbortSignal;
 }) {
-    const url = baseUrl() + "/login";
+    const url = baseURL + "/login";
     const headers = new Headers(
         {
             'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ async function signOut({
     password: string;
     signal: AbortSignal;
 }) {
-    const url = baseUrl() + "/logout";
+    const url = baseURL + "/logout";
     const headers = new Headers(
         {
             'Content-Type': 'application/json',
@@ -117,11 +117,9 @@ async function signOut({
 export const useSigningIn = ({
     authState,
     authDispatch,
-    skipAuth
 }: {
     authState: AuthState;
     authDispatch: Dispatch<AuthAction>;
-    skipAuth: boolean;
 }) => {
     const [error, setError] = useState(null as Error | null);
     const [isLoading, setIsLoading] = useState(false);
@@ -143,17 +141,15 @@ export const useSigningIn = ({
 
                 let result: ServerResponse;
                 try {
-                    if (!skipAuth) {
-                        result = await signIn({
-                            username,
-                            password,
-                            signal
-                        });
+                    result = await signIn({
+                        username,
+                        password,
+                        signal
+                    });
 
-                        // Double check result for error
-                        if (result.error && result.error !== "") {
-                            throw new Error(result.error);
-                        }
+                    // Double check result for error
+                    if (result.error && result.error !== "") {
+                        throw new Error(result.error);
                     }
 
                     if (mounted) {
@@ -179,7 +175,7 @@ export const useSigningIn = ({
                     }
                 } catch (err) {
                     if (mounted) {
-                        setError(err);
+                        setError(err as Error);
                     }
                 }
             } else {
@@ -203,11 +199,9 @@ export const useSigningIn = ({
 export const useSigningOut = ({
     authState,
     authDispatch,
-    skipAuth
 }: {
     authState: AuthState;
     authDispatch: Dispatch<AuthAction>;
-    skipAuth: boolean;
 }) => {
     const [error, setError] = useState(null as Error | null);
     const [isLoading, setIsLoading] = useState(false);
@@ -229,17 +223,15 @@ export const useSigningOut = ({
 
                 let result: ServerResponse;
                 try {
-                    if (!skipAuth) {
-                        result = await signOut({
-                            username,
-                            password,
-                            signal
-                        });
+                    result = await signOut({
+                        username,
+                        password,
+                        signal
+                    });
 
-                        // Double check result for error
-                        if (result.error && result.error !== "") {
-                            throw new Error(result.error);
-                        }
+                    // Double check result for error
+                    if (result.error && result.error !== "") {
+                        throw new Error(result.error);
                     }
 
                     if (mounted) {
@@ -254,9 +246,9 @@ export const useSigningOut = ({
                         setError(null);
                     }
 
-                } catch (err) {
+                } catch(err) {
                     if (mounted) {
-                        setError(err);
+                        setError(err as Error);
                     }
                 }
             } else {

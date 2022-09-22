@@ -1,7 +1,7 @@
 import { useState, useEffect, Dispatch } from "react";
 
 import { 
-    baseUrl,
+    baseURL,
     fetchRetry, 
     basicAuthString 
 } from "../fetch/fetch";
@@ -79,7 +79,7 @@ async function begin({
     dataType: string;
     signal: AbortSignal;
 }) {
-    const url = baseUrl() + "/upload/begin";
+    const url = baseURL + "/upload/begin";
     const headers = new Headers(
         {
             'Content-Type': 'application/json',
@@ -226,7 +226,7 @@ async function validateFile({
     file: RcFile;
     signal: AbortSignal
 }) {
-    const url = baseUrl() + "/upload/validatefile";
+    const url = baseURL + "/upload/validatefile";
 
     // Do not set Content-Type here to make it work
     // (i.e. we do not know boundary for multipart/form-data)
@@ -372,7 +372,7 @@ async function addFile({
     file: RcFile;
     signal: AbortSignal;
 }) {
-    const url = baseUrl() + "/upload/addfile";
+    const url = baseURL + "/upload/addfile";
 
     // Do not set Content-Type here to make it work 
     // (i.e. we do not know boundary for multipart/form-data)
@@ -446,7 +446,7 @@ async function finalize({
     dataType: string;
     signal: AbortSignal;
 }) {
-    const url = baseUrl() + "/upload/finalize";
+    const url = baseURL + "/upload/finalize";
     const headers = new Headers(
         {
             'Content-Type': 'application/json',
@@ -516,7 +516,7 @@ async function submit({
     dataType: string;
     signal: AbortSignal;
 }) {
-    const url = baseUrl() + "/upload/submit";
+    const url = baseURL + "/upload/submit";
     const headers = new Headers(
         {
             'Content-Type': 'application/json',

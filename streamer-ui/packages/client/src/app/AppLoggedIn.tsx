@@ -113,7 +113,6 @@ interface AppLoggedInProps {
     showAuthErrorModal: boolean;
     handleOkAuthErrorModal: () => Promise<void>;
     authErrorState: ErrorState;
-    mockPdb: boolean;
 };
 
 const AppLoggedIn: React.FC<AppLoggedInProps> = ({
@@ -125,8 +124,7 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     enableLoginButton,
     showAuthErrorModal,
     handleOkAuthErrorModal,
-    authErrorState,
-    mockPdb
+    authErrorState
 }) => {
     // Book keeping of upload state
     const [uploadState, uploadDispatch] = useReducer(uploadReducer, initialUploadState);
@@ -138,8 +136,7 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     const [projectList, errorLoadingProjectList, isLoadingProjectList] = useFetchProjects({
         checkUploadStatus: UploadStatus.NotUploading,
         userProfile,
-        uploadState,
-        mockPdb
+        uploadState
     });
 
     useUpdateError({

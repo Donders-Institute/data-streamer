@@ -29,8 +29,6 @@ services:
       context: ./streamer-ui
     image: ${DOCKER_REGISTRY:-dccn}/streamer-ui:${DOCKER_IMAGE_TAG:-latest}
     environment:
-      STREAMER_UI_HOST:
-      STREAMER_UI_PORT:
       STREAMER_UI_PDB_VERSION:
       STREAMER_UI_EXTERNAL_PORT:
       STREAMER_UI_PROJECT_DIR:
@@ -43,14 +41,9 @@ services:
       STREAMER_UI_DB_USER:
       STREAMER_UI_DB_PASSWORD:
       STREAMER_UI_DB_NAME:
-      STREAMER_UI_MOCK_AUTH:
-      STREAMER_UI_MOCK_PROJECT_DATABASE:
-      STREAMER_UI_MOCK_SERVICE:
       STREAMER_UI_DEBUG:
-      STREAMER_UI_INTERNAL_SERVER_API_URL:
-      STREAMER_UI_EXTERNAL_SERVER_API_URL:
     depends_on:
-      - service
+      #- service
       - ui-db
   ui-db:
     image: postgres:12

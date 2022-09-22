@@ -24,8 +24,7 @@ STREAMER_UI_CRON_VOL=./testdata/ui/cron
 STREAMER_UI_LOG_VOL=./testdata/ui/log
 
 # configuration for streamer ui
-STREAMER_UI_HOST=0.0.0.0
-STREAMER_UI_PORT=9000
+STREAMER_UI_PDB_VERSION=1
 STREAMER_UI_EXTERNAL_PORT=9000
 STREAMER_UI_PROJECT_DIR=/project
 STREAMER_UI_CRON_DIR=/etc
@@ -37,13 +36,6 @@ STREAMER_UI_DB_PORT=5432
 STREAMER_UI_DB_USER=postgres
 STREAMER_UI_DB_PASSWORD=postgres
 STREAMER_UI_DB_NAME=postgres
-STREAMER_UI_MOCK_AUTH=true
-STREAMER_UI_MOCK_PROJECT_DATABASE=true
-STREAMER_UI_MOCK_SERVICE=true
-
-# configuration for streamer ui client
-STREAMER_UI_INTERNAL_SERVER_API_URL=/api
-STREAMER_UI_EXTERNAL_SERVER_API_URL=http://localhost:9000/api
 
 # configuration for streamer ui database
 STREAMER_UI_DB_EXTERNAL_PORT=9001
@@ -59,12 +51,6 @@ GRAFANA_PASSWORD=grafanareaderpassword
 Create `.env` file in `packages/client`:
 ```
 NODE_ENV=development
-
-# Streamer UI client configuration
-REACT_APP_MOCK_AUTH=false
-REACT_APP_MOCK_PROJECT_DATABASE=true
-REACT_APP_STREAMER_UI_INTERNAL_SERVER_API_URL=/api
-REACT_APP_STREAMER_UI_EXTERNAL_SERVER_API_URL=http://localhost:9000/api
 ```
 
 ### 1.2 Building and Running the Stack

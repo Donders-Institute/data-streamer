@@ -37,12 +37,6 @@ function getEnvBoolean(envVariable: string | undefined) {
     return envVariable ? (envVariable === "true") : false;
 };
 
-// Check skipping of authentication (for development)
-const skipAuth = getEnvBoolean(process.env.REACT_APP_STREAMER_UI_MOCK_AUTH);
-
-// Check mocking of Project Database access (for development)
-const mockPdb = getEnvBoolean(process.env.REACT_APP_STREAMER_UI_MOCK_PROJECT_DATABASE);
-
 function authReducer(state: AuthState, action: AuthAction) {
     switch (action.type) {
         case AuthActionType.NotSignedIn:
@@ -126,8 +120,7 @@ const App: React.FC<AppProps> = () => {
     // Sign in
     const [errorSigningIn, isLoadingSigningIn] = useSigningIn({
         authState,
-        authDispatch,
-        skipAuth
+        authDispatch
     });
 
     useUpdateAuthError({
@@ -140,8 +133,7 @@ const App: React.FC<AppProps> = () => {
     // Sign out
     const [errorSigningOut, isLoadingSigningOut] = useSigningOut({
         authState,
-        authDispatch,
-        skipAuth
+        authDispatch
     });
 
     useUpdateAuthError({
@@ -230,7 +222,6 @@ const App: React.FC<AppProps> = () => {
             showAuthErrorModal={showAuthErrorModal}
             handleOkAuthErrorModal={handleOkAuthErrorModal}
             authErrorState={authErrorState}
-            mockPdb={mockPdb}
         />;
     } else if (authState.status === AuthStatus.LoggingIn) {
         return <AppLoggingIn

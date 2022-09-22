@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 import {
-    baseUrl,
+    baseURL,
     fetchRetry,
     basicAuthString
 } from "../fetch/fetch";
@@ -28,7 +28,7 @@ async function fetchProjectList({
     signal: AbortSignal;
 }) {
     
-    const url = baseUrl() + "/projects";
+    const url = baseURL + "/projects";
     const headers = new Headers(
         {
             'Content-Type': 'application/json',
@@ -65,13 +65,11 @@ async function fetchProjectList({
 export const useFetchProjects = ({
     checkUploadStatus,
     userProfile,
-    uploadState,
-    mockPdb
+    uploadState
 } : {
     checkUploadStatus: UploadStatus;
     userProfile: UserProfile;
     uploadState: UploadState;
-    mockPdb: boolean;
 }) => {
     const [projectList, setProjectList] = useState([] as Project[]);
     const [error, setError] = useState(null as Error | null);

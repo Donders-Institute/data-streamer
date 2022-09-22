@@ -1,7 +1,7 @@
 #!/bin/bash
 
 credentials=$STREAMER_UI_DB_USER:$STREAMER_UI_DB_PASSWORD
-url=http://$STREAMER_UI_HOST:$STREAMER_UI_PORT
+url=http://localhost:9000
 
 echo "Purge streamer ui db ..."
 echo $url/api/purge

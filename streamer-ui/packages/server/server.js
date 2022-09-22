@@ -20,14 +20,10 @@ const stager = require("./routes/stager");
 
 var app = express();
 
-const ENV = process.env.NODE_ENV;
-app.locals.ENV = ENV;
-
 // Streamer UI server configuration
-const HOST = process.env.STREAMER_UI_HOST || "localhost";
-const PORT = process.env.PORT && parseInt(process.env.STREAMER_UI_PORT) || 9000;
-app.locals.HOST = HOST;
-app.locals.PORT = PORT;
+app.locals.ENV = process.env.NODE_ENV;
+app.locals.HOST = "localhost";
+app.locals.PORT = 9000;
 
 const STREAMER_UI_PROJECT_DIR = process.env.STREAMER_UI_PROJECT_DIR || __dirname + '/uploads';
 const STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname + '/uploads';
@@ -47,14 +43,6 @@ app.locals.STREAMER_UI_DB_PORT = STREAMER_UI_DB_PORT;
 app.locals.STREAMER_UI_DB_USER = STREAMER_UI_DB_USER;
 app.locals.STREAMER_UI_DB_PASSWORD = STREAMER_UI_DB_PASSWORD;
 app.locals.STREAMER_UI_DB_NAME = STREAMER_UI_DB_NAME;
-
-// Check mock options (for development)
-const STREAMER_UI_MOCK_AUTH = process.env.STREAMER_UI_MOCK_AUTH ? (process.env.STREAMER_UI_MOCK_AUTH === 'true') : false;
-const STREAMER_UI_MOCK_PROJECT_DATABASE = process.env.STREAMER_UI_MOCK_PROJECT_DATABASE ? (process.env.STREAMER_UI_MOCK_PROJECT_DATABASE === 'true') : false;
-const STREAMER_UI_MOCK_SERVICE = process.env.STREAMER_UI_MOCK_SERVICE ? (process.env.STREAMER_UI_MOCK_SERVICE === 'true') : false;
-app.locals.STREAMER_UI_MOCK_AUTH = STREAMER_UI_MOCK_AUTH;
-app.locals.STREAMER_UI_MOCK_PROJECT_DATABASE = STREAMER_UI_MOCK_PROJECT_DATABASE;
-app.locals.STREAMER_UI_MOCK_SERVICE = STREAMER_UI_MOCK_SERVICE;
 
 // debug option
 const STREAMER_UI_DEBUG = process.env.STREAMER_UI_DEBUG ? (process.env.STREAMER_UI_DEBUG === 'true') : false;
