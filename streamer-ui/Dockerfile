@@ -24,6 +24,7 @@ COPY $pwd/packages/server/supervisord.conf ./
 COPY $pwd/packages/server/purge-db.sh ./
 COPY $pwd/packages/server/purge-all-db.sh ./
 COPY $pwd/packages/server/start-server.sh ./
+COPY $pwd/packages/server/start-cron.sh ./
 COPY $pwd/packages/server/*.js ./
 COPY $pwd/packages/server/bin ./bin
 COPY $pwd/packages/server/routes ./routes
@@ -31,5 +32,8 @@ COPY $pwd/packages/server/config ./config
 RUN ( chmod +x purge-db.sh )
 RUN ( chmod +x purge-all-db.sh )
 RUN ( chmod +x start-server.sh )
+RUN ( chmod +x start-cron.sh )
+COPY $pwd/packages/server/cron/crontab /etc/cron.d/purge-db
+RUN ( chmod +x /etc/cron.d/purge-db && crontab /etc/cron.d/purge-db )
 COPY --from=build /opt/streamer-ui-client/build /opt/streamer-ui-server/frontend
 CMD [ "/usr/bin/supervisord", "-c", "/opt/streamer-ui-server/supervisord.conf" ]
