@@ -58,7 +58,7 @@ async function fetchProjectList({
         throw new Error("Empty data in result");
     }
 
-    return result.data as Project[];
+    return (result.data as Project[]).sort((a, b) => a.projectNumber.localeCompare(b.projectNumber));
 };
 
 // Custom hook to fetch projects from the Project Database
