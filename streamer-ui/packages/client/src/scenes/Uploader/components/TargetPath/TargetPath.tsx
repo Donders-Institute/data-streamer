@@ -27,6 +27,11 @@ const TargetPath: React.FC<TargetPathProps> = ({ uploadState }) => {
     // call out to resolve the identifier of the associated DAC in the repository 
     useEffect(() => {
 
+        if ( ! projectNumber ) {
+            setDacIdentifier("");
+            return;
+        }
+
         const url = baseURL + "/stager/dac/" + projectNumber;
         const headers = new Headers(
             {
