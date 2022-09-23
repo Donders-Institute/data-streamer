@@ -30,7 +30,10 @@ const streamerUIBufferStorage = multer.diskStorage({
         }
 
         // Obtain the destination folder name
-        const dirname = utils.getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
+        const dirname = utils.getStreamerUIBufferDirname(
+            req.app.locals.STREAMER_UI_BUFFER_DIR,
+            projectNumber, subjectLabel, sessionLabel, dataType
+        );
         if (!dirname) {
             const err = new Error("Error obtaining streamer buffer UI directory name");
             cb(err, null);

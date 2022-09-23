@@ -8,8 +8,7 @@ services:
       - ${STREAMER_UI_EXTERNAL_PORT:-9000}:9000
     volumes:
       - ${STREAMER_SECRETS_DIR}:/opt/streamer-ui-server/config
-      - ${STREAMER_UI_PROJECT_DIR}
-      - ${STREAMER_UI_LOG_DIR}
+      - ${STREAMER_UI_LOG_VOL}:/opt/streamer-ui-server/log
   ui-db:
     ports:
       - ${STREAMER_UI_DB_PORT:-5432}:${STREAMER_UI_DB_PORT:-5432}

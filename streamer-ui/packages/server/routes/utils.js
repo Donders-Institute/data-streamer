@@ -2,28 +2,24 @@ const path = require("path");
 const fs = require('fs');
 const fetch = require('node-fetch');
 
-const STREAMER_UI_PROJECT_DIR = process.env.STREAMER_UI_PROJECT_DIR || __dirname + '/uploads';
-const STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname + '/uploads';
-const STREAMER_URL_PREFIX = process.env.STREAMER_URL_PREFIX || "http://service:3001";
-
 // Get the streamer UI buffer directory name
-var _getStreamerUIBufferDirname = function(projectNumber, subjectLabel, sessionLabel, dataType) {
+var _getStreamerUIBufferDirname = function(bufferDir, projectNumber, subjectLabel, sessionLabel, dataType) {
     let streamerUIBufferDirname;
     if (projectNumber && subjectLabel && sessionLabel && dataType) {
         var sub = 'sub-' + subjectLabel;
         var ses = 'ses-' + sessionLabel;
-        streamerUIBufferDirname = path.join(STREAMER_UI_BUFFER_DIR, projectNumber, sub, ses, dataType);
+        streamerUIBufferDirname = path.join(bufferDir, projectNumber, sub, ses, dataType);
     }
     return streamerUIBufferDirname;
 }
 
 // Get the project storage directory name
-var _getProjectStorageDirname = function(projectNumber, subjectLabel, sessionLabel, dataType) {
+var _getProjectStorageDirname = function(projectDir, projectNumber, subjectLabel, sessionLabel, dataType) {
     let projectStorageDirname;
     if (projectNumber && subjectLabel && sessionLabel && dataType) {
         var sub = 'sub-' + subjectLabel;
         var ses = 'ses-' + sessionLabel;
-        projectStorageDirname = path.join(STREAMER_UI_PROJECT_DIR, projectNumber, 'raw', sub, ses, dataType);
+        projectStorageDirname = path.join(projectDir, projectNumber, 'raw', sub, ses, dataType);
     }
     return projectStorageDirname;
 }
@@ -53,21 +49,11 @@ var _dirExists = function(dirname) {
     return dirExists;
 }
 
-// Check if the project directory exists
-var _projectDirExists = function() {
-    return _dirExists(STREAMER_UI_PROJECT_DIR);
-}
-
-// Check if the project directory exists
-var _streamerUIBufferDirExists = function() {
-    return _dirExists(STREAMER_UI_BUFFER_DIR);
-}
-
 // Get the streamer URL
-var _getStreamerUrl = function(projectNumber, subjectLabel, sessionLabel, dataType) {
+var _getStreamerUrl = function(baseURL, projectNumber, subjectLabel, sessionLabel, dataType) {
     let url;
     if (projectNumber && subjectLabel && sessionLabel && dataType) {
-        url = `${STREAMER_URL_PREFIX}/user/${projectNumber}/${subjectLabel}/${sessionLabel}/${dataType}`;
+        url = `${baseURL}/user/${projectNumber}/${subjectLabel}/${sessionLabel}/${dataType}`;
     }
     return url;
 }
@@ -117,8 +103,7 @@ module.exports.getStreamerUIBufferDirname = _getStreamerUIBufferDirname;
 module.exports.getProjectStorageDirname = _getProjectStorageDirname;
 module.exports.getStreamerUrl = _getStreamerUrl;
 module.exports.fileExists = _fileExists;
-module.exports.projectDirExists = _projectDirExists;
-module.exports.streamerUIBufferDirExists = _streamerUIBufferDirExists;
+module.exports.dirExists = _dirExists;
 module.exports.fetchOnce = _fetchOnce;
 module.exports.fetchRetry = _fetchRetry;
 module.exports.basicAuthString = _basicAuthString;

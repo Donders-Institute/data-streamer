@@ -100,10 +100,14 @@ var _begin = async function(req, res, next) {
     const dataType = req.body.dataType;
 
     // Create the streamer UI buffer directory if it does not exist
-    const dirname = utils.getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
-    if (!dirname) {
+    const dirname = utils.getStreamerUIBufferDirname(
+        req.app.locals.STREAMER_UI_BUFFER_DIR,
+        projectNumber, subjectLabel, sessionLabel, dataType
+    );
+    if ( ! dirname ) {
         return next(createError(500, "Error obtaining streamer buffer UI directory name"));
     }
+
     if (!fs.existsSync(dirname)) {
         mkdirp.sync(dirname);
         console.log(`Successfully created streamer buffer UI directory "${dirname}"`);
@@ -158,32 +162,19 @@ var _validateFile = function(req, res, next) {
     const sessionLabel = req.body.sessionLabel;
     const dataType = req.body.dataType;
 
-    let isDevelopment = false;
-    if (req.app && req.app.locals && req.app.locals.ENV === "development") {
-        isDevelopment = true;
+    // Obtain the project storage directory name
+    const projectStorageDirname = utils.getProjectStorageDirname(
+        req.app.locals.STREAMER_UI_PROJECT_DIR,
+        projectNumber, subjectLabel, sessionLabel, dataType
+    );
+
+    if ( ! projectStorageDirname ) {
+        return next(createError(500, "Error obtaining project storage directory name"));
     }
 
-    let projectStorageDirname = null;
-    if (isDevelopment) {
-        // In development mode, use the streamer UI buffer dir instead
-        const streamerBufferUiDirname = utils.getStreamerUIBufferDirname(projectNumber, subjectLabel, sessionLabel, dataType);
-        if (!streamerBufferUiDirname) {
-            return next(createError(500, "Error obtaining streamer UI buffer directory name"));
-        }
-        if (!utils.streamerUIBufferDirExists()) {
-            return next(createError(500, "Streamer UI buffer directory not found"));
-        }
-        projectStorageDirname = streamerBufferUiDirname;
-    } else {
-        // Obtain the project storage directory name
-        projectStorageDirname = utils.getProjectStorageDirname(projectNumber, subjectLabel, sessionLabel, dataType);
-        if (!projectStorageDirname) {
-            return next(createError(500, "Error obtaining project storage directory name"));
-        }
-        if (!utils.projectDirExists()) {
-            return next(createError(500, "Project storage directory not found"));
-        }
-    }
+    if (!utils.dirExists(projectStorageDirname)) {
+        return next(createError(500, "Project storage directory not found"));
+    }    
 
     // Obtain file attributes
     const filename = req.body.filename;
@@ -325,7 +316,10 @@ var _submit = async function(req, res, next) {
     const dataType = req.body.dataType;
 
     // Construct the streamer URL for a new streamer job POST message
-    const streamerUrl = utils.getStreamerUrl(projectNumber, subjectLabel, sessionLabel, dataType);
+    const streamerUrl = utils.getStreamerUrl(
+        req.app.locals.STREAMER_URL_PREFIX,
+        projectNumber, subjectLabel, sessionLabel, dataType
+    );
     if (!streamerUrl) {
         return next(createError(500, "Error creating streamer URL"));
     }

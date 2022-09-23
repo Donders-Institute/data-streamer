@@ -22,39 +22,28 @@ var app = express();
 
 // Streamer UI server configuration
 app.locals.ENV = process.env.NODE_ENV;
-app.locals.HOST = "localhost";
+app.locals.HOST = "0.0.0.0";
 app.locals.PORT = 9000;
 
-const STREAMER_UI_PROJECT_DIR = process.env.STREAMER_UI_PROJECT_DIR || __dirname + '/uploads';
-const STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname + '/uploads';
-const STREAMER_URL_PREFIX = process.env.STREAMER_URL_PREFIX || "http://service:3001";
-app.locals.STREAMER_UI_PROJECT_DIR = STREAMER_UI_PROJECT_DIR;
-app.locals.STREAMER_UI_BUFFER_DIR = STREAMER_UI_BUFFER_DIR;
-app.locals.STREAMER_URL_PREFIX = STREAMER_URL_PREFIX;
+app.locals.STREAMER_URL_PREFIX = process.env.STREAMER_URL_PREFIX || "http://service:3001";
+app.locals.STREAMER_UI_BUFFER_DIR = process.env.STREAMER_UI_BUFFER_DIR || __dirname + '/uploads';
+app.locals.STREAMER_UI_PROJECT_DIR = "/project";
 
 // Streamer UI database configuration
-const STREAMER_UI_DB_HOST = process.env.STREAMER_UI_DB_HOST || "ui-db";
-const STREAMER_UI_DB_PORT = process.env.STREAMER_UI_DB_PORT || 5432;
-const STREAMER_UI_DB_USER = process.env.STREAMER_UI_DB_USER || "postgres";
-const STREAMER_UI_DB_PASSWORD = process.env.STREAMER_UI_DB_PASSWORD || "postgres";
-const STREAMER_UI_DB_NAME = process.env.STREAMER_UI_DB_NAME || "postgres";
-app.locals.STREAMER_UI_DB_HOST = STREAMER_UI_DB_HOST;
-app.locals.STREAMER_UI_DB_PORT = STREAMER_UI_DB_PORT;
-app.locals.STREAMER_UI_DB_USER = STREAMER_UI_DB_USER;
-app.locals.STREAMER_UI_DB_PASSWORD = STREAMER_UI_DB_PASSWORD;
-app.locals.STREAMER_UI_DB_NAME = STREAMER_UI_DB_NAME;
+app.locals.STREAMER_UI_DB_HOST = process.env.STREAMER_UI_DB_HOST || "ui-db";
+app.locals.STREAMER_UI_DB_PORT = process.env.STREAMER_UI_DB_PORT || 5432;
+app.locals.STREAMER_UI_DB_USER = process.env.STREAMER_UI_DB_USER || "postgres";
+app.locals.STREAMER_UI_DB_PASSWORD = process.env.STREAMER_UI_DB_PASSWORD || "postgres";
+app.locals.STREAMER_UI_DB_NAME = process.env.STREAMER_UI_DB_NAME || "postgres";
 
 // debug option
-const STREAMER_UI_DEBUG = process.env.STREAMER_UI_DEBUG ? (process.env.STREAMER_UI_DEBUG === 'true') : false;
-app.locals.STREAMER_UI_DEBUG = STREAMER_UI_DEBUG;
-
-const isDevelopment = app.locals.ENV === "development";
+app.locals.STREAMER_UI_DEBUG = process.env.STREAMER_UI_DEBUG ? (process.env.STREAMER_UI_DEBUG === 'true') : false;
 
 app.use(logger('[:date[iso]] :method :url'));
 
 // CORS configuration 
 let whitelist = [];
-if (isDevelopment) {
+if (app.locals.ENV === "development") {
     whitelist = [
         `http://${app.locals.STREAMER_URL_PREFIX}`,
         `http://${app.locals.HOST}:${app.locals.PORT}`, // streamer ui server
@@ -90,11 +79,11 @@ app.use(cors(corsOptions));
 app.use(session({
     store: new pgSession({
         pool: new pg.Pool({
-            host: STREAMER_UI_DB_HOST,
-            port: STREAMER_UI_DB_PORT,
-            user: STREAMER_UI_DB_USER,
-            password: STREAMER_UI_DB_PASSWORD,
-            database: STREAMER_UI_DB_NAME,
+            host: app.locals.STREAMER_UI_DB_HOST,
+            port: app.locals.STREAMER_UI_DB_PORT,
+            user: app.locals.STREAMER_UI_DB_USER,
+            password: app.locals.STREAMER_UI_DB_PASSWORD,
+            database: app.locals.STREAMER_UI_DB_NAME,
             keepAlive: true,
             max: 20,
             idleTimeoutMillis: 30000,
@@ -103,7 +92,7 @@ app.use(session({
         tableName: 'usersession'
     }),
     secret: 'somesecret',
-    resave: true,
+    resave: false,
     rolling: true,
     saveUninitialized: true,
     unset: 'destroy',
@@ -117,7 +106,7 @@ app.use(session({
 app.use(express.json());
 app.use(cookieParser());
 
-if (!isDevelopment) {
+if ( ! (app.locals.ENV === "development") ) {
     app.use(express.static(path.join(__dirname, 'frontend')));
 }
 

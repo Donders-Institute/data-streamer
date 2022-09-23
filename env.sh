@@ -50,8 +50,6 @@ STREAMER_SERVICE_PORT=3001
 # configuration for streamer ui server
 STREAMER_UI_PDB_VERSION=1
 STREAMER_UI_EXTERNAL_PORT=9000
-STREAMER_UI_PROJECT_DIR=/project
-STREAMER_UI_LOG_DIR=/opt/streamer-ui-server/log
 STREAMER_UI_BUFFER_DIR=./testdata/project/3055000.01/raw
 STREAMER_URL_PREFIX=http://streamer:3001
 STREAMER_UI_DB_HOST=ui-db
