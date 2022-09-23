@@ -24,10 +24,10 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DATABASE
     GRANT SELECT ON public.uploadsession TO $GRAFANA_USER;
     GRANT SELECT ON public.uploadfile TO $GRAFANA_USER;
     CREATE TABLE IF NOT EXISTS "usersession" (
-        "sid"                   VARCHAR UNIQUE NOT NULL COLLATE "default",
+        "sid"                   VARCHAR NOT NULL COLLATE "default",
         "sess"                  JSON NOT NULL,
         "expire"                TIMESTAMP(6) NOT NULL
     ) WITH (OIDS=FALSE);
-    ALTER TABLE usersession ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
-    CREATE UNIQUE INDEX "IDX_session_expire" ON "usersession" ("expire");
+    ALTER TABLE "usersession" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
+    CREATE INDEX "IDX_session_expire" ON "usersession" ("expire");
 EOSQL
