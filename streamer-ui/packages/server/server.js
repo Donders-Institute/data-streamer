@@ -113,13 +113,13 @@ if ( ! (app.locals.ENV === "development") ) {
 // GET Serve frontend home page
 app.get('/',
     auth.isAuthenticated,
-    (req, res) => {
+    (_, res) => {
         res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
     });
 
 // GET Serve login page
 app.get('/login',
-    (req, res) => {
+    (_, res) => {
         res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
     });
 
@@ -131,30 +131,22 @@ app.post('/api/login',
 
 // POST Logout for regular user
 app.post('/api/logout',
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
     content.hasJson,
     auth.logoutUser);
 
 // GET Obtain list of projects for regular user
 app.get('/api/projects',
     auth.isAuthenticated,
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
     pdb.getProjects);
 
 // GET Obtain the destinating DAC namespace in the Repository through the Stager's API: /rdm/DAC/project/{projectId}.
 app.get('/api/stager/dac/:projectId',
-    // auth.isAuthenticated,
-    // auth.hasBasicAuthHeader,
-    // auth.verifyUser,
+    auth.isAuthenticated,
     stager.getDac);
 
 // POST Begin upload session for regular user, obtain an upload session id
 app.post('/api/upload/begin',
     auth.isAuthenticated,
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
     content.hasJson,
     upload.verifyStructure,
     upload.begin);
@@ -162,8 +154,6 @@ app.post('/api/upload/begin',
 // POST Validate file for upload session for regular user
 app.post('/api/upload/validatefile',
     auth.isAuthenticated,
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
     formData.processValidateFile,
     upload.verifyUploadSessionId,
     upload.verifyStructure,
@@ -173,8 +163,6 @@ app.post('/api/upload/validatefile',
 // POST Add file to upload session for regular user
 app.post('/api/upload/addfile',
     auth.isAuthenticated,
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
     formData.processAddFile,
     upload.verifyUploadSessionId,
     upload.verifyStructure,
@@ -184,8 +172,6 @@ app.post('/api/upload/addfile',
 // POST Finalize upload session for regular user
 app.post('/api/upload/finalize',
     auth.isAuthenticated,
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
     content.hasJson,
     upload.verifyUploadSessionId,
     upload.finalize);
@@ -193,8 +179,6 @@ app.post('/api/upload/finalize',
 // POST Submit a streamer job for regular user
 app.post('/api/upload/submit',
     auth.isAuthenticated,
-    auth.hasBasicAuthHeader,
-    auth.verifyUser,
     content.hasJson,
     upload.verifyUploadSessionId,
     upload.verifyStructure,

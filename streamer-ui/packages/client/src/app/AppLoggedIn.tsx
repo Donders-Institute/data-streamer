@@ -1,13 +1,10 @@
-import React, { useReducer, useState, useEffect } from "react";
+import React, { useReducer, useState, useEffect, useContext } from "react";
 import { Switch, Route } from "react-router-dom";
 
-import Login from "../scenes/Login/Login";
 import Uploader from "../scenes/Uploader/scenes/Uploader/Uploader";
 import Help from "../scenes/Help/Help";
-import NotFound from "../scenes/NotFound/NotFound";
 
 import {
-    UserProfile,
     RcFile,
     FilesSelection,
     UploadStatus,
@@ -45,6 +42,7 @@ import {
 } from "../services/error/error";
 
 import "./App.less";
+import { AuthContext } from "../services/auth/authContext";
 
 function uploadReducer(state: UploadState, action: UploadAction) {
     switch (action.type) {
@@ -103,29 +101,10 @@ function errorReducer(state: ErrorState, action: ErrorAction) {
     };
 };
 
-interface AppLoggedInProps {
-    userProfile: UserProfile;
-    handleChangeUsername: (username: string) => Promise<void>;
-    handleChangePassword: (password: string) => Promise<void>;
-    handleSignIn: () => Promise<void>;
-    handleSignOut: () => Promise<void>;
-    enableLoginButton: boolean;
-    showAuthErrorModal: boolean;
-    handleOkAuthErrorModal: () => Promise<void>;
-    authErrorState: ErrorState;
-};
+const AppLoggedIn: React.FC = () => {
 
-const AppLoggedIn: React.FC<AppLoggedInProps> = ({
-    userProfile,
-    handleChangeUsername,
-    handleChangePassword,
-    handleSignIn,
-    handleSignOut,
-    enableLoginButton,
-    showAuthErrorModal,
-    handleOkAuthErrorModal,
-    authErrorState
-}) => {
+    const {state: authState } = useContext(AuthContext);
+
     // Book keeping of upload state
     const [uploadState, uploadDispatch] = useReducer(uploadReducer, initialUploadState);
 
@@ -135,7 +114,7 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     // List of available projects for user
     const [projectList, errorLoadingProjectList, isLoadingProjectList] = useFetchProjects({
         checkUploadStatus: UploadStatus.NotUploading,
-        userProfile,
+        userProfile: authState.userProfile,
         uploadState
     });
 
@@ -202,7 +181,6 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
 
     // Initiate upload
     const [errorInitiateUpload, isLoadingInitiateUpload] = useInitiateUpload({
-        userProfile,
         uploadState,
         uploadDispatch
     });
@@ -216,7 +194,6 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
 
     // Validate upload
     const [hasExistingFiles, existingFiles, errorValidateUpload, isLoadingValidateUpload] = useValidateUpload({
-        userProfile,
         uploadState,
         uploadDispatch
     });
@@ -240,7 +217,6 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
 
     // Handle approved upload
     const [percentage, numRemainingFiles, errorUpload, isLoadingUpload] = useUpload({
-        userProfile,
         uploadState,
         uploadDispatch
     });
@@ -278,7 +254,6 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
 
     // Handle finalize
     const [errorFinalize, isLoadingFinalize] = useFinalize({
-        userProfile,
         uploadState,
         uploadDispatch
     });
@@ -292,7 +267,6 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
 
     // Handle submit
     const [done, uploadedFiles, errorSubmit, isLoadingSubmit] = useSubmit({
-        userProfile,
         uploadState,
         uploadDispatch
     });
@@ -527,99 +501,33 @@ const AppLoggedIn: React.FC<AppLoggedInProps> = ({
     return (
         <Switch>
             <Route
-                path="/login"
-                exact={true}
-                render={() => {
-                    return <Login
-                        handleChangeUsername={handleChangeUsername}
-                        handleChangePassword={handleChangePassword}
-                        handleSignIn={handleSignIn}
-                        enableLoginButton={enableLoginButton}
-                        showAuthErrorModal={showAuthErrorModal}
-                        handleOkAuthErrorModal={handleOkAuthErrorModal}
-                        authErrorState={authErrorState}
-                    />;
-                }}
-            />
-            <Route
                 path="/"
                 exact={true}
-                render={() => {
-                    if (userProfile.isAuthenticated) {
-                        return <Uploader
-                            userProfile={userProfile}
-                            handleSignOut={handleSignOut}
-                            projectList={projectList}
-                            isLoadingProjectList={isLoadingProjectList}
-                            uploadState={uploadState}
-                            uploadDispatch={uploadDispatch}
-                            errorState={errorState}
-                            handleRemoveSelectedFile={handleRemoveSelectedFile}
-                            handleResetFileList={handleResetFileList}
-                            handleFilesSelection={handleFilesSelection}
-                            enableUploadButton={enableUploadButton}
-                            handleInitiateUpload={handleInitiateUpload}
-                            handleUploadAnotherBatch={handleUploadAnotherBatch}
-                            showUploadModal={showUploadModal}
-                            existingFiles={existingFiles}
-                            showConfirmModal={showConfirmModal}
-                            handleCancelConfirmModal={handleCancelConfirmModal}
-                            handleOkConfirmModal={handleOkConfirmModal}
-                            showErrorModal={showErrorModal}
-                            handleOkErrorModal={handleOkErrorModal}
-                        />;
-                    }
-                    return <Login
-                        handleChangeUsername={handleChangeUsername}
-                        handleChangePassword={handleChangePassword}
-                        handleSignIn={handleSignIn}
-                        enableLoginButton={enableLoginButton}
-                        showAuthErrorModal={showAuthErrorModal}
-                        handleOkAuthErrorModal={handleOkAuthErrorModal}
-                        authErrorState={authErrorState}
-                    />;
-                }}
-            />
+                render={() =>
+                    <Uploader
+                        projectList={projectList}
+                        isLoadingProjectList={isLoadingProjectList}
+                        uploadState={uploadState}
+                        uploadDispatch={uploadDispatch}
+                        errorState={errorState}
+                        handleRemoveSelectedFile={handleRemoveSelectedFile}
+                        handleResetFileList={handleResetFileList}
+                        handleFilesSelection={handleFilesSelection}
+                        enableUploadButton={enableUploadButton}
+                        handleInitiateUpload={handleInitiateUpload}
+                        handleUploadAnotherBatch={handleUploadAnotherBatch}
+                        showUploadModal={showUploadModal}
+                        existingFiles={existingFiles}
+                        showConfirmModal={showConfirmModal}
+                        handleCancelConfirmModal={handleCancelConfirmModal}
+                        handleOkConfirmModal={handleOkConfirmModal}
+                        showErrorModal={showErrorModal}
+                        handleOkErrorModal={handleOkErrorModal}/>
+                }/>
             <Route
                 path="/help"
                 exact={true}
-                render={() => {
-                    if (userProfile.isAuthenticated) {
-                        return <Help
-                            userProfile={userProfile}
-                            handleSignOut={handleSignOut}
-                        />;
-                    }
-                    return <Login
-                        handleChangeUsername={handleChangeUsername}
-                        handleChangePassword={handleChangePassword}
-                        handleSignIn={handleSignIn}
-                        enableLoginButton={enableLoginButton}
-                        showAuthErrorModal={showAuthErrorModal}
-                        handleOkAuthErrorModal={handleOkAuthErrorModal}
-                        authErrorState={authErrorState}
-                    />;
-                }}
-            />
-            <Route
-                render={() => {
-                    if (userProfile.isAuthenticated) {
-                        return <NotFound
-                            userProfile={userProfile}
-                            handleSignOut={handleSignOut}
-                        />;
-                    }
-                    return <Login
-                        handleChangeUsername={handleChangeUsername}
-                        handleChangePassword={handleChangePassword}
-                        handleSignIn={handleSignIn}
-                        enableLoginButton={enableLoginButton}
-                        showAuthErrorModal={showAuthErrorModal}
-                        handleOkAuthErrorModal={handleOkAuthErrorModal}
-                        authErrorState={authErrorState}
-                    />;
-                }}
-            />
+                render={() => <Help/>}/>
         </Switch>
     );
 };

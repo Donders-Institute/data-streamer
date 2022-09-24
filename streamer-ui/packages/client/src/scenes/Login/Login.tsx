@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 
 import {
     Card,
@@ -8,49 +8,34 @@ import {
     Input,
     Layout,
     Row,
-    Col
+    Col,
+    message
 } from "antd";
 
 import { FormComponentProps } from "antd/lib/form";
 
-import HeaderLandingPage from "../../components/HeaderLandingPage/HeaderLandingPage";
-import ErrorModal from "../../components/ErrorModal/ErrorModal";
-
 import "../../app/App.less";
 import logoDCCN from "../../assets/dccn-logo.png";
 
-import { ErrorState } from "../../types/types";
+import { AuthActionType, AuthStatus } from "../../types/types";
+import { signIn } from "../../services/auth/auth";
+import { AuthContext } from "../../services/auth/authContext";
+import Header from "../../components/Header/Header";
 
 const { Content } = Layout;
 
-interface LoginProps {
-    handleChangeUsername: (username: string) => Promise<void>;
-    handleChangePassword: (password: string) => Promise<void>;
-    handleSignIn: () => Promise<void>;
-    enableLoginButton: boolean;
-    showAuthErrorModal: boolean;
-    handleOkAuthErrorModal: () => Promise<void>;
-    authErrorState: ErrorState
-}
-
-const LoginForm: React.FC<LoginProps & FormComponentProps> = ({
-    handleChangeUsername,
-    handleChangePassword,
-    handleSignIn,
-    enableLoginButton,
-    showAuthErrorModal,
-    handleOkAuthErrorModal,
-    authErrorState,
-    form
-}) => {
+const LoginForm: React.FC<FormComponentProps> = ({form}) => {
 
     const { getFieldDecorator } = form;
 
-    const disableLoginButton = !enableLoginButton;
+    const [enableLoginButton, showLoginButton] = useState(false);
+    const [isLoggingIn, setLoggingIn] = useState(false);
+
+    const {state: authState, updateState: updateAuthState} = useContext(AuthContext);
 
     return (
         <React.Fragment>
-            <HeaderLandingPage />
+            <Header />
             <Content className="Login">
                 <Row type="flex" justify="center" align="middle" style={{ width: "100%" }}>
                     <Col span={2}></Col>
@@ -74,12 +59,45 @@ const LoginForm: React.FC<LoginProps & FormComponentProps> = ({
                         </div>
                             <Form
                                 className="login-form"
+                                style={{ margin: "0px 0px 0px 0px" }}
                                 onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
                                     event.preventDefault();
-                                    handleSignIn();
-                                }}
-                                style={{ margin: "0px 0px 0px 0px" }}
-                            >
+                                    form.validateFields((err, values) => {
+                                        if (!err) {
+                                            const aborter = new AbortController();
+
+                                            setLoggingIn(true);
+
+                                            signIn({
+                                                username: values.username,
+                                                password: values.password,
+                                                signal: aborter.signal,
+                                            }).then( _ => {
+                                                updateAuthState && updateAuthState({
+                                                    type: AuthActionType.SignedIn,
+                                                    payload: {
+                                                        ...authState,
+                                                        isAuthenticated: true,
+                                                        status: AuthStatus.LoggedIn,
+                                                        userProfile: {
+                                                            username: values.username,
+                                                            displayName: null,           // TODO: should find a way to retrieve user's displayName
+                                                            password: values.password,   // TODO: should not catch password in memory!!
+                                                            isAuthenticated: true
+                                                        }
+                                                    }
+                                                });
+                                            }).catch( err => {
+                                                message.error({
+                                                    content: `login failure: ${JSON.stringify(err)}`
+                                                });
+                                            }).finally(() => {
+                                                setLoggingIn(false);
+                                                aborter.abort();
+                                            });
+                                        }
+                                    })
+                                }}>
                                 <Form.Item style={{ margin: "0px 0px 0px 0px" }}>
                                     {
                                         getFieldDecorator("username", {
@@ -94,7 +112,7 @@ const LoginForm: React.FC<LoginProps & FormComponentProps> = ({
                                                 prefix={<Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />}
                                                 placeholder="User name"
                                                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                                    handleChangeUsername(event.target.value);
+                                                    showLoginButton( event.target.value && form.getFieldValue("password") );
                                                 }}
                                             />
                                         )
@@ -115,7 +133,7 @@ const LoginForm: React.FC<LoginProps & FormComponentProps> = ({
                                                 type="password"
                                                 placeholder="Password"
                                                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                                    handleChangePassword(event.target.value);
+                                                    showLoginButton( event.target.value && form.getFieldValue("username") );
                                                 }}
                                             />
                                         )
@@ -125,7 +143,8 @@ const LoginForm: React.FC<LoginProps & FormComponentProps> = ({
                                     <Button
                                         className="login-form-button"
                                         type="primary"
-                                        disabled={disableLoginButton}
+                                        disabled={ ! enableLoginButton }
+                                        loading={ isLoggingIn }
                                         htmlType="submit"
                                     >
                                         Log in
@@ -137,15 +156,10 @@ const LoginForm: React.FC<LoginProps & FormComponentProps> = ({
                     <Col span={2}></Col>
                 </Row>
             </Content>
-            <ErrorModal
-                errorState={authErrorState}
-                showErrorModal={showAuthErrorModal}
-                handleOkErrorModal={handleOkAuthErrorModal}
-            />
         </React.Fragment>
     );
 };
 
-const Login = Form.create<LoginProps & FormComponentProps>()(LoginForm);
+const Login = Form.create<FormComponentProps>()(LoginForm);
 
 export default Login;

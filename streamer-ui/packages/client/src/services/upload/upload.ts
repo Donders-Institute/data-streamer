@@ -7,7 +7,6 @@ import {
 } from "../fetch/fetch";
 
 import {
-    UserProfile,
     ServerResponse,
     RcFile,
     BeginResult,
@@ -63,16 +62,12 @@ export function fileNameExists(file: RcFile, fileList: RcFile[]) {
 
 // Start an upload session. Obtain the upload session id
 async function begin({
-    username,
-    password,
     projectNumber,
     subjectLabel,
     sessionLabel,
     dataType,
     signal
 } : {
-    username: string;
-    password: string;
     projectNumber: string;
     subjectLabel: string;
     sessionLabel: string;
@@ -82,8 +77,7 @@ async function begin({
     const url = baseURL + "/upload/begin";
     const headers = new Headers(
         {
-            'Content-Type': 'application/json',
-            'Authorization': basicAuthString({ username, password })
+            'Content-Type': 'application/json'
         }
     );
 
@@ -131,8 +125,6 @@ async function begin({
 };
 
 async function initiate({
-    username,
-    password,
     projectNumber,
     subjectLabel,
     sessionLabel,
@@ -140,8 +132,6 @@ async function initiate({
     fileList,
     signal
 } : {
-    username: string;
-    password: string;
     projectNumber: string;
     subjectLabel: string;
     sessionLabel: string;
@@ -153,8 +143,6 @@ async function initiate({
     let uploadSessionId: number = -1;
     try {
         uploadSessionId = await begin({
-            username,
-            password,
             projectNumber,
             subjectLabel,
             sessionLabel,
@@ -206,8 +194,6 @@ function getFormData({
 
 // Validate a single file to be uploaded
 async function validateFile({
-    username,
-    password,
     uploadSessionId,
     projectNumber,
     subjectLabel,
@@ -216,8 +202,6 @@ async function validateFile({
     file,
     signal
 } : {
-    username: string;
-    password: string;
     uploadSessionId: number;
     projectNumber: string;
     subjectLabel: string;
@@ -227,14 +211,6 @@ async function validateFile({
     signal: AbortSignal
 }) {
     const url = baseURL + "/upload/validatefile";
-
-    // Do not set Content-Type here to make it work
-    // (i.e. we do not know boundary for multipart/form-data)
-    const headers = new Headers(
-        {
-            'Authorization': basicAuthString({ username, password })
-        }
-    );
 
     const formData = getFormData({
         uploadSessionId,
@@ -254,7 +230,6 @@ async function validateFile({
                 method: 'POST',
                 credentials: 'include',
                 mode: 'cors',
-                headers,
                 body: formData,
                 signal
             } as RequestInit,
@@ -282,8 +257,6 @@ async function validateFile({
 
 // Check for existing project storage folder and existing files
 async function validate({
-    username,
-    password,
     uploadSessionId,
     projectNumber,
     subjectLabel,
@@ -292,8 +265,6 @@ async function validate({
     fileList,
     signal
 } : {
-    username: string;
-    password: string;
     uploadSessionId: number;
     projectNumber: string;
     subjectLabel: string;
@@ -313,8 +284,6 @@ async function validate({
         let validateFileResult: ValidateFileResult;
         try {
             validateFileResult = await validateFile({
-                username,
-                password,
                 uploadSessionId,
                 projectNumber,
                 subjectLabel,
@@ -352,8 +321,6 @@ async function validate({
 
 // Add a file to be uploaded
 async function addFile({
-    username,
-    password,
     uploadSessionId,
     projectNumber,
     subjectLabel,
@@ -362,8 +329,6 @@ async function addFile({
     file,
     signal
 } : {
-    username: string;
-    password: string;
     uploadSessionId: number;
     projectNumber: string;
     subjectLabel: string;
@@ -373,14 +338,6 @@ async function addFile({
     signal: AbortSignal;
 }) {
     const url = baseURL + "/upload/addfile";
-
-    // Do not set Content-Type here to make it work 
-    // (i.e. we do not know boundary for multipart/form-data)
-    const headers = new Headers(
-        {
-            'Authorization': basicAuthString({ username, password })
-        }
-    );
 
     const formData = getFormData({
         uploadSessionId,
@@ -400,7 +357,6 @@ async function addFile({
                 method: 'POST',
                 credentials: 'include',
                 mode: 'cors',
-                headers,
                 body: formData,
                 signal
             } as RequestInit,
@@ -428,8 +384,6 @@ async function addFile({
 
 // Finalize the upload session
 async function finalize({
-    username,
-    password,
     uploadSessionId,
     projectNumber,
     subjectLabel,
@@ -437,8 +391,6 @@ async function finalize({
     dataType,
     signal
 } : {
-    username: string;
-    password: string;
     uploadSessionId: number;
     projectNumber: string;
     subjectLabel: string;
@@ -450,7 +402,6 @@ async function finalize({
     const headers = new Headers(
         {
             'Content-Type': 'application/json',
-            'Authorization': basicAuthString({ username, password })
         }
     );
 
@@ -498,8 +449,6 @@ async function finalize({
 
 // Finally, submit a streamer job
 async function submit({
-    username,
-    password,
     uploadSessionId,
     projectNumber,
     subjectLabel,
@@ -507,8 +456,6 @@ async function submit({
     dataType,
     signal
 } : {
-    username: string;
-    password: string;
     uploadSessionId: number;
     projectNumber: string;
     subjectLabel: string;
@@ -520,7 +467,6 @@ async function submit({
     const headers = new Headers(
         {
             'Content-Type': 'application/json',
-            'Authorization': basicAuthString({ username, password })
         }
     );
 
@@ -579,11 +525,9 @@ function getDataType(uploadState: UploadState) {
 
 // Custom hook to initiate upload
 export const useInitiateUpload = ({
-    userProfile,
     uploadState,
     uploadDispatch
 } : {
-    userProfile: UserProfile;
     uploadState: UploadState;
     uploadDispatch: Dispatch<UploadAction>;
 }) => {
@@ -603,9 +547,6 @@ export const useInitiateUpload = ({
                 if (mounted) {
                     setIsLoading(true);
                 }
-
-                const username = userProfile.username;
-                const password = userProfile.password;
             
                 const projectNumber = uploadState.structureSelection.projectNumberInput.value;
                 const subjectLabel = uploadState.structureSelection.subjectLabelInput.value;
@@ -616,8 +557,6 @@ export const useInitiateUpload = ({
 
                 try {
                     const [newUploadSessionId, newTotalSizeBytes] = await initiate({
-                        username, 
-                        password,
                         projectNumber,
                         subjectLabel,
                         sessionLabel,
@@ -664,11 +603,9 @@ export const useInitiateUpload = ({
 
 // Custom hook to validate upload
 export const useValidateUpload = ({
-    userProfile,
     uploadState, 
     uploadDispatch
 } : {
-    userProfile: UserProfile;
     uploadState: UploadState;
     uploadDispatch: Dispatch<UploadAction>;
 }) => {
@@ -690,9 +627,6 @@ export const useValidateUpload = ({
                 if (mounted) {
                     setIsLoading(true);
                 }
-
-                const username = userProfile.username;
-                const password = userProfile.password;
             
                 const uploadSessionId = uploadState.uploadSessionId;
 
@@ -709,8 +643,6 @@ export const useValidateUpload = ({
 
                 try {
                     const validationResult = await validate({
-                        username,
-                        password,
                         uploadSessionId,
                         projectNumber,
                         subjectLabel,
@@ -808,11 +740,9 @@ export const useCheckApproval = ({
 
 // Custom hook to handle actual upload
 export const useUpload = ({
-    userProfile, 
     uploadState, 
     uploadDispatch
 } : {
-    userProfile: UserProfile;
     uploadState: UploadState;
     uploadDispatch: Dispatch<UploadAction>;
 }) => {
@@ -835,9 +765,6 @@ export const useUpload = ({
                 if (mounted) {
                     setIsLoading(true);
                 }
-
-                const username = userProfile.username;
-                const password =  userProfile.password;
 
                 const uploadSessionId = uploadState.uploadSessionId;
             
@@ -869,8 +796,6 @@ export const useUpload = ({
                 }) => {
                     try {
                         await addFile({
-                            username,
-                            password,
                             uploadSessionId,
                             projectNumber,
                             subjectLabel,
@@ -955,11 +880,9 @@ export const useUpload = ({
 
 // Custom hook to handle finalizing upload (e.g. add end time timestamp)
 export const useFinalize = ({
-    userProfile, 
     uploadState, 
     uploadDispatch
 } : {
-    userProfile: UserProfile;
     uploadState: UploadState;
     uploadDispatch: Dispatch<UploadAction>;
 }) => {
@@ -980,9 +903,6 @@ export const useFinalize = ({
                     setIsLoading(true);
                 }
 
-                const username = userProfile.username;
-                const password =  userProfile.password;
-
                 const uploadSessionId = uploadState.uploadSessionId;
             
                 const projectNumber =  uploadState.structureSelection.projectNumberInput.value;
@@ -992,8 +912,6 @@ export const useFinalize = ({
             
                 try {
                     await finalize({
-                        username,
-                        password,
                         uploadSessionId,
                         projectNumber,
                         subjectLabel,
@@ -1033,11 +951,9 @@ export const useFinalize = ({
 
 // Custom hook to handle submit of streamer job
 export const useSubmit = ({
-    userProfile, 
     uploadState, 
     uploadDispatch
 } : {
-    userProfile: UserProfile;
     uploadState: UploadState;
     uploadDispatch: Dispatch<UploadAction>;
 }) => {
@@ -1059,9 +975,6 @@ export const useSubmit = ({
                 if (mounted) {
                     setIsLoading(true);
                 }
-            
-                const username = userProfile.username;
-                const password =  userProfile.password;
 
                 const uploadSessionId = uploadState.uploadSessionId;
             
@@ -1073,8 +986,6 @@ export const useSubmit = ({
                 try {
                     // Submit a streamer job
                     const submitResult = await submit({
-                        username,
-                        password,
                         uploadSessionId,
                         projectNumber,
                         subjectLabel,

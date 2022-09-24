@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 
 import {
     Row,
@@ -6,7 +6,8 @@ import {
     Button,
     Modal,
     Icon,
-    Progress
+    Progress,
+    message
 } from "antd";
 
 import LoadingIcon from "../../../../components/LoadingIcon/LoadingIcon";
@@ -15,23 +16,25 @@ import {
     UploadState,
     UploadStatus,
     ErrorState,
-    ErrorType
+    ErrorType,
+    AuthActionType,
+    initialAuthState
 } from "../../../../types/types";
+import { signOut } from "../../../../services/auth/auth";
+import { AuthContext } from "../../../../services/auth/authContext";
 
 interface UploadModalProps {
     uploadState: UploadState;
     errorState: ErrorState;
     showUploadModal: boolean;
     handleUploadAnotherBatch: () => void;
-    handleSignOut: () => Promise<void>;
 };
 
 const UploadModal: React.FC<UploadModalProps> = ({
     uploadState,
     errorState,
     showUploadModal,
-    handleUploadAnotherBatch,
-    handleSignOut
+    handleUploadAnotherBatch
 }) => {
     const hasUploadError = (
         errorState.errorType === ErrorType.ErrorInitiateUpload ||
@@ -89,6 +92,8 @@ const UploadModal: React.FC<UploadModalProps> = ({
     };
     const doneMessage = getDoneMessage(uploadState.status, hasUploadError);
 
+    const {state: authState, updateState: updateAuthState} = useContext(AuthContext);
+
     return (
         <Modal
             title={title}
@@ -107,7 +112,26 @@ const UploadModal: React.FC<UploadModalProps> = ({
                             </Button>
                             <Button
                                 disabled={disableButtons}
-                                onClick={() => { handleSignOut(); }}
+                                onClick={() => {
+                                    const aborter = new AbortController();
+                                    signOut({
+                                        username: authState.userProfile.username,
+                                        password: authState.userProfile.password,
+                                        signal: aborter.signal,
+                                    }).then(_ => {
+                                        console.log("logout successful");
+                                    }).catch(err => {
+                                        message.error({
+                                            content: `logout failure: ${JSON.stringify(err)}`
+                                        });
+                                    }).finally(() => {
+                                        updateAuthState && updateAuthState({
+                                            type: AuthActionType.NotSignedIn,
+                                            payload: initialAuthState,
+                                        });
+                                        aborter.abort();
+                                    });                                    
+                                }}
                             >
                                 <Icon type="logout" /> Sign out
                             </Button>

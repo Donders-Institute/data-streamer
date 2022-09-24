@@ -19,22 +19,12 @@ const fetchNumRetries = 1;
 const fetchTimeout = 10000; // ms
 
 async function fetchProjectList({
-    username, 
-    password, 
     signal
 } : {
-    username: string; 
-    password: string; 
     signal: AbortSignal;
 }) {
     
     const url = baseURL + "/projects";
-    const headers = new Headers(
-        {
-            'Content-Type': 'application/json',
-            'Authorization': basicAuthString({ username, password })
-        }
-    );
 
     let result: ServerResponse;
     try {
@@ -44,7 +34,6 @@ async function fetchProjectList({
                 method: 'GET',
                 credentials: 'include',
                 mode: 'cors',
-                headers,
                 signal
             } as RequestInit,
             numRetries: fetchNumRetries,
@@ -88,13 +77,8 @@ export const useFetchProjects = ({
                     setIsLoading(true);
                 }
 
-                const username = userProfile.username;
-                const password = userProfile.password;
-
                 try {
                     const newProjectList = await fetchProjectList({
-                        username, 
-                        password, 
                         signal
                     });
 

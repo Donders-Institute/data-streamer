@@ -28,9 +28,7 @@ var _getProjectsV2 = function(req, res, next) {
     const CORE_API_URL       = config.projectDatabase.v2.coreApiUrl;
     
     // Obtain username
-    const base64Credentials = req.headers.authorization.split(' ')[1];
-    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-    var username = credentials.split(':')[0];
+    const username = req.session.user;
 
     // GraphQL query to get user's projects
     const query = gql`

@@ -1,10 +1,8 @@
-import { useState, useEffect, Dispatch } from "react";
+import { useState, useEffect } from "react";
 
 import {
     UploadStatus,
     UploadState,
-    UploadAction,
-    UploadActionType
 } from "../../types/types";
 
 // Validate files selection

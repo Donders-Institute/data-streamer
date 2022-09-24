@@ -123,7 +123,8 @@ var _logoutUser = function(req, res) {
     let sess = req.session;
 
     delete sess.user;
-    delete sess.password;
+    delete sess.authenticated;
+
     req.session.destroy();
 
     res.redirect('/login');

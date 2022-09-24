@@ -1,5 +1,3 @@
-import { useState, useEffect, Dispatch } from "react";
-
 import {
     baseURL,
     fetchRetry,
@@ -8,23 +6,11 @@ import {
 } from "../../services/fetch/fetch";
 
 import {
-    UserProfile,
-    ServerResponse,
-    AuthStatus,
-    AuthState,
-    AuthAction,
-    AuthActionType,
-    initialAuthState
+    ServerResponse
 } from "../../types/types";
 
-// 10 seconds
-const authTimeout = 10000; // ms
-
-function isNotEmpty(value: string) {
-    return (value && value !== "");
-};
-
-async function signIn({
+// call `/login` interface for user login
+export async function signIn({
     username,
     password,
     signal
@@ -55,7 +41,7 @@ async function signIn({
                 signal
             } as RequestInit,
             numRetries: 1,
-            timeout: authTimeout
+            timeout: 10000
         });
     } catch (err) {
         throw err;
@@ -70,7 +56,8 @@ async function signIn({
     return result;
 };
 
-async function signOut({
+// call `/logout` interface for user logout
+export async function signOut({
     username,
     password,
     signal
@@ -99,7 +86,7 @@ async function signOut({
                 body,
                 signal
             } as RequestInit,
-            timeout: authTimeout
+            timeout: 10000
         });
     } catch (err) {
         console.log(JSON.stringify(err));
@@ -112,211 +99,3 @@ async function signOut({
     } as ServerResponse;
     return result;
 };
-
-// Custom hook to handle sign in
-export const useSigningIn = ({
-    authState,
-    authDispatch,
-}: {
-    authState: AuthState;
-    authDispatch: Dispatch<AuthAction>;
-}) => {
-    const [error, setError] = useState(null as Error | null);
-    const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        let mounted = true;
-        const abortController = new AbortController();
-        const signal = abortController.signal;
-
-        const initiate = async () => {
-            if (authState.status === AuthStatus.LoggingIn) {
-                if (mounted) {
-                    setIsLoading(true);
-                }
-
-                const username = authState.userProfile.username;
-                const password = authState.userProfile.password;
-                const displayName = null as string | null;
-
-                let result: ServerResponse;
-                try {
-                    result = await signIn({
-                        username,
-                        password,
-                        signal
-                    });
-
-                    // Double check result for error
-                    if (result.error && result.error !== "") {
-                        throw new Error(result.error);
-                    }
-
-                    if (mounted) {
-                        setIsLoading(false);
-
-                        // Signin successful
-                        authDispatch({
-                            type: AuthActionType.SignedIn,
-                            payload: {
-                                ...authState,
-                                isAuthenticated: true,
-                                status: AuthStatus.LoggedIn,
-                                userProfile: {
-                                    username,
-                                    displayName,
-                                    password,
-                                    isAuthenticated: true
-                                } as UserProfile
-                            } as AuthState
-                        } as AuthAction);
-
-                        setError(null);
-                    }
-                } catch (err) {
-                    if (mounted) {
-                        setError(err as Error);
-                    }
-                }
-            } else {
-                if (mounted) {
-                    setError(null);
-                }
-            }
-        };
-        initiate();
-
-        return function cleanup() {
-            abortController.abort();
-            mounted = false;
-        };
-    }, [authState.status]);
-
-    return [error, isLoading] as [Error | null, boolean];
-};
-
-// Custom hook to handle sign out
-export const useSigningOut = ({
-    authState,
-    authDispatch,
-}: {
-    authState: AuthState;
-    authDispatch: Dispatch<AuthAction>;
-}) => {
-    const [error, setError] = useState(null as Error | null);
-    const [isLoading, setIsLoading] = useState(false);
-
-    useEffect(() => {
-        let mounted = true;
-        const abortController = new AbortController();
-        const signal = abortController.signal;
-
-        const initiate = async () => {
-            if (authState.status === AuthStatus.LoggingOut) {
-
-                if (mounted) {
-                    setIsLoading(true);
-                }
-
-                const username = authState.userProfile.username;
-                const password = authState.userProfile.password;
-
-                let result: ServerResponse;
-                try {
-                    result = await signOut({
-                        username,
-                        password,
-                        signal
-                    });
-
-                    // Double check result for error
-                    if (result.error && result.error !== "") {
-                        throw new Error(result.error);
-                    }
-
-                    if (mounted) {
-                        setIsLoading(false);
-
-                        // Signout successful
-                        authDispatch({
-                            type: AuthActionType.NotSignedIn,
-                            payload: { ...initialAuthState }
-                        } as AuthAction);
-
-                        setError(null);
-                    }
-
-                } catch(err) {
-                    if (mounted) {
-                        setError(err as Error);
-                    }
-                }
-            } else {
-                if (mounted) {
-                    setError(null);
-                }
-            }
-        };
-        initiate();
-
-        return function cleanup() {
-            abortController.abort();
-            mounted = false;
-        };
-    }, [authState.status]);
-
-    return [error, isLoading] as [Error | null, boolean];
-};
-
-// Custom hook to validate user input
-export const useValidateAuthSelection = (authState: AuthState) => {
-    const [isValid, setIsValid] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null as Error | null);
-
-    useEffect(() => {
-        let mounted = true;
-
-        const validate = async () => {
-            if (authState.status === AuthStatus.Selecting) {
-
-                // Validate userrname and password
-                const username = authState.userProfile.username;
-                const password = authState.userProfile.password;
-
-                const isValidUsername = isNotEmpty(username);
-                const isValidPassword = isNotEmpty(password);
-
-                if (mounted) {
-                    setIsLoading(true);
-                }
-
-                try {
-                    // Validate files selection
-                    if (!isValidUsername || !isValidPassword) {
-                        throw new Error("Invalid username and password");
-                    }
-
-                    if (mounted) {
-                        setIsLoading(false);
-                        setError(null);
-                        setIsValid(true);
-                    }
-                } catch (err) {
-                    if (mounted) {
-                        setIsValid(false);
-                        setError(err as Error | null);
-                    }
-                }
-            }
-        };
-        validate();
-
-        return function cleanup() {
-            mounted = false;
-        };
-    }, [authState]);
-
-    return [isValid, error, isLoading] as [boolean, Error | null, boolean];
-};
-

@@ -1,4 +1,4 @@
-import React, { Dispatch } from "react";
+import React, { Dispatch, useContext } from "react";
 
 import {
     Layout,
@@ -20,21 +20,20 @@ import ConfirmModal from "../../components/ConfirmModal/ConfirmModal";
 import ErrorModal from "../../../../components/ErrorModal/ErrorModal";
 
 import {
-    UserProfile,
     Project,
     RcFile,
     UploadState,
     UploadAction,
-    ErrorState
+    ErrorState,
+    AuthActionType
 } from "../../../../types/types";
 
 import "../../../../app/App.less";
+import { AuthContext } from "../../../../services/auth/authContext";
 
 const { Content } = Layout;
 
 interface UploaderProps {
-    userProfile: UserProfile;
-    handleSignOut: () => Promise<void>;
     projectList: Project[];
     isLoadingProjectList: boolean;
     uploadState: UploadState;
@@ -56,8 +55,6 @@ interface UploaderProps {
 }
 
 const Uploader: React.FC<UploaderProps> = ({
-    userProfile,
-    handleSignOut,
     projectList,
     isLoadingProjectList,
     uploadState,
@@ -79,10 +76,12 @@ const Uploader: React.FC<UploaderProps> = ({
 }) => {
     const filesSelection = uploadState.filesSelection;
 
+    const {state: authState} = useContext(AuthContext);
+
     return (
         <React.Fragment>
             <Content style={{ background: "#f0f2f5" }}>
-                <Header userProfile={userProfile} handleSignOut={handleSignOut} />
+                <Header/>
                 <div style={{ padding: "10px" }}>
                     <Row>
                         <Col span={12}>
@@ -112,23 +111,17 @@ const Uploader: React.FC<UploaderProps> = ({
                                     />
                                 </Content>
                                 <Content style={{ marginTop: "20px" }}>
-                                    {
-                                        isLoadingProjectList &&
-                                        <Content style={{ marginTop: "20px" }}>
-                                            <div>Loading projects for {userProfile.username} ...</div>
-                                            <LoadingIcon />
-                                        </Content>
-                                    }
-                                    {
-                                        !isLoadingProjectList &&
-                                        <Content style={{ marginTop: "20px" }}>
-                                            <StructureSelector
-                                                projectList={projectList}
-                                                uploadState={uploadState}
-                                                uploadDispatch={uploadDispatch}
-                                            />
-                                        </Content>
-                                    }
+                                {
+                                    isLoadingProjectList &&
+                                        <>
+                                        <div>Loading projects for {authState.userProfile.username} ...</div>
+                                        <LoadingIcon />
+                                        </> ||
+                                        <StructureSelector
+                                            projectList={projectList}
+                                            uploadState={uploadState}
+                                            uploadDispatch={uploadDispatch}/>
+                                }
                                 </Content>
                                 <Content style={{ marginTop: "20px" }}>
                                     <UploadButton
@@ -145,7 +138,6 @@ const Uploader: React.FC<UploaderProps> = ({
                     errorState={errorState}
                     showUploadModal={showUploadModal}
                     handleUploadAnotherBatch={handleUploadAnotherBatch}
-                    handleSignOut={handleSignOut}
                 />
                 <ConfirmModal
                     uploadState={uploadState}

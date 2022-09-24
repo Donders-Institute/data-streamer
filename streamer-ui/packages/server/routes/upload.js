@@ -83,9 +83,7 @@ var _verifyFile = function(req, res, next) {
 var _begin = async function(req, res, next) {
 
     // Obtain the DCCN username
-    const base64Credentials = req.headers.authorization.split(' ')[1];
-    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-    const username = credentials.split(':')[0];
+    const username = req.session.user;
 
     // Obtain the user agent
     const userAgent = req.headers['user-agent'];
@@ -281,29 +279,11 @@ var _finalize = async function(req, res, next) {
 // Submit a streamer job
 var _submit = async function(req, res, next) {
     // Obtain user credentials
-    const base64Credentials = req.headers.authorization.split(' ')[1];
-    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-    let [username, password] = credentials.split(':');
-    const streamerUser = username; // DCCN username
-
-    // Check if we need to override the service admin credentials
-    if (SERVICE_ADMIN_USERNAME && SERVICE_ADMIN_USERNAME !== "" &&
-        SERVICE_ADMIN_PASSWORD && SERVICE_ADMIN_PASSWORD !== "") {
-        username = SERVICE_ADMIN_USERNAME;
-        password = SERVICE_ADMIN_PASSWORD;
-    }
+    const streamerUser = req.session.user; // DCCN username
 
     // Verify username
     if (!streamerUser) {
         return next(createError(401, "streamerUser is empty"));
-    }
-
-    // Verify service admin username and password
-    if (!username) {
-        return next(createError(401, "service admin username is empty"));
-    }
-    if (!password) {
-        return next(createError(401, "service admin password is empty"));
     }
 
     // Obtain upload session id
@@ -349,7 +329,7 @@ var _submit = async function(req, res, next) {
     // Make a POST call to streamer with basic authentication
     const headers = {
         'Content-Type': 'application/json',
-        'Authorization': utils.basicAuthString(username, password)
+        'Authorization': utils.basicAuthString(SERVICE_ADMIN_USERNAME, SERVICE_ADMIN_PASSWORD)
     };
     const body = JSON.stringify({
         streamerUser: streamerUser,
