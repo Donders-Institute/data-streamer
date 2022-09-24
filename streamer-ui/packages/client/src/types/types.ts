@@ -225,9 +225,6 @@ export const initialUploadState = {
 // Possible error types
 export enum ErrorType {
     NoError = "NoError",
-    ErrorSelectAuth = "ErrorSelectAuth",
-    ErrorSignIn = "ErrorSignIn",
-    ErrorSignOut = "ErrorSignOut",
     ErrorLoadingProjectList = "ErrorLoadingProjectList",
     ErrorSelectUpload = "ErrorSelectUpload",
     ErrorInitiateUpload = "ErrorInitiateUpload",

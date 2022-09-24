@@ -120,9 +120,9 @@ const UploadModal: React.FC<UploadModalProps> = ({
                                         signal: aborter.signal,
                                     }).then(_ => {
                                         console.log("logout successful");
-                                    }).catch(err => {
+                                    }).catch((err: Error) => {
                                         message.error({
-                                            content: `logout failure: ${JSON.stringify(err)}`
+                                            content: `logout failure: ${err.message}`
                                         });
                                     }).finally(() => {
                                         updateAuthState && updateAuthState({

@@ -87,9 +87,9 @@ const LoginForm: React.FC<FormComponentProps> = ({form}) => {
                                                         }
                                                     }
                                                 });
-                                            }).catch( err => {
+                                            }).catch((err: Error) => {
                                                 message.error({
-                                                    content: `login failure: ${JSON.stringify(err)}`
+                                                    content: `login failure: ${err.message}`
                                                 });
                                             }).finally(() => {
                                                 setLoggingIn(false);
