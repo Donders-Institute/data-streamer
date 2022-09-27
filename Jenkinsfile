@@ -22,6 +22,23 @@ pipeline {
             steps {
                 sh 'docker-compose build --parallel'
             }
+            post {
+                success {
+                    withCredentials([
+                        usernamePassword (
+                            credentialsId: params.PLAYGROUND_DOCKER_REGISTRY_CREDENTIALS,
+                            usernameVariable: 'DOCKER_USERNAME',
+                            passwordVariable: 'DOCKER_PASSWORD'
+                        )
+                    ]){
+                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD} ${DOCKER_REGISTRY}"
+                        sh (
+                            label: "Pushing images to repository '${env.DOCKER_REGISTRY}'",
+                            script: 'docker-compose push'
+                        )
+                    }
+                }
+            }
         }
 
         stage('Build (PRODUCTION)') {
