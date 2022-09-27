@@ -106,9 +106,7 @@ var _getProjectsV1 = function(req, res, next) {
     const PDB_DATABASE_NAME = config.projectDatabase.v1.databaseName;
 
     // Obtain username
-    const base64Credentials = req.headers.authorization.split(' ')[1];
-    const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-    var username = credentials.split(':')[0];
+    const username = req.session.user;
 
     // Create SQL statement
     const sql = `SELECT id AS projectNumber, projectName AS title FROM projects WHERE id in (SELECT project FROM acls WHERE user = "${username}" AND projectRole IN ("contributor", "manager"));`;
