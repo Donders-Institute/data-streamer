@@ -215,13 +215,15 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                   return cb_copy(null, true);
             }
 
-            // fail it if the free space of the project storage folder is lower than 1K.
+            // skip if the free space of the project storage folder is lower than 1K.
             freespace = utility.diskFree(ppath);
             if (  freespace < 1 ) {
-                errmsg = 'project storage freespace too low (' + freespace + 'K): ' + ppath;
+                errmsg = 'project storage freespace too low (' + freespace + 'K), skip: ' + ppath;
                 utility.printLog(job.id + ':MEG:execStreamerJob:copyToProjects', errmsg);
+                job.progress(minProgress+Math.round((++p_done)*(maxProgress-minProgress)/p_total), 100);
                 job.log(errmsg);
-                return cb_copy(errmsg, false);
+                // note: it should be skipped successfully to proceed with other prj_ds
+                return cb_copy(null, true);
             }
 
             // construct destination directories for ds dep. on the availability of sub-ses number
