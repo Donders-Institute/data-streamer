@@ -170,9 +170,9 @@ var _validateFile = function(req, res, next) {
         return next(createError(500, "Error obtaining project storage directory name"));
     }
 
-    if (!utils.dirExists(projectStorageDirname)) {
-        return next(createError(500, "Project storage directory not found"));
-    }    
+    if (!utils.dirExists(path.join(req.app.locals.STREAMER_UI_PROJECT_DIR, projectNumber))) {
+        return next(createError(500, "Project storage not found for " + projectNumber));
+    }
 
     // Obtain file attributes
     const filename = req.body.filename;
