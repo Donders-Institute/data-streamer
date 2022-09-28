@@ -43,7 +43,7 @@ services:
       - service
       - ui-db
   ui-db:
-    image: postgres:12
+    image: postgres:12-alpine
     environment:
       POSTGRES_HOST:
       POSTGRES_PORT:
