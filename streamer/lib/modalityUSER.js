@@ -329,7 +329,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 }
             }).on('error', function(err) {
                 utility.printErr(job.id + ':USER:execStreamerJob:submitStagerJob', err);
-                var errmsg = 'fail submitting stager jobs: ' + JSON.stringify(src_list);
+                var errmsg = 'fail submitting stager jobs: ' + err;
                 job.log(errmsg);
                 return cb_async(errmsg, false);
             });
