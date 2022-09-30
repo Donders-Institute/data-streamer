@@ -83,7 +83,7 @@ var _verifyFile = function(req, res, next) {
 var _begin = async function(req, res, next) {
 
     // Obtain the DCCN username
-    const username = req.session.user;
+    const username = req.user.username;
 
     // Obtain the user agent
     const userAgent = req.headers['user-agent'];
@@ -279,7 +279,7 @@ var _finalize = async function(req, res, next) {
 // Submit a streamer job
 var _submit = async function(req, res, next) {
     // Obtain user credentials
-    const streamerUser = req.session.user; // DCCN username
+    const streamerUser = req.user.username; // DCCN username
 
     // Verify username
     if (!streamerUser) {

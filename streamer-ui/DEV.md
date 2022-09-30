@@ -24,6 +24,9 @@ STREAMER_UI_CRON_VOL=./testdata/ui/cron
 STREAMER_UI_LOG_VOL=./testdata/ui/log
 
 # configuration for streamer ui
+STREAMER_UI_AUTH_SERVER=https://authserver
+STREAMER_UI_AUTH_CLIENT_ID=id
+STREAMER_UI_AUTH_CLIENT_SECRET=secret
 STREAMER_UI_PDB_VERSION=1
 STREAMER_UI_EXTERNAL_PORT=9000
 STREAMER_UI_BUFFER_DIR=./testdata/project/3055000.01/raw
@@ -84,28 +87,13 @@ The `client` code is structured into the following folders:
 * `scenes` (presentational parts, web pages, e.g. `Uploader`, `Help`)
 * `components` (reusable, logical parts, e.g. `Header`)
 * `services` (infrastructure parts, e,g `inputValidation`)
-* `types` (reusable constructs, e.g. `AuthStatus`)
+* `types` (reusable constructs, e.g. `UserProfile`)
 
 In turn, each scene can have its own `components`, `services`, and `types`.
 
 ### 2.2 Signing In and Signing Out
 
-Before the user can start uploading files, he/she is prompted with a login screen. 
-The user needs to fill in his/her DCCN user credentials.
-We use `authState` and `authErrorState` to keep track of the login stage. 
-
-The following stages exist:
-```
-NotLoggedIn (initial state)
-Selecting (user changes tsername and password)
-LoggingIn (attempt to redirect to upload page)
-LoggedIn (success)
-LoggingOut (redirect to login page)
-```
-The enum `AuthStatus` is used for this purpose. React hooks are used to update the `authState` when appropriate.
-If an exception occurs the `authErrorState` is set accordingly. An error modal is shown to the user.
-
-If `LoggedIn`, the upload page is shown.
+The user sign-in and sign-out workflow is using the OpenID Connect protocol, initiated by the service component (i.e. backend) of the streamer-ui.
 
 ### 2.3 Uploading
 

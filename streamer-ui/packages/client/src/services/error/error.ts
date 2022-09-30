@@ -5,8 +5,7 @@ import {
     ErrorState, 
     ErrorAction,
     initialErrorState,
-    UploadStatus,
-    AuthStatus
+    UploadStatus
 } from "../../types/types";
 
 // Set error state to no error
@@ -50,57 +49,6 @@ const updateError = async ({
 
     // Otherwise reset the error to no error
     return resetError(errorDispatch);
-};
-
-// Custom hook to update error state and auth state
-export const useUpdateAuthError = ({
-    error,
-    errorType,
-    errorDispatch,
-    authStatus
-} : {
-    error: Error | null;
-    errorType: ErrorType;
-    errorDispatch: Dispatch<ErrorAction>;
-    authStatus: AuthStatus;
-}) => {
-    const [busy, setBusy] = useState(false);
-
-    useEffect(() => {
-        let mounted = true;
-
-        // Check for error
-        const check = async (error: Error | null) => {
-            if (mounted) {
-                setBusy(true);
-            }
-
-            if (error) {
-                // Skip selection errors
-                if (authStatus !== AuthStatus.Selecting) {
-                    if (mounted) {
-                        // Update the error state
-                        await updateError({
-                            error,
-                            errorType,
-                            errorDispatch
-                        });
-                    }
-                }
-            } 
-
-            if (mounted) {
-                setBusy(false);
-            }
-        };
-        check(error);
-
-        return function cleanup() {
-            mounted = false;
-        };
-    }, [authStatus, error, errorType]);
-
-    return busy;
 };
 
 // Custom hook to update error state and upload state

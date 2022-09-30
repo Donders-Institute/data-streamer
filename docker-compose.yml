@@ -29,6 +29,9 @@ services:
       context: ./streamer-ui
     image: ${DOCKER_REGISTRY:-dccn}/streamer-ui:${DOCKER_IMAGE_TAG:-latest}
     environment:
+      STREAMER_UI_AUTH_SERVER:
+      STREAMER_UI_AUTH_CLIENT_ID:
+      STREAMER_UI_AUTH_CLIENT_SECRET:
       STREAMER_UI_PDB_VERSION:
       STREAMER_UI_EXTERNAL_PORT:
       STREAMER_UI_BUFFER_DIR:

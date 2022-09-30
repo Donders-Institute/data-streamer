@@ -1,13 +1,11 @@
-import React, { useContext } from "react";
+import React from "react";
 
 import {
     Row,
     Col,
     Button,
     Modal,
-    Icon,
-    Progress,
-    message
+    Progress
 } from "antd";
 
 import LoadingIcon from "../../../../components/LoadingIcon/LoadingIcon";
@@ -16,12 +14,8 @@ import {
     UploadState,
     UploadStatus,
     ErrorState,
-    ErrorType,
-    AuthActionType,
-    initialAuthState
+    ErrorType
 } from "../../../../types/types";
-import { signOut } from "../../../../services/auth/auth";
-import { AuthContext } from "../../../../services/auth/authContext";
 
 interface UploadModalProps {
     uploadState: UploadState;
@@ -92,8 +86,6 @@ const UploadModal: React.FC<UploadModalProps> = ({
     };
     const doneMessage = getDoneMessage(uploadState.status, hasUploadError);
 
-    const {state: authState, updateState: updateAuthState} = useContext(AuthContext);
-
     return (
         <Modal
             title={title}
@@ -103,38 +95,19 @@ const UploadModal: React.FC<UploadModalProps> = ({
                 <div key="buttons" style={{ height: "auto" }}>
                     <Row>
                         <Col span={24} style={{ textAlign: "right" }}>
-                            <Button
-                                type="primary"
-                                disabled={disableButtons}
-                                onClick={() => { handleUploadAnotherBatch(); }}
-                            >
-                                Upload another batch
-                            </Button>
-                            <Button
-                                disabled={disableButtons}
-                                onClick={() => {
-                                    const aborter = new AbortController();
-                                    signOut({
-                                        username: authState.userProfile.username,
-                                        password: authState.userProfile.password,
-                                        signal: aborter.signal,
-                                    }).then(_ => {
-                                        console.log("logout successful");
-                                    }).catch((err: Error) => {
-                                        message.error({
-                                            content: `logout failure: ${err.message}`
-                                        });
-                                    }).finally(() => {
-                                        updateAuthState && updateAuthState({
-                                            type: AuthActionType.NotSignedIn,
-                                            payload: initialAuthState,
-                                        });
-                                        aborter.abort();
-                                    });                                    
-                                }}
-                            >
-                                <Icon type="logout" /> Sign out
-                            </Button>
+                            <Button.Group>
+                                <Button
+                                    href=""
+                                    icon="upload"
+                                    type="primary"
+                                    disabled={disableButtons}
+                                    onClick={() => { handleUploadAnotherBatch(); }}>
+                                    Upload another batch
+                                </Button>
+                                <Button href="/logout" icon="logout" disabled={disableButtons}>
+                                    Sign out
+                                </Button>
+                            </Button.Group>
                         </Col>
                     </Row>
                 </div >

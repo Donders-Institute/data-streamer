@@ -7,22 +7,18 @@ import {
     Col,
     Icon,
     Menu,
-    Tooltip,
-    message
+    Tooltip
 } from "antd";
-
-import { AuthActionType, AuthStatus, initialAuthState } from "../../types/types";
 
 import "../../app/App.less";
 import logoDCCN from "../../assets/donders-logo.svg";
-import { AuthContext } from "../../services/auth/authContext";
-import { signOut } from "../../services/auth/auth";
+import { AuthContext } from "../../services/auth/auth";
 
 const { SubMenu } = Menu;
 
 const Header: React.FC = () => {
 
-    const {state: authState, updateState: updateAuthState} = useContext(AuthContext);
+    const {profile} = useContext(AuthContext);
 
     return (
         <React.Fragment>
@@ -52,61 +48,42 @@ const Header: React.FC = () => {
                                 </Menu.Item>
                             </Menu>
                         </Col>
-                        { 
-                            authState.status === AuthStatus.LoggedIn &&
-                            <Col>
-                                <Menu
-                                    className="App-header-menu"
-                                    theme="dark"
-                                    mode="horizontal"
-                                    selectedKeys={[]}>
-                                    <Menu.Item key="help">
-                                        <Tooltip
-                                            placement="bottomLeft"
-                                            title="Click here for help how to use the research data uploader">
-                                            <Link to="/help">
-                                                <span style={{ fontWeight: "bold" }}>
-                                                    HELP
-                                                    </span>
-                                            </Link>
-                                        </Tooltip>
-                                    </Menu.Item>
+                        <Col>
+                            <Menu
+                                className="App-header-menu"
+                                theme="dark"
+                                mode="horizontal"
+                                selectedKeys={[]}>
+                                <Menu.Item key="help">
+                                    <Tooltip
+                                        placement="bottomLeft"
+                                        title="Click here for help how to use the research data uploader">
+                                        <Link to="/help">
+                                            <span style={{ fontWeight: "bold" }}>HELP</span>
+                                        </Link>
+                                    </Tooltip>
+                                </Menu.Item>
+                                {
+                                    profile &&
                                     <SubMenu
                                         key="profile"
                                         title={
-                                            <span>
-                                                <Icon type="user" style={{ marginRight: "4px" }} /><span>{authState.userProfile.username}</span><Icon type="caret-down" style={{ margin: "0px" }} />
-                                            </span>
+                                            <>
+                                                <Icon type="user" style={{ marginRight: "4px" }}/>
+                                                <span>{profile.displayName}</span>
+                                                <Icon type="caret-down" style={{ margin: "0px" }} />
+                                            </>
                                         }
                                         style={{ float: "right", margin: "0px 0px 0px 0px" }}>
                                         <Menu.Item key="auth">
-                                            <a onClick={() => {
-                                                const aborter = new AbortController();
-                                                signOut({
-                                                    username: authState.userProfile.username,
-                                                    password: authState.userProfile.password,
-                                                    signal: aborter.signal,
-                                                }).then(_ => {
-                                                    console.log("logout successful");
-                                                }).catch((err: Error) => {
-                                                    message.error({
-                                                        content: `logout failure: ${err.message}`
-                                                    })
-                                                }).finally(() => {
-                                                    updateAuthState && updateAuthState({
-                                                        type: AuthActionType.NotSignedIn,
-                                                        payload: initialAuthState,
-                                                    });
-                                                    aborter.abort();
-                                                });
-                                            }}>
-                                                <Icon type="logout"/> <span><strong>Sign out</strong></span>
+                                            <a href="/logout">
+                                                <Icon type="logout"/><strong>Sign out</strong>
                                             </a>
                                         </Menu.Item>
                                     </SubMenu>
-                                </Menu>
-                            </Col>
-                        }
+                                }
+                            </Menu>
+                        </Col>
                     </Row>
                 </Layout.Header>
             </Layout>

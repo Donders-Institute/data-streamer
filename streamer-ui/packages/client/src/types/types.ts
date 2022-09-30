@@ -1,19 +1,8 @@
 import { WrappedFormUtils } from "antd/lib/form/Form";
 
-// Possible login statuses
-export enum AuthStatus {
-    NotLoggedIn = "NotLoggedIn",
-    Selecting = "Selecting",
-    LoggingIn = "LoggingIn",
-    LoggedIn = "LoggedIn",
-    LoggingOut = "LoggingOut"
-};
-
 export type UserProfile = {
     username: string;
-    displayName: string | null;
-    password: string;
-    isAuthenticated: boolean;
+    displayName: string;
 };
 
 // Get projects query element
@@ -66,9 +55,14 @@ export interface StagerResult {
     collName: string;
 };
 
+export interface ProfileResult {
+    id: string;
+    name: string;
+}
+
 export interface ServerResponse {
     error: string | null;
-    data: string | BeginResult | ProjectsResult | ValidateFileResult | AddFileResult | FinalizeResult | SubmitResult | StagerResult | null;
+    data: string | BeginResult | ProjectsResult | ValidateFileResult | AddFileResult | FinalizeResult | SubmitResult | StagerResult | ProfileResult | null;
 };
 
 export interface ValidationResult {
@@ -186,9 +180,7 @@ export interface UploadAction {
 
 export const initialUserProfile = {
     username: "",
-    displayName: null as string| null,
-    password: "",
-    isAuthenticated: false
+    displayName: "",
 }as UserProfile;
 
 export const initialFilesSelection = {
@@ -251,31 +243,3 @@ export const initialErrorState = {
     errorType: ErrorType.NoError,
     errorMessage: ""
 } as ErrorState;
-
-// Auth
-export interface AuthState {
-    userProfile: UserProfile;
-    status: AuthStatus;
-    isValidSelection: boolean;
-    isAuthenticated: boolean;
-};
-
-export enum AuthActionType {
-    NotSignedIn = "NotSignedIn",
-    Selecting = "Selecting",
-    SigningIn = "SigningIn",
-    SignedIn = "SignedIn",
-    SigningOut = "SigningOut"
-};
-
-export interface AuthAction {
-    type: AuthActionType;
-    payload: AuthState;
-};
-
-export const initialAuthState = {
-    userProfile: {...initialUserProfile},
-    status: AuthStatus.NotLoggedIn,
-    isValidSelection: false,
-    isAuthenticated: false
-} as AuthState;

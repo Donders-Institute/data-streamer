@@ -1,69 +1,62 @@
-import React, { useReducer } from "react";
-import { withRouter, RouteComponentProps } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 
 import {
-    AuthStatus,
-    AuthState,
-    AuthAction,
-    AuthActionType,
-    initialAuthState
+    ProfileResult, UserProfile
 } from "../types/types";
 
 import AppLoggedIn from "./AppLoggedIn";
 
 import "./App.less";
-import { AuthContext } from "../services/auth/authContext";
+import { AuthContext, getProfile } from "../services/auth/auth";
+import LoadingIcon from "../components/LoadingIcon/LoadingIcon";
 import Login from "../scenes/Login/Login";
+import { Route, Switch } from "react-router-dom";
+import ErrorPage from "../scenes/ErrorPage/ErrorPage";
+import { Layout } from "antd";
+import Header from "../components/Header/Header";
+import Help from "../scenes/Help/Help";
 
-type AppProps = RouteComponentProps;
+const { Content } = Layout;
 
-function authReducer(_: AuthState, action: AuthAction) {
-    switch (action.type) {
-        case AuthActionType.NotSignedIn:
-            return initialAuthState;
-        case AuthActionType.Selecting:
-            return {
-                ...(action.payload),
-                status: AuthStatus.Selecting
-            };
-        case AuthActionType.SigningIn:
-            return {
-                ...(action.payload),
-                status: AuthStatus.LoggingIn
-            };
-        case AuthActionType.SignedIn:
-            return {
-                ...(action.payload),
-                status: AuthStatus.LoggedIn
-            };
-        case AuthActionType.SigningOut:
-            return {
-                ...(action.payload),
-                status: AuthStatus.LoggingOut
-            };
-    }
-};
+const App: React.FC = () => {
 
-const App: React.FC<AppProps> = () => {
-
-    // Book keeping of auth state
-    const [authState, authDispatch] = useReducer(authReducer, initialAuthState);
+    const [profile, setProfile] = useState(null as UserProfile | null);
+    const [isLoaded, setIsLoaded] = useState(false);
+    
+    // try to get user profile
+    useEffect(() => {
+        getProfile().then(result => {
+            result && result.data &&
+            setProfile({
+                username: (result.data as ProfileResult).id,
+                displayName: (result.data as ProfileResult).name
+            });
+        }).catch( (err: Error) => {
+            console.log(err);
+        }).finally(() => {
+            setIsLoaded(true);
+        })
+    }, []);
 
     // determin page component based on the `authState.status`
     const content = () => {
-        switch (authState.status) {
-            case AuthStatus.LoggedIn:
-                return <AppLoggedIn/>;
-            default:
-                return <Login/>;
-        }
+        return profile && <AppLoggedIn/> || <Login/>;
     };
 
     return (
-        <AuthContext.Provider value={{state: authState, updateState: authDispatch}}>
-            { content() }
+        <AuthContext.Provider value={{profile: profile}}>
+            <Header/>
+            <Content style={{ background: "#f0f2f5" }}>
+                <Switch>
+                    <Route path="/" exact={true} render={() => isLoaded && content() || <LoadingIcon/>}/>
+                    <Route path="/help" exact={true} render={() => <Help/>}/>
+                    <Route path="/403" exact={true} render={() => <ErrorPage status={403} message="Sorry! You are not unauthorized for this application."/>}/>
+                    <Route path="/500" exact={true} render={() => <ErrorPage status={500} message="Oops! There are unexpected service errors."/>}/>
+                    <Route render={() => <ErrorPage status={404} message="Sorry! Page not found."/>}/>
+                </Switch>
+            </Content>
         </AuthContext.Provider>
     );
 };
 
-export default withRouter(App);
+export default App;

@@ -12,9 +12,6 @@
             "databaseName": "database"
         },
         "v2": {
-            "authServerUrl": "https://authserver",
-            "authClientId": "id",
-            "authClientSecret": "secret",
             "coreApiUrl": "https://coreapi"
         }
     },

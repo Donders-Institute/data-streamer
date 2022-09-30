@@ -9,14 +9,10 @@ const logger = require("morgan");
 const path = require("path");
 require('log-timestamp');
 require('dotenv').config();
+var passport = require('passport');
 
-const auth = require("./routes/auth");
-const content = require("./routes/content");
-const pdb = require("./routes/pdb");
-const formData = require("./routes/formData");
-const upload = require("./routes/upload");
-const admin = require("./routes/admin");
-const stager = require("./routes/stager");
+var authRouter = require('./routes/oidc');
+var apiRouter = require('./routes/api');
 
 var app = express();
 
@@ -106,102 +102,26 @@ app.use(session({
 app.use(express.json());
 app.use(cookieParser());
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+// OIDC auth router
+app.use('/', authRouter);
+
+// API interface router
+app.use('/api', apiRouter);
+
+// Serve static files
 if ( ! (app.locals.ENV === "development") ) {
     app.use(express.static(path.join(__dirname, 'frontend')));
 }
 
-// GET Serve frontend home page
-app.get('/',
-    auth.isAuthenticated,
+// Serve frontend SPA for all other endpoints
+app.get('*',
     (_, res) => {
         res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
-    });
-
-// GET Serve login page
-app.get('/login',
-    (_, res) => {
-        res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
-    });
-
-// POST Login for regular user
-app.post('/api/login',
-    auth.hasBasicAuthHeader,
-    content.hasJson,
-    auth.loginUser);
-
-// POST Logout for regular user
-app.post('/api/logout',
-    content.hasJson,
-    auth.logoutUser);
-
-// GET Obtain list of projects for regular user
-app.get('/api/projects',
-    auth.isAuthenticated,
-    pdb.getProjects);
-
-// GET Obtain the destinating DAC namespace in the Repository through the Stager's API: /rdm/DAC/project/{projectId}.
-app.get('/api/stager/dac/:projectId',
-    auth.isAuthenticated,
-    stager.getDac);
-
-// POST Begin upload session for regular user, obtain an upload session id
-app.post('/api/upload/begin',
-    auth.isAuthenticated,
-    content.hasJson,
-    upload.verifyStructure,
-    upload.begin);
-
-// POST Validate file for upload session for regular user
-app.post('/api/upload/validatefile',
-    auth.isAuthenticated,
-    formData.processValidateFile,
-    upload.verifyUploadSessionId,
-    upload.verifyStructure,
-    upload.verifyFile,
-    upload.validateFile);
-
-// POST Add file to upload session for regular user
-app.post('/api/upload/addfile',
-    auth.isAuthenticated,
-    formData.processAddFile,
-    upload.verifyUploadSessionId,
-    upload.verifyStructure,
-    upload.verifyFile,
-    upload.addFile);
-
-// POST Finalize upload session for regular user
-app.post('/api/upload/finalize',
-    auth.isAuthenticated,
-    content.hasJson,
-    upload.verifyUploadSessionId,
-    upload.finalize);
-
-// POST Submit a streamer job for regular user
-app.post('/api/upload/submit',
-    auth.isAuthenticated,
-    content.hasJson,
-    upload.verifyUploadSessionId,
-    upload.verifyStructure,
-    upload.submit);
-
-// POST Purge old data in the database tables for admin user
-app.post('/api/purge',
-    auth.hasBasicAuthHeader,
-    auth.verifyAdminCredentials,
-    content.hasJson,
-    admin.purgeOld);
-
-// POST Purge all data in the database tables for admin user
-app.post('/api/purge/all',
-    auth.hasBasicAuthHeader,
-    auth.verifyAdminCredentials,
-    content.hasJson,
-    admin.purgeAll);
-
-// Catch 404 and forward to error handler
-app.use(function (req, res, next) {
-    next(createError(404));
-});
+    }
+);
 
 // Error handler
 // No stacktraces leaked to user

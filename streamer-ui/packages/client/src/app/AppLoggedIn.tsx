@@ -1,8 +1,5 @@
 import React, { useReducer, useState, useEffect, useContext } from "react";
-import { Switch, Route } from "react-router-dom";
-
 import Uploader from "../scenes/Uploader/scenes/Uploader/Uploader";
-import Help from "../scenes/Help/Help";
 
 import {
     RcFile,
@@ -18,8 +15,6 @@ import {
     ErrorType,
     initialErrorState
 } from "../types/types";
-
-import { useFetchProjects } from "../services/pdb/pdb";
 
 import {
     maxFileSizeLimitBytes,
@@ -42,7 +37,7 @@ import {
 } from "../services/error/error";
 
 import "./App.less";
-import { AuthContext } from "../services/auth/authContext";
+import { AuthContext } from "../services/auth/auth";
 
 function uploadReducer(state: UploadState, action: UploadAction) {
     switch (action.type) {
@@ -103,27 +98,13 @@ function errorReducer(state: ErrorState, action: ErrorAction) {
 
 const AppLoggedIn: React.FC = () => {
 
-    const {state: authState } = useContext(AuthContext);
+    const {profile} = useContext(AuthContext);
 
     // Book keeping of upload state
     const [uploadState, uploadDispatch] = useReducer(uploadReducer, initialUploadState);
 
     // Book keeping of error state
     const [errorState, errorDispatch] = useReducer(errorReducer, initialErrorState);
-
-    // List of available projects for user
-    const [projectList, errorLoadingProjectList, isLoadingProjectList] = useFetchProjects({
-        checkUploadStatus: UploadStatus.NotUploading,
-        userProfile: authState.userProfile,
-        uploadState
-    });
-
-    useUpdateError({
-        error: errorLoadingProjectList,
-        errorType: ErrorType.ErrorLoadingProjectList,
-        errorDispatch,
-        uploadStatus: uploadState.status
-    });
 
     // Book keeping of validation of selected files batch
     const [errorFilesSelect, setErrorFilesSelect] = useState(null as Error | null);
@@ -314,6 +295,9 @@ const AppLoggedIn: React.FC = () => {
 
     // Clear the file list. Set stage to select.
     const handleResetFileList = () => {
+
+        console.log("handle reset file list: ", uploadState);
+
         return uploadDispatch({
             type: UploadActionType.Select,
             payload: {
@@ -488,8 +472,12 @@ const AppLoggedIn: React.FC = () => {
             // Keep projectList, projectNumber, subject, session, dataType, etc.
             // but refresh the filelist.
             // Set stage to select.
+
+            console.log("check 1");
+
             return handleResetFileList();
         } else {
+            console.log("check 2");
             // Otherwise finish it
             return uploadDispatch({
                 type: UploadActionType.Finish,
@@ -498,37 +486,28 @@ const AppLoggedIn: React.FC = () => {
         }
     };
 
+    useEffect(() => {
+        console.log(uploadState);
+    }, [uploadState])
+
     return (
-        <Switch>
-            <Route
-                path="/"
-                exact={true}
-                render={() =>
-                    <Uploader
-                        projectList={projectList}
-                        isLoadingProjectList={isLoadingProjectList}
-                        uploadState={uploadState}
-                        uploadDispatch={uploadDispatch}
-                        errorState={errorState}
-                        handleRemoveSelectedFile={handleRemoveSelectedFile}
-                        handleResetFileList={handleResetFileList}
-                        handleFilesSelection={handleFilesSelection}
-                        enableUploadButton={enableUploadButton}
-                        handleInitiateUpload={handleInitiateUpload}
-                        handleUploadAnotherBatch={handleUploadAnotherBatch}
-                        showUploadModal={showUploadModal}
-                        existingFiles={existingFiles}
-                        showConfirmModal={showConfirmModal}
-                        handleCancelConfirmModal={handleCancelConfirmModal}
-                        handleOkConfirmModal={handleOkConfirmModal}
-                        showErrorModal={showErrorModal}
-                        handleOkErrorModal={handleOkErrorModal}/>
-                }/>
-            <Route
-                path="/help"
-                exact={true}
-                render={() => <Help/>}/>
-        </Switch>
+        <Uploader
+            uploadState={uploadState}
+            uploadDispatch={uploadDispatch}
+            errorState={errorState}
+            handleRemoveSelectedFile={handleRemoveSelectedFile}
+            handleResetFileList={handleResetFileList}
+            handleFilesSelection={handleFilesSelection}
+            enableUploadButton={enableUploadButton}
+            handleInitiateUpload={handleInitiateUpload}
+            handleUploadAnotherBatch={handleUploadAnotherBatch}
+            showUploadModal={showUploadModal}
+            existingFiles={existingFiles}
+            showConfirmModal={showConfirmModal}
+            handleCancelConfirmModal={handleCancelConfirmModal}
+            handleOkConfirmModal={handleOkConfirmModal}
+            showErrorModal={showErrorModal}
+            handleOkErrorModal={handleOkErrorModal}/>
     );
 };
 
