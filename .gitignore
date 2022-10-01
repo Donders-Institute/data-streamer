@@ -2,3 +2,4 @@
 **/node_modules/
 testdata/*
 **/.env
+**/config/*.json
