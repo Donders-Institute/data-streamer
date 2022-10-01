@@ -18,7 +18,7 @@ passport.use('oidc', new OidcStrategy({
     userInfoURL: authServer + '/connect/userinfo',
     clientID: process.env.STREAMER_UI_AUTH_CLIENT_ID,
     clientSecret: process.env.STREAMER_UI_AUTH_CLIENT_SECRET,
-    callbackURL: '/callback',
+    callbackURL: '/oidc/callback',
     scope: ["openid", "profile", "urn:dccn:identity:uid", "urn:dccn:pdb:core-api:query"],
 }, (_issuer, _profile, _context, idToken, accessToken, _refreshToken, verified) => {
     Issuer.discover(authServer).then((issuer) => {

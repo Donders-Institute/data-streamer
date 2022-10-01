@@ -27,7 +27,7 @@ const Login: React.FC = () => {
                     <p>Its purpose is to upload files from a PC to 1) your project folder on central storage and
                     2) to the Donders Repository. The destination follows a standardized folder structure.</p>
                     <Button
-                        href="/login"
+                        href="/oidc/login"
                         className="login-form-button"
                         type="primary"
                         htmlType="submit">

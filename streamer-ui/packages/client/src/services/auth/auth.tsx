@@ -7,7 +7,7 @@ import { initialUserProfile, UserProfile } from "../../types/types";
 // call `/profile` to get the user profile
 export async function getProfile() {
 
-    const url = "/profile";
+    const url = "/oidc/profile";
     try {
         const result = await fetchRetry({
             url,

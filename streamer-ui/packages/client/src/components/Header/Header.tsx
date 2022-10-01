@@ -76,7 +76,7 @@ const Header: React.FC = () => {
                                         }
                                         style={{ float: "right", margin: "0px 0px 0px 0px" }}>
                                         <Menu.Item key="auth">
-                                            <a href="/logout">
+                                            <a href="/oidc/logout">
                                                 <Icon type="logout"/><strong>Sign out</strong>
                                             </a>
                                         </Menu.Item>

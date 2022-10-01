@@ -106,7 +106,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // OIDC auth router
-app.use('/', authRouter);
+app.use('/oidc', authRouter);
 
 // API interface router
 app.use('/api', apiRouter);

@@ -1,3 +1,4 @@
 **/testdata/
 **/node_modules/
 testdata/*
+**/.env
