@@ -90,14 +90,6 @@ pipeline {
                     sh 'docker secret rm streamer-ui-config.json || true'
                     sh 'docker secret create streamer-ui-config.json $STREAMER_UI_CONFIG'
                 }
-                configFileProvider([configFile(fileId: 'streamer_ui_adconfig.json', variable: 'STREAMER_UI_ADCONFIG')]) {
-                    sh 'docker secret rm streamer-ui-adconfig.json || true'
-                    sh 'docker secret create streamer-ui-adconfig.json $STREAMER_UI_ADCONFIG'
-                }
-                configFileProvider([configFile(fileId: 'streamer_ui_ldapscert.crt', variable: 'STREAMER_UI_LDAPSCERT')]) {
-                    sh 'docker secret rm streamer-ui-ldapscert.crt || true'
-                    sh 'docker secret create streamer-ui-ldapscert.crt $STREAMER_UI_LDAPSCERT'
-                }
 
                 withCredentials([
                     usernamePassword (

@@ -22,8 +22,6 @@ services:
     environment:
       # provides configuration files from docker secrets
       - STREAMER_UI_CONFIG=/run/secrets/streamer-ui-config.json
-      - STREAMER_UI_ADCONFIG=/run/secrets/streamer-ui-adconfig.json
-      - STREAMER_UI_LDAPSCERT=/run/secrets/streamer-ui-ldapscert.crt
       - STREAMER_SERVICE_CONFIG=/run/secrets/streamer-service-config.json
     networks:
       default:
