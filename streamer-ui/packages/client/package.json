@@ -4,7 +4,7 @@
   "private": true,
   "license": "MIT",
   "dependencies": {
-    "antd": "^3.23.6",
+    "antd": "^3.26.19",
     "http-proxy-middleware": "^2.0.6",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
