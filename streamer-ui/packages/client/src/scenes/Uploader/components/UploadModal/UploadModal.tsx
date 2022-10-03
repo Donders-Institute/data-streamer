@@ -97,7 +97,6 @@ const UploadModal: React.FC<UploadModalProps> = ({
                         <Col span={24} style={{ textAlign: "right" }}>
                             <Button.Group>
                                 <Button
-                                    href=""
                                     icon="upload"
                                     type="primary"
                                     disabled={disableButtons}
