@@ -295,9 +295,6 @@ const AppLoggedIn: React.FC = () => {
 
     // Clear the file list. Set stage to select.
     const handleResetFileList = () => {
-
-        console.log("handle reset file list: ", uploadState);
-
         return uploadDispatch({
             type: UploadActionType.Select,
             payload: {
@@ -472,12 +469,8 @@ const AppLoggedIn: React.FC = () => {
             // Keep projectList, projectNumber, subject, session, dataType, etc.
             // but refresh the filelist.
             // Set stage to select.
-
-            console.log("check 1");
-
             return handleResetFileList();
         } else {
-            console.log("check 2");
             // Otherwise finish it
             return uploadDispatch({
                 type: UploadActionType.Finish,
