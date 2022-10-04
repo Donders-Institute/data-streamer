@@ -103,7 +103,10 @@ const UploadModal: React.FC<UploadModalProps> = ({
                                     onClick={() => { handleUploadAnotherBatch(); }}>
                                     Upload another batch
                                 </Button>
-                                <Button href="/oidc/logout" icon="logout" disabled={disableButtons}>
+                                <Button 
+                                    icon="logout"
+                                    disabled={disableButtons}
+                                    onClick={() => { location.href="/oidc/logout"; }}>
                                     Sign out
                                 </Button>
                             </Button.Group>
