@@ -49,6 +49,17 @@ passport.deserializeUser(function(user, cb) {
     return cb(null, user);
 });
 
+/**
+ * Reconstructs the original URL of the request.
+ * 
+ * This code is inspired by https://github.com/jaredhanson/passport-openidconnect/blob/fee0639a75235e8cce4597d6a87c9f1bcb3cdb8e/lib/utils.js#L17
+ */
+ const logoutRedirectUrl = function(req) {
+    const host = req.headers['x-forwarded-host'] || req.get('host');
+    const tls  = req.connection.encrypted || ('https' == (req.headers['x-forwarded-proto'] || "").toLowerCase().split(/\s*,\s*/)[0]);
+    return (tls ? 'https':'http') + "://" + host;
+};
+
 var router = express.Router();
 
 // endpoint to trigger OIDC login workflow
@@ -73,7 +84,7 @@ router.get('/logout',
             // redirect browser to the end_session_endpoint of the OIDC provider
             res.redirect(process.env.STREAMER_UI_AUTH_SERVER + 
                 "/connect/endsession?id_token_hint=" + id_token_hint + 
-                "&post_logout_redirect_uri=" + req.protocol + '://' + req.get('host'));
+                "&post_logout_redirect_uri=" + logoutRedirectUrl(req));
         });
 });
 
