@@ -1,8 +1,14 @@
 const createError = require("http-errors");
 
-// Middleware to verify session authentication status
-var _isAuthenticated = function(req, res, next) {
-    if (req.user) {
+/**
+ * Middleware to verify session authentication status
+ *
+ * When using the OIDC, we expect a valid `req.user` in
+ * an authenticated session.
+ * 
+ */
+const _isAuthenticated = function(req, res, next) {
+    if (req.user && req.user.validUntil > (Date.now()/1000)) {
         return next();
     }
     res.status(401).json({

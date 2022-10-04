@@ -19,22 +19,31 @@ passport.use('oidc', new OidcStrategy({
     clientID: process.env.STREAMER_UI_AUTH_CLIENT_ID,
     clientSecret: process.env.STREAMER_UI_AUTH_CLIENT_SECRET,
     callbackURL: '/oidc/callback',
+    skipUserProfile: true,  // we are going to get user profile ourselves.
     proxy: true,
     scope: ["openid", "profile", "urn:dccn:identity:uid", "urn:dccn:pdb:core-api:query"],
 }, (_issuer, _profile, _context, idToken, accessToken, _refreshToken, verified) => {
+
+    // extract idToken's payload (for the expieration time)
+    const payload = Buffer.from(idToken.split('.')[1], 'base64').toString();
+    const claims = JSON.parse(payload);
+
+    // getting user profile, and check if the profile contains 'urn:dccn:uid' attribute.
     Issuer.discover(authServer).then((issuer) => {
         new issuer.Client({
             client_id: process.env.STREAMER_UI_AUTH_CLIENT_ID,
         }).userinfo(accessToken).then(profile => {
             // only user with DCCN account is authorized??
-            if ( ! profile['urn:dccn:uid'] ) throw new Error("Unauthorized user: " + _profile.id);
+            if ( ! profile['urn:dccn:uid'] ) throw new Error("missing DCCN account: " + _profile.id);
             return verified(null, {
                 id_token: idToken,
                 token: accessToken,
                 username: profile['urn:dccn:uid'],
-                displayName: profile.name
+                displayName: profile.name,
+                validUntil: claims.exp
             });
         }).catch(err => {
+            console.error(err);
             return verified(null, false);
         });
     });
@@ -54,7 +63,7 @@ passport.deserializeUser(function(user, cb) {
  * 
  * This code is inspired by https://github.com/jaredhanson/passport-openidconnect/blob/fee0639a75235e8cce4597d6a87c9f1bcb3cdb8e/lib/utils.js#L17
  */
- const logoutRedirectUrl = function(req) {
+const logoutRedirectUrl = function(req) {
     const host = req.headers['x-forwarded-host'] || req.get('host');
     const tls  = req.connection.encrypted || ('https' == (req.headers['x-forwarded-proto'] || "").toLowerCase().split(/\s*,\s*/)[0]);
     return (tls ? 'https':'http') + "://" + host;
