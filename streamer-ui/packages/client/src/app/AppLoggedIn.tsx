@@ -486,10 +486,6 @@ const AppLoggedIn: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        console.log(uploadState);
-    }, [uploadState])
-
     return (
         <Uploader
             uploadState={uploadState}
