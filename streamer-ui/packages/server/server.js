@@ -4,7 +4,6 @@ const session = require('express-session');
 const pg = require('pg');
 const pgSession = require('connect-pg-simple')(session);
 const cookieParser = require("cookie-parser");
-const cors = require("cors");
 const logger = require("morgan");
 const path = require("path");
 require('log-timestamp');
@@ -36,35 +35,6 @@ app.locals.STREAMER_UI_DB_NAME = process.env.STREAMER_UI_DB_NAME || "postgres";
 app.locals.STREAMER_UI_DEBUG = process.env.STREAMER_UI_DEBUG ? (process.env.STREAMER_UI_DEBUG === 'true') : false;
 
 app.use(logger('[:date[iso]] :method :url'));
-
-// CORS configuration 
-let whitelist = [];
-if (app.locals.ENV === "development") {
-    whitelist = [
-        `http://${app.locals.STREAMER_URL_PREFIX}`,
-        `http://${app.locals.HOST}:${app.locals.PORT}`, // streamer ui server
-        `http://localhost:${app.locals.PORT}`,
-        `http://${app.locals.HOST}:3000`, // streamer ui client
-        "http://localhost:3000"
-    ];
-}
-else {
-    whitelist = [
-        `http://${app.locals.STREAMER_URL_PREFIX}`,
-        `http://ui:${app.locals.PORT}`,
-        `https://ui:${app.locals.PORT}`,
-        `http://${app.locals.HOST}:${app.locals.PORT}`,
-        `https://${app.locals.HOST}:${app.locals.PORT}`,
-        "https://streamer-acc.dccn.nl",
-        "https://uploader-acc.dccn.nl",
-        "https://uploader.dccn.nl"
-    ];
-}
-const corsOptions = {
-    origin: whitelist,
-    credentials: true
-};
-app.use(cors(corsOptions));
 
 // session property
 //  - rolling expiration upon access
