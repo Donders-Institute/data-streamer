@@ -419,7 +419,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                                   'rdmUser': 'irods',
                                   'title': '[' + (new Date()).toISOString() + '] Streamer.MEG: ' + path.basename(src_list[i]),
                                   'timeout': 3600,
-                                  'timeout_noprogress': 600,
+                                  'timeout_noprogress': 1800,
                                   'srcURL': src_list[i],
                                   'dstURL': dst_list[i] },
                         'options': { 'attempts': 5,
