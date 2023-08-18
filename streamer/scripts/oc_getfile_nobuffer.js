@@ -90,7 +90,7 @@ function(cb) {
 });
 
 setInterval( function() {
-    // force garbadge collection
+    // force garbage collection
     global.gc();
     console.log(JSON.stringify(process.memoryUsage()));
 }, 1000 );
