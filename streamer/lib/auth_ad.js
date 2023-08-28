@@ -5,7 +5,7 @@ var utility = require('./utility');
 
 var _basicAuthAD = function(req, res, next) {
 
-    // simple authentication aganist ActiveDirectory
+    // simple authentication against ActiveDirectory
     var ad = new ActiveDirectory(config.get('ActiveDirectory'));
     var user = auth(req);
 

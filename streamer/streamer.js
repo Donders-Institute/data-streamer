@@ -259,7 +259,7 @@ if ( cluster.isWorker ) {
 
     var jid_tbr = '';
 
-    // a worker lable indicating whether the worker is busy on a job
+    // a worker label indicating whether the worker is busy on a job
     var isBusy = false;
 
     // message handling when the worker receives message from the master
@@ -323,7 +323,7 @@ if ( cluster.isWorker ) {
     });
 
     setInterval( function() {
-        // force garbadge collection
+        // force garbage collection
         gc();
         //console.log( "mem report, " + ((isBusy)?"busy worker ":"idle worker ") + cluster.worker.id + ": " + JSON.stringify(process.memoryUsage()) );
     }, 60*1000 );

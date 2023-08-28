@@ -106,7 +106,7 @@ var _getProjectsV1 = function(req, res, next) {
         con.query(sql, function (err, results) {
             if (err) {
                 con.end();
-                return next(createError(500, err.messsage));
+                return next(createError(500, err.message));
             } else {
                 con.end();
                 // Success

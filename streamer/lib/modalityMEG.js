@@ -472,7 +472,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
         });
     }
 
-    // here are logical steps run in sequencial order
+    // here are logical steps run in sequential order
     var i = 0;
     async.waterfall([
         function(cb) {

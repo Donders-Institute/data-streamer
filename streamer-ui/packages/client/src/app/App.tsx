@@ -38,7 +38,7 @@ const App: React.FC = () => {
         })
     }, []);
 
-    // determin page component based on the `authState.status`
+    // determine page component based on the `authState.status`
     const content = () => {
         return profile && <AppLoggedIn/> || <Login/>;
     };

@@ -108,7 +108,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                         if ( data['MainDicomTags']['StudyDescription'] ) {
                             sinfo['studyDescription'] = data['MainDicomTags']['StudyDescription'];
                         } else {
-                            // mimicing the studyDescription using RequestedProcedureDescription
+                            // mimicking the studyDescription using RequestedProcedureDescription
                             sinfo['studyDescription'] = data['MainDicomTags']['RequestedProcedureDescription'];
                         }
 
@@ -163,7 +163,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                     }
                 } else {
                     if (m) {
-                        // directory strucutre for an expected patientId convention
+                        // directory structure for an expected patientId convention
                         baseDir = '/project/' + m[1] + '/raw/' +
                                   m[2] + '/' + sinfo['studyId'] + '/' +
                                   ('0000' + sinfo['seriesNumber']).slice(-3) + '-' +
@@ -218,7 +218,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                                         ('0000000' + data['MainDicomTags']['InstanceNumber']).slice(-5) +
                                         '_' + data['MainDicomTags']['SOPInstanceUID'] + '.IMA';
                             // get data from Orthanc and write to the filename
-                            // /* method 1: using the build-in http client */
+                            // /* method 1: using the built-in http client */
                             // var f = fs.createWriteStream(f_dcm);
                             // 
                             // f.on('error', function(err) {
@@ -450,7 +450,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
         });
     }
 
-    // here are logical steps run in sequencial order
+    // here are logical steps run in sequential order
     async.waterfall([
         function(cb) {
             // get all instances of a the series to MRI service project storage

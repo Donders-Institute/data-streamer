@@ -114,6 +114,6 @@ In addition, `errorState` is used to capture any exception that might occur. An 
 
 After the user has selected files, he/she selects the appropriate project, sets the subject label and session label, and selects the data type. If the data type is not in the list of allowed data types, the user can select "other" and set this value.
 
-When satisfied, the upload button can be pressed and an upload session is inititated. The upload modal is shown with the upload progress. After the initiating stage, each file that is to be uploaded is validated. Might any of the files already exist in the destination folder, then the user is prompted with a confirmation modal. If the user approves and presses the OK button, the actual upload is started. The files are transferred to the streamer UI buffer directory. When this operation was succesful, the upload session is finalized.
+When satisfied, the upload button can be pressed and an upload session is inititated. The upload modal is shown with the upload progress. After the initiating stage, each file that is to be uploaded is validated. Might any of the files already exist in the destination folder, then the user is prompted with a confirmation modal. If the user approves and presses the OK button, the actual upload is started. The files are transferred to the streamer UI buffer directory. When this operation was successful, the upload session is finalized.
 
 A submit request is sent to the `service` which queues a streamer job. After some delay, an e-mail will be sent to the user with the result.
