@@ -30,7 +30,7 @@ var _getProjectsV2 = function(req, res, next) {
     // GraphQL query to get user's projects
     const query = gql`
     query GetUser($username: ID!) {
-        user(username: $username) {
+        user(id: $username) {
             username
             projects {
                 role
