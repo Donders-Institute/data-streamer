@@ -15,7 +15,7 @@ RUN yarn build
 # Create the server
 FROM node:16
 ENV NODE_ENV production
-RUN apt-get update && apt-get install -y cron curl supervisor
+RUN ulimit -n 1024 && apt-get update && apt-get install -y cron curl supervisor
 WORKDIR /opt/streamer-ui-server
 COPY $pwd/packages/server/package.json ./
 COPY $pwd/packages/server/yarn.lock ./

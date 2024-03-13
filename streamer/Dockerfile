@@ -7,16 +7,16 @@ LABEL donders.ru.nl.app_maintainer "h.lee@donders.ru.nl"
 LABEL donders.ru.nl.app_code_repository "https://github.com/Donders-Institute/data-streamer"
 
 # install required packages from YUM repository
-RUN ( yum -y install wget gcc gcc-c++ \
-                     make autoconf git zlib zlib-devel \
-                     openssl openssl-devel openssl-libs \
-                     sssd-client which rsync \
-                     curl curl-devel libxml2-devel epel-release \
+RUN ( ulimit -n 1024 && yum -y install wget gcc gcc-c++ \
+      make autoconf git zlib zlib-devel \
+      openssl openssl-devel openssl-libs \
+      sssd-client which rsync \
+      curl curl-devel libxml2-devel epel-release \
    && yum clean all \
    && rm -rf /var/cache/yum/* \
    && rm -rf /tmp/* )
 
-RUN ( yum -y install supervisor sshpass pv expect \
+RUN ( ulimit -n 1024 && yum -y install supervisor sshpass pv expect \
    && yum clean all \
    && rm -rf /var/cache/yum/* \
    && rm -rf /tmp/* )
@@ -26,9 +26,14 @@ RUN ( mkdir -p /tmp )
 WORKDIR /tmp
 
 # install nodejs
-ADD https://nodejs.org/dist/v8.12.0/node-v8.12.0-linux-x64.tar.xz /tmp
-RUN ( if [ ! -d node-v8.12.0-linux-x64 ]; then tar xf node-v8.12.0-linux-x64.tar.xz; fi \
-      && mv node-v8.12.0-linux-x64 /opt/nodejs )
+#ADD https://nodejs.org/dist/v8.12.0/node-v8.12.0-linux-x64.tar.xz /tmp
+#RUN ( if [ ! -d node-v8.12.0-linux-x64 ]; then tar xf node-v8.12.0-linux-x64.tar.xz; fi \
+#      && mv node-v8.12.0-linux-x64 /opt/nodejs )
+
+ADD https://nodejs.org/dist/latest-v10.x/node-v10.24.1-linux-x64.tar.xz /tmp
+
+RUN ( if [ ! -d node-v10.24.1-linux-x64 ]; then tar xf node-v10.24.1-linux-x64.tar.xz; fi \
+      && mv node-v10.24.1-linux-x64 /opt/nodejs && rm -rf /tmp/node-*)
 
 # install streamer package
 RUN ( mkdir -p /opt/streamer )
