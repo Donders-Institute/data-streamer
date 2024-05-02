@@ -243,7 +243,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
             password: sconfig.password
         });
         var rget_args = { headers: { 'Accept': 'application/json' } };
-        var myurl = sconfig.url + '/rdm/DAC/project/';
+        var myurl = sconfig.url + '/dac/project/';
         if ( toCatchall || p == 'unknown' ) {
             // NOTE: it requires the stager to provide endpoint to get the USER catchall collection.
             myurl += '_CATCHALL.USER';
@@ -299,29 +299,26 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
             // compose POST data for submitting stager jobs
             rpost_args.data.push({
-                'type': 'rdm',
-                'data': { 'clientIF': 'irods',
-                          'stagerUser': 'root',
-                          'rdmUser': 'irods',
-                          'title': '[' + (new Date()).toISOString() + '] Streamer.USER: ' + src,
-                          'timeout': 3600,
-                          'timeout_noprogress': 600,
-                          'srcURL': src,
-                          'dstURL': dst },
-                'options': { 'attempts': 5,
-                             'backoff': { 'delay' : 60000,
-                                          'type'  : 'fixed' } }
+                "drPass": "",
+                "drUser": sconfig.drServiceAccount,
+                "dstURL": dst,
+                "srcURL": src,
+                "stagerUser": sconfig.username,
+                "stagerUserEmail": "",
+                "timeout": 3600,
+                "timeout_noprogress": 600,
+                "title": '[' + (new Date()).toISOString() + '] Streamer.USER: ' + src
             });
 
             // submit jobs to stager
-            c_stager.post(sconfig.url + '/job', rpost_args, function(rdata, resp) {
+            c_stager.post(sconfig.url + '/jobs', rpost_args, function(rdata, resp) {
                 if ( resp.statusCode >= 400 ) {  //HTTP error
                     var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
                     utility.printErr(job.id + ':USER:execStreamerJob:submitStagerJob', errmsg);
                     return cb_async(errmsg, false);
                 } else {
-                    rdata.forEach( function(d) {
-                        utility.printLog(job.id + ':USER:execStreamerJob:submitStagerJob', JSON.stringify(d));
+                    rdata.jobs.forEach( function(stagerJobData) {
+                        utility.printLog(job.id + ':USER:execStreamerJob:submitStagerJob', JSON.stringify(stagerJobData));
                     });
                     // everything is fine
                     job.progress(maxProgress, 100);

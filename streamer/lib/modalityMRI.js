@@ -350,7 +350,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
         // construct project and RESTful endpoint for resolving RDM collection namespace
         var p = (toCatchall) ? '_CATCHALL.MRI':projectNumber;
-        var myurl = sconfig.url + '/rdm/DAC/project/' + p;
+        var myurl = sconfig.url + '/dac/project/' + p;
 
         // general function to construct destination URL for stager job
         var _mkDst = function(_src, _collName) {
@@ -404,32 +404,27 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
             var rpost_args = {
                 headers: { 'Accept': 'application/json',
                            'Content-Type': 'application/json' },
-                data: [{
-                    'type': 'rdm',
-                    'data': { 'clientIF': 'irods',
-                              'stagerUser': 'root',
-                              'rdmUser': 'irods',
-                              'title': '[' + (new Date()).toISOString() + '] Streamer.MRI: ' + src,
-                              'timeout': 3600,
-                              'timeout_noprogress': 600,
-                              'srcURL': src,
-                              'dstURL': _mkDst(src, rdata.collName) },
-                    'options': { 'attempts': 5,
-                                 'backoff': { 'delay' : 60000,
-                                              'type'  : 'fixed' } }
-                }]
+                data: {
+                    "drPass": "",
+                    "drUser": sconfig.drServiceAccount,
+                    "dstURL": _mkDst(src, rdata.collName),
+                    "srcURL": src,
+                    "stagerUser": sconfig.username,
+                    "stagerUserEmail": "",
+                    "timeout": 3600,
+                    "timeout_noprogress": 600,
+                    "title": '[' + (new Date()).toISOString() + '] Streamer.MRI: ' + src
+                }
             };
 
             // Submit stager job
-            c_stager.post(sconfig.url + '/job', rpost_args, function(rdata, resp) {
+            c_stager.post(sconfig.url + '/job', rpost_args, function(stagerJobData, resp) {
                 if ( resp.statusCode >= 400 ) {  //HTTP error
                     var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
                     utility.printErr(job.id + ':MRI:execStreamerJob:submitStagerJob', errmsg);
                     return cb_async(errmsg, src, projectNumber);
                 } else {
-                    rdata.forEach( function(d) {
-                        utility.printLog(job.id + ':MRI:execStreamerJob:submitStagerJob', JSON.stringify(d));
-                    });
+                    utility.printLog(job.id + ':MRI:execStreamerJob:submitStagerJob', JSON.stringify(stagerJobData));
                     // job submitted!! set to job's maxProgress for the task
                     job.progress(maxProgress, 100);
                     return cb_async(null, src, projectNumber);

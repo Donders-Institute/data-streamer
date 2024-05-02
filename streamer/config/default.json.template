@@ -9,9 +9,10 @@
         "password": "bind_password"
     },
     "DataStager": {
-        "url": "http://stager.dccn.nl:3000",
+        "url": "http://dr-data-stager-api:8080",
         "username": "admin",
-        "password": "xxxxxx"
+        "password": "xxxxxx",
+        "drServiceAccount": ""
     },
     "Modalities": {
         "meg1": {
