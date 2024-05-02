@@ -15,6 +15,9 @@ services:
       proxynet:
         aliases:
           - streamer
+      dr-data-stager-net:
+        aliases:
+          - streamer
     secrets:
       - streamer-service-config.json
       - streamer-mailer-config.json
@@ -50,6 +53,8 @@ networks:
   default:
     name: streamer4user-net
     attachable: true
+  dr-data-stager-net:
+    external: true
   proxynet:
     external: true
 
