@@ -405,8 +405,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 headers: { 'Accept': 'application/json',
                            'Content-Type': 'application/json' },
                 data: {
-                    "drPass": "",
-                    "drUser": sconfig.drServiceAccount,
+                    "drUser": utility.getOuFromCollName(rdata.collName) + "-stager@ru.nl",
                     "dstURL": _mkDst(src, rdata.collName),
                     "srcURL": src,
                     "stagerUser": sconfig.username,

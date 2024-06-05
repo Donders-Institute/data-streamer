@@ -413,8 +413,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 for( var i=0; i<src_list.length; i++ ) {
                     // add job data to post_args
                     rpost_args.data.push({
-                        "drPass": "",
-                        "drUser": sconfig.drServiceAccount,
+                        "drUser": utility.getOuFromCollName(rdata.collName) + "-stager@ru.nl",
                         "dstURL": dst_list[i],
                         "srcURL": src_list[i],
                         "stagerUser": sconfig.username,

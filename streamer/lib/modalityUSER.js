@@ -299,8 +299,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
             // compose POST data for submitting stager jobs
             rpost_args.data.push({
-                "drPass": "",
-                "drUser": sconfig.drServiceAccount,
+                "drUser": utility.getOuFromCollName(rdata.collName) + "-stager@ru.nl",
                 "dstURL": dst,
                 "srcURL": src,
                 "stagerUser": sconfig.username,

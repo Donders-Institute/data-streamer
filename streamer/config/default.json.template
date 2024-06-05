@@ -11,8 +11,7 @@
     "DataStager": {
         "url": "http://dr-data-stager-api:8080",
         "username": "admin",
-        "password": "xxxxxx",
-        "drServiceAccount": ""
+        "password": "xxxxxx"
     },
     "Modalities": {
         "meg1": {
