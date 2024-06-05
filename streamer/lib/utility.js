@@ -43,7 +43,7 @@ var _diskFree = function(path) {
 
 // parses the RDR iRODS collName to get the ou name in lower case.
 //
-// The RDR iRODS collName is structed as follows:
+// The RDR iRODS collName is structured as follows:
 //
 // `/{zone}/{o}/{ou}/{collection}`
 //
