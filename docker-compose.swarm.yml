@@ -32,6 +32,9 @@ services:
       proxynet:
         aliases:
           - streamer-ui
+      dr-data-stager-net:
+        aliases:
+          - streamer-ui
     secrets:
       - streamer-service-config.json
       - streamer-ui-config.json
