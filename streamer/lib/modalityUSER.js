@@ -271,9 +271,13 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
             // here we get the collection namespace for the project
             var rpost_args = {
-                headers: { 'Accept': 'application/json',
-                           'Content-Type': 'application/json' },
-                data: []
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                data: {
+                    jobs: []
+                }
             };
 
             // construct destination collection
@@ -298,7 +302,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
             }
 
             // compose POST data for submitting stager jobs
-            rpost_args.data.push({
+            rpost_args.data.jobs.push({
                 "drUser": utility.getOuFromCollName(rdata.collName) + "-stager@ru.nl",
                 "dstURL": dst,
                 "srcURL": src,

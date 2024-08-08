@@ -389,9 +389,13 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
                 // here we get the collection namespace for the project
                 var rpost_args = {
-                    headers: { 'Accept': 'application/json',
-                               'Content-Type': 'application/json' },
-                    data: []
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    data: {
+                        jobs: []
+                    }
                 };
 
                 if ( src_list.length == 0 ) {
@@ -412,7 +416,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
                 for( var i=0; i<src_list.length; i++ ) {
                     // add job data to post_args
-                    rpost_args.data.push({
+                    rpost_args.data.jobs.push({
                         "drUser": utility.getOuFromCollName(rdata.collName) + "-stager@ru.nl",
                         "dstURL": dst_list[i],
                         "srcURL": src_list[i],

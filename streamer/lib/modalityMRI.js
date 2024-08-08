@@ -402,8 +402,10 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
             }
 
             var rpost_args = {
-                headers: { 'Accept': 'application/json',
-                           'Content-Type': 'application/json' },
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
                 data: {
                     "drUser": utility.getOuFromCollName(rdata.collName) + "-stager@ru.nl",
                     "dstURL": _mkDst(src, rdata.collName),
