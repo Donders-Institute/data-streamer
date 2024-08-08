@@ -1,4 +1,5 @@
 const child_process = require('child_process');
+const path = require('path');
 
 // general error handler to send response to the client
 var _responseOnError = function(c_type, c_data, resp) {
