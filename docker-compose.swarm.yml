@@ -57,6 +57,10 @@ services:
       - ${STAGER_WORKER_CONFIG}:/etc/stager/worker.yml:ro
       - ${PROJECT_VOL:-/project}:/project
       - ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs
+    deploy:
+      placement:
+        constraints:
+          - node.labels.IpRange==44
     logging:
       driver: "json-file"
       options:
