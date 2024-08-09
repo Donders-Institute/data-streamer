@@ -117,14 +117,15 @@ pipeline {
                 label 'swarm-manager'
             }
             steps {
-                withDockerContainer(image: 'jwilder/dockerize', args: '--network streamer4user-net') {
+                withDockerContainer(image: 'jwilder/dockerize', args: '--network lab-data-streamer_default') {
                     sh (
                         label: 'Waiting for services to become available',
                         script: 'dockerize \
                             -timeout 120s \
                             -wait tcp://service:3001 \
                             -wait tcp://ui-db:5432 \
-                            -wait http://ui:9000'
+                            -wait http://ui:9000 \
+                            -wait http://stager-api-server:8080'
                     )
                 }
             }
