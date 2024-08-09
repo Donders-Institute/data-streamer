@@ -1,5 +1,6 @@
 version: "3.7"
 services:
+  ## streamer
   service:
     volumes:
       # bind-mount for sss authentication
@@ -15,9 +16,6 @@ services:
       proxynet:
         aliases:
           - streamer
-      dr-data-stager-net:
-        aliases:
-          - streamer
     secrets:
       - streamer-service-config.json
       - streamer-mailer-config.json
@@ -30,9 +28,6 @@ services:
       default:
       # join the proxynet with hostname alias
       proxynet:
-        aliases:
-          - streamer-ui
-      dr-data-stager-net:
         aliases:
           - streamer-ui
     secrets:
@@ -52,12 +47,39 @@ services:
     volumes:
       - ${STREAMER_UI_DB_DATA_VOL}:/var/lib/postgresql/data
 
+  ## stager
+  stager-db:
+    volumes:
+      - ${STAGER_DB_DATA_VOL}:/data
+
+  # stager api server
+  stager-api-server:
+    volumes:
+      - ${STAGER_API_CONFIG}:/etc/stager/api-server.yml:ro
+      - ${PROJECT_VOL:-/project}:/project
+      - ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+  # stager worker
+  stager-worker:
+    volumes:
+      - ${STAGER_IRODS_ICAT_CERT}:/opt/irods/ssl/icat.pem:ro
+      - ${STAGER_WORKER_CONFIG}:/etc/stager/worker.yml:ro
+      - ${PROJECT_VOL:-/project}:/project
+      - ${PROJECT_CEPHFS_VOL:-/project_cephfs}:/project_cephfs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+
 networks:
   default:
-    name: streamer4user-net
     attachable: true
-  dr-data-stager-net:
-    external: true
   proxynet:
     external: true
 
