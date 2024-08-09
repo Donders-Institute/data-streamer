@@ -1,3 +1,6 @@
+// STACK_NAME defines the name of the Docker stack deployed to acceptance
+def STACK_NAME="lab-data-streamer"
+
 pipeline {
     agent any
 
@@ -71,7 +74,7 @@ pipeline {
             }
             steps {
 
-                sh 'docker stack rm streamer4user'
+                sh "docker stack rm ${STACK_NAME}"
                 
                 sleep(30)
 
@@ -100,7 +103,7 @@ pipeline {
 
                     // Use the same approach as for production
                     script {
-                        def statusCode = sh(script: "bash ./docker-deploy-acceptance.sh", returnStatus: true)
+                        def statusCode = sh(script: "bash ./docker-deploy-acceptance.sh ${STACK_NAME}", returnStatus: true)
                         echo "statusCode: ${statusCode}"
                     }
                 }
@@ -117,7 +120,7 @@ pipeline {
                 label 'swarm-manager'
             }
             steps {
-                withDockerContainer(image: 'jwilder/dockerize', args: '--network lab-data-streamer_default') {
+                withDockerContainer(image: 'jwilder/dockerize', args: "--network ${STACK_NAME}_default") {
                     sh (
                         label: 'Waiting for services to become available',
                         script: 'dockerize \
@@ -133,11 +136,11 @@ pipeline {
                 failure {
                     sh (
                         label: 'Displaying service status',
-                        script: 'docker stack ps streamer4user'
+                        script: "docker stack ps ${STACK_NAME}"
                     )
                     sh (
                         label: 'Displaying service logs',
-                        script: 'docker stack services --format \'{{.Name}}\' streamer4user | xargs -n 1 docker service logs'
+                        script: "docker stack services --format '{{.Name}}' ${STACK_NAME} | xargs -n 1 docker service logs"
                     )
                 }
             }
@@ -215,7 +218,7 @@ pipeline {
 
     post {
         success {
-            archiveArtifacts "docker-compose.yml, docker-compose.swarm.yml, env.sh"
+            archiveArtifacts "docker-compose.yml, docker-compose.stager.yml, docker-compose.swarm.yml, env.sh"
         }
         always {
             echo 'cleaning'
