@@ -128,7 +128,7 @@ pipeline {
                             -wait tcp://service:3001 \
                             -wait tcp://ui-db:5432 \
                             -wait http://ui:9000 \
-                            -wait http://stager-api-server:8080'
+                            -wait http://stager-api-server:8080/v1/ping'
                     )
                 }
             }
