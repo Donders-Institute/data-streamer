@@ -6,44 +6,30 @@ services:
       # bind-mount for sss authentication
       - /var/lib/sss/pipes:/var/lib/sss/pipes
       - /var/lib/sss/mc:/var/lib/sss/mc:ro
-    environment:
-      # provides configuration files from docker secrets
-      - STREAMER_SERVICE_CONFIG=/run/secrets/streamer-service-config.json
-      - STREAMER_MAILER_CONFIG=/run/secrets/streamer-mailer-config.json
+      - ${STREAMER_SERVICE_CONFIG}:/opt/streamer/config/default.json
+      - ${STREAMER_MAILER_CONFIG}:/opt/streamer/config/mailer.json
     networks:
       default:
       # join the proxynet with hostname alias
       proxynet:
         aliases:
           - streamer
-    secrets:
-      - streamer-service-config.json
-      - streamer-mailer-config.json
   ui:
-    environment:
-      # provides configuration files from docker secrets
-      - STREAMER_UI_CONFIG=/run/secrets/streamer-ui-config.json
-      - STREAMER_SERVICE_CONFIG=/run/secrets/streamer-service-config.json
     networks:
       default:
       # join the proxynet with hostname alias
       proxynet:
         aliases:
           - streamer-ui
-    secrets:
-      - streamer-service-config.json
-      - streamer-ui-config.json
-      - streamer-ui-adconfig.json
-      - streamer-ui-ldapscert.crt
     ports:
       - ${STREAMER_UI_EXTERNAL_PORT:-9000}:9000
     volumes:
       - ${PROJECT_CEPHFS_VOL}:/project_cephfs
       - ${PROJECT_VOL}:/project
       - ${STREAMER_UI_LOG_VOL}:/opt/streamer-ui-server/log
+      - ${STREAMER_SERVICE_CONFIG}:/opt/streamer-ui-server/config/streamer-service-config.json
+      - ${STREAMER_UI_CONFIG}:/opt/streamer-ui-server/config/streamer-ui-config.json
   ui-db:
-    ports:
-      - ${STREAMER_UI_DB_EXTERNAL_PORT:-9001}:${STREAMER_UI_DB_PORT:-5432}
     volumes:
       - ${STREAMER_UI_DB_DATA_VOL}:/var/lib/postgresql/data
 
@@ -81,16 +67,4 @@ networks:
   default:
     attachable: true
   proxynet:
-    external: true
-
-secrets:
-  streamer-service-config.json:
-    external: true
-  streamer-mailer-config.json:
-    external: true
-  streamer-ui-config.json:
-    external: true
-  streamer-ui-adconfig.json:
-    external: true
-  streamer-ui-ldapscert.crt:
     external: true

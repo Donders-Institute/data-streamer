@@ -75,22 +75,6 @@ pipeline {
                 
                 sleep(30)
 
-                // Streamer secrets
-                configFileProvider([configFile(fileId: 'streamer_service_config.json', variable: 'STREAMER_SERVICE_CONFIG')]) {
-                    sh 'docker secret rm streamer-service-config.json || true'
-                    sh 'docker secret create streamer-service-config.json $STREAMER_SERVICE_CONFIG'
-                }
-                configFileProvider([configFile(fileId: 'streamer_mailer_config.json', variable: 'STREAMER_MAILER_CONFIG')]) {
-                    sh 'docker secret rm streamer-mailer-config.json || true'
-                    sh 'docker secret create streamer-mailer-config.json $STREAMER_MAILER_CONFIG'
-                }
-
-                // Streamer UI secrets
-                configFileProvider([configFile(fileId: 'streamer_ui_config.json', variable: 'STREAMER_UI_CONFIG')]) {
-                    sh 'docker secret rm streamer-ui-config.json || true'
-                    sh 'docker secret create streamer-ui-config.json $STREAMER_UI_CONFIG'
-                }
-
                 withCredentials([
                     usernamePassword (
                         credentialsId: params.STREAMER_UI_DB_CREDENTIALS,

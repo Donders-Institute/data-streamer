@@ -35,7 +35,6 @@ STREAMER_UI_CRON_VOL=./testdata/ui/cron
 STREAMER_UI_LOG_VOL=./testdata/ui/log
 
 # Configuration files
-STREAMER_SECRETS_DIR=./streamer/config
 STREAMER_SERVICE_CONFIG=./streamer/config/streamer-service-config.json
 STREAMER_MAILER_CONFIG=./streamer/config/streamer-mailer-config.json
 STREAMER_UI_CONFIG=./streamer/config/streamer-ui-config.json
