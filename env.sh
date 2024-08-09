@@ -73,4 +73,4 @@ STAGER_DOCKER_IMAGE_TAG=latest
 STAGER_DB_DATA_VOL=./testdata/stager/db
 STAGER_API_CONFIG=./streamer/config/stager-api-server.yml
 STAGER_WORKER_CONFIG=./streamer/config/stager-worker.yml
-STAGER_IRODS_ICAT_CERT=./streamer/config/icat.pem
+STAGER_IRODS_ICAT_CERT=./streamer/config/stager-icat.pem
