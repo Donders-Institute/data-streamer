@@ -14,7 +14,7 @@ PROJECT_VOL=./testdata/project
 PROJECT_CEPHFS_VOL=./testdata/project_cephfs
 
 # volume for streamer job
-STREAMER_DB_DATA_VOL=./testdata/redis
+STREAMER_DB_DATA_VOL=./testdata/streamer/db
 
 # volume for streamer log
 STREAMER_SERVICE_LOG_VOL=./testdata/streamer/log
@@ -35,7 +35,6 @@ STREAMER_UI_CRON_VOL=./testdata/ui/cron
 STREAMER_UI_LOG_VOL=./testdata/ui/log
 
 # Configuration files
-STREAMER_SECRETS_DIR=./streamer/config
 STREAMER_SERVICE_CONFIG=./streamer/config/streamer-service-config.json
 STREAMER_MAILER_CONFIG=./streamer/config/streamer-mailer-config.json
 STREAMER_UI_CONFIG=./streamer/config/streamer-ui-config.json
@@ -68,3 +67,10 @@ POSTGRES_PASSWORD=$STREAMER_UI_DB_PASSWORD
 POSTGRES_DATABASE=$STREAMER_UI_DB_NAME
 GRAFANA_USER=grafanareader
 GRAFANA_PASSWORD=grafanareaderpassword
+
+# configuration for stager
+STAGER_DOCKER_IMAGE_TAG=latest
+STAGER_DB_DATA_VOL=./testdata/stager/db
+STAGER_API_CONFIG=./streamer/config/stager-api-server.yml
+STAGER_WORKER_CONFIG=./streamer/config/stager-worker.yml
+STAGER_IRODS_ICAT_CERT=./streamer/config/stager-icat.pem
