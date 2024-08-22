@@ -1,7 +1,5 @@
 var config = require('config');
 var ActiveDirectory = require('activedirectory');
-var utility = require('./utility');
-
 // utility function for finding a user profile in the Active Directory.
 //
 // The argument `name` can be one of the following type of string:

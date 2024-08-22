@@ -365,7 +365,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
             var rget_args = { headers: { 'Accept': 'application/json' } };
 
-            var myurl = sconfig.url + '/rdm/DAC/project/';
+            var myurl = sconfig.url + '/dac/project/';
             if ( toCatchall || p == 'unknown' ) {
                 myurl += '_CATCHALL.MEG';
             } else {
@@ -389,9 +389,13 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
                 // here we get the collection namespace for the project
                 var rpost_args = {
-                    headers: { 'Accept': 'application/json',
-                               'Content-Type': 'application/json' },
-                    data: []
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    data: {
+                        jobs: []
+                    }
                 };
 
                 if ( src_list.length == 0 ) {
@@ -412,32 +416,28 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
                 for( var i=0; i<src_list.length; i++ ) {
                     // add job data to post_args
-                    rpost_args.data.push({
-                        'type': 'rdm',
-                        'data': { 'clientIF': 'irods',
-                                  'stagerUser': 'root',
-                                  'rdmUser': 'irods',
-                                  'title': '[' + (new Date()).toISOString() + '] Streamer.MEG: ' + path.basename(src_list[i]),
-                                  'timeout': 3600,
-                                  'timeout_noprogress': 1800,
-                                  'srcURL': src_list[i],
-                                  'dstURL': dst_list[i] },
-                        'options': { 'attempts': 5,
-                                     'backoff': { 'delay' : 60000,
-                                                  'type'  : 'fixed' } }
+                    rpost_args.data.jobs.push({
+                        "drUser": utility.getOuFromCollName(rdata.collName) + "-stager@ru.nl",
+                        "dstURL": dst_list[i],
+                        "srcURL": src_list[i],
+                        "stagerUser": sconfig.username,
+                        "stagerUserEmail": "",
+                        "timeout": 3600,
+                        "timeout_noprogress": 1800,
+                        "title": '[' + (new Date()).toISOString() + '] Streamer.MEG: ' + path.basename(src_list[i])
                     });
                 }
 
                 // post new jobs to stager
                 if ( rpost_args.data.length > 0 ) {
-                    c_stager.post(sconfig.url + '/job', rpost_args, function(rdata, resp) {
+                    c_stager.post(sconfig.url + '/jobs', rpost_args, function(rdata, resp) {
                         if ( resp.statusCode >= 400 ) {  //HTTP error
                             var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
                             utility.printErr(job.id + ':MEG:execStreamerJob:submitStagerJob', errmsg);
                             return cb_async_stager(errmsg, false);
                         } else {
-                            rdata.forEach( function(d) {
-                                utility.printLog(job.id + ':MEG:execStreamerJob:submitStagerJob', JSON.stringify(d));
+                            rdata.jobs.forEach( function(stagerJobData) {
+                                utility.printLog(job.id + ':MEG:execStreamerJob:submitStagerJob', JSON.stringify(stagerJobData));
                             });
                             // everything is fine
                             return cb_async_stager(null, true);

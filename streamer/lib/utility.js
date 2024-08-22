@@ -1,4 +1,5 @@
 const child_process = require('child_process');
+const path = require('path');
 
 // general error handler to send response to the client
 var _responseOnError = function(c_type, c_data, resp) {
@@ -41,7 +42,20 @@ var _diskFree = function(path) {
     return freespace;
 }
 
+// parses the RDR iRODS collName to get the ou name in lower case.
+//
+// The RDR iRODS collName is structured as follows:
+//
+// `/{zone}/{o}/{ou}/{collection}`
+//
+// This function gets the value of {ou} assuming the input `collName`
+// follows the structure.
+var _getOuFromCollName = function(collName) {
+    return path.basename(path.dirname(collName)).toLowerCase()
+}
+
 module.exports.responseOnError = _responseOnError;
 module.exports.printLog = _printLog;
 module.exports.printErr = _printErr;
 module.exports.diskFree = _diskFree;
+module.exports.getOuFromCollName = _getOuFromCollName;

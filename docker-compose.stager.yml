@@ -1,0 +1,24 @@
+version: '3.7'
+services:
+
+  # stager task database
+  stager-db:
+    image: redis:alpine
+    user: root
+    command: --appendonly yes
+
+  # stager api server
+  stager-api-server:
+    image: ${DOCKER_REGISTRY:-dccn}/data-stager-api:${STAGER_DOCKER_IMAGE_TAG:-latest}
+    user: root
+    depends_on:
+      - stager-db
+    command: -p 8080 -r redis://stager-db:6379 -c /etc/stager/api-server.yml
+
+  # stager worker
+  stager-worker:
+    image: ${DOCKER_REGISTRY:-dccn}/data-stager-worker:${STAGER_DOCKER_IMAGE_TAG:-latest}
+    user: root
+    depends_on:
+      - stager-api-server
+    command: -r redis://stager-db:6379 -c /etc/stager/worker.yml

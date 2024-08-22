@@ -1,3 +1,6 @@
+// STACK_NAME defines the name of the Docker stack deployed to acceptance
+def STACK_NAME="lab-data-streamer"
+
 pipeline {
     agent any
 
@@ -71,25 +74,9 @@ pipeline {
             }
             steps {
 
-                sh 'docker stack rm streamer4user'
+                sh "docker stack rm ${STACK_NAME}"
                 
                 sleep(30)
-
-                // Streamer secrets
-                configFileProvider([configFile(fileId: 'streamer_service_config.json', variable: 'STREAMER_SERVICE_CONFIG')]) {
-                    sh 'docker secret rm streamer-service-config.json || true'
-                    sh 'docker secret create streamer-service-config.json $STREAMER_SERVICE_CONFIG'
-                }
-                configFileProvider([configFile(fileId: 'streamer_mailer_config.json', variable: 'STREAMER_MAILER_CONFIG')]) {
-                    sh 'docker secret rm streamer-mailer-config.json || true'
-                    sh 'docker secret create streamer-mailer-config.json $STREAMER_MAILER_CONFIG'
-                }
-
-                // Streamer UI secrets
-                configFileProvider([configFile(fileId: 'streamer_ui_config.json', variable: 'STREAMER_UI_CONFIG')]) {
-                    sh 'docker secret rm streamer-ui-config.json || true'
-                    sh 'docker secret create streamer-ui-config.json $STREAMER_UI_CONFIG'
-                }
 
                 withCredentials([
                     usernamePassword (
@@ -116,7 +103,7 @@ pipeline {
 
                     // Use the same approach as for production
                     script {
-                        def statusCode = sh(script: "bash ./docker-deploy-acceptance.sh", returnStatus: true)
+                        def statusCode = sh(script: "bash ./docker-deploy-acceptance.sh ${STACK_NAME}", returnStatus: true)
                         echo "statusCode: ${statusCode}"
                     }
                 }
@@ -133,14 +120,15 @@ pipeline {
                 label 'swarm-manager'
             }
             steps {
-                withDockerContainer(image: 'jwilder/dockerize', args: '--network streamer4user-net') {
+                withDockerContainer(image: 'jwilder/dockerize', args: "--network ${STACK_NAME}_default") {
                     sh (
                         label: 'Waiting for services to become available',
                         script: 'dockerize \
                             -timeout 120s \
                             -wait tcp://service:3001 \
                             -wait tcp://ui-db:5432 \
-                            -wait http://ui:9000'
+                            -wait http://ui:9000 \
+                            -wait http://stager-api-server:8080/v1/ping'
                     )
                 }
             }
@@ -148,11 +136,11 @@ pipeline {
                 failure {
                     sh (
                         label: 'Displaying service status',
-                        script: 'docker stack ps streamer4user'
+                        script: "docker stack ps ${STACK_NAME}"
                     )
                     sh (
                         label: 'Displaying service logs',
-                        script: 'docker stack services --format \'{{.Name}}\' streamer4user | xargs -n 1 docker service logs'
+                        script: "docker stack services --format '{{.Name}}' ${STACK_NAME} | xargs -n 1 docker service logs"
                     )
                 }
             }
@@ -230,7 +218,7 @@ pipeline {
 
     post {
         success {
-            archiveArtifacts "docker-compose.yml, docker-compose.swarm.yml, env.sh"
+            archiveArtifacts "docker-compose.yml, docker-compose.stager.yml, docker-compose.swarm.yml, env.sh"
         }
         always {
             echo 'cleaning'

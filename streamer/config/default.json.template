@@ -9,8 +9,8 @@
         "password": "bind_password"
     },
     "DataStager": {
-        "url": "http://stager.dccn.nl:3000",
-        "username": "admin",
+        "url": "http://stager-api-server:8080",
+        "username": "root",
         "password": "xxxxxx"
     },
     "Modalities": {

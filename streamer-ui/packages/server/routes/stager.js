@@ -1,7 +1,6 @@
 const createError = require("http-errors");
 const path = require("path");
-const { basicAuthString, fetchOnce } = require("./utils");
-const fetch = require("node-fetch");
+const { fetchOnce } = require("./utils");
 
 // location of the streamer-service-config.json file.
 const fconfig = path.join(__dirname, '../config/streamer-service-config.json');
@@ -20,15 +19,13 @@ var _getDac = async function(req, res, next) {
     delete require.cache[require.resolve(fconfig)];
 
     const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': basicAuthString(config.DataStager.username, config.DataStager.password),
+        'Content-Type': 'application/json'
     };
 
     fetchOnce(
-        config.DataStager.url + "/rdm/DAC/project/" + projectId,
+        config.DataStager.url + "/dac/project/" + projectId,
         {
             method: 'GET',
-            credentials: 'include',
             headers,
         },
         1000 * 30,  // timeout after 30 seconds
