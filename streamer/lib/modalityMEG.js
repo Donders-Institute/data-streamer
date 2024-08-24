@@ -429,7 +429,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 }
 
                 // post new jobs to stager
-                if ( rpost_args.data.length > 0 ) {
+                if ( rpost_args.data.jobs.length > 0 ) {
                     c_stager.post(sconfig.url + '/jobs', rpost_args, function(rdata, resp) {
                         if ( resp.statusCode >= 400 ) {  //HTTP error
                             var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
