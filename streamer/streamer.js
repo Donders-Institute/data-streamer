@@ -1,7 +1,6 @@
 var kue = require('kue');
 var cluster = require('cluster');
 var bodyParser = require('body-parser');
-var fs = require('fs')
 var queue = kue.createQueue({
     redis: {
         port: process.env.REDIS_PORT,
@@ -29,8 +28,6 @@ Object.keys(m_config).forEach(function(k) {
 var m_admin = require('./lib/admin');
 
 var active_pids = {};
-
-const streamer_bindir = __dirname + path.sep + 'bin';
 
 queue.on( 'error', function(err) {
     if ( cluster.isMaster) {
@@ -246,7 +243,7 @@ if (cluster.isMaster) {
 
     //var nworkers = require('os').cpus().length - 1;
     // TODO: make nworkers configurable
-    var nworkers = 2;
+    var nworkers = 4;
     for (var i = 0; i < nworkers; i++) {
         create_worker();
     }
