@@ -58,6 +58,14 @@ STREAMER_UI_DB_USER=postgres
 STREAMER_UI_DB_PASSWORD=postgres
 STREAMER_UI_DB_NAME=postgres
 
+# configuration for streamer ftp server
+STREAMER_FTP_USERNAME=streamer
+STREAMER_FTP_PASSWORD=streamer
+STREAMER_FTP_AUTHORIZED_KEYS=./streamer/config/streamer-ftp-rsa.pub
+STREAMER_FTP_UID=1010
+STREAMER_FTP_GID=1010
+STREAMER_FTP_EXTERNAL_PORT=2222
+
 # configuration for streamer ui database
 STREAMER_UI_DB_EXTERNAL_PORT=9001
 POSTGRES_HOST=localhost
