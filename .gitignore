@@ -3,3 +3,4 @@
 testdata/*
 **/.env
 **/config/*.json
+**/**.key
