@@ -65,6 +65,8 @@ STREAMER_FTP_AUTHORIZED_KEYS=./streamer/config/streamer-ftp-rsa.pub
 STREAMER_FTP_UID=1010
 STREAMER_FTP_GID=1010
 STREAMER_FTP_EXTERNAL_PORT=2222
+STREAMER_FTP_HOST_KEY_ED25519=./streamer/config/streamer-ftp-host-ed25519.key
+STREAMER_FTP_HOST_KEY_RSA=./streamer/config/streamer-ftp-host-rsa.key
 
 # configuration for streamer ui database
 STREAMER_UI_DB_EXTERNAL_PORT=9001
