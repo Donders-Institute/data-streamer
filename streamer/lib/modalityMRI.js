@@ -412,7 +412,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                     "srcURL": src,
                     "stagerUser": sconfig.username,
                     "stagerUserEmail": "",
-                    "timeout": 3600,
+                    "timeout": 10800,
                     "timeout_noprogress": 600,
                     "title": '[' + (new Date()).toISOString() + '] Streamer.MRI: ' + src
                 }
