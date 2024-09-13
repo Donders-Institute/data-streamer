@@ -17,7 +17,7 @@ var _createStreamerJob = function(name, config, queue) {
       if ( queue ) {
           var job = queue.create('streamer', {
               modality: name,
-              title: '[' + (new Date()).toISOString() + '] ' + srcPathConsole,
+              title: '[' + (new Date()).toISOString() + '] ' + req.params['project'] + ":sub-" + req.params['subject'] + ":ses-opm" + req.params['session'],
               date: req.params['date'],
               project: req.params['project'],
               subject: req.params['subject'],
@@ -61,7 +61,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 utility.printErr(job.id + ':OPM:execStreamerJob:copyToProjects', errmsg);
                 return cb_async(errmsg, false);
             } else {
-                utility.printLog(job.id + ':OPM:execStreamerJob:copyToProjects', src + ' -> ' + dst);
+                utility.printLog(job.id + ':OPM:execStreamerJob:copyToProjects', srcDir + ' -> ' + dstDir);
                 job.progress(maxProgress, 100);
                 return cb_async(null, true);
             }
@@ -180,17 +180,17 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
         "ses-opm" + job.data.session
     );
 
-    async.waterfall([,
+    async.waterfall([
         function(cb) {
             // check existance of `dirCatchall`
             try {
                 var stats = fs.lstatSync(dirCatchall)
                 if ( ! stats.isDirectory() ) {
-                    throw new Error("" + dirCatchall + " not an existing directory");
+                    throw new Error("" + dirCatchall + " not a directory");
                 }
-                cb(null, true);
+                return cb(null, true);
             } catch(err) {
-                cb(err, false);
+                return cb(err, false);
             }
         },
         function(cb) {
