@@ -17,7 +17,7 @@ var _createStreamerJob = function(name, config, queue) {
       if ( queue ) {
           var job = queue.create('streamer', {
               modality: name,
-              title: '[' + (new Date()).toISOString() + '] ' + req.params['project'] + ":sub-" + req.params['subject'] + ":ses-opm" + req.params['session'],
+              title: '[' + (new Date()).toISOString() + '] OPM:' + req.params['project'] + ":sub-" + req.params['subject'] + ":ses-opm" + req.params['session'],
               date: req.params['date'],
               project: req.params['project'],
               subject: req.params['subject'],
