@@ -32,6 +32,10 @@
             "streamerDataDirRoot": "/project/3010102.04/raw",
             "timeWindowInMinute": 1440
         },
+        "opm": {
+            "type": "OPM",
+            "streamerDataDirRoot": "/project/3055060.02/raw"
+        },
         "mri": {
             "type": "MRI",
             "orthancUsername": "",
