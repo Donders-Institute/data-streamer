@@ -379,7 +379,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                         // accept 404 NOT FOUND error if it's not about a catchall collection
                         // it can happen when it's about a PILOT project; or a project not having
                         // a RDM collection being created/mapped properly.
-                        utility.printLog(job.id + ':MRI:execStreamerJob:submitStagerJob', 'collection not found for project: ' + p);
+                        utility.printLog(job.id + ':MEG:execStreamerJob:submitStagerJob', 'collection not found for project: ' + p);
                         return cb_async_stager(null, true);
                     } else {
                         utility.printErr(job.id + ':MEG:execStreamerJob:submitStagerJob', errmsg);
