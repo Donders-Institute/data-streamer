@@ -53,6 +53,9 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
             "ses-opm" + job.data.session
         );
 
+        // make sure dstDir exists
+        fs.mkdirSync(dstDir, { recursive: true });
+
         var ncp = require('ncp').ncp;
         ncp.limit = 2;
         ncp(srcDir, dstDir, function(err) {
@@ -86,11 +89,6 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
         var myurl = sconfig.url + '/dac/project/' + job.data.project;
 
-        var complete = () => {
-            job.progress(maxProgress, 100);
-            return cb_async(null, true)
-        };
-
         c_stager.get(myurl, rget_args, function(rdata, resp) {
             if ( resp.statusCode >= 400 ) {
                 var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
@@ -99,7 +97,8 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                     // it can happen when it's about a PILOT project; or a project not having
                     // a RDM collection being created/mapped properly.
                     utility.printLog(job.id + ':OPM:execStreamerJob:submitStagerJob', 'collection not found for project: ' + p);
-                    return complete;
+                    job.progress(maxProgress, 100);
+                    return cb_async(null, true);
                 } else {
                     utility.printErr(job.id + ':OPM:execStreamerJob:submitStagerJob', errmsg);
                     return cb_async(errmsg, false);
@@ -117,10 +116,6 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 }
             };
 
-            if ( src_list.length == 0 ) {
-                return complete;
-            }
-
             var dstColl = 'irods:' + path.join(
                 rdata.collName,
                 'raw',
@@ -136,7 +131,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 "stagerUserEmail": "",
                 "timeout": 1800,
                 "timeout_noprogress": 600,
-                "title": '[' + (new Date()).toISOString() + '] Streamer.OPM: ' + path.basename(src_list[i])                
+                "title": '[' + (new Date()).toISOString() + '] Streamer.OPM: ' + srcDir            
             })
 
             // post new jobs to stager
@@ -150,11 +145,12 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                         utility.printLog(job.id + ':OPM:execStreamerJob:submitStagerJob', JSON.stringify(stagerJobData));
                     });
                     // everything is fine
-                    return complete;
+                    job.progress(maxProgress, 100);
+                    return cb_async(null, true);
                 }
             }).on('error', function(err) {
                 utility.printErr(job.id + ':OPM:execStreamerJob:submitStagerJob', err);
-                var errmsg = 'fail submitting stager jobs: ' + JSON.stringify(src_list);
+                var errmsg = 'fail submitting stager jobs: ' + srcDir + ' -> ' + dstColl;
                 job.log(errmsg);
                 return cb_async(errmsg, false);
             });
@@ -174,6 +170,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
     // catchall directory
     var dirCatchall = path.join(
         config.streamerDataDirRoot,
+        job.data.date.slice(0,4),
         job.data.date,
         job.data.project,
         "sub-" + job.data.subject,
@@ -193,11 +190,11 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                 return cb(err, false);
             }
         },
-        function(cb) {
+        function(out, cb) {
             // step 1: copy data from catch-all to corresponding project
             copyToProjects(dirCatchall, 0, 50, cb);
         },
-        function(cb) {
+        function(out, cb) {
             // step 2: archive data to individual project collection
             submitStagerJob(dirCatchall, 50, 100, cb);
         }],
