@@ -38,7 +38,7 @@ $ dh_make --indep --createorig
 $ dpkg-buildpackage -us -uc
 ```
 
-Once the package is installed, the mandatory environment variables in `/etc/streamer-agent.cfg` should be adjusted accordingly.
+Once the package is installed, the [mandatory environment variables](streamer-agent.cfg) in `/etc/streamer-agent.cfg` should be adjusted accordingly.
 
 ### Streamer agent client
 
