@@ -2,9 +2,9 @@
 
 ### How it works
 
-The agent listens on socket file `/tmp/streamer.sock`. It takes each line of data sent to the socket file as the path of the FieldLine raw data file to be streamed.
+The agent listens on a local socket file `/tmp/streamer.sock` and takes each line of the data sent to the socket file as a FieldLine raw data file to be streamed.
 
-The agent then uploads the raw data file to the [streamer-ftp server](/streamer-ftp) using the `sftp` protocol. After that, it triggers the streamer service to distribute the uploaded file to the corresponding project storage and the data repository collection.
+The agent then uploads the raw data file to the [streamer-ftp server](/streamer-ftp) using the `sftp` protocol. After that, it triggers [the streamer service](/streamer/lib/modalityOPM.js) to distribute the uploaded file to the corresponding project storage and the data repository collection.
 
 When processing each raw data file, the agent parses
 
