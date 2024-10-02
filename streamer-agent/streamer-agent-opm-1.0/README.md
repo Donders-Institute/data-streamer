@@ -12,7 +12,7 @@ When processing each raw data file, the agent assumes the naming convention
 */HEDscan/recordings/{PRJ}/sub-{SUB}/{DATE}_{TIME}_sub-{SUB}_file-{SES}_raw.fif
 ```
 
-to parses the variables:
+for extracting the variables:
 
 - acquisition date `{DATE}`
 - acquisition time `{TIME}`
@@ -20,7 +20,7 @@ to parses the variables:
 - subject number `{SUB}`
 - session number `{SES}`
 
-The file (and the associated channels file) is then uploaded to the steamer-ftp server in the destination directory
+The file (and its associated channels file) is uploaded to the steamer-ftp server in the destination directory
 
 ```
 /project/3055060.02/raw/{YEAR}/{DATE}/{PRJ}/sub-{SUB}/ses-opm{SES}
