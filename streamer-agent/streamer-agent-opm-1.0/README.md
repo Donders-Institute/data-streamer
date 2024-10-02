@@ -6,7 +6,13 @@ The agent listens on a local socket file `/tmp/streamer.sock` and takes each lin
 
 The agent then uploads the raw data file to the [streamer-ftp server](/streamer-ftp) using the `sftp` protocol. After that, it triggers [the streamer service](/streamer/lib/modalityOPM.js) to distribute the uploaded file to the corresponding project storage and the data repository collection.
 
-When processing each raw data file, the agent parses
+When processing each raw data file, the agent assumes the naming convention
+
+```
+*/HEDscan/recordings/{PRJ}/sub-{SUB}/{DATE}_{TIME}_sub-{SUB}_file-{SES}_raw.fif
+```
+
+to parses the variables:
 
 - acquisition date `{DATE}`
 - acquisition time `{TIME}`
@@ -14,13 +20,7 @@ When processing each raw data file, the agent parses
 - subject number `{SUB}`
 - session number `{SES}`
 
-from the raw data file path, assuming the following naming convention:
-
-```
-*/HEDscan/recordings/{PRJ}/sub-{SUB}/{DATE}_{TIME}_sub-{SUB}_file-{SES}_raw.fif
-```
-
-and upload the file (and the associated channels file) to the steamer-ftp server in the destination directory
+The file (and the associated channels file) is then uploaded to the steamer-ftp server in the destination directory
 
 ```
 /project/3055060.02/raw/{YEAR}/{DATE}/{PRJ}/sub-{SUB}/ses-opm{SES}
