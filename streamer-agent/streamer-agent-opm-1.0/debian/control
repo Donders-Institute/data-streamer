@@ -1,0 +1,16 @@
+Source: streamer-agent-opm
+Section: unknown
+Priority: optional
+Maintainer: DCCN Technical Group <helpdesk@donders.ru.nl>
+Build-Depends: debhelper-compat (= 13)
+Standards-Version: 4.6.0
+Homepage: <insert the upstream URL, if relevant>
+#Vcs-Browser: https://salsa.debian.org/debian/streamer-agent-opm
+#Vcs-Git: https://salsa.debian.org/debian/streamer-agent-opm.git
+Rules-Requires-Root: no
+
+Package: streamer-agent-opm
+Architecture: all
+Depends: curl, openssh-client, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
