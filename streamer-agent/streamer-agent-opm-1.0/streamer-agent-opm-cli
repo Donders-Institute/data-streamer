@@ -60,7 +60,7 @@ done
 
 shift $(( OPTIND - 1 ))
 
-[ ! -d "$basedir" ] && echo "OPM raw data basedir not found: $basedir" >&2 && exit 1 
+[ ! -d "$basedir" ] && echo "OPM raw data basedir not found: $basedir" >&2 && exit 1
 
 scan_and_stream
 
