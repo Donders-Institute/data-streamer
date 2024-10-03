@@ -1,2 +1,3 @@
-streamer-agent /sbin
-streamer-agent.cfg  /etc
+streamer-agent-opm /sbin
+streamer-agent-opm.cfg  /etc
+streamer-agent-opm-cli /usr/bin

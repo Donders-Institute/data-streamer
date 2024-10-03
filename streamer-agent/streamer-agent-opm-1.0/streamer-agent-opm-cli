@@ -1,0 +1,67 @@
+#!/bin/bash
+
+function scan_and_stream {
+    while read l; do
+        echo "streaming raw data: $l"
+        [ $dryrun -eq 0 ] && echo "$l" | nc -q 0 -U /var/run/streamer-agent-opm.sock
+    done < <( find "$basedir" \
+                -type f \
+                -regextype egrep \
+                -regex ".*\/${date}_[0-9]{6}_sub-.*_file-.*_raw\.fif$" )
+}
+
+function usage {
+    	cat - <<EOF
+
+Scan OPM raw data acquired on a date and stream it.
+
+Usage: $(basename $0) [OPTIONS]
+
+Options are:
+   -e   Perform actual data streaming.
+   -d   Specify the date on which the OPM data is acquired. Default: $date
+   -p   Specify the OPM data basedir. Default: $basedir
+   -h   Display this help message.
+
+By default, it makes a dryrun to print out the data files.  Use the
+option '-e' to actually stream the data.
+
+EOF
+}
+
+##############################################################################
+# main program 
+##############################################################################
+basedir=$HOME/HEDscan/recordings
+
+dryrun=1
+date=$(date +%Y%m%d)
+
+while getopts ":hp:ed:" opt; do
+    case ${opt} in
+    h)
+        usage
+        exit 0
+        ;;
+    p)
+        basedir=$OPTARG
+        ;;
+    d)
+        date=$OPTARG
+        ;;
+    e)
+        dryrun=0
+        ;;
+    ? | *)
+        echo "ERROR: invalid option: -${OPTARG}." >&2 && usage && exit 2
+        ;;
+    esac
+done
+
+shift $(( OPTIND - 1 ))
+
+[ ! -d "$basedir" ] && echo "OPM raw data basedir not found: $basedir" >&2 && exit 1 
+
+scan_and_stream
+
+

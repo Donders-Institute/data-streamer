@@ -1,0 +1,10 @@
+[Unit]
+Description=Streamer Agent Service client
+
+[Service]
+Type=onshot
+RemainAfterExit=yes
+ExecStop=/usr/bin/streamer-agent-opm-cli -e
+
+[Install]
+WantedBy=multi-user.target

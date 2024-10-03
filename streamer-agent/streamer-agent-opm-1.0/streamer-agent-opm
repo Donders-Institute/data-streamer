@@ -1,20 +1,5 @@
 #!/bin/bash
 
-function list_new_outputs {
-    if [ ! -f $CHECKPOINT ]; then
-        find /home/*/HEDscan -type f
-    else
-        find /home/*/HEDscan -type f -newer $CHECKPOINT
-    fi
-    touch $CHECKPOINT
-}
-
-function list_new_output_prefix {
-    list_new_outputs | \
-        awk -F '_(raw|channels)\.' '{print $1}' | \
-        sort | uniq
-}
-
 function send_streamer_request {
     date=$1
     project=$2
@@ -95,8 +80,6 @@ EOF
 [ -z $STREAMER_FTP_USER ] && echo "missing \$STREAMER_FTP_USER" >&2 && exit 1
 [ -z $STREAMER_FTP_KEY ] && echo "missing \$STREAMER_FTP_KEY" >&2 && exit 1
 
-[ -z $CHECKPOINT ] && CHECKPOINT=/tmp/streamer-agent-lastrun
-
 # open a domain socket to wait for signal to trigger transfer
 # every transfer signal is a fieldline OPM output file path, e.g.
 #
@@ -129,24 +112,4 @@ while read l; do
     echo "upload status: $ec"
 
     send_streamer_request "$date" "$project" "$subject" "$session"
-done < <(umask 0; nc -klU /tmp/streamer.sock)
-
-#while read l; do
-#    fprefix=$(basename "$l")
-#    dprefix=$(dirname "$l")
-#    user=$(echo "$dprefix" | awk -F '/' '{print $3}')
-#
-#    project=$(basename $(dirname "$dprefix"))
-#    subject=$(basename "$dprefix" | sed 's/^sub-//')
-#
-#    date=$(echo $fprefix | awk -F '_' '{print $1}')
-#    time=$(echo $fprefix | awk -F '_' '{print $2}')
-#    session=$(echo $fprefix | awk -F 'file-' '{print $NF}')
-#
-#    upload "$date" "$project" "$subject" "$session" "$l"
-#
-#    echo "upload status: $ec"
-#
-#    send_streamer_request "$date" "$project" "$subject" "$session"
-#    break
-#done < <(list_new_output_prefix)
+done < <(umask 0; nc -klU /var/run/streamer-agent-opm.sock)

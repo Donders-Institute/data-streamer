@@ -26,7 +26,8 @@
 
 override_dh_installsystemd:
 	dh_installsystemd --restart-after-upgrade --no-enable --no-start --name=streamer-agent-opm streamer-agent-opm.service
+	dh_installsystemduser --no-enable --name=streamer-agent-opm-cli streamer-agent-opm-cli.service
 override_dh_fixperms:
 	dh_fixperms
-	chmod 700 debian/streamer-agent-opm/sbin/streamer-agent
-	chmod 600 debian/streamer-agent-opm/etc/streamer-agent.cfg
+	chmod 700 debian/streamer-agent-opm/sbin/streamer-agent-opm
+	chmod 600 debian/streamer-agent-opm/etc/streamer-agent-opm.cfg
