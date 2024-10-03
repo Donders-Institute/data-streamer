@@ -2,7 +2,7 @@
 Description=Streamer Agent Service client
 
 [Service]
-Type=onshot
+Type=oneshot
 RemainAfterExit=yes
 ExecStop=/usr/bin/streamer-agent-opm-cli -e
 
