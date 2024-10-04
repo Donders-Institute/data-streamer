@@ -179,7 +179,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
 
     async.waterfall([
         function(cb) {
-            // check existance of `dirCatchall`
+            // check existence of `dirCatchall`
             try {
                 var stats = fs.lstatSync(dirCatchall)
                 if ( ! stats.isDirectory() ) {
