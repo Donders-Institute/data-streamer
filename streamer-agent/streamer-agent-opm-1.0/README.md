@@ -2,6 +2,8 @@
 
 ### How it works
 
+![Streamer dataflow for OPM raw data](opm_dataflow.svg)
+
 The agent listens on a local socket file `/var/run/streamer-agent-opm.sock` and takes each line of the data sent to the socket file as a FieldLine raw data file to be streamed.
 
 The agent then uploads the raw data file to the [streamer-ftp server](/streamer-ftp) using the `sftp` protocol. After that, it triggers [the streamer service](/streamer/lib/modalityOPM.js) to distribute the uploaded file to the corresponding project storage and the data repository collection.
