@@ -1,0 +1,12 @@
+[Unit]
+Description=Streamer Agent Service Client for FieldLine OPM
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStop=/usr/bin/streamer-agent-opm-cli -e
+StandardOutput=file:%h/streamer-agent-opm-cli.log
+StandardError=file:%h/streamer-agent-opm-cli.err
+
+[Install]
+WantedBy=default.target

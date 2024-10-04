@@ -1,0 +1,9 @@
+[Unit]
+Description=Streamer Agent Service for FieldLine OPM
+
+[Service]
+EnvironmentFile=/etc/streamer-agent-opm.cfg
+ExecStart=/sbin/streamer-agent-opm
+
+[Install]
+WantedBy=multi-user.target

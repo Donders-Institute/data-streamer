@@ -1,7 +1,5 @@
-const auth = require('basic-auth');
 const child_process = require('child_process');
 const path = require('path');
-const kill = require('tree-kill');
 const fs = require('fs');
 const utility = require('./utility');
 const tar = require('tar');

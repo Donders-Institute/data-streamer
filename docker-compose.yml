@@ -24,6 +24,13 @@ services:
       - ${PROJECT_CEPHFS_VOL}:/project_cephfs
     depends_on:
       - db
+  ftp:
+    build:
+      context: ./streamer-ftp
+    image: ${DOCKER_REGISTRY:-dccn}/streamer-ftp:${DOCKER_IMAGE_TAG:-latest}
+    ports:
+      - ${STREAMER_FTP_EXTERNAL_PORT:-2222}:22
+    command: ${STREAMER_FTP_USERNAME:-streamer}:${STREAMER_FTP_PASSWORD:-streamer}:${STREAMER_FTP_UID:-1010}:${STREAMER_FTP_GID:-1010}:project
   ui:
     build:
       context: ./streamer-ui

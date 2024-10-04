@@ -14,6 +14,12 @@ services:
       proxynet:
         aliases:
           - streamer
+  ftp:
+    volumes:
+      - ${PROJECT_CEPHFS_VOL}:/home/${STREAMER_FTP_USERNAME:-streamer}/project
+      - ${STREAMER_FTP_AUTHORIZED_KEYS}:/home/${STREAMER_FTP_USERNAME:-streamer}/.ssh/keys/id_rsa.pub:ro
+      - ${STREAMER_FTP_HOST_KEY_ED25519}:/etc/ssh/ssh_host_ed25519_key:ro
+      - ${STREAMER_FTP_HOST_KEY_RSA}:/etc/ssh/ssh_host_rsa_key:ro
   ui:
     networks:
       default:
