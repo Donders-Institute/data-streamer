@@ -4,7 +4,7 @@
 
 ![Streamer dataflow for OPM raw data](opm_dataflow.svg)
 
-The agent listens on a local socket file `/var/run/streamer-agent-opm.sock` and takes each line of the data sent to the socket file as a FieldLine raw data file to be streamed.
+The agent is a long-standing process run as a systemd daemon defined by [this unit file](debian/streamer-agent-opm.service). It listens on a local socket file `/var/run/streamer-agent-opm.sock` and takes each line of the data sent to the socket as a new FieldLine raw data file.
 
 The agent then uploads the raw data file to the [streamer-ftp server](/streamer-ftp) using the `sftp` protocol. After that, it triggers [the streamer service](/streamer/lib/modalityOPM.js) to distribute the uploaded file to the corresponding project storage and the data repository collection.
 
@@ -44,4 +44,4 @@ Once the package is installed, the [mandatory environment variables](streamer-ag
 
 ### Streamer agent client
 
-The [streamer agent client](streamer-agent-opm-cli) is to be run by data acquisition user.
+The [streamer agent client](streamer-agent-opm-cli) is to be run by data acquisition user. It can be run manually on-demand or use the systemd to trigger upon user logout using [the systemd unit file](debian/streamer-agent-opm.streamer-agent-opm-cli.user.service) provided. 
