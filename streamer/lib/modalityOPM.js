@@ -98,7 +98,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
         c_stager.get(myurl, rget_args, function(rdata, resp) {
             if ( resp.statusCode >= 400 ) {
                 var errmsg = 'HTTP error: (' + resp.statusCode + ') ' + resp.statusMessage;
-                if ( resp.statusCode == 404 && !toCatchall ) {
+                if ( resp.statusCode == 404 ) {
                     // accept 404 NOT FOUND error if it's not about a catchall collection
                     // it can happen when it's about a PILOT project; or a project not having
                     // a RDM collection being created/mapped properly.
