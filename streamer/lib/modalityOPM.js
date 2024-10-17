@@ -102,7 +102,7 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
                     // accept 404 NOT FOUND error if it's not about a catchall collection
                     // it can happen when it's about a PILOT project; or a project not having
                     // a RDM collection being created/mapped properly.
-                    utility.printLog(job.id + ':OPM:execStreamerJob:submitStagerJob', 'collection not found for project: ' + p);
+                    utility.printLog(job.id + ':OPM:execStreamerJob:submitStagerJob', 'collection not found for project: ' + job.data.project);
                     job.progress(maxProgress, 100);
                     return cb_async(null, true);
                 } else {
