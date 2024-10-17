@@ -53,6 +53,12 @@ var _execStreamerJob = function(name, config, job, cb_remove, cb_done) {
             "ses-opm" + job.data.session
         );
 
+        if ( ! fs.existsSync(path.join("/project", job.data.project)) ) {
+            utility.printLog(job.id + ':OPM:execStreamerJob:copyToProjects', 'project storage not found: ' + job.data.project);
+            job.progress(maxProgress, 100);
+            return cb_async(null, true);            
+        }
+
         // make sure dstDir exists
         fs.mkdirSync(dstDir, { recursive: true });
 
